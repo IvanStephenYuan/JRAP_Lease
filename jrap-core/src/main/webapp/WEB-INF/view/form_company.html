@@ -1,0 +1,245 @@
+<#include "include/header.html">
+    <body>
+    <script src="${base.contextPath}/common/code?companyLevel=FND.COMPANY.LEVEL&companyType=FND.COMPANY.TYPE"
+            type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var viewModel = Jrap.createGridViewModel('#grid');
+    </script>
+    <div id="newWin" style="display: none"></div>
+    <div id="page-content">
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span type="button" onclick="newData()" class="btn btn-primary"
+              style="float:left;margin-right:5px"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+
+            <span data-bind="click:remove" class="btn btn-danger"
+                  style="float:left;"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+        </div>
+        <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+        <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input placeholder='<@spring.message "company.companyCode"/>' type="text"
+                   style="float:left;width:150px;margin-right:5px;" data-bind="value:model.companyCode"
+                   class="k-textbox">
+            <div style="float:left;margin-right:5px;">
+                <input placeholder='<@spring.message "company.companyShortName"/>' type="text"
+                       style="float:left;width:150px;margin-right:5px;" data-bind="value:model.companyShortName"
+                       class="k-textbox">
+            </div>
+            <div style="float:left;margin-right:5px;">
+                <input id="companyType1" placeholder='<@spring.message "company.companyType"/>' type="text"
+                       style="width: 150px" data-bind="value:model.companyType"
+                >
+                <script>
+                    $("#companyType1").kendoComboBox({
+                        dataTextField: "meaning",
+                        dataValueField: "value",
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: _basePath + '/common/code/FND.COMPANY_TYPE/',
+                                    dataType: "json"
+                                }
+                            }
+                        },
+                        select: function (e) {
+                            viewModel.model.set("companyType", e.dataItem.value);
+                        }
+                    });
+                </script>
+            </div>
+            <div style="float:left;margin-right:5px;">
+                <input type="text" id="parentId2" placeholder='<@spring.message "company.parentCompanyName"/>'
+                       style="width:150px;" data-bind="value:model.parentCompanyId">
+                <script>
+                    $("#parentId2").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_COMPANY")}, {
+                        query: function (e) {
+                            e.param['enabledFlag'] = 'Y';
+                        }
+                    }))
+                </script>
+            </div>
+
+            <span class="btn btn-primary" style="float:left;margin-right:5px;" data-bind="click:query"
+                  type="submit"><i class="fa fa-search" style="margin-right:3px;"></i><@spring.message "jrap.query"/></span>
+
+            <div style="clear:both"></div>
+        </div>
+        <script>kendo.bind($('#query-form'), viewModel);</script>
+
+        <div id='grid-container' style="clear: both">
+            <div id="grid"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        Jrap.initEnterQuery("#query-form",viewModel.query);
+
+        var dataSource = Jrap.createGridDataSource({
+            url: '${base.contextPath}/fnd/company/',
+            model: {
+                id: "companyId",
+                fields: {
+                    companyCode: {type: "int"}
+                }
+            }
+        });
+
+        var grid = $("#grid").kendoGrid({
+            dataSource: dataSource,
+            navigatable: false,
+            resizable: true,
+            scrollable: true,
+            selectable:'multiple,rowbox',
+            pageable: {
+                pageSizes: [5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    title: '<@spring.message "jrap.edit"/>',
+                    width: 80,
+                    template: function (rowdata) {
+                        if (rowdata.companyId) {
+                            return Jrap.createAnchor($l('jrap.edit'),newData,rowdata.companyId);
+                        }
+                        return '';
+                    },
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    attributes: {style: "text-align:center"}
+
+                },
+                {
+                    field: "companyCode",
+                    title: '<@spring.message "company.companyCode"/>',
+                    width: 120
+                },
+                {
+                    field: "companyShortName",
+                    title: '<@spring.message "company.companyShortName"/>',
+                    width: 120,
+                    editor: function (container, options) {
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoTLEdit({
+                                idField: 'companyId',
+                                field: 'companyShortName',
+                                dto: "com.jingrui.jrap.fnd.dto.Company",
+                                model: options.model
+                            });
+                    }
+                },
+                {field: "companyTypeName", title: '<@spring.message "company.companyType"/>', width: 120},
+                {field: "companyLevelName", title: '<@spring.message "company.companyLevelId"/>', width: 120},
+                {
+                    field: "chiefPositionId",
+                    title: '<@spring.message "company.positionName"/>',
+                    width: 120,
+                    template : function(item){
+                        return item['positionName']||''
+                    },
+                    editor          : function (container, options) {
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_POSITION"/>, {
+                            textField: 'positionName',
+                            model    : options.model
+                        },{
+                            query: function (e) {
+                                e.param['enabledFlag'] = 'Y';
+                            }
+                        }));
+                    }
+                },
+                {
+                    field: "parentCompanyId",
+                    title: '<@spring.message "company.parentCompanyName"/>',
+                    width: 120,
+                    template : function(item){
+                        return item['parentCompanyName']||''
+                    },
+                    editor          : function (container, options) {
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_COMPANY"/>, {
+                            textField: 'parentCompanyName',
+                            model    : options.model
+                        },{
+                            query: function (e) {
+                                e.param['enabledFlag'] = 'Y';
+                            }
+                        }));
+                    }
+
+                },
+                {
+                    field: "startDateActive",
+                    title: '<@spring.message "user.startactivedate"/>',
+                    width: 160,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    format: "{0:yyyy-MM-dd}",
+                    attributes: {
+                        style: "text-align:center"
+                    },
+                    editor: function(container, options){
+                        //获得到期时间
+                        var end = options.model.endDateActive;
+                        var opts={
+                            format:"yyyy-MM-dd"
+                        }
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDatePicker(opts);
+                    }
+                },
+                {
+                    field: "endDateActive",
+                    title: '<@spring.message "user.endactivedate"/>',
+                    width: 160,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    format: "{0:yyyy-MM-dd}",
+                    attributes: {
+                        style: "text-align:center"
+                    },
+                    editor: function(container, options){
+                        //获得开始时间
+                        var start = options.model.startDateActive;
+                        var opts={
+                            format:"yyyy-MM-dd"
+                        }
+
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDatePicker(opts);
+                    }
+                }
+            ],
+            editable: false
+        }).data("kendoGrid");
+
+
+        function newData(companyId) {
+            var url = "${base.contextPath}/form/COMPANY_FORM";
+            if(companyId){
+                url = "${base.contextPath}/form/COMPANY_FORM?companyId=" + companyId;
+            }
+            Jrap.createWindow('#newWin',{
+                height:550,
+                url:url
+            })
+            var win = $("#newWin").data("kendoWindow");
+            win.center().open();
+
+        }
+    </script>
+    </body>
+    </html>

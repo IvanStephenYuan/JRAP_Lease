@@ -1,0 +1,67 @@
+<#include "../../include/header.html">
+<body>
+<div id="content-container">
+    <div id="page-content">
+        <div class="panel">
+            <form class="form-horizontal">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">请假天数</label>
+                            <div class="col-sm-6">
+                                <input type="text" data-bind="value:model.needDays" class="k-textbox"
+                                       style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">开始时间</label>
+                            <div class="col-sm-6">
+                                <input data-role="datetimepicker" data-bind="value:model.startDate" class="k-datetimepicker" style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">事由</label>
+                            <div class="col-sm-6">
+                                <input type="text" data-bind="value:model.leaveReason" class="k-textbox"
+                                       style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var viewModel = kendo.observable({
+        model:{}
+    });
+    kendo.bind($('#page-content'), viewModel);
+    $.get("${base.contextPath}/wfl/history/form/details/vacation/" +${RequestParameters.businessKey}, function (data, status) {
+        viewModel.model.set("leaveReason", data.leaveReason);
+        viewModel.model.set("startDate", data.startDate);
+        viewModel.model.set("needDays", data.needDays);
+        viewModel.model.set("id",data.id);
+    });
+
+    var executeWorkFlowTask = function(actionCallBack,p){
+        $.ajax({
+            url: "${base.contextPath}/wfl/vacation/save",
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            data: kendo.stringify(viewModel.model),
+            success: function (args) {
+                actionCallBack.call(window.parent,p);
+            }
+        });
+    }
+    
+    </script>
+</body>
+</html>

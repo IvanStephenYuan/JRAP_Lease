@@ -1,0 +1,200 @@
+<#include "../include/header.html">
+    <body>
+    <div id="page-content">
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+            <span type="button" onclick="exportExcel()" class="btn btn-primary" style="float:left;margin-right:5px"><i class="fa fa-plus-square"></i>导出Excel</span>
+        </div>
+        <div style="clear:both">
+            <div id="columnWin"></div>
+
+        </div>
+
+        <!--<form id="mainform" class="form-horizontal">-->
+            <!--<div class="panel-body">-->
+                <!--&lt;!&ndash;<div class="row">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<div class="form-group">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<label class="col-sm-3 control-label"></label>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<div class="col-sm-4">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<span type="button" onclick="exportExcel()" class="btn btn-primary" style="float:left;margin-right:5px"><i class="fa fa-plus-square"></i>导出Excel</span>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--<div class="row">-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-3 control-label">选择导入列</label>-->
+                        <!--<div class="col-sm-4">-->
+                            <!--<div style="clear:both">-->
+                                <!--<div id="columnWin"></div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+            <!--</div>-->
+        <!--</form>-->
+
+    </div>
+
+    <div id="batchDiv" style="display: none"></div>
+
+
+    <script>
+
+
+        var dataSource = new kendo.data.TreeListDataSource({
+            transport: {
+                read: {
+                    url: "${base.contextPath}/sys/import/template/${RequestParameters.tableName}",
+                    dataType: "json"
+                }
+            },
+           batch: true,
+            schema: {
+                model: {
+                    id: "id",
+                    parentId: 'parentId',
+                    fields: {
+                        text: {type: "string"},
+                        value: {type: "string"},
+                        ischecked:{defaultValue:false}
+                    },
+                }
+            },
+            change: function propagate(e) {
+                var node = e.items && e.items[0];
+                var propagatedField = "ischecked";
+                if (!node || e.field != propagatedField) {
+                    return;
+                }
+                this.unbind("change", propagate);
+                function update(dataSource, nodes, field, state) {
+                    for (var i = 0; i < nodes.length; i++) {
+                        nodes[i].set(field, state);
+                        update(dataSource, dataSource.childNodes(nodes[i]), field, state);
+                    }
+                }
+
+                update(this, this.childNodes(node), propagatedField, node[propagatedField]);
+
+                function checkedParentNode(nodes) {
+                    for (var j = 0; j < nodes.length; j++) {
+                        if (!nodes[j][propagatedField]) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                function updateParentNode(dataSource, node) {
+                    if (node) {
+                        var nodes = dataSource.childNodes(node);
+                        if (checkedParentNode(nodes)) {
+                            node.set(propagatedField, true);
+                        } else {
+                            node.set(propagatedField, false);
+                        }
+                        updateParentNode(dataSource, dataSource.parentNode(node))
+                    }
+                }
+
+                updateParentNode(this, this.parentNode(node));
+
+                this.bind("change", propagate);
+            },
+
+        });
+
+
+        var treeList = $("#columnWin").kendoTreeList({
+            navigatable: false,
+            resizable: false,
+            scrollable: true,
+            editable: false,
+            checkboxes: {
+                template: "#= item.text # (#= item.value #)"
+            },
+            loadOnDemand: false,
+            checkboxes: {
+                checkChildren: true
+            },
+            dataSource: dataSource,
+            dataBound:function (e) {
+                this.expand($("#columnWin tbody>tr:eq(0)"));
+                var view = this.dataSource.view();
+                this.items().each(function (index, row) {
+                    kendo.bind(row, view[index]);
+                });
+            },
+            columns: [{
+                field: "text",
+                title: '<@spring.message "function.functionname"/>',
+                width: 200,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                template: function (item) {
+                    return item.text;
+                }
+            },{
+                title: '选择导出列',
+                template: "<input type='checkbox' id='checkbox' data-bind='checked:ischecked'  />",
+                width: 105,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center;"
+                }
+            }],
+
+
+        }).data("kendoTreeList");
+
+
+        function exportExcel() {
+            var checkedList = treeList.dataSource.data();
+            var datas = [];
+            if (checkedList.length > 0) {
+                for (var i = 0; i < checkedList.length; i++) {
+                    if (checkedList[i].ischecked && !checkedList[i].hasChildren) {
+                        datas.push({
+                            column: checkedList[i].value,
+                        })
+                    }
+                }
+
+                if (datas.length == 0) {
+                    return
+                }
+                var model=parent.viewModel.model.toJSON();
+
+                var $inputImg = $('<input>').attr({name: "_HAP_EXCEL_EXPORT_COLUMNS", value: kendo.stringify(datas)});
+                var $inputToken=$('<input>').attr({name:"${_csrf.parameterName}",value:"${_csrf.token}",type:"hidden"});
+                var $page=$('<input>').attr({name:"page",value:1,type:"hidden"});
+                var $pagesize=$('<input>').attr({name:"pagesize",value:0,type:"hidden"});
+                var $form = $("<form>");
+                $form.attr({
+                    target: '_self',
+                    method: 'post',
+                    action: '${RequestParameters.url}'
+                }).append($inputImg);
+                $form.append($inputToken);
+                $form.append($page);
+                $form.append($pagesize);
+                for(var o in model){
+                    $form.append($('<input>').attr({name:o,value:model[o],type:"hidden"}));
+                }
+                $form.id='smbForm';
+                $("#batchDiv").empty().append($form);
+                $($form).submit();
+                $("#batchDiv").empty();
+
+
+
+            }
+        }
+
+    </script>
+    </body>
+    </html>

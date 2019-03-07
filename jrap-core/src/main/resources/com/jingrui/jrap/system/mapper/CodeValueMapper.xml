@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.system.mapper.CodeValueMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.system.dto.CodeValue" extends="com.jingrui.jrap.mapper.StdMapper.STD">
+        <id column="CODE_VALUE_ID" property="codeValueId" jdbcType="DECIMAL"/>
+        <result column="CODE_ID" property="codeId" jdbcType="DECIMAL"/>
+        <result column="VALUE" property="value" jdbcType="VARCHAR"/>
+        <result column="MEANING" property="meaning" jdbcType="VARCHAR"/>
+        <result column="ORDER_SEQ" property="orderSeq" jdbcType="DECIMAL"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="TAG" property="tag" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PARENT_CODE_VALUE_ID" property="parentCodeValueId" jdbcType="DECIMAL" />
+        <result column="PARENT_CODE_VALUE" property="parentCodeValue" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="selectCodeValuesByCodeName" resultMap="BaseResultMap" parameterType="string">
+        SELECT SCVB.CODE_ID, SCVB.VALUE, SCVT.MEANING
+        FROM SYS_CODE_VALUE_B SCVB
+        LEFT OUTER JOIN SYS_CODE_VALUE_TL SCVT
+        ON (SCVB.CODE_VALUE_ID = SCVT.CODE_VALUE_ID AND SCVT.LANG = #{request.locale,jdbcType=VARCHAR})
+        INNER JOIN SYS_CODE_B SCB
+        ON (SCB.CODE_ID = SCVB.CODE_ID)
+        WHERE SCB.CODE = #{codeName}
+    </select>
+
+    <select id="selectCodeValuesByParentId" resultMap="BaseResultMap" >
+        SELECT SCVB.CODE_ID, SCVB.VALUE, SCVT.MEANING
+        FROM SYS_CODE_VALUE_B SCVB
+        LEFT OUTER JOIN SYS_CODE_VALUE_TL SCVT
+        ON (SCVB.CODE_VALUE_ID = SCVT.CODE_VALUE_ID AND SCVT.LANG = #{request.locale,jdbcType=VARCHAR})
+        WHERE SCVB.PARENT_CODE_VALUE_ID = #{parentId,jdbcType=DECIMAL}
+    </select>
+
+    <select id="selectCodeValuesByCodeId" resultMap="BaseResultMap">
+        SELECT
+        SCVB.CODE_VALUE_ID,
+        SCVB.CODE_ID,
+        SCVB.VALUE,
+        SCVT.MEANING,
+        SCVT.DESCRIPTION,
+        SCVB.TAG,
+        SCVB.ORDER_SEQ,
+        SCVB.ENABLED_FLAG,
+        SCVB.PARENT_CODE_VALUE_ID,
+        SCVB.PARENT_CODE_VALUE,
+        SCVB.OBJECT_VERSION_NUMBER,
+        SCVT2.MEANING PARENTCODEVALUEMEANING
+        FROM
+        SYS_CODE_VALUE_B SCVB
+        LEFT JOIN SYS_CODE_VALUE_TL SCVT ON (
+        SCVB.CODE_VALUE_ID = SCVT.CODE_VALUE_ID
+        AND SCVT.LANG = #{request.locale,jdbcType=VARCHAR}
+        )
+        LEFT JOIN SYS_CODE_VALUE_TL SCVT2 ON (
+        SCVB.PARENT_CODE_VALUE_ID = SCVT2.CODE_VALUE_ID
+        AND SCVT2.LANG = #{request.locale,jdbcType=VARCHAR}
+        )
+        <where>
+            <if test="codeId!=null">
+                AND  SCVB.CODE_ID = #{codeId}
+            </if>
+        </where>
+        ORDER BY SCVB.ORDER_SEQ ASC
+    </select>
+
+    <delete id="deleteByCodeId" parameterType="com.jingrui.jrap.system.dto.CodeValue">
+        DELETE FROM
+        SYS_CODE_VALUE_B
+        WHERE CODE_ID = #{codeId,jdbcType=DECIMAL}
+    </delete>
+    <delete id="deleteTlByCodeId" parameterType="com.jingrui.jrap.system.dto.CodeValue">
+        DELETE FROM
+        SYS_CODE_VALUE_TL
+        WHERE CODE_VALUE_ID IN (
+        SELECT CODE_VALUE_ID
+        FROM SYS_CODE_VALUE_B SCVB
+        WHERE SCVB.CODE_ID = #{codeId,jdbcType=DECIMAL})
+    </delete>
+
+    <select id="queryMsgTemCodeLov" resultMap="BaseResultMap">
+        SELECT SCVB.VALUE, COALESCE (SCVT.MEANING, SCVB.MEANING) MEANING
+        FROM SYS_CODE_B SCB, SYS_CODE_VALUE_B SCVB
+        LEFT OUTER JOIN SYS_CODE_VALUE_TL SCVT
+        ON (SCVB.CODE_VALUE_ID = SCVT.CODE_VALUE_ID AND SCVT.LANG = #{request.locale,jdbcType=VARCHAR,javaType=java.lang.String})
+        <where>
+            SCB.CODE = 'SYS.MES_TEM_TYPE'
+            AND SCB.CODE_ID = SCVB.CODE_ID
+            <if	test="value != null">
+                AND
+                (
+                LOWER(SCVB.VALUE) LIKE CONCAT('%', CONCAT(#{value, jdbcType=VARCHAR}, '%'))
+                OR
+                UPPER(SCVB.VALUE) LIKE CONCAT('%', CONCAT(#{value, jdbcType=VARCHAR}, '%'))
+                )
+            </if>
+            <if	test="meaning != null">
+                AND
+                (
+                SCVT.MEANING LIKE CONCAT('%', CONCAT(#{meaning, jdbcType=VARCHAR}, '%'))
+                OR
+                SCVB.MEANING LIKE CONCAT('%', CONCAT(#{meaning, jdbcType=VARCHAR}, '%'))
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="queryEmlAccountCodeLov" resultMap="BaseResultMap">
+        SELECT SCVB.VALUE, COALESCE(SCVT.MEANING, SCVB.MEANING) MEANING
+        FROM SYS_CODE_B SCB, SYS_CODE_VALUE_B SCVB
+        LEFT OUTER JOIN SYS_CODE_VALUE_TL SCVT
+        ON (SCVB.CODE_VALUE_ID = SCVT.CODE_VALUE_ID AND SCVT.LANG = #{request.locale,jdbcType=VARCHAR,javaType=java.lang.String})
+        <where>
+            SCB.CODE = 'SYS.EMAIL_ACCOUNT_CODE'
+            AND SCB.CODE_ID = SCVB.CODE_ID
+            <if	test="value != null">
+                AND
+                (
+                LOWER(SCVB.VALUE) LIKE CONCAT('%', CONCAT(#{value, jdbcType=VARCHAR}, '%'))
+                OR
+                UPPER(SCVB.VALUE) LIKE CONCAT('%', CONCAT(#{value, jdbcType=VARCHAR}, '%'))
+                )
+            </if>
+            <if	test="meaning != null">
+                AND
+                (
+                SCVT.MEANING LIKE CONCAT('%', CONCAT(#{meaning, jdbcType=VARCHAR}, '%'))
+                OR
+                SCVB.MEANING LIKE CONCAT('%', CONCAT(#{meaning, jdbcType=VARCHAR}, '%'))
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="getCodeValueById" parameterType="com.jingrui.jrap.system.dto.CodeValue" resultMap="BaseResultMap">
+        SELECT SCVB.CODE_VALUE_ID, SCVB.VALUE, SCVB.MEANING
+          FROM SYS_CODE_VALUE_B SCVB
+        WHERE SCVB.CODE_VALUE_ID = #{codeValueId,jdbcType=DECIMAL}
+    </select>
+
+</mapper>

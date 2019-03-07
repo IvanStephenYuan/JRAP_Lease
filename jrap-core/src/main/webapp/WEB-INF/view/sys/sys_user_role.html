@@ -1,0 +1,174 @@
+<#include "../include/header.html">
+<body>
+<script type="text/javascript">
+    var userId = "${RequestParameters.userId!'0'}";
+    var userName = "${RequestParameters.userName!'0'}";
+    var viewModel = Jrap.createGridViewModel('#panel_button',{
+        model: {
+            userId: userId
+        },
+        cancelFunction: function (e) {
+            $('#panel_button').data('kendoGrid').cancelChanges();
+        }
+    });
+</script>
+
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span id="add" class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"><@spring.message "jrap.add"/></span>
+        <span onclick="deleteData()" class="btn btn-danger" style="float:left;margin-right:5px;"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+        <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+    </div>
+
+
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div style="clear:both">
+        <div id="panel_button"></div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    function deleteData() {
+        var checked = grid.selectedDataItems();
+        if (grid.selectedDataItems().length) {
+            kendo.ui.showConfirmDialog({
+                title: $l('jrap.tip.info'),
+                message: $l('jrap.tip.delete_confirm')
+            }).done(function (event) {
+                if (event.button == 'OK') {
+                    $.each(checked, function (i, v) {
+                        grid.dataSource.remove(v)
+                    });
+                    grid.dataSource.sync();
+                }
+            })
+        }
+    }
+
+    $(document).ready(function () {
+        var crudServiceBaseUrl = "${base.contextPath}/sys/userrole";
+        window.dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "${base.contextPath}/sys/user/${RequestParameters.userId!'0'}/roles",
+                    type: "POST",
+                    dataType: "json"
+                },
+                create: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                update: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = Jrap.prepareSubmitParameter(options, type);
+                        datas.forEach(function(data) {
+                            data["userName"] = userName;
+                        });
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options);
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: 'surId',
+                    fields: {
+                        loginRequire: {defaultValue: 'Y'},
+                        accessCheck: {defaultValue: 'Y'},
+                        type: {defaultValue: 'HTML'},
+                        url: {validation: {required: true}}
+                    }
+                }
+            }
+        });
+
+        window.grid = $("#panel_button").kendoGrid({
+            dataSource: dataSource,
+            navigatable: false,
+            height:'100%',
+            selectable: 'multiple, rowbox',
+            sortable: true,
+            columns: [
+                {
+                    field: "roleCode",
+                    title: '<@spring.message "role.rolecode"/>',
+                    width: 120,
+                },
+                {
+                    field: "roleName",
+                    title: '<@spring.message "role.rolename"/>',
+                    width: 180,
+                },
+                {
+                    field: "roleDescription",
+                    title: '<@spring.message "role.roledescription"/>',
+                    width: 200,
+                },
+                {
+                    field: "active",
+                    template: function (e) {
+                        return e.active ? '<@spring.message "jrap.no"/>' : '<@spring.message "jrap.yes"/>'
+                    },
+                    title: '<@spring.message "role.isexpired"/>',
+                    width: 120,
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {style: "text-align:center"}
+                },
+                {
+                    field: "enableFlag",
+                    title: '<@spring.message "jrap.enableflag"/>',
+                    width: 120,
+                    template: function (e) {
+                        return (e.enableFlag == 'Y') ? '<@spring.message "jrap.yes"/>' : '<@spring.message "jrap.no"/>'
+                    },
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {style: "text-align:center"}
+                }
+
+            ],
+            editable: "popup"
+        }).data("kendoGrid");
+
+
+        $("#add").click(function () {
+          var win =  window.parent.$("#dialog").kendoWindow({
+                width: 600,
+                height: 400,
+                modal: true,
+                iframe:true,
+                visible: false,
+                content:'sys_user_addrole.html?userId=${RequestParameters.userId!0}',
+                close:function(e){
+                     window.parent.$("#roleWin").data("kendoWindow").open();
+                }
+            }).data("kendoWindow");
+            win.center().open();
+        });
+        Jrap.autoResizeGrid("#panel_button");
+
+    });
+
+</script>
+
+</body>

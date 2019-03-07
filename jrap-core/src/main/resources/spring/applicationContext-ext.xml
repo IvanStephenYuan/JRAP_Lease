@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ~ #{copyright}# -->
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <context:property-placeholder location="classpath:config.properties"/>
+<!--    <bean id="cookieHttpSessionStrategy" class="org.springframework.session.web.http.CookieHttpSessionStrategy">
+        <property name="cookieName" value="SESSIONID_HAP"/>
+    </bean>-->
+
+    <bean id="cookieHttpSessionStrategy" class="com.jingrui.jrap.security.CustomCookieHttpSessionStrategy">
+        <property name="cookieName" value="SESSIONID_HAP"/>
+    </bean>
+
+    <bean id="defaultPageConfiguration" class="com.jingrui.jrap.security.DefaultConfiguration"/>
+
+    <bean id="captchaManager" class="com.jingrui.jrap.security.captcha.impl.DefaultCaptchaManager"/>
+
+    <import resource="classpath*:extension-*.xml"/>
+
+
+</beans>

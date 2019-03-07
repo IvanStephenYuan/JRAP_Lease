@@ -1,0 +1,105 @@
+<#include "../../include/header.html">
+<div>
+
+    <div id="page-content" style="width:600px">
+        <form class="form-horizontal">
+            <div class="row">
+                <div class="form-group col-xs-6">
+                    <label class="col-xs-4 control-label">申请人</label>
+                    <div class="col-xs-8">
+                        <input type="text" readonly data-bind="value:model.userName" class="k-textbox" style="width: 100%; background-color:#DEDEDE">
+                    </div>
+                </div>
+                <div class="form-group col-xs-6">
+                    <label class="col-xs-4 control-label">总金额</label>
+                    <div class="col-xs-8">
+                        <input type="text" readonly data-bind="value:model.totalAmount" class="k-textbox" style="width: 100%; background-color:#DEDEDE">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-xs-6">
+                    <label class="col-xs-4 control-label">开始时间</label>
+                    <div class="col-xs-8">
+                        <input type="text" readonly data-bind="value:model.startDate" class="k-textbox" style="width: 100%; background-color:#DEDEDE">
+                    </div>
+                </div>
+
+                <div class="form-group col-xs-6">
+                    <label class="col-xs-4  control-label">结束时间</label>
+                    <div class="col-xs-8">
+                        <input id="description" type="text" readonly data-bind="value:model.endDate" class="k-textbox" style="width: 100%;background-color:#DEDEDE">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-xs-2  control-label">事由</label>
+                    <div class="col-xs-10">
+                        <input type="text" readonly data-bind="value:model.description" class="k-textbox" style="width: 100%; background-color:#DEDEDE">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id='grid-container' style="clear: both;width: 600px;">
+    <div id="expenseLineGrid" style="margin-left:10px"></div>
+</div>
+
+<script>
+
+    viewModel = kendo.observable({
+        model: {
+            userName: "周杰森",
+            totalAmount: "2170",
+            startDate: "2016-10-01",
+            endDate: "2016-10-07",
+            description: "去广州培训"
+        }
+    });
+
+    kendo.bind($('#page-content'), viewModel);
+
+
+    dataSource = new kendo.data.DataSource({
+        data: [
+            {itemName: "餐费", price: 30, amount: 21},
+            {itemName: "住宿费", price: 220, amount: 7}
+        ]
+    });
+
+    var grid = $("#expenseLineGrid").kendoGrid({
+        dataSource: dataSource,
+        navigatable: false,
+        height: '100px',
+        resizable: true,
+        scrollable: true,
+        editable: false,
+        rownumber: true,
+        columns: [
+            {field: "itemName", title: '项目类型', width: 160},
+            {
+                field: "price",
+                title: '单价',
+                width: 80
+            },
+            {
+                field: "amount",
+                title: '数量',
+                width: 80
+            },
+            {
+                title: "合计",
+                template: function (dataItem) {
+                    return (dataItem.price || 0) * (dataItem.amount || 0);
+                }
+            }
+        ]
+    }).data("kendoGrid");
+
+
+</script>
+</body>
+</html>

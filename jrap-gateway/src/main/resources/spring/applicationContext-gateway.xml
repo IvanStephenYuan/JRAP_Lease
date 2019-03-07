@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+                           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <beans:import resource="oauth2Security-gateway.xml"/>
+
+    <!-- 缓存-->
+    <bean id="serverCache" class="com.jingrui.jrap.cache.impl.ApiServerCache">
+        <property name="name" value="server"/>
+    </bean>
+
+    <bean id="apiAccessLimitCache" class="com.jingrui.jrap.cache.impl.ApiAccessLimitCache" >
+        <property name="name" value="api_access_limit"/>
+    </bean>
+
+    <!-- aop-->
+
+    <bean id="apiInvokeExecutionAdvice" class="com.jingrui.jrap.api.logs.service.impl.ApiInvokeExecutionAdvice"/>
+
+    <bean id="apiRequestExecutionAdvice" class="com.jingrui.jrap.api.logs.service.impl.ApiRequestExecutionAdvice"/>
+
+    <aop:config expose-proxy="true">
+        <aop:pointcut id="apiInvokePointcut" expression="execution(* com.jingrui.jrap.api.gateway.service.IApiInvokeService.apiInvoke(..))"/>
+        <aop:advisor advice-ref="apiInvokeExecutionAdvice" pointcut-ref="apiInvokePointcut"/>
+    </aop:config>
+
+    <aop:config expose-proxy="true">
+        <aop:pointcut id="apiRequestPointcut" expression="execution(* com.jingrui.jrap.api.gateway.controllers.ApiInvokeContoller.sentRequest(..))"/>
+        <aop:advisor advice-ref="apiRequestExecutionAdvice" pointcut-ref="apiRequestPointcut"/>
+    </aop:config>
+
+
+</beans>

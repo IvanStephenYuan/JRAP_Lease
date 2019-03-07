@@ -1,0 +1,107 @@
+<div class="scroller" style="height: 338px;" data-always-visible="1" data-rail-visible1="0" data-handle-color="#D7DCE2">
+    <div class="general-item-list">
+        <div class="item">
+            <div class="item-head">
+                <div class="item-details">
+                    <label class="item-name primary-link">Memory</label>
+                </div>
+            </div>
+            <span class="item-status">
+                                        <span class="badge badge-empty badge-success"></span> Total Memory(<span
+                    id="memoryDetails"> </span>)</span>
+        </div>
+        <div class="item">
+            <div class="item-head">
+                <div class="item-details">
+                    <label class="item-name primary-link">Threads</label>
+                </div>
+            </div>
+            <span class="item-status">
+                                        <span class="badge badge-empty badge-primary"></span>  Total Threads(<span
+                    id="threadsDetails"> </span>)</span></br>
+            <span class="item-status">
+                                        <span class="badge badge-empty badge-warning"></span> Runnable(<span
+                    id="runnableThreadsDetails"> </span>)</span>
+        </div>
+        <div class="item">
+            <div class="item-head">
+                <div class="item-details">
+                    <label class="item-name primary-link">Garbage collections</label>
+                </div>
+            </div>
+            <span class="item-status">
+                                        <span class="badge badge-empty badge-danger"></span> Mark Sweep count(<span
+                    id="markSweepCount"></span>)</span></br>
+            <span class="item-status">
+                                        <span class="badge badge-empty badge-warning"></span> Mark Sweep time(<span
+                    id="markSweepTime"></span>)</span></br>
+            <span class="item-status">
+                                        <span class="badge badge-empty badge-primary"></span> Scavenge count(<span
+                    id="scavengeCount"></span>)</span></br>
+            <span class="item-status">
+                                        <span class="badge badge-empty badge-success"></span> Scavenge time(<span
+                    id="scavengeTime"></span>)</span>
+
+        </div>
+    </div>
+</div>
+</div>
+
+<!--<div class="demo-section k-content">-->
+<!--<div class="col-md-12">-->
+<!--<h5>Memory</h5>-->
+<!--<div class="row">-->
+<!--<label class="control-label col-md-8">-->
+<!--Total Memory(<span id ="memoryDetails" > </span>)-->
+<!--</label>-->
+<!--</div>-->
+<!--<h5>Threads(total:<span id ="threadsDetails" > </span>)</h5>-->
+<!--<div class="row">-->
+<!--<label class="control-label col-md-8">-->
+<!--Runnable(<span id ="runnableThreadsDetails" > </span>)-->
+<!--</label>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div> -->
+<!--<div class="col-md-12" style="margin-top: 20px">-->
+<!--<b>Garbage collections</b>-->
+<!--<div class="row">-->
+<!--<div class="col-md-9">Mark Sweep count</div>-->
+<!--<div class="col-md-3 text-right"><span id ="markSweepCount" ></span></div>-->
+<!--</div>-->
+<!--<div class="row">-->
+<!--<div class="col-md-9">Mark Sweep time</div>-->
+<!--<div class="col-md-3 text-right"><span id ="markSweepTime" ></span></div>-->
+<!--</div>-->
+<!--<div class="row">-->
+<!--<div class="col-md-9">Scavenge count</div>-->
+<!--<div class="col-md-3 text-right"><span id ="scavengeCount" ></span></div>-->
+<!--</div>-->
+<!--<div class="row">-->
+<!--<div class="col-md-9">Scavenge time</div>-->
+<!--<div class="col-md-3 text-right"><span id ="scavengeTime" ></span></div>-->
+<!--</div>-->
+<!--</div>-->
+    <script>
+       
+        $.get('${base.contextPath}/metrics/metrics').done(function (data) {
+            // 填入数据
+            var maxMemory = data.gauges['jvm.memory.total.max'].value;
+            var usedMemory = data.gauges['jvm.memory.total.used'].value;
+            
+            var totalThreads = data.gauges['jvm.threads.count'].value;
+            var runnableThreads = data.gauges['jvm.threads.runnable.count'].value;
+
+            $("#memoryDetails").html(Math.round(usedMemory/1000000)+"M/"+Math.round(maxMemory/1000000)+"M");
+
+
+            $("#threadsDetails").html(totalThreads);
+            $("#runnableThreadsDetails").html(runnableThreads);
+            
+            $("#markSweepCount").html(data.gauges['jvm.garbage.PS-MarkSweep.count'].value);
+            $("#markSweepTime").html(data.gauges['jvm.garbage.PS-MarkSweep.time'].value+'ms');
+            $("#scavengeCount").html(data.gauges['jvm.garbage.PS-Scavenge.count'].value);
+            $("#scavengeTime").html(data.gauges['jvm.garbage.PS-Scavenge.time'].value+'ms');
+        }); 
+    </script>
+</div>

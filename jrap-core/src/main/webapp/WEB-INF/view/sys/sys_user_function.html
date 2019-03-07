@@ -1,0 +1,158 @@
+<#include "../include/header.html">
+<body>
+<script type="text/javascript">
+    var viewModel = kendo.observable({
+        model: {
+            userId: ${RequestParameters.userId!}
+        },
+        query: function (e) {
+            $('#grid').data('kendoTreeList').dataSource.read();
+        }
+    });
+</script>
+<div id="dialog"></div>
+
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary" onclick="expand()" style="float:left;margin-right:5px;"><i class="fa fa-plus-square-o" style="margin-right:3px;"></i><@spring.message "jrap.expand"/></span>
+        <span class="btn btn-warning" onclick="collapse()"  style="float:left;margin-right:5px;"><i class="fa fa-minus-square-o" style="margin-right:3px;"></i><@spring.message "jrap.collapse"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function treelist(arr, childrens, parentId) {
+        for (var i = 0; i < childrens.length; i++) {
+            childrens[i].parentId = parentId;
+            childrens[i].hasChildren = true;
+            arr.push(childrens[i])
+            if (childrens[i].children) {
+                treelist(arr, childrens[i].children, childrens[i].id);
+            } else {
+                childrens[i].hasChildren = false;
+            }
+        }
+    }
+
+    var crudServiceBaseUrl = '${base.contextPath}/sys/user',
+        dataSource = new kendo.data.TreeListDataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/queryFunction",
+                    type: "POST",
+                    dataType: "json"
+                },
+                parameterMap: function (options, type) {
+                    if (type === "read") {
+                        return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options);
+                    }
+                }
+            },
+            requestEnd: function (e) {
+                var response = e.response;
+                if (!response)
+                    return;
+                var datas = [];
+                treelist(datas, response.rows || [], null);
+                response.rows = datas;
+            },
+            batch: true,
+            schema: {
+                data: 'rows',
+                model: {
+                    id: "id",
+                    parentId: 'parentId',
+                    fields: {
+                        url: {type: "string"},
+                        text: {type: "string"}
+                    },
+                    expanded: true
+                }
+            }
+        });
+
+    function assignResourceItem(functionId) {
+        var userId = viewModel.model.userId;
+        var dialog = $("#dialog").kendoWindow({
+            actions: ["Close"],
+            width: 600,
+            height: 500,
+            resizable: false,
+            title: '<@spring.message "function.accessset"/>',
+            visible: false,
+            iframe: true,
+            modal: true,
+            scrollable:false,
+            content: 'sys_user_resource_item.html?userId=' + userId +'&functionId=' + functionId
+        }).data("kendoWindow");
+        dialog.center().open();
+    }
+
+    var treeList = $("#grid").kendoTreeList({
+        dataSource: dataSource,
+        navigatable: false,
+        resizable: false,
+        height: 635,
+        scrollable: true,
+        editable: false,
+        columns: [{
+            field: "text",
+            title: '<@spring.message "function.functionname"/>',
+            width: 200,
+            headerAttributes: {
+                style: "text-align: center"
+            },
+            template: function (item) {
+                return "<i class='" + item.icon + "' style='margin-right: 3px;'></i>" + item.text;
+            }
+        }, {
+            title: '<@spring.message "function.accessset"/>',
+            width: 80,
+            headerAttributes: {
+                style: "text-align: center"
+            },
+            attributes: {
+                "class": "table-header-cell",
+                style: "text-align: center;"
+            },
+            template: function (rowdata) {
+                if (!rowdata.hasChildren) {
+                    return Jrap.createAnchor('<@spring.message "function.set"/>',assignResourceItem,rowdata.id);
+                }
+            }
+        }],
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+            var view = this.dataSource.view();
+            this.items().each(function (index, row) {
+                kendo.bind(row, view[index]);
+            });
+        }
+    }).data("kendoTreeList");
+
+
+    function expand() {
+        var tree = treeList.dataSource.data();
+        for (var i = 0; i < tree.length; i++) {
+            if (tree[i].hasChildren) {
+                treeList.expand(tree[i]);
+            }
+        }
+    }
+    function collapse() {
+        var tree = treeList.dataSource.data();
+        for (var i = 0; i < tree.length; i++) {
+            if (tree[i].hasChildren) {
+                treeList.collapse(tree[i]);
+            }
+        }
+    }
+</script>
+</body>
+</html>

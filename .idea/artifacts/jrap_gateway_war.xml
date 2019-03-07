@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="jrap-gateway:war">
+    <output-path>$PROJECT_DIR$/jrap-gateway/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>jrap-gateway</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="jrap-gateway.war">
+      <element id="artifact" artifact-name="jrap-gateway:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,163 @@
+<#include "../../include/header.html" />
+<html>
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" data-hotkey="hotkey_create" style="float:left;margin-right:5px;" onclick="openEditWindow()"><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-hotkey="hotkey_save" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span  data-bind="click:remove" class="btn btn-danger" data-hotkey="hotkey_delete" style="float:left;"><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"  placeholder='<@spring.message "coderulesheader.rulecode"/>'
+                   data-bind="value:model.ruleCode" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "coderulesheader.rulename"/>'
+                   data-bind="value:model.ruleName" class="k-textbox">
+        <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<div id="editWin"></div>
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+    var crudServiceBaseUrl = '${base.contextPath}/sys/code/rules/header/',
+        dataSource = Jrap.createGridDataSource({
+            url: crudServiceBaseUrl,
+            model: {
+                id: "headerId",
+                fields: {
+                    ruleCode: {validation: {required: true}},
+                    enableFlag:{defaultValue: 'Y',type: 'boolean',checkedValue:'Y',uncheckedValue:'N'},
+                    ruleName:{type:"string"},
+                },
+                editable: function (col) {
+                    if (col == 'ruleCode' && this.headerId) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        });
+
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        editable: true,
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "ruleCode",
+                title: '<@spring.message "coderulesheader.rulecode"/>',
+                width: 120
+            },
+            {
+                field: "ruleName",
+                title: '<@spring.message "coderulesheader.rulename"/>',
+                width: 120
+            },
+            {
+                field: "description",
+                title: '<@spring.message "jrap.description"/>',
+                width: 120
+            },
+            {
+                field: "enableFlag",
+                title: '<@spring.message "jrap.enableflag"/>',
+                width: 120,
+                attributes: {style: "text-align:center"},
+            },
+            {
+                title: '<@spring.message "jrap.action"/>',
+                width: 80,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (rowdata) {
+                    if(rowdata.headerId == null){
+                        return '';
+                    }
+                    if (rowdata.enableFlag === 'N') {
+                        return Jrap.createAnchor('<@spring.message "jrap.edit"/>', openEditWindow, rowdata.headerId);
+                    }else if (rowdata.enableFlag === 'Y'){
+                        return Jrap.createAnchor('<@spring.message "jrap.view"/>', openReadWindow, rowdata.headerId);
+                    }
+                    return '';
+                }
+            }
+        ]
+    });
+
+    $("#grid thead>tr th").css("text-align","center");
+
+    function openEditWindow(id) {
+        var url = '${base.contextPath}/code/rule/code_rules_edit.html';
+        if (id) {
+            url = url + '?headerId=' + id;
+        }
+
+
+        var editWin = Jrap.createWindow('#editWin',{
+            width: 900,
+            height: 520,
+            title: '<@spring.message "jrap.edit"/>',
+            url: url
+        })
+
+        if (parent.autoResizeIframe) {
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 650, function () {
+                editWin.maximize().open();
+            })
+        } else {
+            editWin.maximize().open();
+        }
+    }
+
+    function openReadWindow(id) {
+        var url = '${base.contextPath}/code/rule/code_rules_edit.html?status=read';
+        if (id) {
+            url = url + '&headerId=' + id;
+        }
+
+
+        var editWin = Jrap.createWindow('#editWin',{
+            width: 900,
+            height: 520,
+            title: '<@spring.message "jrap.view"/>',
+            url: url
+        })
+
+        if (parent.autoResizeIframe) {
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 650, function () {
+                editWin.maximize().open();
+            })
+        } else {
+            editWin.maximize().open();
+        }
+    }
+
+</script>
+</body>
+</html>

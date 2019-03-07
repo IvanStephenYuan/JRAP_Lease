@@ -1,0 +1,193 @@
+<#include "../include/header.html">
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+    var BaseUrl = _basePath;
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/sys/hotkey/query",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/sys/hotkey/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/sys/hotkey/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/sys/hotkey/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "hotkeyId",
+                fields: {
+                    code:{
+                        validation:{required:true}
+                    },
+                    hotkeyLevel:{
+                        type: "string",
+                        defaultValue:"system"
+                    },
+                    hotkeyLevelId:{
+                        type: "number",
+                        defaultValue:"0"
+                    },
+                    hotkey:{
+                        validation:{
+                            custom:function (e) {
+                            var isValidate = true
+                            $.each(dataSource.data(),function (i,v) {
+                                if(e.val() != "" && e.val() ==  v.hotkey && e.closest("tr").attr("data-uid") != v.uid){
+                                    e.attr("data-custom-msg",'<@spring.message "hotkey.hotkey.duplicated"/>');
+                                    isValidate = false
+                                }
+                            })
+                            return isValidate;
+                        }}
+                    }
+                },
+                editable:function(col){
+                    if(!this.isNew()&&col =="code"){
+                        return false;
+                    }
+                    return true;
+                }
+
+            }
+        }
+    });
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        columns: [
+            {
+                field: "code",
+                title: '<@spring.message "Hotkey.code"/>',
+                width: 120,
+                headerTemplate:function () {
+                  return    '<span><@spring.message "Hotkey.code"/></span><span name="codeTips" style="margin-left: 5px;cursor: pointer;"><i class="fa fa-question-circle" aria-hidden="true"></i></span>'
+                },
+
+            },{
+                field: "hotkey",
+                title: '<@spring.message "Hotkey.hotkey"/>',
+                width: 120,
+                template:function (data) {
+                    if(data.hotkey == "<@spring.message 'hotkey.hotkey.null' />"){
+                        data.set("hotkey","");
+                    }
+                  return data.hotkey
+                },
+                editor:function (container, options) {
+                    $('<input style="cursor: default;width: 50%" class="k-textbox" data-id="'+options.model.id+'" name="' + options.field + '"/><span><@spring.message "hotkey.prompt" /></span>').appendTo(container).bind("keydown",function (e) {
+                        var value = ""
+                            ,omit = [8,9,27,32,46,255,173,174,175,176,177,179]  //backspace、tab、空格、delete键及F几代表的功能键
+                        var key  = e.key.toUpperCase(),keyCode = e.keyCode;
+                        if(e.metaKey == true || $.inArray(e.keyCode,omit) >= 0){
+                            options.model.set("hotkey","");
+                            this.value = "无"
+                        }else if(key != "PROCESS"){
+                            e.preventDefault();
+                            value = value + (e.ctrlKey == true?"Ctrl+":"")
+                            value = value + (e.altKey == true?"Alt+":"")
+                            value = value + (e.shiftKey == true?"Shift+":"")
+                            if(keyCode != 17 && keyCode != 18 && keyCode != 16){
+                                if((keyCode<112 || keyCode>123) && value == ""){
+                                    value = "Ctrl+" +key
+                                }else {
+                                    value = value + key;
+                                }
+                            }
+                            this.value = value
+                            options.model.set("hotkey",this.value);
+                        }
+                    }).bind("keyup",function (e) {
+                        var lastValue = this.value.substr(this.value.length-1,1)
+                        if(lastValue == "+"){
+                            options.model.set("hotkey","");
+                            this.value = "<@spring.message 'hotkey.hotkey.null' />"
+                        }
+
+                    }).bind("focus",function () {
+                        var lastValue =  this.value.substr(this.value.length-1,1)
+                        if(lastValue == "+"){
+                            options.model.set("hotkey","");
+                            this.value = "<@spring.message 'hotkey.hotkey.null' />"
+
+
+                        }
+                    }).bind("input",function (e) {
+                        options.model.set("hotkey","");
+                        this.value = "<@spring.message 'hotkey.hotkey.null' />"
+                    })
+                }
+            }, {
+                field: "description",
+                title: '<@spring.message "Hotkey.description"/>',
+                width: 120,
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '" />')
+                        .appendTo(container)
+                        .kendoTLEdit({
+                            idField: 'hotkeyId',
+                            field: 'description',
+                            dto: "com.jingrui.jrap.system.dto.Hotkey",
+                            model: options.model
+                        });
+                }
+            },
+        ],
+        editable: true
+    });
+
+    $('[name="codeTips"]').kendoTooltip({
+        content: "<@spring.message 'hotkey.code.prompt' />"
+    });
+
+</script>
+</body>
+</html>

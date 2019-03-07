@@ -1,0 +1,279 @@
+<#--
+ * description: 员工管理编辑对话框
+ * version: 2.0
+ * author:yuliao.chen@jingrui.com
+ * version: 3.0
+ * author:qiang.zeng@jingrui.com
+ -->
+<#include "../include/header.html"/>
+<body>
+<script src="${base.contextPath}/common/code?employeeStatusData=HR.EMPLOYEE_STATUS" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?employeeGenderData=HR.EMPLOYEE_GENDER" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?employeeCertificateTypeData=HR.CERTIFICATE_TYPE" type="text/javascript"></script>
+<script type="text/javascript">
+	var viewModel = kendo.observable({
+		model: {
+            enabledFlag:"Y",
+            isEnabled: <#if RequestParameters.employeeId??> false <#else> true </#if>
+		},
+		employeeGenderData,
+		save: function(e){
+		 	var data= viewModel.model.toJSON();
+        	if(data.employeeId){
+        		data.__status = "update";
+        	}else{
+        		data.__status = "add";
+        		data.enabledFlag = $("#checkbox").data("kendoCheckbox").value();
+        	}
+			var validator = $("#mainform").data("kendoValidator");
+			if (validator.validate()) {
+                Jrap.request({
+                    type   : 'POST',
+                    url    : '${base.contextPath}/hr/employee/submit',
+                    data   : kendo.stringify([data]),
+                    success: function (data) {
+                        window.parent.$("#dialog").data("kendoWindow").close();
+                    }
+                })
+			}
+		},
+		closeWin: function(e){
+        	window.parent.$("#dialog").data("kendoWindow").close();
+        }
+    });
+
+    //var isedit = '${RequestParameters.employeeId!0}' == '';
+	var employeeId = '${RequestParameters.employeeId!0}';
+
+</script>
+
+<div id="page-content">
+	<form id="mainform"  class="form-horizontal" method="post" enctype="application/json;charset=UTF-8">
+
+	<div class="row" style="margin-left: 5px;">
+	 	<div class="col-sm-12">
+	 	  	<div class="form-group">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.employeeCode"/>:</label>
+					<div class="col-sm-9">
+                        <input type="text" required style="width:100%" name="employeeCode"
+                               data-label="<@spring.message 'employee.employeecode'/>" data-role="maskedtextbox"
+					data-bind="enabled: model.isEnabled,value:model.employeeCode" class="k-textbox">
+						<span data-for="employeeCode" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.name"/>:</label>
+					<div class="col-sm-9">
+                        <input type="text" required style="width:100%" data-label="<@spring.message 'employee.name'/>"
+                               name="name" data-bind="value:model.name" class="k-textbox">
+						<span data-for="name" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+            </div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.effectivestartdate"/>:</label>
+					<div class="col-sm-9">
+						<input style="width:100%" id="effectiveStartDate" name="effectiveStartDate" data-bind="value:model.effectiveStartDate">
+						<span data-for="effectiveStartDate" class=".k-invalid-msg"></span>
+					</div>
+					<script>
+						$("#effectiveStartDate").kendoDatePicker({
+							change:function(){
+                                var value = this.value();
+                                if(!value){
+                                    value = initMinDate;
+                                }
+                                effectiveEndDate.min(value);
+							}
+                        }).data("kendoDatePicker");
+					</script>
+				</div>
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.borndate"/>:</label>
+					<div class="col-sm-9">
+						<input style="width:100%" name="bornDate" data-bind="value:model.bornDate" class="datepicker">
+						<span data-for="bornDate" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.effectiveenddate"/>:</label>
+					<div class="col-sm-9">
+						<input style="width:100%" id="effectiveEndDate" name="effectiveEndDate" data-bind="value:model.effectiveEndDate">
+						<span data-for="effectiveEndDate" class=".k-invalid-msg"></span>
+					</div>
+					<script>
+						$("#effectiveEndDate").kendoDatePicker({
+							change:function(){
+                                var value = this.value();
+                                if(!value){
+                                    value = initMaxDate;
+                                }
+                                effectiveStartDate.max(value);
+                            }
+                        }).data("kendoDatePicker");
+                    </script>
+				</div>
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.joindate"/>:</label>
+					<div class="col-sm-9">
+						<input style="width:100%" name="joinDate" data-bind="value:model.joinDate" class="datepicker">
+						<span data-for="joinDate" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.certificatetype"/>:</label>
+					<div class="col-sm-9">
+                        <input required style="width:100%" name="certificateType"
+                               data-label="<@spring.message 'employee.certificatetype'/>" id="certificateType"
+                               data-bind="value:model.certificateType">
+						<span data-for="certificateType" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.gender"/>:</label>
+					<div class="col-sm-9">
+                        <input style="width:100%" required name="gender"
+                               data-label="<@spring.message 'employee.gender'/>" id="gender"
+                               data-bind="value:model.gender">
+						<span data-for="gender" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.certificateid"/>:</label>
+					<div class="col-sm-9">
+                        <input type="text" required style="width:100%" name="certificateId"
+                               data-label="<@spring.message 'employee.certificateid'/>"
+                               data-bind="value:model.certificateId" class="k-textbox">
+						<span data-for="certificateId" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.status"/>:</label>
+					<div class="col-sm-9">
+                        <input required style="width:100%" name="status"
+                               data-label="<@spring.message 'employee.status'/>" id="status"
+                               data-bind="value:model.status">
+						<span data-for="status" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.mobile"/>:</label>
+					<div class="col-sm-9">
+						<input type="text" style="width:100%" name="mobil" data-bind="value:model.mobil" class="k-textbox">
+						<span data-for="mobil" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "user.email"/>:</label>
+					<div class="col-sm-9">
+						<input type="email" validationMessage='<@spring.message "jrap.validation.email"/>' style="width:100%" name="email" data-bind="value:model.email" class="k-textbox">
+						<span data-for="email" class=".k-invalid-msg"></span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label"><@spring.message "employee.enabledflag"/>:</label>
+					<div class="col-sm-9" style="text-align: left">
+						<input id="checkbox" type="checkbox" style="margin-top:5px"  name="enabledFlag" data-bind="value: model.enabledFlag" >
+					</div>
+					<script>
+                        $("#checkbox").kendoCheckbox({
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        });
+					</script>
+				</div>
+			</div>
+		</div>
+	  </div>
+
+
+	</form>
+</div>
+<div id="mainBottom" class="text-right" style="bottom: 15px;position: fixed;  float: left;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+        <span class="btn btn-primary" data-bind="click:save" type="submit" style="margin-right:5px"><@spring.message "jrap.save"/></span>
+        <span class="btn btn-default" data-bind="click:closeWin" type="button" style="margin-right:25px;"><@spring.message "jrap.cancel"/></span>
+</div>
+
+<script type="text/javascript">
+    kendo.bind($('#mainBottom'),viewModel);
+	kendo.bind($('#mainform'), viewModel);
+
+    function isNotEmpty(obj) {
+        if(obj != undefined && obj != null && obj != ""){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    var initMinDate = new Date(1900, 0, 1);
+    var initMaxDate = new Date(2099, 11, 31);
+    var effectiveStartDate = $("#effectiveStartDate").data("kendoDatePicker");
+    var effectiveEndDate = $("#effectiveEndDate").data("kendoDatePicker");
+
+    if (employeeId!=0) {
+        $.ajax({
+            url: '${base.contextPath}/hr/employee/query?employeeId=${RequestParameters.employeeId!0}',
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+                    viewModel.model.set(k, a0[k]);
+                    isNotEmpty(viewModel.model.effectiveStartDate) ? effectiveEndDate.min(viewModel.model.effectiveStartDate) : "";
+                    isNotEmpty(viewModel.model.effectiveEndDate) ? effectiveStartDate.max(viewModel.model.effectiveEndDate) : "";
+                }
+            }
+        });
+    }
+
+	//验证
+	$("#mainform").kendoValidator({
+    	messages: {
+            required: '<@spring.message "jrap.validation.notempty"/>'
+    	},
+		invalidMessageType : "tooltip"
+    });
+	//日期
+	$(".datepicker").kendoDatePicker({
+		  animation: false
+	});
+	//性别下拉框
+	$("#gender").kendoComboBox({
+		  dataSource: {
+		    data: employeeGenderData
+		  },
+		  valuePrimitive: true,
+		  dataTextField: "meaning",
+          dataValueField: "value"
+	});
+	//状态栏下拉框
+	$("#status").kendoComboBox({
+		  dataSource:employeeStatusData,
+		  valuePrimitive: true,
+		  dataTextField: "meaning",
+          dataValueField: "value"
+	});
+	//证件类型下拉框
+	$("#certificateType").kendoComboBox({
+		dataSource:employeeCertificateTypeData,
+		valuePrimitive: true,
+		dataTextField: "meaning",
+		dataValueField: "value"
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ #{copyright}#
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.system.mapper.LanguageMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.system.dto.Language"
+               extends="com.jingrui.jrap.mapper.StdMapper.STD">
+        <id column="LANG_CODE" property="langCode" jdbcType="VARCHAR"/>
+        <result column="BASE_LANG" property="baseLang" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    LANG_CODE, BASE_LANG, DESCRIPTION
+  </sql>
+
+</mapper>

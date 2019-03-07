@@ -1,0 +1,127 @@
+<head>
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="X-CSRF-TOKEN" />
+
+    <link href="${base.contextPath}/lib/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+    <script src="${base.contextPath}/lib/kendoui/js/jquery.min.js"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.all.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.jrap.js"></script>
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.jrap.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<style>
+    /*
+    body {
+        text-align: center;
+    }*/
+    body .ui-tooltip {
+          max-width: 800px;
+      }
+    table{
+        width: 90%;
+        border-collapse: collapse;
+        border:1px solid #c0c0c0;
+        font-size: 12px;
+    }
+
+    table th{
+        word-break: keep-all;
+        white-space:nowrap;
+        padding:5px;
+        border:1px solid #c0c0c0;
+    }
+    table td{
+        word-break: keep-all;
+        white-space:nowrap;
+        padding:5px;
+        border:1px solid #c0c0c0;
+    }
+
+</style>
+<embed id = "svg" type="image/svg+xml"  src="${base.contextPath}/wfl/runtime/process-instances/${RequestParameters.processInstanceId}/diagram"/>
+<div id = "frame" ></div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(function () {
+            $(document).tooltip({
+                content: function () {
+                    var element = $( this );
+                    // 提示纯HTML，可以自定义样式、内容等等
+                    return element.attr("title");
+                }
+            });
+        });
+    });
+
+    $.ajax({
+        url: "${base.contextPath}/wfl/runtime/process-instances/${RequestParameters.processInstanceId}/forecast",
+        type: "GET",
+        success: function (data) {
+            processData(data);
+        }
+    });
+    var processData = function (data){
+        //var offsetX = $("#svg").offset().left;
+        for(var i = 0;i<data.length;i++){
+            var index = data[i];
+            var grapINfo = index.graphicInfo;
+            var div = $("<div id = "+index.taskId+"></div>");
+            div.css("width",grapINfo.width);
+            div.css("height",grapINfo.height);
+            div.css("position","absolute");
+            //div.css("background","red");
+            div.css("left",grapINfo.x);
+            div.css("top",grapINfo.y);
+
+            var context = "<div style='margin-bottom: 10px;'><strong style='font-size: 16px;'>审批者</strong></div>"+"<table  >" +
+                "<tr align='center'><th>审批人</th><th>岗位名称</th><th>部门名称</th><th>审批动作</th><th>审批日期</th></tr>";
+            if(index.executed || index.history){
+                var history = index.history;
+                var hisVar = " ";
+                for(var ii = 0;ii<history.length;ii++){
+                    var hisInx = history[ii];
+                    var action = hisInx.action;
+                    if (action == 'APPROVED'){
+                        apprvText = "<span class='action_ok'>同意</span>";
+                    } else if (action == 'REJECTED'){
+                        apprvText = "<span class='action_dangerous'>拒绝</span>";
+                    }else if(action == 'ADD_SIGN'){
+                        apprvText = "<span class='action_dangerous'>加签</span>";
+                    }else if(action == 'DELEGATE'){
+                        apprvText = "<span class='action_dangerous'>转交</span>";
+                    } else if(action == 'JUMP'){
+                        apprvText = "<span class='action_dangerous'>跳转</span>";
+                    }else if(action == 'RECALL'){
+                        apprvText = "<span class='action_dangerous'>撤回</span>";
+                    }else if(action == "AUTO_DELEGATE") {
+                        apprvText = "<span class='action_dangerous'>自动转交</span>";
+                    }else{
+                        apprvText = action || ''
+                    }
+                    hisVar = hisVar +"<tr><td>"+hisInx.assigneeName +"</td><td>"+hisInx.positionName+"</td><td>"+hisInx.unitName+"</td><td>"+apprvText+"</td><td>"+ hisInx.endTime+"</td></tr>";
+                }
+                context = context + hisVar ;
+            }
+            if(index.forecast){
+               /* context = context +"<strong style='font-size: 16px'>审批预测</strong>"+"<br/> <table >"+
+                    "<tr><th>审批人</th><th>岗位名称</th><th>部门名称</th></tr>";*/
+                var forecast = index.forecast;
+                var str = "";
+                $.each(forecast, function(i,val) {
+                    str = str +"<tr><td>"+ val.name+"("+val.employeeCode+")" +"</td><td>"+val.positionName+"</td><td>"+val.unitName+"</td><td></td></td><td></tr>";
+                });
+                context = context + str ;
+            }
+            context = context +"</table>";
+            div.attr("title",context);
+            $("#frame").append(div);
+        }
+    }
+
+
+</script>
+
+</body>
+</html>

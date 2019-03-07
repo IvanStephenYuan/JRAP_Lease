@@ -1,0 +1,419 @@
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/resources/js/wfl/wfl.js"></script>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/lib/assets/global/plugins/jquery-ui/jquery-ui.min.js"></script>
+<link href="${base.contextPath}/lib/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+<style type="text/css">
+    html,body {
+        overflow:auto;
+        color:#333;
+    }
+    .approve-block {
+        padding:0px 20px 20px 20px;
+    }
+    .approve-block h3 {
+        font-weight: normal;
+        color:#000;
+        font-size:16px;
+    }
+    .approve-table {
+        border-collapse: collapse;
+    }
+    .approve-table .item-label {
+        /*text-align:right;*/
+    }
+    .approve-table .item-value{
+        /*font-weight:bold;*/
+    }
+
+    .approve-table td {
+        padding:8px;
+        font-size:12px;
+        border: #e7ecf1 solid 1px;
+    }
+    #historyTable {
+        width:100%;
+    }
+    #historyTable thead td{
+        padding:8px;
+        font-weight:bold;
+        color:#333;
+        font-size:14px;
+    }
+
+    #includeFrame {
+        border: none !important;
+        box-shadow: none;
+    }
+
+
+    #ta-comment {
+        padding:10px;
+        width: 700px;
+        height: 150px;
+        border: #e7ecf1 solid 1px;
+    }
+
+    .comment-too-long {
+        color: red;
+    }
+
+    .action_ok {
+        color: #5fb760;
+    }
+
+    .action_dangerous {
+        color: #eeac5f;
+    }
+
+    .action_custom {
+        color: #60c0dc;
+    }
+
+    button:before {
+        margin-right: 2px;
+    }
+
+    span[class^='fa']:before {
+        margin-right: 3px;
+    }
+
+    body .ui-tooltip {
+        max-width: 800px;
+    }
+    .ui-tooltip table{
+        width: 90%;
+        border-collapse: collapse;
+        border:1px solid #c0c0c0;
+        font-size: 12px;
+    }
+
+    .ui-tooltip table th{
+        word-break: keep-all;
+        white-space:nowrap;
+        padding:5px;
+        border:1px solid #c0c0c0;
+    }
+    .ui-tooltip table td{
+        word-break: keep-all;
+        white-space:nowrap;
+        padding:5px;
+        border:1px solid #c0c0c0;
+    }
+
+    #tabs .nav {
+        margin:10px 0px 20px 0px;
+        padding:0;
+        display:table;
+        width:100%;
+        border-bottom: 1px solid #efefef;
+    }
+    #tabs .nav li {
+        float:left;
+        list-style-type:none;
+    }
+
+    #tabs .nav li a {
+        display: inline-block;
+        padding: 5px 15px;
+        text-decoration: none;
+        color: #8478B3;
+        border:none;
+    }
+
+    #tabs .nav li.active {
+        display: inline-block;
+        background: 0 0;
+        border-bottom: 2px solid #36c6d3 !important;
+    }
+
+
+    #tabs .nav li.active a{
+        border:none;
+        background:#fff;color: #655c89;outline:none;
+    }
+
+    #tabs .nav li:hover{
+        display: inline-block;
+        background: 0 0;
+        border-bottom: 2px solid #9fe4ea !important;
+    }
+
+    #tabs .nav li a:hover{
+        background:#fff;color: #655c89;outline:none;
+        border:none;
+    }
+
+
+</style>
+<script>
+
+    $(function() {
+        $(document).tooltip({
+            content: function () {
+                var element = $( this );
+                // 提示纯HTML，可以自定义样式、内容等等
+                return element.attr("title");
+            }
+        });
+        var svgLoad = false;
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            if(parent.autoResizeIframe){
+                parent.autoResizeIframe(_currentFunctionCode)
+            }
+            if($(e.target).attr("id") == "proImg" && !svgLoad) {
+                processSvg();
+                svgLoad = true;
+            }
+        });
+    });
+
+    function onIncludeFrameLoad() {
+        var ifm = document.getElementById("includeFrame");
+        var subWeb = document.frames ? document.frames["includeFrame"].document : ifm.contentDocument;
+        if (ifm != null && subWeb != null) {
+            ifm.height = $(subWeb).height();
+            ifm.width = subWeb.body.scrollWidth;
+            if(parent.autoResizeIframe){
+                parent.autoResizeIframe(_currentFunctionCode)
+            }
+        }
+    }
+
+    var onSvgLoad = function () {
+        if(parent.autoResizeIframe){
+            parent.autoResizeIframe(_currentFunctionCode)
+        }
+    }
+
+    var processSvg = function () {
+        //document.getElementById("svg").src = "${base.contextPath}/wfl/runtime/process-instances/${RequestParameters.processInstanceId}/diagram";
+        $.ajax({
+            url: "${base.contextPath}/wfl/runtime/process-instances/"+currentProcessInstanceId+"/forecast",
+            type: "GET",
+            success: function (data) {
+                processData(data);
+            }
+        });
+        var processData = function (data){
+            var offsetY = $("#processImg").offset().top ;
+            var offsetX = $("#processImg").offset().left;
+            for(var i = 0;i<data.length;i++){
+                var index = data[i];
+                var grapINfo = index.graphicInfo;
+                var div = $("<div id = "+index.taskId+"></div>");
+                div.css("width",grapINfo.width);
+                div.css("height",grapINfo.height);
+                div.css("position","absolute");
+                //div.css("background","red");
+                div.css("left",grapINfo.x+offsetX);
+                div.css("top",grapINfo.y+offsetY);
+                div.attr("name","svgDiv");
+
+                var context = "<div style='margin-bottom: 10px;'><strong style='font-size: 16px;'>审批记录</strong></div>"+"<table  >" +
+                    "<tr align='center'><th>审批人</th><th>岗位名称</th><th>部门名称</th><th>审批动作</th><th>审批日期</th></tr>";
+                if(index.executed || index.history){
+                    var history = index.history ||{};
+                    var hisVar = " ";
+                    for(var ii = 0;ii<history.length;ii++){
+                        var hisInx = history[ii];
+                        var action = hisInx.action;
+                        if (action == 'APPROVED'){
+                            apprvText = "<span class='action_ok'>同意</span>";
+                        } else if (action == 'REJECTED'){
+                            apprvText = "<span class='action_dangerous'>拒绝</span>";
+                        }else if(action == 'ADD_SIGN'){
+                            apprvText = "<span class='action_dangerous'>加签</span>";
+                        }else if(action == 'DELEGATE'){
+                            apprvText = "<span class='action_dangerous'>转交</span>";
+                        } else if(action == 'JUMP'){
+                            apprvText = "<span class='action_dangerous'>跳转</span>";
+                        }else if(action == 'RECALL'){
+                            apprvText = "<span class='action_dangerous'>撤回</span>";
+                        }else if(action == "AUTO_DELEGATE") {
+                            apprvText = "<span class='action_dangerous'>自动转交</span>";
+                        }else if(action == "CARBON_COPY") {
+                            apprvText = "<span class='action_dangerous'>抄送</span>";
+                        }else{
+                            apprvText = action || ''
+                        }
+                        hisInx.assigneeName = hisInx.assigneeName ||"";
+                        hisInx.positionName = hisInx.positionName ||"";
+                        hisInx.unitName = hisInx.unitName ||"";
+                        hisVar = hisVar +"<tr><td>"+hisInx.assigneeName +"</td><td>"+hisInx.positionName+"</td><td>"+hisInx.unitName+"</td><td>"+apprvText+"</td><td>"+ hisInx.endTime+"</td></tr>";
+                    }
+                    context = context + hisVar ;
+                }
+                if(index.forecast){
+                    /* context = context +"<strong style='font-size: 16px'>审批预测</strong>"+"<br/> <table >"+
+                     "<tr><th>审批人</th><th>岗位名称</th><th>部门名称</th></tr>";*/
+                    var forecast = index.forecast;
+                    var str = "";
+                    $.each(forecast, function(i,val) {
+                        val.employeeCode = val.employeeCode || "";
+                        val.positionName = val.positionName || "";
+                        val.unitName = val.unitName || "";
+                        str = str +"<tr><td>"+ val.name+"("+val.employeeCode+")" +"</td><td>"+val.positionName+"</td><td>"+val.unitName+"</td><td></td></td><td></tr>";
+                    });
+                    context = context + str ;
+                }
+                context = context +"</table>";
+                div.attr("title",context);
+                $("#processImg").append(div);
+            }
+        }
+    }
+</script>
+
+<div class="approve-block">
+    <h3>审批事项</h3>
+    <table id="itemTable" class="approve-table">
+        <tr>
+            <td style="width: 170px;" class="item-label">流程</td>
+            <td style="width: 250px;" class="item-value" id="td-workflow-name"></td>
+            <td style="width: 170px;" class="item-label">申请时间</td>
+            <td style="width: 250px;" class="item-value" id="td-startTime"></td>
+        </tr>
+        <tr>
+            <td style="width: 170px;" class="item-label">流程ID</td>
+            <td style="width: 250px;" class="item-value" id="td-processNum"></td>
+            <td style="width: 170px;" class="item-label">申请人</td>
+            <td style="width: 250px;" id="td-startUserName" class="item-value"></td>
+        </tr>
+        <tr>
+            <td style="width: 170px;" class="item-label">流程描述</td>
+            <td colspan="3" class="item-value" id="td-workflow-description"></td>
+        </tr>
+    </table>
+</div>
+
+<div class="approve-block">
+    <h3>审批表单</h3>
+    <iframe id="includeFrame" style="width:100%" name="includeFrame" onLoad="onIncludeFrameLoad()"></iframe>
+</div>
+
+
+
+<div class="approve-block" id = "tabs">
+    <ul id="hisTab" class="nav nav-tabs">
+        <li class="active">
+            <a href="#historyDetail" data-toggle="tab" >
+                <h3>审批历史</h3>
+            </a>
+        </li>
+        <li><a href="#processImg" data-toggle="tab" id="proImg">
+            <h3>流程图</h3>
+        </a>
+        </li>
+    </ul>
+    <div id="hisTabContent" class="tab-content ">
+        <div class="tab-pane fade in active" id="historyDetail" >
+            <table id="historyTable" class="approve-table">
+                <thead>
+                <tr>
+                    <td style="width: 170px;">审批时间</td>
+                    <td style="width: 250px;">审批环节</td>
+                    <td style="width: 150px;">审批人</td>
+                    <td style="width: 150px;">审批动作</td>
+                    <td>审批意见</td>
+                </tr>
+                </thead>
+                <tbody id="historyTableBody" style="max-height: 100px;overflow: scroll;"></tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="processImg">
+            <embed id="svg" type="image/svg+xml"
+                   src="${base.contextPath}/wfl/runtime/process-instances/${RequestParameters.processInstanceId}/diagram"
+                   onload="onSvgLoad()"/>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    var contextPath_ = '${base.contextPath}';
+    var currentProcessInstanceId= '${RequestParameters.processInstanceId!0}';
+
+    function closeCurrentWin() {
+        if (window.top.closeTab) {
+            window.top.closeTab('PROCESS_INSTANCE_' +　currentProcessInstanceId);
+            return;
+        }
+        window.close();
+    }
+    $.ajax({
+        url: contextPath_ + '/wfl/instance/' + currentProcessInstanceId,
+        success: function (result) {
+            if (result.success === false) {
+                kendo.ui.showErrorDialog({
+                    title: $l('jrap.error'),
+                    message: result.message
+                }).done(function () {
+                    closeCurrentWin();
+                });
+                return;
+            }
+            //设置审批事项
+            $('#td-workflow-name').text(result.processName || '');
+            $('#td-processNum').text(currentProcessInstanceId || '');
+            var startUserName = result.startUserName || '';
+            if(result.startUserId){
+                startUserName = startUserName + '(' +result.startUserId +')';
+            }
+            $('#td-startUserName').text(startUserName);
+            $("#td-startTime").text(result.startTime);
+            $('#td-workflow-description').text(result.description || '');
+            //审批历史
+            createHistoricTable(result.historicTaskList);
+            //审批事项
+            if (result.formKey) {
+                var formKey = result.formKey;
+                if(formKey.indexOf('?')>0){
+                    formKey = formKey+'&businessKey='+result.businessKey;
+                }else {
+                    formKey = formKey+'?businessKey=' + result.businessKey;
+                }
+                document.getElementById('includeFrame').src = (contextPath_ + '/' + formKey)
+            }
+        }
+    });
+
+    function createHistoricTable(result) {
+        var tb = $("#historyTableBody");
+        result = result || [];
+        var apprvText = ''
+        $.each(result, function (i, r) {
+            var tr = WFL.ce('tr', tb);
+            WFL.ce('td', tr).text(r.endTime);
+            WFL.ce('td', tr).text(r.name);
+            WFL.ce('td', tr).text(r.assigneeName || r.assignee || '');
+
+            if (r.action == 'APPROVED'){
+                apprvText = "<span class='action_ok'>同意</span>";
+            } else if (r.action == 'REJECTED'){
+                apprvText = "<span class='action_dangerous'>拒绝</span>";
+            }else if(r.action == 'ADD_SIGN'){
+                apprvText = "<span class='action_dangerous'>加签</span>";
+            }else if(r.action == 'DELEGATE'){
+                apprvText = "<span class='action_dangerous'>转交</span>";
+            } else if(r.action == 'JUMP'){
+                apprvText = "<span class='action_dangerous'>跳转</span>";
+            } else if(r.action == 'RECALL'){
+                apprvText = "<span class='action_dangerous'>撤回</span>";
+            }else if(r.action == "AUTO_DELEGATE") {
+                 apprvText = "<span class='action_dangerous'>自动转交</span>";
+            }else if(r.action == "CARBON_COPY") {
+                apprvText = "<span class='action_dangerous'>抄送</span>";
+            }else{
+                apprvText = r.action || ''
+            }
+
+            WFL.ce('td', tr).html(apprvText);
+            WFL.ce('td', tr).text(r.comment || '');
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,964 @@
+<#include "include/header.html">
+<body xmlns="http://www.w3.org/1999/html">
+<span id="centeredNotification" style="display:none;"></span>
+<script src="${base.contextPath}/common/code?resourceTypeData=SYS.RESOURCE_TYPE&codeYesNo=SYS.YES_NO" type="text/javascript"></script>
+<script>
+
+    window.accessConfig1 = {
+        buttons:[
+            {id:'validateButton'},
+            {id:'alertButton'},
+            {id:'openTabButton'}
+        ],
+        form:[{
+            id:'formId',
+            fields:[
+                {id:'maskedtextbox'},
+                {id:'combobox'},
+                {id:'lov'},
+                {id:'tl'},
+                {id:'radio'},
+                {id:'checkbox'},
+                {id:'checkbox2'},
+                {id:'dtp'},
+                {id:'datepicker'},
+                {id:'qty'},
+                {id:'TA'}
+            ],
+            buttons:[
+                {id:'buttonId'}
+            ]
+        }],
+        grid:[{
+            id:'grid',
+            columns:[
+                {name:'url'}
+            ],
+            buttons:[
+                {id:'createButton'},
+                {id:'saveButton'},
+                {id:'cancelButton'}
+            ],
+            columnButtons:[
+                {className:'btn-edit'},
+                {className:'btn-remove'}
+            ]
+        }]
+    }
+
+
+
+
+
+
+    function onShow(e) {
+        if (e.sender.getNotifications().length == 1) {
+            var element = e.element.parent(),
+                eWidth = element.width(),
+                eHeight = element.height(),
+                wWidth = $(window).width(),
+                wHeight = $(window).height(),
+                newTop, newLeft;
+
+            newLeft = Math.floor(wWidth / 2 - eWidth / 2);
+            newTop = Math.floor(wHeight / 2 - eHeight / 2);
+
+            e.element.parent().css({
+                top: newTop,
+                left: newLeft
+            });
+        }
+    }
+
+    var centered = $("#centeredNotification").kendoNotification({
+            stacking: "down",
+            show: onShow,
+            autoHideAfter: 1000,
+            button: true
+        }).data("kendoNotification"),
+        tabCounter = 2,
+
+        viewModel = kendo.observable({
+            isEnabled: true,
+            data: {
+                //userName:'Admin',
+                //userId: 3,
+                //id:101,
+                //name: '功能管理'
+                flozen:'Y'
+            },
+            validateForm: function () {
+                alert(validator.validate());
+                //this.data.set('userId', null)
+                //this.set('data',{})
+            },
+            comboboxSource: [{
+                text: "Cotton",
+                value: "1"
+            }, {
+                text: "Polyester",
+                value: "2"
+            }, {
+                text: "Cotton/Polyester",
+                value: "3"
+            }, {
+                text: "Rib Knit",
+                value: "4"
+            }],
+            showInfo: function () {
+                kendo.ui.showInfoDialog({
+                    message: '您的订单已经提交!'
+                }).done(function (e) {
+                    centered.show('你点击了 ' + e.button)
+                })
+            },
+            showError: function () {
+                kendo.ui.showErrorDialog({
+                    message: '错误信息!'
+                }).done(function (e) {
+                    centered.show('你点击了 ' + e.button)
+                })
+            },
+            showWarning: function () {
+                kendo.ui.showWarningDialog({
+                    message: '警告信息!'
+                }).done(function (e) {
+                    centered.show('你点击了 ' + e.button)
+                })
+            },
+            showConfirm: function () {
+                kendo.ui.showConfirmDialog({
+                    title: '提示',
+                    message: '确认删除么?'
+                }).done(function (e) {
+                    centered.show('你点击了 ' + e.button)
+                })
+            },
+            showCustom: function () {
+                kendo.ui.showDialog({
+                    title: '自定义窗口',
+                    width: 400,
+                    message: $('#modal-body').html(),
+                    buttons: [{
+                        text: "按钮1",
+                        type: 'primary',
+                        click: function (e) {
+                            e.dialog.destroy();
+                            e.deferred.resolve({
+                                button: "BUTTON1"
+                            });
+                        }
+                    }, {
+                        text: "按钮2",
+                        type: 'success',
+                        click: function (e) {
+                            e.dialog.destroy();
+                            e.deferred.resolve({
+                                button: "BUTTON2"
+                            });
+                        }
+                    }, {
+                        text: "按钮3",
+                        type: 'danger',
+                        click: function (e) {
+                            e.dialog.destroy();
+                            e.deferred.resolve({
+                                button: "BUTTON2"
+                            });
+                        }
+                    }]
+                }).done(function (e) {
+                    centered.show('你点击了 ' + e.button)
+                })
+            },
+            showWindow: function () {
+                if ($('#win').data('kendoWindow')) {
+                    $('#win').data('kendoWindow').open()
+                } else {
+                    $('#win').kendoWindow({
+                        width: 600,
+                        height: 500,
+                        modal: true,
+                        title: "Rams's Ten Principles of Good Design",
+                        content: "combobox.html"
+                    }).data('kendoWindow').center();
+                }
+
+            },
+            openTab: function () {
+                var tab = $('#tabstrip').data('kendoTabStrip');
+                tab.append({
+                    tabid: 'Item-' + (++tabCounter),
+                    text: 'Item ' + (++tabCounter) + ' <span class="k-icon k-i-close"></span>',
+                    encoded: false,
+                    content: '<p>Appended item " + tabCounter + " content</p>'
+                });
+                tab.select(tab.tabGroup.children().length - 1)
+            }
+
+        });
+</script>
+<div id="win"></div>
+<div style="padding:15px 15px 0">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="panel">
+                <form class="form-horizontal" id="form1">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="maskedtextbox">TextBox:</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="userId" required data-label="文本框" validationMessage="Enter {0}" id="maskedtextbox" data-role="maskedtextbox" data-bind="enabled: isEnabled, value:data.userId"
+                                       style="width:100%" class="k-textbox k-state-disabled">
+                            </div>
+                            <script>
+                                kendo.bind($('#maskedtextbox'), viewModel);
+                            </script>
+                            <label class="col-sm-2 control-label" for="combobox">ComboBox:</label>
+                            <div class="col-sm-4">
+                                <input id="combobox" id="combobox" required placeholder="combobox" data-role="dropdownlist" data-value-primitive="true" data-text-field="text" data-value-field="value"
+                                       data-bind="enabled: isEnabled, source: comboboxSource, value:data.productId" style="width: 100%;"/>
+                                <script>
+                                    kendo.bind($('#combobox'), viewModel);
+                                </script>
+                                <span class="k-invalid-msg" data-for="combobox"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="lov">Lov:</label>
+                            <div class="col-sm-4">
+                                <input id="lov" name="lov" required placeholder="lov" data-label="角色" data-bind="enabled: isEnabled, value:data.userId,text:data.userName" style="width: 100%"/>
+                                <span class="k-invalid-msg" data-for="lov"></span>
+                            </div>
+                            <script>
+                                $("#lov").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_EMPLOYEE")}, {
+                                    query: function (e) {
+                                        e.param['current_time'] = new Date();
+                                        e.param['userId'] = viewModel.data.userId;
+                                    },
+                                    select: function (e) {
+                                        //viewModel.data.set('productId', '1')
+                                        //viewModel.data.set('userId', e.item.roleCode)
+
+                                    },
+                                    change:function(e){
+                                        //validator.validateInput($("#combobox"));
+                                        //validator.validateInput($("#maskedtextbox"));
+                                    }
+                                }))
+                                kendo.bind($('#lov'), viewModel);
+                            </script>
+                            <label class="col-sm-2 control-label" for="datepicker">DatePicker:</label>
+                            <div class="col-sm-4">
+                                <input id="datepicker"  name="datepicker" placeholder="datepicker" data-label="日期" required data-role="datepicker" data-bind="enabled: isEnabled,value:data.birthday"
+                                       style="width: 100%"/>
+                                <span class="k-invalid-msg" data-for="datepicker"></span>
+                            </div>
+                            <script>
+                                kendo.bind($('#datepicker'), viewModel);
+                            </script>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"  for="tl">TLEdit:</label>
+                            <div class="col-sm-4">
+                                <input id="tl" required name="tl" placeholder="多语言" data-bind="enabled: isEnabled, value:data.name" style="width: 100%"/>
+                                <span class="k-invalid-msg" data-for="tl"></span>
+                            </div>
+                            <script>
+                                $("#tl").kendoTLEdit({
+                                    idField: 'id',
+                                    field: 'name',
+                                    dto: "com.hand.hap.function.dto.Resource",
+                                    model: viewModel.data
+                                })
+                                kendo.bind($('#tl'), viewModel);
+                            </script>
+                            <label class="col-sm-2 control-label"   for="dtp">DateTimePicker:</label>
+                            <div class="col-sm-4">
+                                <input id="dtp" style="width: 100%" required data-label="DateTimePicker" data-bind="enabled: isEnabled" data-role="datetimepicker" >
+                            </div>
+                            <script>
+                                kendo.bind($('#dtp'), viewModel);
+                            </script>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"   for="radio">Radio</label>
+                            <div class="col-sm-4">
+                                <div id="radio" style="margin-top:5px;" data-bind="enabled: isEnabled,value:data.radio"></div>
+                            </div>
+                            <script>
+                                $("#radio").kendoRadio({
+                                    layout: '',//vertical
+                                    readonly: false,
+                                    items: [{
+                                        label: "labe1",
+                                        value: "1"
+                                    }, {
+                                        label: "lable2",
+                                        value: "2"
+                                    }, {
+                                        label: "labe3",
+                                        value: "3"
+                                    }],
+                                    change: function (e) {
+                                        console.log(e)
+                                    }
+                                });
+                                //$("#grid").data('kendoGrid')
+                                kendo.bind($("#radio"), viewModel);
+                                var radio=$("#radio").data('kendoRadio');
+                                //console.log(radio)
+                            </script>
+                            <label class="col-sm-2 control-label" >Checkbox1:</label>
+                            <div class="col-sm-4">
+                                <input id="checkbox" style="margin-top:5px;" name="checkbox" type="text" data-bind="enabled: isEnabled,value:data.flozen"/>
+                                <input id="checkbox2" style="margin-top:5px;" name="checkbox" type="text" data-bind="value:data.flozen"/>
+                            </div>
+                            <script>
+                                $("#checkbox").kendoCheckbox({
+                                    checkedValue: 'Y',
+                                    label: "这是一个复选框1",
+                                    uncheckedValue: 'N'
+                                });
+                                kendo.bind($('#checkbox'), viewModel);
+
+                                $("#checkbox2").kendoCheckbox({
+                                    enable: false,
+                                    label: "这是一个复选框2",
+                                    checkedValue: 'Y',
+                                    uncheckedValue: 'N'
+                                });
+                                kendo.bind($('#checkbox2'), viewModel);
+                            </script>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="categories">Combobox-A:</label>
+                            <div class="col-sm-4">
+                                <input id="categories" style="width: 100%;">
+                            </div>
+                            <script>
+                                var categories = $("#categories").kendoComboBox({
+                                    filter: "contains",
+                                    placeholder: "Select category...",
+                                    dataTextField: "code",
+                                    dataValueField: "code",
+                                    dataSource: {
+                                        transport: {
+                                            read: "${base.contextPath}/sys/lov/query"
+                                        },
+                                        schema: {
+                                            data: 'rows'
+                                        }
+                                    }
+                                }).data("kendoComboBox");
+                            </script>
+
+                            <label class="col-sm-2 control-label">Combobox-B:</label>
+                            <div class="col-sm-4">
+                                <input id="products" disabled style="width: 100%;">
+                            </div>
+                            <script>
+                                var products = $("#products").kendoComboBox({
+                                    autoBind: false,
+                                    cascadeFrom: "categories",
+                                    cascadeFromField: "code",
+                                    filter: "contains",
+                                    placeholder: "Select product...",
+                                    dataTextField: "code",
+                                    dataValueField: "code",
+                                    dataSource: {
+                                        serverFiltering: true,
+                                        transport: {
+                                            read: "${base.contextPath}/sys/lov/query",
+                                            parameterMap: function (options, type) {
+                                                if (type === "read") {
+                                                    var filter = options.filter.filters[0]
+                                                    var map = {};
+                                                    map[filter.field] = filter.value;
+                                                    return map;
+                                                }
+                                            }
+                                        },
+                                        schema: {
+                                            data: 'rows'
+                                        }
+                                    }
+                                }).data("kendoComboBox");
+                            </script>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="TA">textarea:</label>
+                            <div class="col-sm-4">
+
+                                <textarea id="TA" name="textarea" data-bind="enabled: isEnabled,value:data.text" required placeholder="xxxxx"></textarea>
+                                <span class="k-invalid-msg" data-for="textarea"></span>
+                            </div>
+                            <label class="col-sm-2 control-label"  for="qty">QTY:</label>
+                            <div class="col-sm-4">
+                                <input id="qty" name="qty" data-bind="enabled: isEnabled,value:data.qty" required ></input>
+                            </div>
+
+                        </div>
+                        <script>
+                            $("#TA").kendoTextArea({
+                                height: 50,
+                                width: 300
+                            });
+                            kendo.bind($("#TA"), viewModel);
+
+                            $("#qty").kendoNumericTextBox({
+                                //min: 0,
+                                step: 1,
+                                format: "0"
+                            });
+                        </script>
+                    </div>
+                    <div class="panel-footer text-left" id="toolbar">
+                        <span id="validateButton" class="btn btn-success" data-bind="click:validateForm"><i class="fa fa-plus-square"></i><span>校验</span></span>
+                        <span id="alertButton" class="btn btn-info" data-bind="click:showInfo"><i class="fa fa-info-circle"></i><span>提示窗口</span></span>
+                        <span class="btn btn-warning" data-bind="click:showWarning"><i class="fa fa-warning"></i><span>警告窗口</span></span>
+                        <span class="btn btn-danger" data-bind="click:showError"><i class="fa fa-trash-o"></i><span>错误窗口</span></span>
+                        <span class="btn btn-danger" data-bind="click:showConfirm">确认窗口</span>
+                        <span class="btn btn-default" data-bind="click:showCustom">自定义窗口</span>
+                        <span id="openTabButton" class="btn btn-default" data-bind="click:openTab">打开标签页</span>
+                    </div>
+                    <script>
+                        kendo.bind($('#toolbar'), viewModel);
+                    </script>
+                </form>
+            </div>
+
+
+        </div>
+        <script>
+            $('#form1').keydown(function (e) {
+                if (e.keyCode == 13) {
+                    alert('13')
+                }
+            });
+        </script>
+        <style>
+            /**
+            .k-tabstrip-wrapper,
+            .k-tabstrip-wrapper .k-content {
+                height: 100%;
+            }**/
+
+        </style>
+        <div class="col-sm-6" style="height:170px;">
+            <div id="tabstrip" style="height:100%">
+                <ul>
+                    <li class="k-state-active">
+                        Paris
+                    </li>
+                    <li>
+                        New York
+                    </li>
+                    <li>
+                        London
+                    </li>
+                    <li>
+                        Moscow
+                    </li>
+                </ul>
+                <div>
+                    <span class="rainy">&nbsp;</span>
+                    <div class="weather">
+                        <h2>17<span>&ordm;C</span></h2>
+                        <p>Rainy weather in Paris.</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="sunny">&nbsp;</span>
+                    <div class="weather">
+                        <h2>29<span>&ordm;C</span></h2>
+                        <p>Sunny weather in New York.</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="sunny">&nbsp;</span>
+                    <div class="weather">
+                        <h2>21<span>&ordm;C</span></h2>
+                        <p>Sunny weather in London.</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="cloudy">&nbsp;</span>
+                    <div class="weather">
+                        <h2>16<span>&ordm;C</span></h2>
+                        <p>Cloudy weather in Moscow.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var tabstrip = $("#tabstrip").kendoTabStrip({
+                height: '100%',
+                animation: false
+            }).data("kendoTabStrip");
+            tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var item = $(e.target).closest(".k-item");
+                var index = item.index(),
+                    prev = item.next().length == 1 ? item.next() : item.prev();
+                tabstrip.remove(item.index());
+                tabstrip.select(prev)
+            });
+        </script>
+    </div>
+    <div class="row">
+        <div class="col-xs-12" style="height:550px;clear:both">
+            <div id="grid" style=""></div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-body" style="display:none;">
+    <p class="text-semibold text-main">Bootstrap Modal Vertical Alignment Center</p>
+    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud
+        exerci tation ullamcorper suscipit lobortis nisl ut
+        aliquip ex ea commodo consequat.</p>
+    <br>
+    <p class="text-semibold text-main">Popover in a modal</p>
+    <p>This
+        <button class="btn btn-sm btn-warning demo-modal-popover add-popover" data-toggle="popover" data-trigger="focus" data-content="And here's some amazing content. It's very engaging. right?"
+                data-original-title="Popover Title">button
+        </button>
+        should trigger a popover on click.
+    </p>
+    <br>
+    <p class="text-semibold text-main">Tooltips in a modal</p>
+    <p>
+        <a class="btn-link text-bold add-tooltip" href="#" data-original-title="Tooltip">This link</a> and
+        <a class="btn-link text-bold add-tooltip" href="#" data-original-title="Tooltip">that link</a> should have tooltips on hover.
+    </p>
+</div>
+
+
+<script>
+    var errorTemplate = '<div class="k-widget k-tooltip k-tooltip-validation"' +
+        'style="margin:0.5em"><span class="k-icon k-warning"> </span>' +
+        '#=message#<div class="k-callout k-callout-n"></div></div>'
+
+    var validator = $("#form1").kendoValidator({
+        valid: function (e) {
+            console.log('valid')
+        },
+        invalidMessageType : "tooltip"
+        //errorTemplate: errorTemplate
+    }).data("kendoValidator");
+
+
+    /*     	var tooltip = $("#form1").kendoTooltip({
+                filter: ".k-invalid",
+                content: function(e) {
+                  var name = e.target.attr("name") || e.target.closest(".k-widget").find(".k-invalid:input").attr("name");
+                  var errorMessage = $("#form1").find("[data-for=" + name + "]");
+
+                  return '<span class="k-icon k-warning"> </span>' + errorMessage.text();
+                },
+                show: function() {
+                  this.refresh();
+                }
+            }); */
+    var crudServiceBaseUrl = "${base.contextPath}/sys/resource",
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/query",
+                    type: "POST",
+                    dataType: "json"
+                },
+                create: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                update: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: crudServiceBaseUrl + "/remove",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = options.models
+                        if (type == 'create' || type == 'update') {
+                            datas = options.models.map(function (data) {
+                                data['__status'] = (type == 'create' ? 'add' : 'update');
+                                return data;
+                            })
+                        }
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        var map = {};
+                        map.page = options.page;
+                        map.pagesize = options.pageSize;
+                        for (var k in map) {
+                            if (map[k] === '' || map[k] === null || map[k] === undefined)
+                                delete map[k]
+                        }
+                        return map;
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "resourceId",
+                    fields: {
+                        loginRequire: {
+                            defaultValue: 'Y',
+                            type: 'boolean',
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        },
+                        accessCheck: {
+                            defaultValue: 'Y',
+                            type: 'boolean',
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        },
+                        type: {
+                            defaultValue: ''
+                        },
+                        phone : {
+                            validation:{
+                                required: false,
+                                phonevalidation: function (input) {
+                                    if (input.is("[name='phone']") && input.val()!="") {
+                                        input.attr("data-phonevalidation-msg", "手机号码格式不正确");
+                                        return /^1[34578]\d{9}$/.test(input.val());
+                                    }
+                                    return true;
+                                }
+                            }
+                        },
+                        url: {
+                            validation: {
+                                required: true
+
+                            }
+                        },
+                        name: {
+                            validation: {
+                                required: true
+                            }
+                        }
+                    },
+                    editable: function (col) {
+                        if (col == 'url' && this.url == '500.html') {
+                            return false;
+                        }
+                        if (col == 'accessCheck') return false;
+                        return true;
+                    }
+                }//,
+                //errors: function (res) {
+                //    if (!res.success && res.message) {
+                //        return res.message;
+                //    }
+                //}
+            }//,
+            //error: function (e) {
+            //alert(e.errors)
+            //}
+        }),
+        dataSource2 = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/query",
+                    type: "POST",
+                    dataType: "json"
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "resourceId"
+                }
+            }
+        });
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        height: '100%',
+        resizable: true,
+        selectable: 'rowbox,multiple',
+        rownumber: true,
+        detailInit: detailInit,
+        //scrollable: false,
+        navigatable: true,
+        locate: function (e) {
+            var d = this.dataItem(e.element);
+        },
+        pageable: {
+            pageSizes: ['All', 5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        toolbar: [{
+            name: "create",
+            template: '<span id="createButton" class=" btn btn-primary k-grid-add">#=text#</span>'
+        }, {
+            name: "save",
+            template: '<span id="saveButton"  class="btn btn-success k-grid-save-changes">#=text#</span>'
+        }, {
+            name: "cancel",
+            template: '<span id="cancelButton" class="btn btn-default k-grid-cancel-changes">取消</span>'
+        }, {
+            template: '<span id="customBtn" class="btn btn-warning">个性化</span>'
+        }, {
+            template: '<span id="selectRows" class="btn btn-default">选中行数据</span>'
+        }, {
+            template: '<span id="selectedBtn" class="btn btn-default">获取选中行数据</span>'
+        },{
+            name:"excel"
+        }],
+        columns: [
+            {
+                command: [
+                    {
+                        name: "edit",
+                        className: "btn-edit",
+                        isEnable: function (data) {
+                            return true;
+                            return data.url == '403.html'
+                        }
+                    },
+                    {name: "destroy", className: "btn-remove",},
+                    {
+                        name: 'ding',//注意这里定义好name后，模板中一定要有对应的样式 k-grid-[name]
+                        template: '<a class="k-button k-button-icontext k-grid-ding"><span class="fa fa-thumbs-up"></span></a>',
+                        click: function (e) {
+                            e.preventDefault();
+                            alert('顶!~')
+                        }
+                    }
+                ],
+                //locked: true,
+                title: "操作",
+                width: 150,
+                headerAttributes: {
+                    style: "text-align:center"
+                },
+                attributes: {
+                    style: "text-align:center"
+                }
+            }, {
+                field: "url",
+                title: '<@spring.message "resource.url"/>',
+                width: 250,
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoMaskedTextBox({});
+                }
+            }, {
+                field: "type",
+                title: '<@spring.message "resource.type"/>',
+                width: 180,
+                template: function (dataItem) {
+                    var v = dataItem.type;
+                    $.each(resourceTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return false;
+                        }
+                    })
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoComboBox({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            dataSource: resourceTypeData
+                        });
+                }
+            }, {
+                field: "lov",
+                title: 'lov',
+                width: 200,
+                template: function (dataItem) {
+                    return dataItem['name'] || ''
+                },
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_ROLE")}, {
+                            textField: 'name',
+                            select: function (e) {
+                                options.model.set('phone', e.item.phone)
+                            },
+                            model: options.model
+                        }));
+                }
+            },
+            // {
+            // 	field: "lov",
+            // 	title: 'lov',
+            // 	width: 50
+            // },
+            {
+                field: "phone",
+                title: 'phone',
+                width: 150
+            }, {
+                field: "name",
+                title: '<@spring.message "resource.name"/>',
+                width: 150,
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoTLEdit({
+                            idField: 'id',
+                            field: options.field,
+                            dto: "com.hand.hap.function.dto.Resource",
+                            model: options.model
+                        });
+                }
+            }, {
+                field: "bod",
+                title: '生日',
+                width: 200,
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDatePicker();
+                }
+            }, {
+                field: 'loginRequire',
+                title: '<@spring.message "resource.loginrequire"/>',
+                width: 120,
+                headerAttributes: {
+                    style: "text-align:center"
+                },
+                attributes: {
+                    style: "text-align:center"
+                }
+            }, {
+                field: 'accessCheck',
+                title: '<@spring.message "resource.accesscheck"/>',
+                width: 120,
+                headerAttributes: {
+                    style: "text-align:center"
+                },
+                attributes: {
+                    style: "text-align:center"
+                }
+            }, {
+                field: "description",
+                title: '<@spring.message "resource.description"/>',
+                width: 250,
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoTLEdit({
+                            idField: 'id',
+                            field: options.field,
+                            dto: "com.hand.hap.function.dto.Resource",
+                            modal: false,
+                            model: options.model
+                        });
+                }
+            }/* , {
+                    attributes: {
+                        style: "text-align:center;padding:0px"
+                    },
+                    command: [{
+                        name: 'remove',
+                        template: '<a class="btn btn-danger k-grid-remove"><@spring.message "hap.delete"/></a>',
+                        click: function(e) {
+                            var sf = this;
+                            e.preventDefault();
+                            kendo.ui.showConfirmDialog({
+                                title: '提示',
+                                message: '确认删除么?'
+                            }).done(function(event) {
+                                if (event.button == 'OK') {
+                                    var data = sf.dataItem($(e.target).closest("tr"));
+                                    sf.dataSource.remove(data)
+                                    sf.dataSource.sync()
+                                }
+
+                            })
+                        }
+                    }],
+                    width: 70
+                } */
+        ],
+        isSelectable: function (dataItem) {
+            if (dataItem.url == '403.html') return false;
+            return true;
+        },
+        editable: true//'inline'
+    });
+
+
+    function detailInit(e) {
+        $("<div/>").appendTo(e.detailCell).kendoGrid({
+            dataSource: dataSource2,
+            scrollable: false,
+            sortable: true,
+            pageable: true,
+            selectable: 'rowbox,multiple',
+            columns: [
+                {
+                    field: "url",
+                    title: '<@spring.message "resource.url"/>',
+                    width: 250
+                }
+            ]
+        });
+    }
+
+
+
+    function selectRows() {
+        var grid = $("#grid").data('kendoGrid');
+        grid.selectable.value(grid.items())
+    }
+
+    $('#customBtn').on('click', function () {
+        kendo.ui.showInfoDialog({
+            title: '自定义窗口',
+            width: 400,
+            message: $('#modal-body').html()
+        })
+    })
+    $('#selectRows').on('click', function () {
+        window.selectRows()
+    })
+
+
+    $('#selectedBtn').on('click', function () {
+        var grid = $("#grid").data("kendoGrid"),
+            selections = grid.selectedDataItems();
+        console.log(selections)
+        //grid.setOptions({editable:false})
+        alert("选中" + selections.length + "条");
+    })
+    //处理grid中的选择框
+    /* $("#grid").on("change", "input.chkbx", function (e) {
+         var target = $(e.target), grid = $("#grid").data("kendoGrid"),
+                 dataItem = grid.dataItem(target.closest("tr"));
+         dataItem.set(target.data('field'), this.checked ? 'Y' : 'N');
+     });*/
+</script>
+</body>
+</html>

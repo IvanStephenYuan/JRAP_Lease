@@ -1,0 +1,88 @@
+<#--
+* description: 动态表单
+* version: 1.0
+*
+-->
+<#include "../../include/header.html">
+<script src="${base.contextPath}/resources/js/wfl/wfl.js"></script>
+<body>
+<div id="content-container">
+    <div id="page-content">
+        <div class="panel" style="border:none;box-shadow: none;">
+            <form class="form-horizontal">
+                <div class="panel-body" id="dynamicFormBody">
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+
+    var dynamicObserv = {};
+
+    function createDynamicForm() {
+        var dynamicFormBody = $('#dynamicFormBody');
+        $.each(parent.currentTaskInfo.formData.formProperties || [], function (i, r) {
+            if (r.id == 'comment' || r.id == 'approveResult') {
+                return;
+            }
+            var row = WFL.ce('div', dynamicFormBody, {'class': 'row'});
+            var form_group = WFL.ce('div', row, {'class': 'form-group'})
+            WFL.ce('label', form_group, {'class': 'col-sm-3 control-label'}).text(r.name);
+            var div = WFL.ce('div', form_group, {'class': 'col-sm-6'})
+
+            if (r.type == 'enum') {
+                var dataKey = r.id + "_enumValues";
+                dynamicObserv[dataKey] = r.enumValues
+                WFL.ce('select', div, {
+                    'data-role': 'combobox',
+                    'data-bind': 'source:' + dataKey + ' ,value:model.' + r.id,
+                    'data-value-field': 'id',
+                    'data-text-field': 'name',
+                    'data-value-primitive': 'true',
+                    'style': 'width:160px'
+                });
+                return;
+            }
+
+            var type = 'text';
+            var cls = 'k-textbox';
+            if (r.type == 'date') {
+                type = 'datetimepicker';
+                cls = 'k-datetimepicker'
+            } else if (r.type == 'long') {
+                type = 'numerictextbox'
+                cls = 'k-numerictextbox'
+            }
+            var ipt = WFL.ce('input', div, {'data-role': type, 'data-bind': 'value:model.' + r.id, 'class': cls, style: 'width:160px'})
+        });
+
+    }
+    createDynamicForm();
+
+
+    function validate() {
+        alert('//TODO 执行表单校验')
+        return true;//REQUIRED
+    }
+
+
+    function getFormProperties() {
+        return viewModelDynamic.model.toJSON()
+    }
+
+    $(document).ready(function () {
+        dynamicObserv.model = parent.executionVariables;
+
+        window.viewModelDynamic = kendo.observable(dynamicObserv);
+
+        kendo.bind($('#dynamicFormBody'), viewModelDynamic);
+
+
+    });
+
+
+</script>
+</body>
+</html>

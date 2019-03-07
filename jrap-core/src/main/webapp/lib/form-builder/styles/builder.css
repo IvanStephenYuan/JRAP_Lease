@@ -1,0 +1,1315 @@
+/* Minification failed. Returning unminified contents.
+(928,42): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(929,34): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(983,64): run-time error CSS1019: Unexpected token, found '!important'
+(983,64): run-time error CSS1042: Expected function, found '!important'
+(983,75): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(984,61): run-time error CSS1019: Unexpected token, found '!important'
+(984,61): run-time error CSS1042: Expected function, found '!important'
+(984,72): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(985,59): run-time error CSS1019: Unexpected token, found '!important'
+(985,59): run-time error CSS1042: Expected function, found '!important'
+(985,70): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(986,62): run-time error CSS1019: Unexpected token, found '!important'
+(986,62): run-time error CSS1042: Expected function, found '!important'
+(986,73): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(999,64): run-time error CSS1019: Unexpected token, found '!important'
+(999,64): run-time error CSS1042: Expected function, found '!important'
+(999,75): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1000,61): run-time error CSS1019: Unexpected token, found '!important'
+(1000,61): run-time error CSS1042: Expected function, found '!important'
+(1000,72): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1001,59): run-time error CSS1019: Unexpected token, found '!important'
+(1001,59): run-time error CSS1042: Expected function, found '!important'
+(1001,70): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1002,62): run-time error CSS1019: Unexpected token, found '!important'
+(1002,62): run-time error CSS1042: Expected function, found '!important'
+(1002,73): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1018,64): run-time error CSS1019: Unexpected token, found '!important'
+(1018,64): run-time error CSS1042: Expected function, found '!important'
+(1018,75): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1019,61): run-time error CSS1019: Unexpected token, found '!important'
+(1019,61): run-time error CSS1042: Expected function, found '!important'
+(1019,72): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1020,59): run-time error CSS1019: Unexpected token, found '!important'
+(1020,59): run-time error CSS1042: Expected function, found '!important'
+(1020,70): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1021,62): run-time error CSS1019: Unexpected token, found '!important'
+(1021,62): run-time error CSS1042: Expected function, found '!important'
+(1021,73): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1033,64): run-time error CSS1019: Unexpected token, found '!important'
+(1033,64): run-time error CSS1042: Expected function, found '!important'
+(1033,75): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1034,61): run-time error CSS1019: Unexpected token, found '!important'
+(1034,61): run-time error CSS1042: Expected function, found '!important'
+(1034,72): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1035,59): run-time error CSS1019: Unexpected token, found '!important'
+(1035,59): run-time error CSS1042: Expected function, found '!important'
+(1035,70): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1036,62): run-time error CSS1019: Unexpected token, found '!important'
+(1036,62): run-time error CSS1042: Expected function, found '!important'
+(1036,73): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1077,64): run-time error CSS1019: Unexpected token, found '!important'
+(1077,64): run-time error CSS1042: Expected function, found '!important'
+(1077,75): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1078,61): run-time error CSS1019: Unexpected token, found '!important'
+(1078,61): run-time error CSS1042: Expected function, found '!important'
+(1078,72): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1079,59): run-time error CSS1019: Unexpected token, found '!important'
+(1079,59): run-time error CSS1042: Expected function, found '!important'
+(1079,70): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1080,62): run-time error CSS1019: Unexpected token, found '!important'
+(1080,62): run-time error CSS1042: Expected function, found '!important'
+(1080,73): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1090,64): run-time error CSS1019: Unexpected token, found '!important'
+(1090,64): run-time error CSS1042: Expected function, found '!important'
+(1090,75): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1091,61): run-time error CSS1019: Unexpected token, found '!important'
+(1091,61): run-time error CSS1042: Expected function, found '!important'
+(1091,72): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1092,59): run-time error CSS1019: Unexpected token, found '!important'
+(1092,59): run-time error CSS1042: Expected function, found '!important'
+(1092,70): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1093,62): run-time error CSS1019: Unexpected token, found '!important'
+(1093,62): run-time error CSS1042: Expected function, found '!important'
+(1093,73): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1100,64): run-time error CSS1019: Unexpected token, found '!important'
+(1100,64): run-time error CSS1042: Expected function, found '!important'
+(1100,75): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1101,61): run-time error CSS1019: Unexpected token, found '!important'
+(1101,61): run-time error CSS1042: Expected function, found '!important'
+(1101,72): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1102,59): run-time error CSS1019: Unexpected token, found '!important'
+(1102,59): run-time error CSS1042: Expected function, found '!important'
+(1102,70): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1103,62): run-time error CSS1019: Unexpected token, found '!important'
+(1103,62): run-time error CSS1042: Expected function, found '!important'
+(1103,73): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1115,58): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+(1116,50): run-time error CSS1062: Expected semicolon or closing curly-brace, found '0'
+ */
+/*!
+
+ */
+
+html,body {
+    background-color: #f5f5f5;
+}
+
+
+label {
+    font-weight: normal;
+}
+
+/*.form-control {
+    width: 100% !important;
+    height: 2.13em;
+    padding: 0px 0px;
+}
+
+.form-horizontal .control-label {
+float: left;
+width: 120px;
+text-align: right;
+}
+
+
+.form-horizontal .control-label-left {
+  float: left !important;
+  width: 120px !important;
+  padding-top: 5px;
+  text-align: left !important;
+}
+
+.form-horizontal .control-label-right {
+  float: left !important;
+  width: 120px !important;
+  padding-top: 5px;
+  text-align: right !important;
+}*/
+
+
+.form-horizontal .control-label-left{
+text-align:left;
+}
+
+/*input, input:focus {
+   
+    text-indent: .33em;
+    -moz-border-radius: 0;
+-webkit-border-radius: 0;
+border-radius: 0;
+  box-shadow:none !important;
+
+}*/
+
+.btn {
+    padding: 6px 12px;
+}
+
+
+  /*.controls {
+margin-left: 0px;
+}*/
+
+/*.control-inline {
+     margin-left: 140px !important;
+}*/
+
+
+ 
+
+
+.k-autocomplete, .k-combobox, .k-datepicker, .k-timepicker, .k-datetimepicker, .k-colorpicker, .k-numerictextbox, .k-dropdown, .k-selectbox, .k-textbox {
+   width: 100%;
+}
+
+.k-header {
+    background-color: transparent;
+}
+
+.k-widget {
+    padding:0px;
+}
+
+.field-layout-reset 
+{
+    margin: 0px !important;
+}
+
+
+
+.gv-page-break {
+	margin-top: 5px !important;
+	margin-bottom: 5px !important;
+	padding-top: 5px !important;
+	padding-bottom: 5px !important;
+    margin-left: -7px;
+    margin-right: -7px;
+    width: auto !important;
+}
+
+.gv-page {
+	padding: 4px; 
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 0px;
+    margin-right: 0px;
+	border: 1px dotted #e5e5e5;
+}
+
+
+
+.gv-container {
+	margin-top: 5px !important;
+	/*margin-bottom: 5px !important;*/
+	/*padding-top: 5px !important;*/
+	/*padding-bottom: 5px !important;*/
+	/*border-top: 1px dotted #e5e5e5;*/
+	/*border-bottom: 1px dotted #e5e5e5;*/
+}
+
+
+.form-horizontal .form-group {
+ margin-left: 0px;
+ margin-right: 0px;
+}
+
+
+.viewdoc {
+  position: relative;
+  margin: 25px;
+  padding: 15px 10px;
+  background-color: #fff;
+}
+
+.viewerror {
+  position: relative;
+  margin: 5px;
+  
+ 
+}
+
+
+
+
+.shadow {
+/*-moz-box-shadow: 0 0 10px 5px #999;
+-webkit-box-shadow: 0 0 10px 5px #999;*/
+border: #ddd solid 1px;
+margin: 20px;
+background-color: #ffffff;
+padding: 20px;
+}
+
+span.req {
+    display: inline;
+    float: none;
+    color: red !important;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+/*.input-group-addon {
+    border-radius: 0px;
+    padding: 0px 6px;
+    line-height: 2.0em;
+   
+}*/
+
+.prop-option 
+{
+    margin: 2px;
+}
+
+.sidebar-left {
+    position:fixed;
+    width: 310px;
+    top:0;
+    bottom:0;
+    /*height: auto;*/
+    margin-left: 0px;
+    border-color: #f5f5f5;
+    border-right: 1px solid #ddd !important;
+    background-color: #ffffff;
+}
+
+.sidebar-left .accordion-group {
+    border: none;
+      
+
+    }
+
+.x-axis { cursor: e-resize;}
+.y-axis {cursor: n-resize;}
+
+
+
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    *zoom: 1;
+  }
+
+.sidebar-tabs {
+    position:fixed;
+    width:280px;
+    left: 0px;
+    height: auto;
+    bottom: 0;
+    top:40px;
+    margin-right:0px;
+    padding: 10px;
+}
+.sidebar-tabs .tab-content {
+    border-color: #DDDDDD;
+    border-style: none solid solid;
+    border-width: 0 1px 1px;
+    padding: 10px; 
+
+
+}
+
+
+
+.center {
+    margin-left: 320px;
+   
+
+    /*margin-right: 290px;*/
+    height: 100%;
+    width: auto;
+}
+
+.tab-content {
+    overflow: visible;
+}
+
+.sidebar-tabs .nav-tabs {
+    margin-bottom: 0;
+}
+
+.sidebar-tabs  .nav-tabs > .active > a:hover,
+.sidebar-tabs  .nav-tabs > .active > a {background-color:#FFFFFF}
+
+#topbar .nav { margin: 0px; margin-left:10px; background-color:#2B579A;}
+
+.ui-wrapper {white-space: nowrap;}
+.ui-resizable-helper { border-right: 1px dotted #ccc;}
+.ui-state-highlight {
+    background-color: rgba(3, 14, 27, 0.03);
+    border: 1px solid #dddddd !important; 
+
+}
+
+label.error { display:none; }
+
+
+
+
+.hr 
+{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-image: none;
+    border-left: 0 none;
+    border-right: 0 none;
+    border-style: solid none;
+    border-width: 1px 0;
+
+}
+.formControl, .formContainer
+{
+    background: transparent; 
+    font-size:12px;
+    padding: 3px;
+    border: 1px solid none;
+	cursor: move;
+    border: 1px solid transparent;
+    border-radius: 2.5px 2.5px 2.5px 2.5px;
+    color: #525C66;
+    transition-duration: 150ms;
+    transition-property: background-color, border-color, box-shadow;
+    white-space: normal;
+}
+
+.formControl img, .formContainer img
+{
+    vertical-align: middle;
+    padding-right: 5px;
+}
+
+.formControl:hover, .formContainer:hover {
+    
+    border: 1px solid #ddd !important;
+    background-color: rgba(3, 14, 27, 0.03);
+}
+
+
+.headerControl img
+{
+    vertical-align: middle;
+    padding-right: 5px;
+}
+
+.gv-toolbox-component > div
+{
+    margin: 10px;
+}
+
+
+.gv-toolbox-header 
+{
+    color: #444;
+    background: #ccc;
+	background: -webkit-gradient(linear, 0 0, 0 bottom, from(#f2f2f2), to(#ccc));
+	background: -moz-linear-gradient(#f2f2f2, #ccc);
+	-pie-background: linear-gradient(#f2f2f2, #ccc);
+    font-size:12px;
+    font-weight: bold;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top:1px solid #aaa;
+    border-bottom:1px solid #aaa;
+    cursor:pointer;
+    text-align:left;
+}
+
+.gv-toolbox-header img
+{
+    vertical-align: middle;
+    padding-right: 5px;
+}
+
+.gv-modal div.form-actions {
+    background-color: #ffffff !important;
+    border-top: 1px solid #ffffff;
+}
+
+.sectionControl {list-style-type: none;background: #fff; border-bottom: 1px dotted #ccc; width: auto;}
+.gridControl {list-style-type: none;background: #fff; border-bottom: 1px dotted #ccc; width: auto;}
+
+.control-background {background: #fff; margin:2px;}
+.hasFocus[class*="col-xs"] {border: 1px solid #9BBDD8 !important; }
+.hasFocus[class*="form-group"]:hover {
+    border: 1px solid #ddd !important;
+    background-color: rgba(3, 14, 27, 0.03);
+}
+.hasFocus[class*="gv-page"] {border: 1px solid #9BBDD8 !important;}
+.hasFocus[class*="form-group"] {border: 1px solid #9BBDD8 !important;}
+.hasFocus[class*="row-fluid"] {
+    border-top: 1px solid #9BBDD8 !important;
+    border-bottom: 1px solid #9BBDD8 !important;
+}
+.hasFocus[class*="gv-container"]{border: 1px solid #9BBDD8 !important;}
+.hasFocus[class*="panel"] {
+    border: 1px solid #9BBDD8 !important;
+}
+
+
+.hover {
+    background:#ffc; 
+}
+
+.hoverli{background:#ffc !important;}
+.hoverComponent {
+    border: 1px solid #ddd !important;
+    background-color: rgba(3, 14, 27, 0.03);
+}
+
+.hoverToolbox
+{
+    border: 1px solid #F1C43F;
+	background: #fdeeb3;
+	cursor:move;
+}
+
+.gv-section-border {background: #fff;border:1px dotted #ccc;float:left; }
+.gv-grid-border {background: #fff;border:none;}
+.gv-data-control {}
+
+.hidden { display: none }
+
+
+#gv-design-base 
+{
+    float:left;
+    font-size: 10px;
+    margin: 0px;
+    background: #ccc;
+      padding-top: 146px;
+      padding-bottom:10px;
+      width:100% !important;
+}
+
+#gv-ds
+{
+    
+    background:	#aaa;
+	width: 100% !important;
+     
+}
+	
+
+#gv-form-property
+{
+    float: right;
+    position:absolute;
+    right: 0;
+    top: 146px;
+    width: 270px;
+    background: #fff;
+    min-height: 100%;
+    background:#f2f2f2;
+    border-left: 1px solid #8b9097;
+    padding:10px 5px;
+}
+
+
+.design-header
+{
+    height: 100px;
+    background: #fff;
+    border: 1px solid #ccc;
+    margin: 5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.clear
+{
+    clear: both;
+}
+
+
+
+
+
+.gv-droppable-grid > div
+{
+    /*font-size:10px;*/
+    /*border:1px dotted transparent;*/
+    overflow:hidden;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    padding: 0px;
+    min-height: 20px;
+    height: auto;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box; 
+    -webkit-box-sizing:border-box; 
+}
+
+/* end - drop */
+
+.formButton {
+    background: none repeat scroll 0 0 padding-box transparent;
+    border: 2px solid #ffffff;
+    border-radius: 2.5px 2.5px 2.5px 2.5px;
+    color: #525C66;
+    height:125px;padding:10px;
+    transition-duration: 150ms;
+    transition-property: background-color, border-color, box-shadow;
+    white-space: normal;
+    margin-bottom:5px;
+    box-shadow: 0 0 0 1px #cccccc inset;
+}
+
+.formButton:hover {
+    background-color: rgba(3, 14, 27, 0.03);
+    /*border-color: rgba(23, 51, 78, 0.15) rgba(23, 51, 78, 0.17) rgba(23, 51, 78, 0.2);*/
+}
+
+.fheader
+{ 
+    position: relative; 
+}
+
+.fheader-button 
+{  bottom: 0;
+    height: 100%;
+  
+    position: absolute; 
+    
+}
+
+#topbar > ul > li > a {
+    background: transparent; 
+    font-size:12px;
+    border: 1px solid transparent;
+    border-radius: 2.5px 2.5px 2.5px 2.5px;
+    color: #525C66;
+    transition-duration: 150ms;
+    transition-property: background-color, border-color, box-shadow;
+    white-space: normal;
+}
+
+#topbar > ul > li > a:hover {
+    
+    border: 1px solid #ddd !important;
+    background-color: rgba(3, 14, 27, 0.03);
+}
+
+#topbar .dropdown-menu > li > a:hover {
+    background-color: #DD4B39;
+}
+
+#topbar .dropdown-menu {
+    border-radius: 0px 0px 0px 0px;
+}
+
+#topbar .caret {
+    border-top-color: #DD4B39;
+    opacity: 1;
+}
+
+#propertytools a.accordion-toggle {
+    color: #DD4B39;
+    text-decoration: solid #FFFFFF;
+    font-weight:500;
+}
+
+#propertytools a:hover.accordion-toggle {
+    color: #db4811;
+    text-decoration: none;
+}
+
+.forms-toolbar {
+    cursor: pointer;
+}
+
+.verticalSeparator {
+    background-image: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0)), linear-gradient(rgba(3, 14, 27, 0), rgba(3, 14, 27, 0.2), rgba(3, 14, 27, 0)), linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+    background-position: left top, center center, right bottom;
+    background-repeat: no-repeat;
+    background-size: 1px auto;
+    height: 18px;
+    margin: 0 1px;
+    width: 3px;
+    
+}
+
+div.panel-default {
+    position: relative;
+}
+
+.panel-toolbar {
+     
+    position:absolute;
+    margin-right: 0px;
+    top: 5px;
+    right: 5px;
+    margin-top: 0px; 
+    cursor:pointer;
+    
+}
+
+.accordion-toolbar {
+   float:right;
+    display:block;
+    position:relative;
+    margin-right: 0px;
+    top: 0px;
+    right: 0px;
+    margin-top: 0px; 
+     cursor:pointer;
+    
+}
+
+.accordion-toolbar > .item {
+    margin-left:5px;
+    cursor:help;
+    
+}
+
+ul.nav-tabs {
+    position: relative;
+}
+.tab-toolbar {
+    position:absolute;
+    margin-right: 0px;
+    top: 5px;
+    right: 5px;
+    margin-top: 0px; 
+    cursor:pointer;
+}
+
+
+
+.column-toolbar {
+    float:right;
+    display:block;
+    position:relative;
+}
+
+.column-toolbar > .item {
+    margin-left:5px;
+    cursor:help;
+    
+}
+
+
+
+.lp {
+/*-moz-box-shadow: 0 0 10px 5px #999;
+-webkit-box-shadow: 0 0 10px 5px #999;*/
+border: #ffffff solid 1px;
+margin: 20px;
+background-color: #ffffff;
+padding-top: 20px;
+padding-bottom: 20px;
+}
+
+.brdbot {
+    border-color: #f5f5f5;
+    border-bottom: 1px solid #ddd !important;
+}
+
+.prop-mg-lr {
+    /*margin-left: 1px !important;*/
+    /*margin-right: 1px !important;*/
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+}
+
+/*
+#fieldproperties  label {
+    display: inline-block;
+    margin-bottom: 5px;
+   font-weight: normal;
+ font-size: 13px;
+}
+*/
+
+
+#fieldproperties input, #fieldproperties input:focus {
+
+    text-indent: .33em;
+    -moz-border-radius: 0;
+-webkit-border-radius: 0;
+border-radius: 0;
+  box-shadow:none !important;
+
+}
+
+
+#fieldproperties button {
+    height: 30px;
+    -moz-border-radius: 0;
+-webkit-border-radius: 0;
+border-radius: 0;
+  box-shadow:none !important;
+
+}
+
+#fieldproperties input[type="radio"], #fieldproperties input[type="checkbox"] {
+    height: 1.0em;
+    text-indent: .0em;
+    -moz-border-radius: 0;
+-webkit-border-radius: 0;
+border-radius: 0;
+  box-shadow:none !important;
+  border-color: #f5f5f5;
+
+}
+
+#fieldproperties textarea {
+    height: 1.88em;
+    text-indent: .33em;
+    -moz-border-radius: 0;
+-webkit-border-radius: 0;
+border-radius: 0;
+  box-shadow:none !important;
+
+}
+
+
+#fieldproperties select {
+    /*height: 1.88em;*/
+    text-indent: .33em;
+    -moz-border-radius: 0;
+-webkit-border-radius: 0;
+border-radius: 0;
+  box-shadow:none !important;
+
+}
+
+
+#fieldproperties .input-group-addon {
+    padding: 0px 0px;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1;
+    color: #555555;
+    text-align: center;
+    background-color: #ffffff;
+    border: 0px solid #cccccc;
+    border-radius: 0px;
+    display: inline-block;
+}
+
+#fieldproperties .form-horizontal .form-group{
+    margin-bottom: 5px !important;
+}
+
+
+.custom-tabs .nav {
+    margin:15px 0px 10px 0px;
+    padding:0;
+    width:100%;
+    border-bottom: 1px solid #efefef;
+}
+.custom-tabs .nav-tabs li {
+    float:left;
+    list-style-type:none;
+}
+
+.custom-tabs .nav-tabs li a {
+    display: inline-block;
+    padding: 5px 15px;
+    text-decoration: none;
+    color: #8478B3;
+    border:none;
+}
+
+.custom-tabs .nav-tabs li.active {
+    display: inline-block;
+    background: 0 0;
+    border-bottom: 2px solid #DD4B39 !important;
+}
+
+
+.custom-tabs .nav-tabs li.active a{
+    border:none;
+    background:#fff;color: #655c89;outline:none;
+}
+
+.custom-tabs .nav-tabs  li:hover{
+    display: inline-block;
+    background: 0 0;
+    border-bottom: 2px solid #DD4B39 !important;
+}
+
+.custom-tabs .nav-tabs li a:hover{
+    background:#fff;color: #655c89;outline:none;
+    border:none;
+}
+
+.custom-tabs .tab-content{
+    padding-left: 10px;
+    margin-bottom: 30px;
+}
+
+#fieldproperties .form-horizontal span.title{
+     color: #DD4B39;
+     text-decoration: solid #FFFFFF;
+     font-weight: 500;
+     margin-left: -10px;
+}
+
+#sbid .navbar {
+    min-height: inherit;
+    margin-bottom: 2px;
+
+}
+
+.spcr5 {
+    margin-top: 5px; /* define margin as you see fit */
+}
+
+.mcanvas {
+	 min-height:100px;
+     height:auto !important; 
+	background-color: #fff;
+    background: #fff;
+	border: 1px solid #fff;
+    padding-top: 20px;
+    padding-bottom: 20px;
+	/*box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);*/
+}
+
+.tab-canvas {
+	padding: 2px;
+	min-height:200px;
+    height:auto !important; 
+	border-bottom: 0px solid #e5e5e5;
+}
+
+
+
+textarea {resize: vertical;}
+
+.top-fixed 
+{
+    position:fixed; z-index:1000; background:#fff;width:100%;
+    }
+
+
+#designform .form-group {
+	margin: 1px !important;
+    height: auto !important;
+	padding-left: 4px !important;
+    padding-right: 4px !important;
+    padding-top: 5px !important;
+    padding-bottom: 3px !important;
+    border: 1px solid #ffffff;
+}
+
+
+
+.gv-droppable-grid {
+	padding: 4px; 
+    /*margin: 2px 0px 0px 2px;*/
+	min-height:60px;
+    height:auto !important; 
+	border-color: #cccccc;
+	background-color: #fff;
+	border: 1px dotted #e5e5e5;
+}
+
+
+
+.icon-add {
+    background-position: center center;
+    background-repeat: no-repeat;
+    cursor:pointer;
+    padding-left:4px;
+}
+
+.icon-delete {
+    background-position: center center;
+    background-repeat: no-repeat;
+    cursor:pointer;
+    padding-left:4px;
+}
+
+.icon-reorder {
+    background-position: center center;
+    background-repeat: no-repeat;
+    padding-left:4px;
+    cursor:move;
+}
+
+.icon-add:hover,.icon-delete:hover,.icon-reorder:hover{
+    color: #e7505a;
+}
+.container-main {
+    padding-left:0px;
+    padding-right:0px;
+}
+
+.span {
+    width: 100%;
+}
+
+
+
+.hori {
+	padding: 4px !important; 
+    /*margin: 2px 0px 0px 2px;*/
+	min-height:50px !important;
+    height:auto !important; 
+	border-color: #cccccc;
+	background-color: #fff;
+	border: 1px dotted #e5e5e5 !important;
+}
+
+.group-inline {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.centered {
+    text-align:center;
+}
+
+a.rdselect {
+    margin-left: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    
+}
+
+
+.brand {margin-top:5px; margin-right: 5px;}
+
+.gv-prop-chk {
+    height: 15px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.form-group-prop {
+  margin-bottom: 1px;
+}
+
+.unlock {
+    background: url('images/unlock.png') right no-repeat;
+    cursor:pointer;   
+}
+
+.lock {
+    background: url('images/lock.png') right no-repeat;
+    cursor:pointer;   
+}
+#fieldproperties input.focus {
+  border: solid 1px #ccc;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition: none;
+  -moz-transition: none;
+  -webkit-transition: none;
+    width: 97%;
+}
+
+
+
+#fieldproperties .k-button:hover {
+  color: #ffffff;
+  border-color: #0070c0;
+  background-color: #0070c0;
+}
+
+#fieldproperties .k-draghandle {
+  border-color: #0070c0;
+  background-color: #0070c0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+#fieldproperties .k-draghandle:hover {
+  border-color: #0070c0;
+  background-color: #0070c0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+
+#fieldproperties  .k-button:hover {
+  color: #ffffff;
+  border-color: #428bca !important;
+  background-color: #428bca !important;
+}
+
+#fieldproperties  .k-draghandle {
+  border-color: #428bca !important;
+  background-color: #428bca !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+#fieldproperties  .k-draghandle:hover {
+  border-color: #428bca !important;
+  background-color: #428bca !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+#fieldproperties  .k-state-focused,
+#fieldproperties  .k-grouping-row .k-state-focused {
+  border-color: #428bca !important;
+}
+
+
+#fieldproperties  .k-calendar .k-nav-fast.k-state-hover {
+  text-decoration: none solid #ffffff;
+  background-color: #428bca !important;
+  color: #ffffff;
+}
+#fieldproperties  .k-state-focused,
+#fieldproperties  .k-list > .k-state-focused,
+#fieldproperties  .k-listview > .k-state-focused,
+#fieldproperties  .k-grid-header th.k-state-focused,
+#fieldproperties  td.k-state-focused,
+#fieldproperties  .k-button:focus:not(.k-state-disabled):not([disabled]),
+#fieldproperties  .k-button.k-state-focused {
+  -webkit-box-shadow: #428bca !important 0px 0px 0px 1px inset;
+  box-shadow: #428bca !important 0px 0px 0px 1px inset;
+}
+#fieldproperties  .k-ie8 .k-panelbar span.k-state-focused,
+#fieldproperties  .k-ie8 .k-menu li.k-state-focused,
+#fieldproperties  .k-ie8 .k-listview > .k-state-focused,
+#fieldproperties  .k-ie8 .k-grid-header th.k-state-focused,
+#fieldproperties  .k-ie8 td.k-state-focused,
+#fieldproperties  .k-ie8 .k-tool.k-state-hover,
+#fieldproperties  .k-ie8 .k-button:focus,
+#fieldproperties  .k-ie8 .k-button.k-state-focused,
+#fieldproperties  .k-ie7 .k-panelbar span.k-state-focused,
+#fieldproperties  .k-ie7 .k-menu li.k-state-focused,
+#fieldproperties  .k-ie7 .k-listview > .k-state-focused,
+#fieldproperties  .k-ie7 .k-grid-header th.k-state-focused,
+#fieldproperties  .k-ie7 td.k-state-focused,
+#fieldproperties  .k-ie7 .k-tool.k-state-hover,
+#fieldproperties  .k-ie7 .k-button:focus,
+#fieldproperties  .k-ie7 .k-button.k-state-focused {
+  background-color: #428bca !important;
+}
+
+#fieldproperties  .k-state-hover,
+#fieldproperties  .k-state-hover:hover,
+#fieldproperties  .k-splitbar-horizontal-hover:hover,
+#fieldproperties  .k-splitbar-vertical-hover:hover,
+#fieldproperties  .k-list > .k-state-hover,
+#fieldproperties  .k-scheduler .k-scheduler-toolbar ul li.k-state-hover,
+#fieldproperties  .k-pager-wrap .k-link:hover,
+#fieldproperties  .k-dropdown .k-state-focused,
+#fieldproperties  .k-imagebrowser-dropzone,
+#fieldproperties  .k-mobile-list .k-item > .k-link:active,
+#fieldproperties  .k-mobile-list .k-item > .k-label:active,
+#fieldproperties  .k-mobile-list .k-edit-label.k-check:active,
+#fieldproperties  .k-mobile-list .k-scheduler-timezones .k-edit-field:nth-child(2):active,
+#fieldproperties  .k-mobile-list .k-recur-view .k-check:active {
+  color: #ffffff;
+  background-color: #428bca !important;
+  border-color: #428bca !important;
+}
+#fieldproperties  .k-state-hover > .k-select,
+#fieldproperties  .k-state-focused > .k-select {
+  border-color: #428bca !important;
+}
+#fieldproperties  .k-button:hover,
+#fieldproperties  .k-button:focus,
+#fieldproperties  .k-button.k-state-focused,
+#fieldproperties  .k-textbox:hover,
+#fieldproperties  .k-state-hover,
+#fieldproperties  .k-state-hover:hover,
+#fieldproperties  .k-pager-wrap .k-link:hover,
+#fieldproperties  .k-other-month.k-state-hover .k-link,
+#fieldproperties  div.k-imagebrowser-dropzone em,
+#fieldproperties  .k-draghandle:hover {
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -moz-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -o-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, linear-gradient(to bottom, #428bca !important 0px, #428bca !important 100%);
+}
+
+#fieldproperties  .k-autocomplete.k-state-hover,
+#fieldproperties  .k-autocomplete.k-state-focused,
+#fieldproperties  .k-picker-wrap.k-state-hover,
+#fieldproperties  .k-picker-wrap.k-state-focused,
+#fieldproperties  .k-numeric-wrap.k-state-hover,
+#fieldproperties  .k-numeric-wrap.k-state-focused,
+#fieldproperties  .k-dropdown-wrap.k-state-hover,
+#fieldproperties  .k-dropdown-wrap.k-state-focused {
+  background-color: #428bca !important;
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -moz-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -o-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, linear-gradient(to bottom, #428bca !important 0px, #428bca !important 100%);
+  background-position: 50% 50%;
+  border-color: #dadada;
+}
+
+#fieldproperties  .k-textbox:hover,
+#fieldproperties  .k-tiles li.k-state-hover {
+  border-color: #428bca !important;
+}
+
+#fieldproperties  .k-autocomplete.k-state-hover,
+#fieldproperties  .k-picker-wrap.k-state-hover,
+#fieldproperties  .k-numeric-wrap.k-state-hover,
+#fieldproperties  .k-dropdown-wrap.k-state-hover {
+  background-color: #428bca !important;
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -moz-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -o-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, linear-gradient(to bottom, #428bca !important 0px, #428bca !important 100%);
+  background-position: 50% 50%;
+  border-color: #dadada;
+}
+
+#fieldproperties  .k-autocomplete.k-state-focused,
+#fieldproperties  .k-picker-wrap.k-state-focused,
+#fieldproperties  .k-numeric-wrap.k-state-focused,
+#fieldproperties  .k-dropdown-wrap.k-state-focused,
+#fieldproperties  .k-multiselect.k-header.k-state-focused {
+  background-color: #428bca !important;
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -moz-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -o-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, linear-gradient(to bottom, #428bca !important 0px, #428bca !important 100%);
+  background-position: 50% 50%;
+  border-color: #dadada;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+#fieldproperties  .k-panelbar .k-state-focused.k-state-hover {
+  background: #428bca !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.k-tabstrip-items .k-state-default,
+.k-ie7 .k-tabstrip-items .k-state-default .k-loading {
+  border-color: #dadada;
+}
+#fieldproperties  .k-tabstrip-items .k-state-hover,
+#fieldproperties  .k-ie7 .k-tabstrip-items .k-state-hover .k-loading {
+  border-color: #428bca !important;
+}
+.k-tabstrip-items .k-state-active,
+.k-ie7 .k-tabstrip-items .k-state-active .k-loading {
+  background-color: #ffffff;
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, none);
+  background-image: none, -moz-linear-gradient(top, none);
+  background-image: none, -o-linear-gradient(top, none);
+  background-image: none, linear-gradient(to bottom, none);
+  border-color: #7ea700;
+}
+
+#fieldproperties  .k-secondary .k-state-hover > .k-select {
+  border-color: #428bca !important;
+}
+
+#fieldproperties  .k-secondary .k-autocomplete.k-state-hover,
+#fieldproperties  .k-secondary .k-picker-wrap.k-state-hover,
+#fieldproperties  .k-secondary .k-numeric-wrap.k-state-hover,
+#fieldproperties  .k-secondary .k-dropdown-wrap.k-state-hover {
+  background-color: #428bca !important;
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -moz-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -o-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, linear-gradient(to bottom, #428bca !important 0px, #428bca !important 100%);
+  background-position: 50% 50%;
+  border-color: #dadada;
+}
+#fieldproperties  .k-secondary .k-autocomplete.k-state-focused,
+#fieldproperties  .k-secondary .k-picker-wrap.k-state-focused,
+#fieldproperties  .k-secondary .k-numeric-wrap.k-state-focused,
+#fieldproperties  .k-secondary .k-dropdown-wrap.k-state-focused {
+  background-color: #dadada;
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -moz-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -o-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, linear-gradient(to bottom, #428bca !important 0px, #428bca !important 100%);
+  background-position: 50% 50%;
+  border-color: #dadada;
+}
+#fieldproperties  .k-secondary .k-button-group .k-tool:focus {
+  background-color: #dadada;
+  background-image: none;
+  background-image: none, -webkit-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -moz-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, -o-linear-gradient(top, #428bca !important 0px, #428bca !important 100%);
+  background-image: none, linear-gradient(to bottom, #428bca !important 0px, #428bca !important 100%);
+  background-position: 50% 50%;
+}
+
+#fieldproperties  .k-secondary .k-button:hover,
+#fieldproperties  .k-secondary.k-button:hover {
+  color: #ffffff;
+  border-color: #428bca !important;
+  background-color: #428bca !important;
+}
+
+#fieldproperties  .k-grid td.k-state-focused {
+  -webkit-box-shadow: inset 0 0 0 1px #428bca !important 0px 0px 0px 1px inset;
+  box-shadow: inset 0 0 0 1px #428bca !important 0px 0px 0px 1px inset;
+}
+
+#fieldproperties  .has-feedback .form-control-feedback {
+    position: absolute;
+    top: 18px;
+    right: 0;
+    display: block;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+}
+
+
+/*滚动条处理 */
+.custom-scroller {
+    width:100%;
+    height:470px;
+    overflow:auto;
+}
+
+.custom-scroller .mCSB_container.mCS_no_scrollbar_y.mCS_y_hidden{
+    margin-right: 30px;
+}
+
+.custom-scroller  .mCSB_scrollTools .mCSB_dragger .mCSB_button{
+    display:none;
+}
+.custom-scroller  .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+    background:#FFB174;
+}
+
+.custom-scroller .mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{
+    background:#FFB174 !important;
+}
+
+.custom-scroller  .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{
+    background-color:#FFB174 !important;
+}
+.custom-scroller  .mCSB_scrollTools .mCSB_draggerRail{
+    background:#f5f5f5;
+}
+

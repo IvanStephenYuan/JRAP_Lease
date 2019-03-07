@@ -1,0 +1,40 @@
+<div class="modal" ng-controller="KisBpmAssignmentQueryPopupCtrl" id="myModal">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closeQuery()">&times;</button>
+            <h2 translate>查询</h2>
+         </div>
+         <div class="modal-body">
+            <iframe src="${base.contextPath}/activiti-editor/configuration/properties/assignment-popup-query-employee.html" ng-if="property.queryType=='candidateUser' || property.queryType=='assignee'"  scrolling="no"  frameborder="0" style="width: 100%;height: 342px;clear:both;"/>
+            <iframe src="${base.contextPath}/activiti-editor/configuration/properties/assignment-popup-query-position.html" ng-if="property.queryType=='candidateGroup'"  scrolling="no"  frameborder="0" style="width: 100%;height: 342px;clear:both;"/>
+         </div>
+         <script type="text/javascript">
+            //模态框禁用空白处点击关闭以及esc键点击关闭
+            try{
+               $('#myModal').modal({backdrop: 'static', keyboard: false});
+            }catch(err){
+            }
+            function fun(code) {
+                  //关闭查询模态框
+               var appElement = document.querySelector('[ng-controller=KisBpmAssignmentQueryPopupCtrl]');
+               var $scope = angular.element(appElement).scope();
+               $scope.closeQuery();
+
+               //更新$scope.assignment对象的值
+               var appElement2 = document.querySelector('[ng-controller=KisBpmAssignmentPopupCtrl]');
+               var $scope2 = angular.element(appElement2).scope();
+               if($scope2.property.queryType=='assignee'){
+                  $scope2.assignment.assignee=code;
+               }else if($scope2.property.queryType=='candidateUser'){
+                  $scope.assignment.candidateUsers[$scope.candidateUserIndex].value = code;
+               }else if($scope2.property.queryType=='candidateGroup'){
+                  $scope.assignment.candidateGroups[$scope.candidateGroupIndex].value = code;
+               }
+               //应用$scope2内容改变
+               $scope2.$apply();
+            }
+         </script>
+      </div>
+   </div>
+</div>

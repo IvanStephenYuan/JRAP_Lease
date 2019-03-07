@@ -1,0 +1,101 @@
+{
+  "properties": [
+    {
+      "id": "required",
+      "title": "required",
+      "description": "required",
+      "type": "boolean",
+      "value": "false"
+    },
+    {
+      "id": "label",
+      "title": "Label",
+      "description": "Label",
+      "type": "text",
+      "value": ""
+    },
+    {
+      "id": "placeholder",
+      "title": "Placeholder",
+      "description": "Placeholder",
+      "type": "text",
+      "value": ""
+    },
+    {
+      "id": "subLabel",
+      "title": "Sub Label",
+      "description": "Sub Label",
+      "type": "text",
+      "value": ""
+    },
+    {
+      "id": "hover",
+      "title": "Hover Text",
+      "description": "Hover Text",
+      "type": "textarea",
+      "value": ""
+    },
+    {
+      "id": "alignment",
+      "title": "Alignment...",
+      "description": "Alignment",
+      "type": "select",
+      "value": [
+        "Top",
+        "Right",
+        "Left"
+      ]
+    },
+    {
+      "isGroup":"true",
+      "id":"limitGroup",
+      "properties":[
+        {
+          "id": "limit",
+          "title": "Limit By",
+          "description": "Limit By",
+          "type": "select",
+          "value": [
+            "String",
+            "Word"
+          ]
+        },{
+          "id":"min",
+          "title":"Min",
+          "description":"Min",
+          "type":"number",
+          "min":"0",
+          "max":"",
+          "step":"1"
+        },{
+          "id":"max",
+          "title":"Max",
+          "description":"Max",
+          "type":"number",
+          "min":"0",
+          "max":"",
+          "step":"1"
+        }]
+    },{
+      "id": "name",
+      "title": "Name",
+      "description": "Name",
+      "type": "text",
+      "value": ""
+    },{
+      "id": "id",
+      "title": "Id",
+      "description": "Id",
+      "type": "text",
+      "value": ""
+    }
+  ],
+  "components":[{
+    "id" : "text",
+    "title" : "Text Box",
+    "description" : "Text Box",
+    "view":"",
+    "icon" : "textbox.png",
+    "properties" : [ "required", "label", "placeholder", "subLabel","hover", "alignment", "limitGroup", "name", "id"]
+  }]
+}

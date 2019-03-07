@@ -1,0 +1,76 @@
+<html>
+<head></head>
+<body style="padding: 10px;">
+
+<form id="vacationRequestForm"></form>
+
+
+<script type="text/javascript">
+
+    $(function () {
+
+        window['vacationRequestForm'] = $("#vacationRequestForm").ligerForm({
+            fields    : [
+                {
+                    label: '请假天数',
+                    name : 'numberOfDays'
+                },
+                {
+                    label   : '起始日期',
+                    name    : 'startDate',
+                    type    : 'date',
+                    validate: {
+                        required: true
+                    }
+                },
+                {
+                    label: '请假原因',
+                    name : 'vacationMotivation'
+                }
+            ], buttons: [
+                {
+                    text : "提交申请",
+                    click: function () {
+                        if (!vacationRequestForm.valid()) {
+                            Jrap.showInvalid(vacationRequestForm);
+                            return;
+                        }
+                        var data = vacationRequestForm.getData();
+                        data.startDate = data.startDate.format('yyyy-MM-dd');
+                        var dataArr = [];
+                        $.each(data, function (k, v) {
+                            dataArr.push({name: k, value: v});
+                        });
+
+                        var para = {
+                            processDefinitionKey: 'newVacationRequest',
+                            businessKey         : '104',
+                            variables           : dataArr
+                        };
+
+                        $.ajax({
+                            url        : '${base.contextPath}/wfl/runtime/process-instances',
+                            type       : "POST",
+                            dataType   : "json",
+                            contentType: "application/json",
+                            data       : JSON2.stringify(para),
+                            success    : function (args) {
+                                Jrap.showAutoCloseMessage();
+                            }
+                        });
+                    }
+                }
+            ]
+        });
+
+        vacationRequestForm.setData({
+            numberOfDays      : 6,
+            startDate         : new Date(),
+            vacationMotivation: 'test'
+        });
+
+
+    })
+</script>
+</body>
+</html>

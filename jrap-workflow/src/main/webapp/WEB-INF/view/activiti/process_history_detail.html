@@ -1,0 +1,127 @@
+<#include "../include/header.html">
+<body>
+<style>
+    .action_ok {
+        color: #5fb760;
+    }
+
+    .action_dangerous {
+        color: #F50D1A;
+    }
+
+    .action_delegate {
+        color: #F5D81A;
+    }
+</style>
+<div id="content-container">
+    <div id="page-content">
+
+        <div style="clear:both;">
+            <div id="approveHistoryGrid" style="clear: both" class="table"></div>
+        </div>
+
+    </div>
+</div>
+
+<div id="taskHisWin"></div>
+
+<script type="text/javascript">
+
+    var dataSource = new kendo.data.DataSource(
+            {
+                transport: {
+                    read: {
+                        url: '${base.contextPath}/wfl/query/historic-task-instances?processInstanceId=${RequestParameters.processInstanceId!0}',
+                        type: "POST",
+                        dataType: "json"
+                    },
+                    parameterMap: function (options, type) {
+                        if (type === "read") {
+                            var map = {};
+                            map.start = 0;
+                            map.size = 9999;
+
+                            return map;
+                        }
+                    }
+                },
+                batch: true,
+                serverPaging: true,
+                pageSize: 10,
+                schema: {
+                    data: 'data',
+                    total: 'total',
+                    model: {
+                        id: "id",
+                        fields: {}
+                    }
+                }
+            });
+
+    var grid = $("#approveHistoryGrid").kendoGrid(
+            {
+                dataSource: dataSource,
+                height: '100%',
+                navigatable: false,
+                resizable: true,
+                scrollable: true,
+                rownumber: true,
+                columns: [
+                    {
+                        field: "name",
+                        title: '审批环节',
+                        width: 150
+                    },
+                    {
+                        field: "assigneeName",
+                        title: '处理人',
+                        width: 100
+                    },
+                    {
+                        field: 'startTime',
+                        title: '创建时间',
+                        width: 140,
+
+                    },
+                    {
+                        field: 'endTime',
+                        title: '审批时间',
+                        width: 140,
+                    },
+                    {
+                        field: "action",
+                        title: '操作',
+                        width: 100,
+                        template: function (dataItem) {
+                            if (dataItem.action == 'APPROVED') {
+                                return "<span class='action_ok'>同意</span>"
+                            } else if (dataItem.action == 'REJECTED') {
+                                return "<span class='action_dangerous'>拒绝</span>"
+                            }else if(dataItem.action == 'DELEGATE'){
+                                return "<span class='action_delegate'>转交</span>"
+                            }else if(dataItem.action == 'ADD_SIGN'){
+                                return "<span class='action_delegate'>加签</span>"
+                            }else if(dataItem.action == 'JUMP'){
+                                return "<span class='action_delegate'>跳转</span>"
+                            }else if(r.action == 'RECALL'){
+                                return "<span class='action_delegate'>撤回</span>"
+                            }else if(r.action == "AUTO_DELEGATE") {
+                                return "<span class='action_delegate'>自动转交</span>";
+                            }
+                            return dataItem.action || ''
+                        }
+                    },
+                    {
+                        field: "comment",
+                        title: '审批意见',
+                        width: 200
+                    }],
+                editable: false
+            }).data("kendoGrid");
+
+    Jrap.autoResizeGrid("#approveHistoryGrid");
+
+</script>
+
+</body>
+</html>

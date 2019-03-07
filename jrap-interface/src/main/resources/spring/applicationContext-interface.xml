@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <!-- 缓存-->
+    <bean id="apiCache" class="com.jingrui.jrap.cache.impl.ApiConfigCache">
+        <property name="name" value="api"/>
+    </bean>
+
+    <!-- 接口透传-->
+    <bean id="plsqlBean" class="com.jingrui.jrap.intergration.service.impl.JrapPLSQLApiServiceImpl" />
+    <bean id="restBean" class="com.jingrui.jrap.intergration.service.impl.JrapRestApiServiceImpl" />
+    <bean id="soapBean" class="com.jingrui.jrap.intergration.service.impl.JrapSoapApiServiceImpl" />
+
+    <bean class="com.jingrui.jrap.intergration.beans.JrapJDBCSqlSessionFactory">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+</beans>

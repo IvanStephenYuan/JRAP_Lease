@@ -1,0 +1,101 @@
+<#include "../../include/header.html">
+<body>
+<style type="text/css">
+    html,body {
+        overflow:hidden;
+        color:#333;
+    }
+    .approve-block {
+        padding:0px 20px 20px 20px;
+    }
+    .approve-block h3 {
+        font-weight: normal;
+        color:#000;
+        font-size:16px;
+    }
+    .approve-table {
+        border-collapse: collapse;
+    }
+    .approve-table .item-label {
+        /*text-align:right;*/
+    }
+    .approve-table .item-value{
+        /*font-weight:bold;*/
+    }
+
+    .approve-table td {
+        padding:8px;
+        font-size:12px;
+        border: #e7ecf1 solid 1px;
+    }
+    #historyTable {
+        width:100%;
+    }
+    #historyTable thead td{
+        padding:8px;
+        font-weight:bold;
+        color:#333;
+        font-size:14px;
+    }
+
+    #includeFrame {
+        border: none !important;
+        box-shadow: none;
+    }
+
+
+    #ta-comment {
+        padding:10px;
+        width: 700px;
+        height: 150px;
+        border: #e7ecf1 solid 1px;
+    }
+
+    .comment-too-long {
+        color: red;
+    }
+
+    .action_ok {
+        color: #5fb760;
+    }
+
+    .action_dangerous {
+        color: #eeac5f;
+    }
+
+    .action_custom {
+        color: #60c0dc;
+    }
+
+    button:before {
+        margin-right: 2px;
+    }
+
+    span[class^='fa']:before {
+        margin-right: 3px;
+    }
+
+
+</style>
+<table id="itemTable" class="approve-table">
+    <tr>
+        <td style="width: 170px;" class="item-label">请假天数</td>
+        <td style="width: 250px;" class="item-value" id="td-needDays"></td>
+        <td style="width: 170px;" class="item-label">开始时间</td>
+        <td style="width: 250px;" id="td-startDate" class="item-value"></td>
+    </tr>
+    <tr>
+        <td style="width: 170px;" class="item-label">事由</td>
+        <td colspan="3" style="width: 250px;" id="td-leaveReason" class="item-value"></td>
+    </tr>
+</table>
+
+<script>
+    $.get("${base.contextPath}/wfl/history/form/details/vacation/" +${RequestParameters.businessKey}, function (data, status) {
+        $('#td-leaveReason').html(data.leaveReason);
+        $('#td-startDate').html(data.startDate);
+        $('#td-needDays').html(data.needDays);
+    });
+</script>
+</body>
+</html>

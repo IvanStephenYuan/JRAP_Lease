@@ -1,0 +1,126 @@
+<#--
+* description: 自动转交配置
+* version: 1.0 
+* author:hailin.xu@jingrui.com
+* author:njq.niu@jingrui.com
+* --> 
+<#include "../include/header.html">
+<body>
+   
+    <div id="page-content">
+        <div class="form-horizontal">
+            <div class="panel-body">
+               
+                 <div class="form-group">
+                    <label class="control-label col-md-3"><@spring.message "preference.deliverstartdate"/></label>
+                    <div class="col-md-4">
+                       <input id="deliverStartDate" type="text" style="width: 100%"    data-role="datetimepicker" 
+                       class="k-datetimepicker" data-bind="value: data.deliverStartDate,events: {change: onChange}"></input>
+                        <small class="help-block"><@spring.message "preference.deliverstartdate.description"/></small>
+                    </div>
+                  
+                </div>
+                  <div class="form-group">
+                    <label class="control-label col-md-3"><@spring.message "preference.deliverenddate"/></label>
+                    <div class="col-md-4">
+                       <input id="deliverenddate" type="text" style="width: 100%"    data-role="datetimepicker"
+                       class="k-datetimepicker" data-bind="value: data.deliverEndDate,events: {change: onChange}"></input>
+                        <small class="help-block"><@spring.message "preference.deliverenddate.description"/></small>
+                    </div>
+                  
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3"><@spring.message "preference.autodeliver"/></label>
+                    <div class="col-md-4">
+                       <input id="autoDeliver" type="text" style="width: 100%"   
+                               data-bind="value: data.autoDelegate,text:data.autoDelegate ,events: {change: onChange}"></input>
+                        <small class="help-block"><@spring.message "preference.autodeliver.description"/></small>
+                    </div>
+                     <script>
+                            $("#autoDeliver").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_ACT_EMPLOYEE")}, {}))
+                     </script>
+                </div>
+             
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        <button class="btn btn-primary" style="width:100px" data-bind="enabled:enabled,click:savePreference"><@spring.message "jrap.save"/></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+   
+    <script type="text/javascript">
+        function initPreference() {
+            $.ajax({
+                type: "POST",
+                url: "${base.contextPath}/sys/preferences/queryPreferences",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (result) {
+                    if (result.success) {
+                        var data = viewModel.get('data')
+                        $.each(result.rows, function (i, r) {
+                            data.set(r.preferences,r.preferencesValue);
+                            data.set(r.preferences+"_token",r._token);
+                            data.set(r.preferences+"_preferencesId",r.preferencesId)
+                        }); 
+                    }
+                }
+            }); 
+        }
+		var needReload = false;
+        var viewModel = kendo.observable({
+            enabled:true,
+            data:{
+            },
+            onChange : function(){
+                needReload = true;
+            },
+            savePreference: function(){
+               var sf = this, preferences = [];
+               var data = viewModel.toJSON().data;
+               $.each(data, function (k, v) {
+                   if(k.indexOf('_token') == -1 && k.indexOf('_preferencesId') == -1) {
+                       preferences.push({
+                           preferences: k,
+                           preferencesValue: v || "",
+                           _token: data[k + '_token'],
+                           preferencesId: data[k + '_preferencesId']
+                       });
+                   }
+               }); 
+               sf.set('enabled', false)
+               $.ajax({
+                   type: "POST",
+                   url: "${base.contextPath}/sys/preferences/savePreferences",
+                   contentType: "application/json",
+                   data: kendo.stringify(preferences),
+                   dataType: "json",
+                   success: function (result) {
+                       if (result.success) {
+                           kendo.ui.showInfoDialog({
+                               message:'<@spring.message "jrap.tip.success"/>'
+                           }).done(function(e){
+
+                           })
+                       }else{
+                           kendo.ui.showErrorDialog({
+                               message:result.message
+                           })
+                       }
+                  }
+             }).complete(function(){
+                 sf.set('enabled', true)
+             });
+			}
+       });
+       initPreference();
+        kendo.bind($('#page-content'), viewModel); 
+
+    </script>
+</body>
+</html>

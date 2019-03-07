@@ -1,0 +1,436 @@
+<#--
+* description: 系统配置页面
+* version: 3.0
+* author:hailin.xu@jingrui.com
+-->
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/common/code?captchaPolicy=SYS.CAPTCHA_POLICY&passwordComplexity=SYS.PASSWORD_COMPLEXITY"
+        type="text/javascript"></script>
+
+<style type="text/css">
+.file {
+    position: relative;
+    display: inline-block;
+    background: #FFF;
+    border: 1px solid #eaf4fc;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #004974;
+    text-decoration: none;
+    text-indent: 0;
+     font-size:10px;
+
+}
+.file input {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: 0;
+
+}
+.file:hover {
+    background: #faf9f9;
+    border-color: #FFF;
+    color: #54565B;
+    text-decoration: none;
+}
+</style>
+<script type="text/javascript">
+
+var datas=[];
+
+var viewModel = kendo.observable({
+    model: {
+        captcha:''
+    },
+    source: captchaPolicy,
+    passwordComplexityData:passwordComplexity,
+    saveForm:function(e)
+    {
+    	//定义一个枚举用来循环存放
+    	var radioValue=viewModel.model.captcha;
+        var roleMerge = $("#checkbox").val();
+        var firstLoginRestPW = $("#resetPW").val();
+    	var enums=['sys_title','captcha','default_password','password_min_length','password_complexity','password_invalid_time','prohibit_repeat_login',
+            'user_role_merge','default_target_url','first_login_reset_password','oauth2_authentication_num','oauth2_authentication_lock_time'];
+        viewModel.model.set("captcha",radioValue);
+        viewModel.model.set("user_role_merge",roleMerge);
+        viewModel.model.set("first_login_reset_password",firstLoginRestPW);
+        viewModel.model.set("prohibit_repeat_login",$("#loginRepeat").val());
+        var data=[];
+    	for(var i= 0;i<enums.length;i++){
+    	    var  temp = enums[i].toUpperCase();
+    		for(var j=0;j<datas.length;j++)
+    	    {
+    			if(enums[i] ==datas[j].configCode)
+    			{
+    				   data.push({
+    					   _token:datas[j]._token,
+    					   configId: datas[j].configId,
+    					   configCode: temp,
+    					   configValue: viewModel.model.get(enums[i]),
+    					   __status:'update'
+    				  })
+    			}
+    	  }
+    	}
+
+        Jrap.request({
+            url: '${base.contextPath}/sys/config/submit',
+            type: "POST",
+            data       : kendo.stringify(data)
+        })
+    }
+});
+
+function showCaptchaPolicy(){
+	var html = '';
+	for(var i=0;i<viewModel.source.length;i++)
+	{
+		html+='<input name="captcha" type="radio"  id="'+viewModel.source[i].value+'" value="'+viewModel.source[i].value+'"/>';
+		html+='<span class="info" style="margin-left:10px;font-weight:bold;">'+viewModel.source[i].meaning+'</span>';
+		html+='<div style="color: #5a5a5a;margin:10px 20px;">'+viewModel.source[i].description+'</div>';
+	}
+
+
+    //$("#grid").data('kendoGrid')
+    kendo.bind($("#radio"), viewModel);
+	$("#captcha").html(html);
+}
+function showUploadSucessFavicon(){
+	$("#sys-favicon-img").attr("src","${base.contextPath}/resources/upload/favicon.png?"+Math.random());
+}
+function uploadSuccess(message){
+	$("#sys-logo-img").attr("src","${base.contextPath}/resources/upload/logo.png?"+Math.random());
+    showUploadMessage(message);
+}
+function showUploadMessage(message){
+	kendo.ui.showInfoDialog({
+        title:$l('jrap.prompt'),
+        message:message
+    })
+}
+
+
+function passwordlength(){
+	var input = event.srcElement;
+	if(input.value < 6){
+		input.value = 6;
+	}else if(input.value>16){
+		input.value = 16;
+	}
+}
+</script>
+
+<div class="page-content">
+    <div class="form-horizontal" role="form" autocomplete="off">
+        <div class="panel-body">
+            <div class="row">
+                <div class="form-group ">
+                    <label class="col-sm-3 control-label"><@spring.message "sys.config.system_title"/></label>
+                    <div class="col-sm-4">
+                        <input class=" k-textbox" id="sys_title" data-bind="value:model.sys_title" style="width: 100%"/>
+                        <script>kendo.bind($('#sys_title'), viewModel);</script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-horizontal">
+        <div class="panel-heading">
+            <span class="panel-title"> <@spring.message "sys.config.style"/></span>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.systemlogo"/></label>
+                    <div class="col-md-4">
+                        <img id="sys-logo-img" name="logo" width="100" class="pull-left" src="${base.contextPath}/resources/upload/logo.png?v=${Session.sysLogoVersion!}" style="border:1px solid #ccc;"/>
+                        <form id="upload-logo-form" action="${base.contextPath}/sys/config/logo/upload?${_csrf.parameterName}=${_csrf.token}"  target="_uploadTarget" enctype="multipart/form-data" method="POST" class="pull-left" style="padding-left:20px;">
+                            <a href="javascript:void(0);" class="file btn">
+                                <@spring.message "sys.config.select_file"/>
+                                <input type="file" name="sys-logo-img-uploader" onChange="preview(this,'sys-logo-img');"/>
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <@spring.message "sys.config.upload_file"/>
+                            </button>
+                            <small class="help-block"> <@spring.message "sys.config.systemlogo.desciption"/></small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.favicon"/></label>
+                    <div class="col-md-4">
+                        <img id="sys-favicon-img" name="favicon" class="pull-left"  src="${base.contextPath}/resources/upload/favicon.png?v=${Session.sysFaviconVersion!}" width="32" height="32" style="border:1px solid #ccc">
+                        <form id="upload-icon-form" action="${base.contextPath}/sys/config/favicon/upload?${_csrf.parameterName}=${_csrf.token}" target="_uploadTarget" enctype="multipart/form-data" method="POST" class="pull-left" style="padding-left:88px;">
+                            <a href="javascript:void(0);" class="file btn">
+                                <@spring.message "sys.config.select_file"/>
+                                <input type="file" accept="image/*"  name="favicon" id="favicon" onChange="preview(this,'sys-favicon-img');"/>
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <@spring.message "sys.config.upload_file"/>
+                            </button>
+                            <small class="help-block"><@spring.message "sys.config.favicon.desciption"/></small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-horizontal">
+        <div class="panel-heading">
+            <span class="panel-title"> <@spring.message "sys.config.safety"/></span>
+        </div>
+        <div class="panel-body">
+
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.captcha"/></label>
+                    <div class="col-md-4">
+                        <div id="captcha" style="margin-top:5px;"
+                             data-bind="enabled: isEnabled,value:model.captcha"></div>
+                    </div>
+                    <script>
+                        var datas = [];
+                        for (var i = 0; i < viewModel.source.length; i++) {
+                            datas.push({
+                                label: viewModel.source[i].meaning,
+                                value: viewModel.source[i].value
+                            })
+                        }
+                        $("#captcha").kendoRadio({
+                            layout: 'vertical',//vertical
+                            readonly: false,
+                            items: datas
+                        });
+
+                        kendo.bind($('#captcha'), viewModel);
+
+                    </script>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.oauth2_authentication_num"/></label>
+                    <div class="col-md-4">
+                        <input type="number" onkeyup='this.value=this.value.replace(/\D/gi,"")'  id="oauth2_authentication_num" data-bind="value:model.oauth2_authentication_num" style="width: 50%;" />
+                        <script>
+                            $("#oauth2_authentication_num").kendoNumericTextBox({format: '0'});
+                            kendo.bind($('#oauth2_authentication_num'), viewModel);</script>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.oauth2_authentication_lock_time"/></label>
+                    <div class="col-md-4">
+                        <input type="number" onkeyup='this.value=this.value.replace(/\D/gi,"")'   id="oauth2_authentication_lock_time" data-bind="value:model.oauth2_authentication_lock_time" style="width: 50%;" />
+                        <script>
+                            $("#oauth2_authentication_lock_time").kendoNumericTextBox({format: '0'});
+                            kendo.bind($('#oauth2_authentication_lock_time'), viewModel);</script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-horizontal">
+        <div class="panel-heading">
+            <span class="panel-title"><@spring.message "sys.config.password_policy"/></span>
+        </div>
+        <div class="panel-body">
+
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.default_password"/></label>
+                    <div class="col-md-4">
+                        <input class=" k-textbox" id="default_password" data-bind="value:model.default_password" style="width: 50%"/>
+                        <script>kendo.bind($('#default_password'), viewModel);</script>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.password_min_length"/></label>
+                    <div class="col-md-4">
+                        <input type="number" onkeyup='this.value=this.value.replace(/\D/gi,"")' value="8" max="16" min="6" id="password_min_length" data-bind="value:model.password_min_length" style="width: 50%;" onchange="passwordlength();"/>
+                        <script>
+                            $("#password_min_length").kendoNumericTextBox({format: '0'});
+                            kendo.bind($('#password_min_length'), viewModel);</script>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.password_complexity"/></label>
+                    <div class="col-md-4">
+                        <select data-role="dropdownlist" id="password_complexity" data-value-primitive="true"
+                                style="width:50%;"
+                                data-text-field="meaning" data-value-field="value"
+                                data-bind="source: passwordComplexityData, value: model.password_complexity"></select>
+                        <script>kendo.bind($('#password_complexity'), viewModel);</script>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.password_invalid_time"/></label>
+                    <div class="col-md-4">
+                        <input id="password_invalid_time" onkeyup='this.value=this.value.replace(/\D/gi,"")' type="number" data-bind="value:model.password_invalid_time" style="width: 50%;"/>
+                        <script>
+                            kendo.bind($('#password_invalid_time'), viewModel);
+                            $("#password_invalid_time").kendoNumericTextBox({
+                                format: "0",
+                                min: 0
+                            });
+                        </script>
+                        <span class="help-block"><@spring.message "sys.config.password_invalid_describe"/></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-horizontal">
+        <div class="panel-heading">
+            <span class="panel-title"><@spring.message "sys.login.safety"/></span>
+        </div>
+        <div class="panel-body">
+
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.resetpassword"/></label>
+                    <div class="col-xs-1" id="resetPWDiv">
+                        <input id="resetPW" name="resetPW" style="margin-top:8px" type="checkbox"
+                               data-bind="enabled: isEnabled,value:model.first_login_reset_password"/>
+                    </div>
+                    <script>
+                        $("#resetPW").kendoCheckbox({
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        });
+                        kendo.bind($('#resetPWDiv'), viewModel);
+                    </script>
+                    <label class="col-xs-4 control-label" style="text-align:left;"><@spring.message
+                        "sys.config.resetpassword.describe"/></label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.prohibit_repeat_login"/></label>
+                    <div class="col-xs-1">
+                        <input id="loginRepeat" name="loginRepeat" style="margin-top:8px" type="checkbox"
+                               data-bind="enabled: isEnabled,value:model.prohibit_repeat_login"/>
+                    </div>
+                    <script>
+                        $("#loginRepeat").kendoCheckbox({
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        });
+                        kendo.bind($('#loginRepeat'), viewModel);
+                    </script>
+                    <label class="col-xs-4 control-label" style="text-align:left;"><@spring.message "sys.config.prohibit_repeat_login.describe"/></label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.rolemerge"/></label>
+                    <div class="col-xs-1" id="roleMerge">
+                        <input id="checkbox" name="checkbox" style="margin-top:8px" type="checkbox"
+                               data-bind="enabled: isEnabled,value:model.user_role_merge"/>
+                    </div>
+                    <script>
+                        $("#checkbox").kendoCheckbox({
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        });
+                        kendo.bind($('#checkbox'), viewModel);
+                    </script>
+                    <label class="col-xs-4 control-label" style="text-align:left;"><@spring.message
+                        "sys.config.user_role_merge.describe"/></label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"><@spring.message "sys.config.default_target_url"/></label>
+                    <div class="col-md-4">
+                        <input class=" k-textbox" id="default_target_url" data-bind="value:model.default_target_url"
+                               style="width: 100%"/>
+                        <script>kendo.bind($('#default_target_url'), viewModel);</script>
+                        <span class="help-block"><@spring.message "sys.config.default_target_url.describe"/></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-3 control-label"></label>
+                    <div class="col-md-4">
+                        <span class="btn btn-primary" id="save" data-hotkey="hotkey_save"  style="width:100px" data-bind="click:saveForm" ><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+                        <script>kendo.bind($('#save'), viewModel);</script>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<iframe id="_uploadTarget" name="_uploadTarget" src="about:blank" style="position:absolute;left:-10000px;top:-10000px;width:1px;height:1px;display:none"></iframe>
+
+<script type="text/javascript">
+
+    $.ajax({
+        url: '${base.contextPath}/sys/config/query',
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        success: function (args) {
+            datas = args.rows || [];
+            for (var k = 0; k < datas.length; k++) {
+                if (datas[k].configCode) {
+                    datas[k].configCode = datas[k].configCode.toLowerCase();
+                    if (datas[k].configCode == 'captcha') {
+                        viewModel.model.set("captcha", datas[k].configValue);
+                    }
+                    else
+                        viewModel.model.set(datas[k].configCode, datas[k].configValue)
+                }
+            }
+        }
+    });
+
+    var preview = function(file, container) {
+        var container = document.getElementById(container), path = '';
+        if (file && file.files.length >0) {
+            //setTimeout('$("#file").select();', 1);
+            if (window.navigator.userAgent.indexOf("MSIE") >= 1) {
+                file.select();
+                if (window.getSelection) {
+                    path = window.getSelection();
+                } else if (window.document.getSelection) {
+                    path = window.document.getSelection();
+                } else if (window.document.selection) {
+                    path = window.document.selection.createRange().text;
+                }
+            } else if (window.navigator.userAgent.indexOf("Firefox") >= 1) {
+                if (file.files) {
+                    path = window.URL.createObjectURL(file.files[0]);
+                } else {
+                    path = file.value;
+                }
+            } else if (window.navigator.userAgent.indexOf("Chrome") >= 1) {
+                path = window.webkitURL.createObjectURL(file.files[0]);
+            }
+            container.src = path;
+        }
+    }
+</script>
+</body>
+</html>

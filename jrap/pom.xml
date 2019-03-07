@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>jrap-lease</artifactId>
+        <groupId>com.jingrui</groupId>
+        <version>1.3-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>jrap</artifactId>
+    <packaging>war</packaging>
+    <name>jrap</name>
+    <url>http://maven.apache.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-core</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-crm</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-job</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-oauth2</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-report</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-mail</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-gateway</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-interface</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-task</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-workflow</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-db</artifactId>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <finalName>jrap</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.groovy</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.jingrui</groupId>
+                        <artifactId>jrap-core</artifactId>
+                        <classifier>classes</classifier>
+                        <version>1.3-SNAPSHOT</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.jingrui</groupId>
+                        <artifactId>jrap-db</artifactId>
+                        <version>1.3-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <attachClasses>true</attachClasses>
+                    <overlays>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-core</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-crm</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-job</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-report</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-mail</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-oauth2</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-gateway</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-interface</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-task</artifactId>
+                        </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-workflow</artifactId>
+                        </overlay>
+                    </overlays>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

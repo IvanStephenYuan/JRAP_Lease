@@ -1,0 +1,176 @@
+<#include "../include/header.html">
+<script type="text/javascript">
+
+    var viewModel = Jrap.createGridViewModel('#Grid', null);
+</script>
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><i
+                class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;" data-bind="click:save"><i
+                class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+        <span class="btn btn-danger" style="float:left;" data-bind="click:remove"><i class="fa fa-trash-o"
+                                                                                     style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "FlexModel.modelCode"/>'
+                   data-bind="value:model.modelCode" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "FlexModel.modelName"/>'
+                   data-bind="value:model.modelName" class="k-textbox">
+        <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div style="clear:both">
+        <div id="Grid"></div>
+    </div>
+</div>
+
+<div id="ColumnWin"></div>
+
+<script type="text/javascript">
+
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+
+    var BaseUrl = _basePath;
+    dataSource = Jrap.createGridDataSource({
+        url: BaseUrl + "/fnd/flex/model/",
+        model: {
+            id: "modelId",
+            fields: {
+                modelCode: {validation: {required: true}},
+                modelName: {validation: {required: true}},
+                modelTable: {validation: {required: true}}
+            },
+            editable: function (col) {
+                if ((col == "modelTable" && this.modelId)) {
+                    return false;
+                }
+                if (col == "modelCode" && this.modelId) {
+                    return false;
+                }
+                return true;
+            }
+        }
+    });
+
+
+    $("#Grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+           {
+                field: "modelCode",
+               title: '<@spring.message "flexmodel.modelcode"/>',
+                width: 120
+            },
+                    {
+                field: "modelName",
+                        title: '<@spring.message "flexmodel.modelname"/>',
+                width: 120
+            },
+            {
+                field: "modelTable",
+                title: '<@spring.message "flexmodel.modeltable"/>',
+                width: 120,
+                editor: function (container, options) {
+                    $('<input  name="' + options.field + '"  style="width:100%"/>')
+                                .appendTo(container)
+                                .kendoAutoComplete({
+                                    dataSource: allTableDataSource,
+                                    dataTextField: "text",
+                                    select: function (e) {
+                                        options.model.set("modelTable", e.item.text());
+                                    }
+                                });
+                }
+            },
+            {   attributes: {style: "text-align:center"},
+                title: '<@spring.message "flexmodel.editcolumn"/>',
+                command : [{
+                    name:'edit',
+                    template : '<a href="javascript:void(0)" class="k-grid-edit"><@spring.message "jrap.edit"/></a>',
+                    click: function(e){
+                        var data = this.dataItem($(e.target).closest("tr"));
+                        if (!data.modelId) {
+                            return false;
+                        }
+                        var onClose = function () {
+                            $("#ColumnWin").empty();
+                            $('#Grid').data('kendoGrid').dataSource.query();
+                        }
+
+                        $("#ColumnWin").kendoWindow({
+                            actions: ["Close"],
+                            title: $l('jrap.edit'),
+                            draggable: true,
+                            height: "350px",
+                            width: "800px",
+                            close: onClose,
+                            content: "${base.contextPath}/flexfield/flex_model_column.html?modelId="+data.modelId+"&modelTable="+data.modelTable,
+                            iframe: true,
+                            modal: true,
+                            resizable: false
+                        });
+                        var win = $("#ColumnWin").data("kendoWindow");
+                        win.center().open();
+                        e.preventDefault();
+                    }
+                }],
+                width : 70,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                }}
+        ],
+        editable: true
+    });
+
+
+    var allTableDataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: "${base.contextPath}/generator/alltables",
+                dataType: "json"
+            }
+        },
+        schema: {
+            model: {
+                expanded: true
+            },
+            parse: function (response) {
+                var products = [];
+                for (var i = 0; i < response.total; i++) {
+                    var le = response.rows[i];
+                    if (le.substring(le.length - 3, le.length) != "_TL" && le.substring(le.length - 3, le.length) != "_tl") {
+                        var product = {
+                            text: response.rows[i],
+                            value: response.rows[i],
+                        };
+                        products.push(product);
+                    }
+                }
+                return products;
+            }
+        }
+    });
+
+
+</script>
+</body>
+</html>

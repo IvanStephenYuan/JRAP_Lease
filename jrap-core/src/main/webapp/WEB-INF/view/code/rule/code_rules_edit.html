@@ -1,0 +1,503 @@
+<#include "../../include/header.html">
+<script src="${base.contextPath}/common/code?filedTypeDataSource=SYS.CODERULE.FIEDLTYPE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?dateMaskDataSource=SYS.CODERULE.DATEMASK" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?resetPeriodDataSource=SYS.CODERULE.RESTPERIOD" type="text/javascript"></script>
+<script type="text/javascript">
+    var headerId= '${RequestParameters.headerId!0}';
+    var status = '${RequestParameters.status!0}';
+    var isEnabled = true
+    if(status === 'read'){
+        isEnabled = false;
+    }
+    var viewModel = Jrap.createGridViewModel("#grid",{
+        model: {
+            isCodeEnabled: <#if RequestParameters.headerId??> false <#else> true </#if>,
+    isEnabled : isEnabled,
+        enableFlag: 'Y'
+    },
+    save:function(){
+        if (validator.validate()) {
+            viewModel.model.__status = headerId>0 ? 'update' : 'add';
+            var lineData = dataSource.data();
+            $.each(lineData,function (i,v) {
+                //修改了startValue才更新当前值
+                if(v.filedType == "SEQUENCE" && (!oldStartValue || oldStartValue != v.startValue)){
+                    v.currentValue = v.startValue - 1;
+                }
+            })
+            Jrap.submitForm({
+                url: '${base.contextPath}/sys/code/rules/header/submit',
+                formModel: viewModel.model,
+                grid: {"lines": $("#grid")},
+                success: function (data) {
+                    window.parent.viewModel.refresh();
+                    window.parent.$("#editWin").data("kendoWindow").close();
+                }
+            });
+        }
+    },
+    close: function () {
+        window.parent.$("#editWin").data("kendoWindow").close();
+    }
+    })
+
+
+    <#if RequestParameters.headerId??>
+    Jrap.loadViewModel({
+        url: '${base.contextPath}/sys/code/rules/header/query?headerId='+headerId,
+        model: viewModel.model
+    });
+    </#if>
+
+</script>
+<body>
+<div id="content-container">
+    <div id="page-content">
+        <form class="form-horizontal">
+            <div id="headerForm">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-xs-4  control-label" style="text-align: right"><@spring.message
+                                "coderulesheader.rulecode"/></label>
+                            <div class="col-xs-8">
+                                <input id="code" name="code" type="text" data-role="maskedtextbox"  required
+                                       data-label="<@spring.message 'coderulesheader.rulecode'/>"
+                                       data-bind="enabled: model.isCodeEnabled,value:model.ruleCode" class="k-textbox"
+                                       style="width: 100%;">
+                                <script>kendo.bind($('#code'), viewModel);</script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-xs-4  control-label" style="text-align: right"><@spring.message
+                                "coderulesheader.rulename"/></label>
+                            <div class="col-xs-8">
+                                <input id="ruleName" name="ruleName" type="text" data-role="maskedtextbox"
+                                       data-label="<@spring.message 'coderulesheader.rulename'/>"
+                                       data-bind="enabled: model.isEnabled,value:model.ruleName" class="k-textbox"
+                                       style="width: 100%;">
+                                <script>kendo.bind($('#ruleName'), viewModel);</script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-xs-2 control-label" style="text-align: right"><@spring.message
+                                "code.description"/></label>
+                            <div class="col-xs-10">
+                                <input id="description" name="description" type="text" data-role="maskedtextbox"
+                                       data-label="<@spring.message 'Jrap.description'/>"
+                                       data-bind="enabled: model.isEnabled,value:model.description" class="k-textbox" style="width: 100%;">
+                                <script>
+                                    kendo.bind($('#description'), viewModel);
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group" >
+                            <label class="col-xs-2 control-label" style="text-align: right"><@spring.message "Jrap.enableflag"/></label>
+                            <div class="col-xs-3">
+                                <input id="codeCheckbox" style="margin-top:5px;" checked="checked" name="checkbox" type="checkbox" data-bind="enabled: model.isEnabled,value:model.enableFlag"/>
+                                <script>
+                                    $("#codeCheckbox").kendoCheckbox({
+                                        type: 'boolean',
+                                        checkedValue:'Y',
+                                        uncheckedValue:'N'
+                                    });
+                                </script>
+                                <script>kendo.bind($('#codeCheckbox'), viewModel);</script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-xs-2" style="text-align: right">
+                            <label class="control-label"><@spring.message "coderulesline.list"/></label>
+                        </div>
+                        <div class="col-xs-10">
+                            <#if !RequestParameters.status??>
+                            <div class="pull-left" id="toolbar-btn" style="padding-bottom:15px;">
+                                        <span id="addGrid" data-hotkey="hotkey_create" data-bind="click:create" type="button"
+                                              class="btn btn-default k-grid-add" style="float:left;margin-right:5px"><i
+                                                class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "Jrap.new"/></span>
+                                <span id="deleteGrid" data-hotkey="hotkey_delete" data-bind="click:remove" class="btn btn-danger"
+                                      style="float:left;"><i class="fa fa-trash-o"
+                                                             style="margin-right:3px;"></i><@spring.message "Jrap.delete"/></span>
+                            </div>
+                        </#if>
+                        <div style="clear:both;">
+                            <div id="grid"></div>
+                        </div>
+                        <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </form>
+</div>
+<div class="text-right k-window-toolbar" id="gridToolbar">
+    <#if !RequestParameters.status??>
+    <span class="btn btn-primary" style="margin-right: 10px" data-hotkey="hotkey_save"  data-bind="click:save"> <@spring.message "Jrap.save"/></span>
+</#if>
+<span class="btn btn-default" data-bind="click:close" data-hotkey="hotkey_cancel" type="button"  ><@spring.message "Jrap.cancel"/></span>
+
+</div>
+<script>kendo.bind($('#gridToolbar'), viewModel);</script>
+</div>
+
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+
+    var oldStartValue = null;
+
+    var validator = $("#headerForm").kendoValidator({
+        invalidMessageType : "tooltip"
+    }).data("kendoValidator");
+
+    var hasExistSeq = false;
+    var reduceFiledTypeDataSource=[];
+    //var dateMaskDataSource = [{"meaning":"yyyyMMdd",value:"yyyyMMdd"}];
+    //var resetPeriodDataSource = [{"meaning":"不重置",value:"NEVER"}];
+
+    $.each(filedTypeDataSource,function (i,v) {
+        if(v.value!="SEQUENCE"){
+            reduceFiledTypeDataSource.push(v);
+        }
+    })
+    var BaseUrl = "${base.contextPath}/sys/code/rules/line";
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/query?headerId=${RequestParameters.headerId!0}",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        requestEnd:function (e) {
+            var response=e.response;
+            if(response){
+                var data=response.rows;
+                $.each(data,function (i,v) {
+                    if(v.filedType=="SEQUENCE"){
+                        hasExistSeq=true;
+                        oldStartValue = v.startValue;
+                        return false;
+                    }
+                })
+            }
+        },
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "lineId",
+                fields: {
+                    filedType: {validation: {required: true}},
+                    fieldSequence :{type: "number",validation: {required: true}},
+                    filedValue:{validation: {
+                            filedValueValidation:function (input) {
+                                if(input.is("[name=filedValue]")){
+                                    return !/\s/.test(input.val());
+                                }
+                            }
+                        }},
+                    startValue:{validation: {
+                            seqLengthValidation:function (input) {
+                                if(input.is("[name=startValue]")){
+                                    var startValue=input.val()||"";
+                                    var seqLen=$(input).parent().prev("td").text();
+                                    if(!seqLen) return true;
+                                    return /^\d{0,20}$/.test(startValue)&&startValue.length<=Number(seqLen);
+                                }
+                            }
+                        }},
+                    dateMask:{validation: {required: true}},
+                    seqLength:{validation: {
+                            seqLengthValidation:function (input) {
+                                if(input.is("[name=seqLength]")){
+                                    var seqLen=input.val()||"";
+                                    var startValue=$(input).parent().next("td").text();
+                                    if(!startValue) return true;
+                                    return /^\d{0,20}$/.test(seqLen)&&startValue.length<=Number(seqLen);
+                                }
+                            }
+                        }},
+                    resetFrequence:{validation: {required: true}},
+                    currentValue:{editable:false}
+                },
+            }
+        }
+    });
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        height: '300px',
+        selectable: status=="read"?false:'multiple,rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        autoBind:<#if RequestParameters.headerId??> true <#else> false </#if>,
+        columns: [
+            {
+                field: "fieldSequence",
+                title: '<@spring.message "coderulesline.fieldsequence"/>',
+                width: 60
+            },
+            {
+                field: "filedType",
+                title: '<@spring.message "coderulesline.filedtype"/>',
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.filedType;
+                    $.each(filedTypeDataSource, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v || '';
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '" required=""/>')
+                        .appendTo(container)
+                        .kendoComboBox({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: hasExistSeq&&options.model.filedType!="SEQUENCE"?reduceFiledTypeDataSource:filedTypeDataSource,
+                            change:function () {
+                                var datas=dataSource.data();
+                                var oneData;
+                                $.each(datas,function (i,v) {
+                                    if(v.uid==options.model.uid){
+                                        oneData=datas[i];
+                                        return false;
+                                    }
+                                })
+                                if(oneData){
+                                    oneData.set("filedValue","");
+                                    oneData.set("dateMask","");
+                                    oneData.set("startValue","");
+                                    oneData.set("seqLength","");
+                                    oneData.set("stepNumber", "");
+                                    //oneData.set("currentValue","");
+                                    $(container).parent().children("td:last-child").text("");
+                                    oneData.set("resetFrequency",options.model.filedType=="SEQUENCE"?"NEVER":null);
+                                    $(container).nextAll().removeClass("k-dirty-cell").children("span").remove();
+                                }
+                            },
+                            select:function (e) {
+                                var oldValue=options.model.filedType;
+                                var newValue=e.dataItem.value;
+                                if(oldValue!=newValue){
+                                    if(oldValue=="SEQUENCE"){
+                                        hasExistSeq=false;
+                                    }else if(newValue=="SEQUENCE"){
+                                        hasExistSeq=true;
+                                    }
+                                }
+                            }
+                        });
+                }
+            },
+            {
+                field: "filedValue",
+                title: '<@spring.message "coderulesline.filedvalue"/>',
+                width: 100,
+                editor:function (container, options){
+                    var validationMsg = '<@spring.message "msg.error.coderulesline.filed_value_validation"/>';
+                    return options.model.filedType==="CONSTANT" || options.model.filedType==="VARIABLE"  ?
+                        $('<input name="'+options.field+'" class="k-textbox" validationMessage="'+validationMsg+'" required/>').appendTo(container):false;
+                },
+            },
+            {
+                field: "dateMask",
+                title: '<@spring.message "coderulesline.datemask"/>',
+                width: 120,
+                template:function (dataItem) {
+                    var result = dataItem.dateMask;
+                    $.each(dateMaskDataSource,function (i,v) {
+                        if ((v.value || '').toLowerCase() == (result || '').toLowerCase()) {
+                            result=v.meaning;
+                            return false;
+                        }
+                    })
+                    return result||'';
+                },
+                editor:function (container, options){
+                    return options.model.filedType==="DATE"?
+                        $('<input name="'+options.field+'" required>').appendTo(container).kendoComboBox({
+                            valuePrimitive: true,
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            clearNoData: false,
+                            dataSource:dateMaskDataSource
+                        }):false;
+                },
+            },
+            {
+                field: "resetFrequency",
+                title: '<@spring.message "coderulesline.resetfrequency"/>',
+                width: 80,
+                template:function (dataItem) {
+                    var result = dataItem.resetFrequency;
+                    $.each(resetPeriodDataSource,function (i,v) {
+                        if ((v.value || '').toLowerCase() == (result || '').toLowerCase()) {
+                            result=v.meaning;
+                            return false;
+                        }
+                    })
+                    return result||'';
+                },
+                editor:function (container, options){
+                    return options.model.filedType==="SEQUENCE"?
+                        $('<input name="'+options.field+'" required>').appendTo(container).kendoComboBox({
+                            valuePrimitive: true,
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            dataSource:resetPeriodDataSource
+                        }):false;
+                },
+            },
+            {
+                field: "seqLength",
+                title: '<@spring.message "coderulesline.seqlength"/>',
+                width: 60,
+                editor: function (container, options) {
+                    var validationMsg = '<@spring.message "msg.error.coderulesline.seq_length_validation"/>';
+                    return options.model.filedType === "SEQUENCE" ?
+                        $('<input class="k-textbox" name="' + options.field + '" validationMessage="'+validationMsg+'" required>')
+                            .appendTo(container) : false;
+                }
+            },
+            {
+                field: "startValue",
+                title: '<@spring.message "coderulesline.startvalue"/>',
+                width: 100,
+                editor:function (container, options){
+                    var validationMsg =  '<@spring.message"msg.error.coderulesline.start_value_validation"/>';
+                    return options.model.filedType==="SEQUENCE"?
+                        $('<input class="k-textbox" name="'+options.field+'" validationMessage="'+validationMsg +
+                            '" required>').appendTo(container):false;
+                },
+
+            },
+            {
+                field: "currentValue",
+                title: '<@spring.message "coderulesline.currentvalue"/>',
+                width: 100
+            },
+            {
+                field: "stepNumber",
+                title: '<@spring.message "coderulesline.stepnumber"/>',
+                width: 100,
+                editor: function (container, options){
+                    var validationMsg =  '<@spring.message"msg.error.coderulesline.start_value_validation"/>';
+                    return options.model.filedType==="SEQUENCE"?
+                        $('<input class="k-textbox" name="'+options.field + '">')
+                            .appendTo(container):false;
+                },
+            }
+        ],
+        editable: status!="read"
+    });
+
+    //重写grid的验证方法
+    $("#grid").data("kendoGrid").validate= function() {
+        var grid=$("#grid").data("kendoGrid");
+        if (grid.editable && !grid.editable.end()) {
+            return false;
+        }
+        var that = grid, ds = that.dataSource, fields = ds.options.schema.model.fields, validationFields = [], result = ds.created().concat(ds.updated()), mode = that._editMode();
+        if (mode != 'incell') {
+            return true;
+        }
+        for (var key in fields) {
+            if (fields[key].validation) {
+                validationFields.push(key);
+            }
+        }
+        for (var i = 0; i < result.length; i++) {
+            var flag = 1, row = that.tbody.children('[' + kendo.attr('uid') + '=' + result[i].uid + ']'), model = result[i];
+            $(row).children(':not(.k-group-cell):not(.k-hierarchy-cell):visible').each(function () {
+                var cell = $(this);
+                var column = leafColumns(that.columns)[that.cellIndex(cell)];
+                if(column.field&&(model.filedType=="SEQUENCE"&&(column.field=="startValue"||column.field=="seqLength"||column.field=="resetFrequence"))||
+                    (model.filedType=="DATE"&&column.field=="dateMask")||((model.filedType=="CONSTANT" || model.filedType =="VARIABLE")&&column.field=="filedValue")
+                    ||column.field=="fieldSequence"||column.field=="filedType"){
+                    if (model && (!model.editable || model.editable(column.field))) {
+                        for (var j = 0; j < validationFields.length; j++) {
+                            if (column.field == validationFields[j] && !model[column.field]) {
+                                that.editCell(cell);
+                                that.editable.end();
+                                flag = 0;
+                                return false;
+                            }
+                        }
+                    }
+                }
+            });
+            if (!flag) {
+                return false;
+            }
+        }
+        return true;
+    }
+    function leafColumns(columns) {
+        var result = [];
+        for (var idx = 0; idx < columns.length; idx++) {
+            if (!columns[idx].columns) {
+                result.push(columns[idx]);
+                continue;
+            }
+            result = result.concat(leafColumns(columns[idx].columns));
+        }
+        return result;
+    }
+</script>
+</body>
+</html>

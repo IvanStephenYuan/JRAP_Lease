@@ -1,0 +1,258 @@
+<#--
+* description: 资源组件管理
+* author:hailin.xu@jingrui.com
+         qiang.zeng@jingrui.com
+* -->
+<#include "../include/header.html">
+<body>
+<script type="text/javascript">
+    var viewModel = kendo.observable({
+        model : {
+            roleId: ${RequestParameters.roleId!},
+            functionId:${RequestParameters.functionId!}
+        },
+        queryResource : function(e) {
+            $('#grid').data('kendoTreeList').dataSource.read();
+        }
+    });
+</script>
+<div id="dialog"></div>
+
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary" onclick="expand()" style="float:left;margin-right:5px;"><i class="fa fa-plus-square-o" style="margin-right:3px;"></i><@spring.message "jrap.expand"/></span>
+        <span class="btn btn-warning" onclick="collapse()"  style="float:left;margin-right:5px;"><i class="fa fa-minus-square-o" style="margin-right:3px;"></i><@spring.message "jrap.collapse"/></span>
+        <span class="btn btn-success"  onclick="saveRole()" style="float:left;"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#query-form input').keydown(function (e) {
+        if (e.keyCode == 13) {
+            e.target.blur();
+            viewModel.queryResource(e);
+        }
+    });
+
+    function treelist(arr, children, parent) {
+        var childCheckCount=0;
+        for (var i = 0; i < children.length; i++) {
+            var child =  children[i];
+            if(null==parent){
+                child.parentId = null;
+            }else{
+                child.parentId = parent.id;
+            }
+            child.hasChildren = true;
+            arr.push(child);
+            if (child.children!=null && child.children.length!=0) {
+                treelist(arr, child.children, child);
+            } else {
+                child.hasChildren = false;
+            }
+            if(child.ischecked){
+                childCheckCount = childCheckCount+1;
+            }
+        }
+        if(children.length!=0 && parent!=null && children.length==childCheckCount){
+            parent.ischecked = true;
+        }
+    }
+
+    function saveRole() {
+        var map = viewModel.model.toJSON();
+        if (!map.roleId) {
+            var dialog =  $("#dialog").kendoWindow({
+                actions: ["Close"],
+                width: 300,
+                height: 150,
+                title: '<@spring.message "msg.info.rolefunction.select_role"/>',
+                visible: false,
+                iframe: true
+            }).data("kendoWindow");
+            dialog.center().open();
+            return;
+        }
+
+        var itemData = treeList.dataSource.data();
+        var datas = [];
+        if (itemData.length > 0) {
+            for (var i = 0; i < itemData.length; i++) {
+                var item = itemData[i];
+                if (item.children===null || item.children.length==0){
+                    if("oldData" == item.functionCode){
+                        if(item.ischecked){
+                            datas.push({
+                                assignType:"oldType",
+                                typeId    : map.roleId,
+                                elementId: item.id
+
+                            })
+                        }
+                    }else if("newData" == item.functionCode){
+                        if(!item.ischecked){
+                            datas.push({
+                                assignType:"newType",
+                                typeId    : map.roleId,
+                                elementId: item.id
+
+                            })
+                        }
+                    }
+                }
+            }
+            Jrap.request({
+                url:'${base.contextPath}/sys/rolefunction/submitResourceItems?roleId='+viewModel.model.toJSON().roleId+'&functionId='+viewModel.model.toJSON().functionId,
+                type:'POST',
+                data:kendo.stringify(datas)
+            })
+        }
+    }
+
+
+    var crudServiceBaseUrl = '${base.contextPath}/sys/rolefunction',
+            dataSource = new kendo.data.TreeListDataSource({
+                transport : {
+                    read : {
+                        url : crudServiceBaseUrl+'/queryResourceItems?roleId='+${RequestParameters.roleId!}+'&functionId='+${RequestParameters.functionId!},
+                        type : "POST",
+                        dataType : "json"
+                    },
+                    parameterMap : function(options,type) {
+                       if (type === "read") {
+                            var map = viewModel.model.toJSON();
+                            for ( var k in map) {
+                                if (map[k] === ''|| map[k] === null|| map[k] === undefined)
+                                    delete map[k]
+                            }
+                            return map;
+                        }
+                    }
+                },
+                requestEnd : function(e) {
+                    var response = e.response;
+                    if(!response)
+                        return;
+                    var datas = [];
+                    treelist(datas, response.rows||[],null);
+                    response.rows = datas;
+                },
+                batch   : true,
+                schema  : {
+                    data  : 'rows',
+                    model : {
+                        id      : "id",
+                        parentId:'parentId',
+                        fields  : {
+                            text: {type :"string"},
+                            functionCode : {type : "string"}
+                        } ,
+                        expanded: true
+                    }
+                },
+                change: function propagate(e) {
+                    var node = e.items && e.items[0];
+                    var propagatedField = "ischecked";
+
+                    if (!node || e.field != propagatedField) {
+                        return;
+                    }
+                    this.unbind("change", propagate);
+                    function update(dataSource, nodes, field, state) {
+                        for (var i = 0; i < nodes.length; i++) {
+                            nodes[i].set(field, state);
+                            update(dataSource, dataSource.childNodes(nodes[i]), field, state);
+                        }
+                    }
+
+                    update(this, this.childNodes(node), propagatedField, node[propagatedField]);
+
+                    function checkedParentNode(nodes) {
+                        for (var j = 0; j < nodes.length; j++) {
+                            if (!nodes[j][propagatedField]) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+
+                    function updateParentNode(dataSource, node) {
+                        if (node) {
+                            var nodes = dataSource.childNodes(node);
+                            if (checkedParentNode(nodes)) {
+                                node.set(propagatedField, true);
+                            } else {
+                                node.set(propagatedField, false);
+                            }
+                            updateParentNode(dataSource, dataSource.parentNode(node))
+                        }
+                    }
+
+                    updateParentNode(this, this.parentNode(node));
+
+                    this.bind("change", propagate);
+                }
+            });
+
+    var treeList  = $("#grid").kendoTreeList({
+        dataSource : dataSource,
+        navigatable : false,
+        height: 430,
+        resizable : false,
+        scrollable : true,
+        editable : false,
+        columns : [{
+            field : "text",
+            title : '<@spring.message "resourceitem.itemname"/>',
+            width : 200,
+            headerAttributes: {
+                style  : "text-align: center"
+            },
+            template : function (item) {
+                return "<i class='" + item.icon + "' style='margin-right: 3px;'></i>" + item.text;
+            }
+        },{
+            title : '<@spring.message "jrap.enableflag"/>',
+            template: "<input type='checkbox' id='checkbox' data-bind='checked: ischecked' />",
+            width: 32,
+            attributes: {
+                "class": "table-header-cell",
+                style: "text-align: center;"
+            }
+        }],
+        dataBound: function() {
+            if(parent.autoResizeIframe){
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+            var view = this.dataSource.view();
+            this.items().each(function(index, row) {
+                kendo.bind(row, view[index]);
+            });
+        }
+    }).data("kendoTreeList");
+
+    function expand(){
+        var tree=treeList.dataSource.data();
+        for(var i=0;i<tree.length;i++){
+            if(tree[i].hasChildren){
+                treeList.expand(tree[i]);
+            }
+        }
+    }
+    function collapse() {
+        var tree = treeList.dataSource.data();
+        for (var i = 0; i < tree.length; i++) {
+            if (tree[i].hasChildren) {
+                treeList.collapse(tree[i]);
+            }
+        }
+    }
+
+</script>
+</body>
+</html>
+

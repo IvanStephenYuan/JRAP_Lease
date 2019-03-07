@@ -1,0 +1,706 @@
+﻿<#include "./include/header.html">
+<body class="" style="padding:0px; overflow: hidden;">
+    <script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    
+    <style>
+        /* #page-main-content {
+            background-color:#363a4b;
+        } */
+        /** logo and link **/
+        #navbar-logo {
+            display: inline-block;
+            vertical-align: middle;
+            height: 49px;
+            float: left;
+            padding-left:10px;
+            line-height:49px;
+        }
+        #navbar-logo .navbar-logo-title,#navbar-logo .navbar-logo-img {
+            float:left;
+        }
+        #navbar-logo .navbar-logo-img {
+            margin-top:10px;
+        }
+        #navbar-logo .navbar-logo-title {
+            font-size:14px;
+            padding-left:10px;
+            line-height:49px;
+        }
+        .header-search {
+            position: relative;
+        }
+        .header-search > input[type="text"] {
+            display: block;
+            box-sizing: border-box;
+            min-width: 200px;
+            width: 100%;
+            height: 30px;
+            color: rgb(64, 64, 64);
+            -webkit-appearance: none;
+            margin-top: 10px;
+            line-height: normal;
+            padding: 0px 10px;
+            outline: 0px;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 0px;
+            border-color: rgb(191, 191, 191);
+            background: rgb(255, 255, 255);
+        }
+        .header-search > button {
+            color: rgb(109, 106, 105);
+            font-size: 17px;
+            height: 30px;
+            line-height: 30px;
+            position: absolute;
+            right: 0px;
+            top: 10px;
+            width: 30px;
+            z-index: 2;
+            background: 0px 0px;
+            border-width: initial;
+            border-style: none;
+            border-color: initial;
+            border-image: initial;
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        
+        #navbar-container {
+            z-index:1;
+            background-color:#fff;
+            height:49px;
+            padding:0;
+            margin:0;
+            box-shadow:0 2px 2px rgba(0,0,0,.1),0 1px 0 rgba(0,0,0,.1);
+            position:relative;
+        }
+        
+        #navbar-container .navbar-right {
+            margin-right:15px;
+            float:right;
+        }
+        .navbar-links>li {
+            float:left;
+            display:inline-block;
+            margin-left:6px;
+        }
+        .navbar-links>li>a{
+            -moz-border-radius: 2px;
+            -webkit-border-radius: 2px;
+            border-radius: 2px;
+            cursor: default!important;
+            display: inline-block;
+            font-weight: 700;
+            height: 30px;
+            line-height: 24px;
+            min-width: 30px;
+            padding: 2px;
+            text-align: center;
+            text-decoration: none!important;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            background-color: #f8f8f8;
+            background-image: -webkit-gradient(linear,left top,left bottom,from(#f8f8f8),to(#f1f1f1));
+            background-image: -webkit-linear-gradient(top,#f8f8f8,#f1f1f1);
+            background-image: -moz-linear-gradient(top,#f8f8f8,#f1f1f1);
+            background-image: -ms-linear-gradient(top,#f8f8f8,#f1f1f1);
+            background-image: -o-linear-gradient(top,#f8f8f8,#f1f1f1);
+            background-image: linear-gradient(top,#f8f8f8,#f1f1f1);
+            border: 1px solid #bfbfbf;
+            color: #6D6A69;
+            font-size: 17px;
+            margin: 10px 0 0;
+        }
+        .navbar-links>li>a:hover {
+            border: 1px solid #bfbfbf;
+            color: #222;
+            transition: all 0s;
+            cursor: pointer;
+            -webkit-box-shadow: inset 0 0 4px 1px rgba(0,0,0,.08);
+            box-shadow: inset 0 0 4px 1px rgba(0,0,0,.08);
+        }
+        .full-screen  #fullscreen-toggler, .minified #sidebar-toggler{
+            background-color: #e8e8e8;
+            background-image: -moz-linear-gradient(top,#5a5a5a 0,#686868 100%);
+            background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#5a5a5a),color-stop(100%,#686868));
+            background-image: -webkit-linear-gradient(to bottom,#5a5a5a 0,#686868 100%);
+            background-image: -o-linear-gradient(to bottom,#5a5a5a 0,#686868 100%);
+            background-image: -ms-linear-gradient(to bottom,#5a5a5a 0,#686868 100%);
+            background-image: linear-gradient(to bottom,#5a5a5a 0,#686868 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5A5A5A', endColorstr='#686868', GradientType=0);
+            -webkit-box-shadow: inset 0 0 3px 1px rgba(0,0,0,.15);
+            box-shadow: inset 0 0 3px 1px rgba(0,0,0,.15);
+            color: #fff;
+            border-color: #494949;
+        }
+        
+        
+        .dropdown-menu .menu-item {
+            display: inline-block
+        }
+        
+        .dropdown-menu a {
+            padding: 10px !important
+        }
+        
+        .dropdown-menu .active {
+            display: none
+        }
+        
+        
+        
+        
+        /** page-sidebar **/
+        #page-sidebar {
+            width:220px;
+            position:relative;
+            z-index: 2;
+            /* box-shadow:0 0 0 1px #d3dce8; */
+            background-color: #3a3f51;
+            transition: 250ms cubic-bezier(0.1,.57,.1,1);
+            -webkit-transform: translate(0px,0) translateZ(0px);
+        }
+        #page-sidebar-menu {
+            width: 100%;
+            padding: 40px 28px 25px 0;
+            padding: 0;
+            margin: 0;
+            font-size: 13px;
+            line-height: .5em;
+            list-style: none;
+            position: relative;
+            overflow-y:auto;
+        }
+        .minified #page-sidebar-menu{
+            overflow:visible;
+        }
+        #page-sidebar-menu li a {
+            padding: 12px 17px 12px 16px;
+            line-height: normal;
+            font-size: 14px;
+            padding: 10px 10px 10px 11px;
+            display: block;
+            font-weight: 400;
+            text-decoration: none!important;
+            position: relative;
+            color: #bbc0cf;
+            transition: color .1s linear 0s,background-color .1s linear 0s!important;
+        }
+        #page-sidebar-menu b {
+            float: right;
+            font-size: 14px;
+            margin-top: 0;
+        }
+        #page-sidebar-menu li a:hover {
+            color: #E1EAF1;
+        }
+        #page-sidebar-menu li.open>a, #page-sidebar-menu li.open>a b {
+            color: #fff!important;
+        }
+        #page-sidebar-menu li>a b {
+            position: absolute!important;
+            right: 10px;
+        }
+        #page-sidebar-menu li>a>i {
+            margin-right: 5px;
+            width: 22px;
+            display: inline-block;
+            text-align: center;
+            position: relative;
+        }
+        
+        #page-sidebar-menu li>a>i {
+            font-size: 17px;
+            vertical-align: 0;
+        }
+        #page-sidebar-menu ul li>a:hover {
+            background: #363a4b!important;
+        }
+        
+        /* level-2 */
+        #page-sidebar-menu ul {
+            background: #363a4b;
+            margin: 0;
+            display: none;
+            padding: 7px 0;
+        }
+        #page-sidebar-menu ul li {
+            margin: 0;
+            padding: 0;
+        }
+        #page-sidebar-menu li li {
+            border-bottom: none;
+            position: relative;
+        }
+        #page-sidebar-menu ul li a i {
+            font-size: 14px!important;
+            width: 18px!important;
+            text-align: center!important;
+            vertical-align: 0!important;
+            line-height: 1!important;
+        }
+        #page-sidebar-menu ul li>a {
+            text-shadow: 0 1px 1px #000;
+            font-size: 13px;
+            padding-left: 33px;
+            color: #e1eaf1;
+            display: block;
+            font-weight: 300;
+            padding-top: 6px!important;
+            padding-bottom: 6px!important;
+            overflow: hidden;
+        }
+        .minified #page-sidebar-menu ul li>a {
+            padding-left: 13px;
+            padding-right: 13px!important;
+        }
+        
+        
+        /* level-3 */
+        #page-sidebar-menu ul ul {
+            margin: 0;
+            padding: 0;
+        }
+        #page-sidebar-menu ul ul li a {
+            padding: 8px 17px 8px 59px!important;
+        }
+        .minified #page-sidebar-menu ul ul li a {
+            padding-left: 38px!important;
+        }
+        
+        /* level-4 */
+        #page-sidebar-menu ul ul ul li a {
+            padding: 8px 17px 8px 85px!important;
+        }
+        .minified #page-sidebar-menu ul ul ul li a {
+            padding-left: 60px!important;
+        }
+        
+        
+        /* Mini*/
+        .minified #page-sidebar, .minified #page-sidebar-menu>li {
+            overflow: visible;
+        }
+        .minified #page-sidebar {
+            width: 45px;
+        }
+        .minified #page-sidebar-menu>li {
+            border-bottom: 1px solid #1A1817;
+            border-top: 1px solid #525151;
+        }
+        .minified #page-sidebar-menu>li>a .fa.fa-fw {
+            display: block;
+            width: auto;
+            text-align: center;
+            padding: 0;
+        }
+        .minified #page-sidebar-menu>li>a>i {
+            font-size: 18px;
+        }
+        .minified #page-sidebar-menu>li>a>.menu-item-parent{
+            display: none;
+            position: absolute;
+            -webkit-box-sizing: content-box;
+            -moz-box-sizing: content-box;
+            box-sizing: content-box;
+            left: 40px;
+            top: -1px;
+            width: 186px;
+            height: 38px;
+            line-height: 38px;
+            background-color: #f5f5f5;
+            color: #333;
+            z-index: 3;
+            -webkit-box-shadow: 2px 1px 2px 0 rgba(0,0,0,.2);
+            -moz-box-shadow: 2px 1px 2px 0 rgba(0,0,0,.2);
+            box-shadow: 2px 1px 2px 0 rgba(0,0,0,.2);
+            border-left: 1px solid #bfbfbf;
+            border-top: 1px solid #D8D4D4;
+            border-bottom: 1px solid #fff;
+            padding-left: 12px;
+        }
+        .minified #page-sidebar-menu>li>ul {
+            display: none!important;
+            position: absolute;
+            box-sizing: content-box;
+            left: 40px;
+            width: 199px;
+            z-index: 5;
+            border: 1px solid #bfbfbf;
+            -webkit-box-shadow: 1px 1px 2px 0 rgba(0,0,0,.2);
+            -moz-box-shadow: 1px 1px 2px 0 rgba(0,0,0,.2);
+            box-shadow: 1px 1px 2px 0 rgba(0,0,0,.2);
+            background: #454545;
+            margin-top: -3px;
+            overflow: hidden;
+        }
+        .minified #page-sidebar-menu>li>a>b {
+            display: none;
+        }
+        .minified #page-sidebar-menu>li>ul {
+            background: #363a4b;
+            display: none!important;
+        }
+        
+        .minified #page-sidebar-menu>li, .minified #page-sidebar-menu>li a {
+            position: relative;
+        }
+        .minified #page-sidebar-menu>li:hover>a>.menu-item-parent,.minified #page-sidebar-menu>li:hover>ul {
+            display: block!important;
+        }
+        
+        
+        
+        /* Main Tab */
+        .k-tabstrip li.k-item{
+            min-width:70px;
+            text-align:center;
+        }
+        #tabstrip-parent, #tabstrip {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          border-width: 0;
+        }
+        #mainTab >.k-content{
+            margin: 0;
+            padding: 0;
+            overflow:hidden;
+        }
+        #mainTab .k-tabstrip-items {
+            background-color:#f1f1f1;
+        }
+        #mainTab .k-tabstrip-items .k-state-default .k-link {
+            color:#333;
+        }
+        #mainTab .k-tabstrip-items .k-state-active .k-link {
+            color:#333;
+        }
+        
+        /* #mainTab .k-tabstrip-items .k-i-close{
+            position:absolute;
+            visibility: hidden;
+        } */
+        
+        #mainTab .k-tabstrip-items .k-state-default.k-state-hover .k-i-close{
+            visibility: visible;
+        }
+        
+        #mainTab .k-tabstrip-items .k-item.k-state-hover .k-link {
+            color: #333;
+        }
+        /* #mainTab .k-tabstrip-items li.k-state-active  {
+             border-top-color:#3a3f51;
+        } */
+        
+        #mainTab .k-tabstrip-prev,#mainTab .k-tabstrip-next {
+            top:2px;
+            background-color:#fff !important;
+        }
+        #mainTab .k-i-arrow-w  {
+             background-position:0 -50px;
+        }
+        #mainTab .k-i-arrow-e  {
+             background-position:0 -18px;
+        }
+        
+        .k-tabstrip-wrapper .k-content iframe{
+            height:100%;
+            width:100%;
+            padding:0px;
+        }
+
+    </style>
+    <div id="navbar-container">
+        <div id="navbar-logo">
+            <img class="navbar-logo-img" height="28"  src="${base.contextPath}/resources/upload/logo.png" />
+            <div class="navbar-logo-title">${SYS_TITLE!'JingRui Application Platform'}</div>
+        </div>
+        <form id="langForm" action="" style="display: inline-block" method="GET" autocomplete="off">
+            <input type="hidden" name="lang"/>
+        </form>
+        <ul class="navbar-links navbar-right">
+            <li class="dropdown">
+                <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown">
+                    <i class="fa fa-users"></i>
+                </a>
+                <ul class="head-list dropdown-menu">
+                    <li>
+                        <a href="javascript:editUserInfo(${Session.userId});">
+                            <i class="fa fa-user"></i>
+                            <@spring.message "user.info"/>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:sysPreferences();">
+                            <i class="fa fa-cogs"></i>
+                            <@spring.message "jrap.preferences"/>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        <!--
+            <li class="tgl-menu-btn">
+                <a href="javascript:menuToggle();" id="sidebar-toggler">
+                    <i class="fa fa-reorder"></i>
+                </a>
+            </li>
+        -->
+            <li class="tgl-menu-btn">
+                <a href="javascript:void();" id="fullscreen-toggler">
+                    <i class="fa fa-arrows-alt"></i>
+                </a>
+            </li>
+            <li style="margin-top: 11px; ">
+                <input id="search-fld" style="width: 200px;" type="text" name="param" placeholder='<@spring.message "jrap.quicknavigation"/>'>
+            </li>
+            
+            <li class="tgl-menu-btn">
+                <a href="javascript:logout();" rel="tooltip" data-placement="bottom" title="" data-original-title="Add Location">
+                    <i class="fa fa-sign-out"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <table style="width:100%;height:100%;table-layout:fixed" id="main" cellSpacing="0" cellPadding="0" border="0">
+        <tbody>
+            <tr>
+                <td id="page-sidebar" class="s-loading" valign="top">
+                    <ul id="page-sidebar-menu">
+                        <div style="text-align:center; height:33px; background-color: #363a4b; border:1px solid #3a3f51;">
+                            <a style="line-height:33px; width: 100%; background-color: #363a4b" href="javascript:menuToggle();" id="sidebar-toggler">
+                                <i style="transform: rotate(90deg); line-height: 33px; font-size:15px;background-color: #363a4b" id="page-sidebar-switch" class="fa fa-bars"></i>
+                            </a>
+                        </div>
+                    </ul>
+                </td>
+
+                <td id="page-main-content">
+                    <div id="mainTab" style="height:100%;">
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script language="javascript">
+        var $WIN = jQuery(window), 
+            $NAVBAR_LOGO = jQuery('#navbar-logo'),
+            $PAGE_SIDEBAR = jQuery('#page-sidebar-menu'),
+            $PAGE_CONTENT = jQuery('#page-main-content'),
+            $TAB_CONTENT = jQuery('#mainTab'),
+            topHeight = 49;
+         
+        $('#page-sidebar-menu').on('click', 'li > a', function (e) {
+            if ($(this).next().is('ul') == false || !$(this).find('b.collapse-sign').is(":visible")) {
+                return;
+            }
+            var parent = $(this).parent().parent();
+            parent.children('li.open').children('a').children('b').children('em.fa').removeClass('fa-angle-down').addClass('fa-angle-left');
+            parent.children('li.open').children('ul').slideUp(200);
+            parent.children('li.open').removeClass('open');
+            var sub = jQuery(this).next();
+            if (sub.is(":visible")) {
+                $('em.fa', $(this)).removeClass('fa-angle-down').addClass('fa-angle-left');
+                $(this).parent().removeClass("open");
+                sub.slideUp(200);
+            } else {
+                $('em.fa', $(this)).addClass('fa-angle-down').removeClass('fa-angle-left');
+                $(this).parent().addClass("open");
+                sub.slideDown(200);
+            }
+            e.preventDefault();
+        });
+        
+
+        function openTab(id,title,url, closeIcon){
+        	var mainTab = $("#mainTab").data("kendoTabStrip");
+        	mainTab.append({
+        		text : title,
+        		tabid : id,
+        		contentIframe : url,
+        		closeIcon: closeIcon = closeIcon === undefined ? true : closeIcon,
+        		encoded: false
+        	});
+        	expandContentDivs($('#mainTab').children(".k-state-active"));
+        }
+        
+        function closeTab(id){
+            var mainTab = $("#mainTab").data("kendoTabStrip");
+            var idx = jQuery.inArray(id, mainTab.tabids),
+            activeIndex = mainTab.tabGroup.children('li.k-state-active').index();
+            if(idx == -1) return;
+            mainTab.remove(idx);
+            if (activeIndex == idx ) {
+                if (mainTab.tabids.length >= idx + 1) mainTab.select(idx-1)
+                else if (idx - 1 >= 0) mainTab.select(idx - 1);
+            }
+        }
+        
+        //transform的值不知道怎么判断，暂时定义flag用来判断菜单的打开还是关闭
+        var flag=false;
+        function menuToggle(){
+            $(document.body).toggleClass('minified');
+            flag=!flag;
+            if (flag) {
+                $("#page-sidebar-switch").css({transform:"rotate(0deg)"});
+            }else{
+                $("#page-sidebar-switch").css({transform:"rotate(90deg)"});
+            }
+        }
+        $('#fullscreen-toggler').on('click',function(e){
+            e.preventDefault()
+            var a =document.documentElement;
+                $('body').hasClass("full-screen") ? ($('body').removeClass("full-screen"),
+                document.exitFullscreen ? document.exitFullscreen() : document.mozCancelFullScreen ? document.mozCancelFullScreen() : document.webkitExitFullscreen && document.webkitExitFullscreen()) : ($('body').addClass("full-screen"),
+                a.requestFullscreen ? a.requestFullscreen() : a.mozRequestFullScreen ? a.mozRequestFullScreen() : a.webkitRequestFullscreen ? a.webkitRequestFullscreen() : a.msRequestFullscreen && a.msRequestFullscreen())
+        })
+        
+        
+        function logout() {
+            kendo.ui.showConfirmDialog({
+                title:'<@spring.message "jrap.prompt"/>',
+                message: "<@spring.message "jrap.confirm_exit"/>"
+            }).done(function(e){
+                if(e.button == 'OK'){
+                    $("#logoutForm").submit();
+                }
+            })
+        }
+        
+        function createMenu(html,datas, top){
+    	    for(var i=0;i<datas.length;i++){
+    	        var data = datas[i];
+                html.push('<li>');
+                if(data.children){
+                    html.push('<a href="javascript:;">');
+                    html.push('<i class="'+(data.icon||'fa fa-cube')+'"></i>');
+                    if(top){
+                        html.push('<span class="menu-item-parent">' + data.text + '</span>');
+                    }else {
+                        html.push(data.text);
+                    }
+                    html.push('<b class="collapse-sign"><em class="fa fa-angle-left"></em></b></a><ul>');
+                    createMenu(html,data.children);
+                    html.push('</ul>')
+                } else if(data.url){
+                    html.push('<a id="link'+data.id+'" href="javascript:openTab(\''+data.functionCode+'\',\''+data.text+'\', \''+data.url+'\')">');
+                    html.push('<i class="'+(data.icon||'')+'"></i>');
+                    html.push(data.text);
+                    html.push('</a>')
+                }
+                html.push('</li>')
+            }
+    	}
+        function changeLanguage(code) {
+            var form = jQuery('#langForm')
+            kendo.ui.showConfirmDialog({
+                title:'<@spring.message "jrap.prompt"/>',
+                message: '<@spring.message "msg.info.sys.change_language"/>'
+            }).done(function(e){
+                form.children('input').val(code);
+                form.submit()
+            })
+        }
+        
+        function editUserInfo(userId) {
+            openTab("editUser_" + userId, "<@spring.message "user.info"/>", "${base.contextPath}/sys/um/sys_user_info.html?userId=" + userId);
+        }
+        
+        //设置首选项
+        function sysPreferences() {
+            openTab("editSysprefer_", "<@spring.message "jrap.preferences"/>", "${base.contextPath}/sys/um/sys_preferences.html");
+        }
+        
+         //将tree形的数据转换成线形数据
+        function convertToLine(datas){
+            var arr=[];
+            function build(d){
+                if (d.children) {
+                    $.each(d.children,function(i,r){
+                        build(r);
+                    });
+                }else{
+                     //将数据转换使实现text和code双查询
+                    d.codeAndText=d.functionCode+d.text;
+                    arr.push(d);
+                }
+            }
+            $.each(datas,function(i,r){
+                build(r);
+            });
+            return arr;
+        }
+
+        //自动匹配查找
+        var searchAutoComplete =  $("#search-fld").kendoAutoComplete({
+            
+            template: '<table  border="0"> <tr><td style="padding:5px;"><span class="#=icon#"></span></td><td><strong>#= text #</strong></td></tr>    <tr><td></td><td><span style="color:rgb(158,158,158)">#= functionCode #</span></td></tr></table>',
+            highlightFirst: true,        
+            dataTextField: "codeAndText",
+            filter: "contains",
+            height: 320,
+            select:function(e){
+                var item = e.item;
+                var idx = item[0].dataset.offsetIndex;
+                var selection = this.dataItems()[idx];
+                openTab(selection.functionCode,selection.text, selection.url);
+            }
+        }).data("kendoAutoComplete");
+
+        function loadMenu(){
+            $.ajax({
+                type: 'GET',
+                url: '${base.contextPath}/sys/function/menus',
+                contentType: "application/json; charset=utf-8",
+                success: function (datas) {
+                    var html=[];
+                    datas = [].concat(datas);
+                    createMenu(html,datas, true);
+                    $("#page-sidebar-menu").append(html.join(''));
+                    var datasline = convertToLine(datas);
+                    searchAutoComplete.setDataSource(datasline);
+                }
+            });
+        }
+        function initSize(){
+            $PAGE_CONTENT.outerHeight($WIN.height() - topHeight);
+            $PAGE_SIDEBAR.outerHeight($WIN.height() - topHeight);
+            $TAB_CONTENT.height($WIN.height() - topHeight);
+            expandContentDivs($("#mainTab").children(".k-content"));
+        }
+        
+        function expandContentDivs(divs) {
+            var visibleDiv = divs.filter(":visible");
+            divs.height($('#mainTab').innerHeight()
+                        - $('#mainTab').children(".k-tabstrip-items").outerHeight()
+                        - parseFloat(visibleDiv.css("padding-top"))
+                        - parseFloat(visibleDiv.css("padding-bottom"))
+                        - parseFloat(visibleDiv.css("border-top-width"))
+                        - parseFloat(visibleDiv.css("border-bottom-width"))
+                        - parseFloat(visibleDiv.css("margin-bottom")));
+        }
+        
+        function init(){
+        	$("#mainTab").kendoTabStrip({
+        		height:'100%',
+        		animation:  false,
+        		closeIcon : true,
+        		contextMenu : true
+        	}).data("kendoTabStrip");
+            $("#mainTab").parent().attr("id", "tabstrip-parent");
+            window.top.openTab('home', '<@spring.message "jrap.home"/>', 'dashboard.html', false);
+            initSize();
+            $(window).on("resize", initSize);
+            loadMenu();
+        }
+        
+        init();
+    </script>
+    <form id="logoutForm" method="post" target="_self" action="${base.contextPath}/logout" style="display: none;">
+        <input name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        <input type="submit"/>
+    </form>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<#include "../include/header.html">
+<body>
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+<div id="dialogEdit" style="display: none"></div>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary" data-hotkey="hotkey_create" style="float:left;margin-right:5px;" onclick="openLovWindow()"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+        <span class="btn btn-danger" data-hotkey="hotkey_delete" style="float:left;margin-right:5px" data-bind="click:remove"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+        <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+        <input data-role="maskedtextbox" placeholder='<@spring.message "lov.code"/>' type="text" style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.code" class="k-textbox">
+        <input data-role="maskedtextbox" placeholder='<@spring.message "lov.description"/>' type="text" style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.description"
+               class="k-textbox">
+        <span class="btn btn-primary" data-bind="click:query" style="width: 80px;float:left;margin-right:5px;" type="submit"><i class="fa fa-search" style="margin-right:3px;"></i><@spring.message "jrap.query"/></span>
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div style="clear: both;">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+	Jrap.initEnterQuery("#query-form",viewModel.query);
+
+
+
+	function openLovWindow(id){
+        var url = '${base.contextPath}/sys/sys_lov_edit.html';
+        if (id) {
+            url = url + '?lovId=' + id;
+        }
+        var editWin = Jrap.createWindow('#dialogEdit',{
+            width: '90%',
+            height: 745,
+            title: 'LOV',
+            url: url
+        })
+        if (parent.autoResizeIframe) {
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 870, function () {
+                editWin.center().open();
+            })
+        }else {
+            editWin.center().open();
+        }
+    }
+
+    var dataSource =Jrap.createGridDataSource({
+        url:'${base.contextPath}/sys/lov/',
+        model: {
+            id: "lovId",
+            fields: {
+                code: {type: "string"},
+                description: {type: "string"}
+            }
+        }
+    });
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        navigatable: false,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        scrollable: true,
+        editable: false,
+        selectable: 'multiple, rowbox',
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "code",
+                title: '<@spring.message "lov.code"/>',
+                width: 150
+            },
+            {
+                field: "description",
+                title: '<@spring.message "lov.description"/>',
+                width: 250
+            },
+            {
+                title: '<@spring.message "jrap.edit"/>',
+                width: 80,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (rowdata) {
+                    return Jrap.createAnchor('<@spring.message "jrap.edit"/>', openLovWindow ,rowdata.lovId);
+                }
+            },
+            {
+                width: 80,
+                title: '<@spring.message "jrap.action"/>',
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (rowdata) {
+                    return '<a target="_blank" href="sys_lov_preview.html?code=' + rowdata.code + '"><@spring.message "lov.preview"/></a>'
+                }
+            }
+        ]
+    }).data("kendoGrid");
+</script>
+</body>
+</html>

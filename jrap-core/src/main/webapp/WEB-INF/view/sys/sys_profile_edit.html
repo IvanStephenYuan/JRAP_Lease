@@ -1,0 +1,226 @@
+<#include "../include/header.html">
+<script src="${base.contextPath}/common/code?profileLevelData=SYS.PROFILE_LEVEL_ID" type="text/javascript"></script>
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#Grid",{
+        model:{
+            isEnabled:<#if RequestParameters.profileId ??> false <#else> true </#if>
+        },
+        close:function(){
+            closeWin();
+        },
+        save: function(e) {
+            if (validator.validate()) {
+                viewModel.model.__stastus = <#if RequestParameters.profileId??> 'update' <#else> 'add'</#if>;
+                Jrap.submitForm({
+                    url: '${base.contextPath}/sys/profile/submit',
+                    formModel: viewModel.model,
+                    grid: {"profileValues": $("#Grid")},
+                    success: function (data) {
+                        window.parent.viewModel.refresh();
+                        closeWin();
+                    }
+                });
+            }
+        }
+    })
+
+
+    function closeWin() {
+        window.parent.$('#mywindow').data("kendoWindow").close();
+    }
+</script>
+<body>
+<div id="content-container">
+    <div id="page-content" >
+        <form class="form-horizontal" id="mainform">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label class="col-xs-2  control-label" style="text-align: right"><@spring.message "profile.profilename"/></label>
+                        <div class="col-xs-5">
+                            <input id="profileName" type="text" style="width:100%" data-label='<@spring.message "profile.profilename"/>' name="profileName"  data-role="maskedtextbox" required data-bind="enabled: model.isEnabled,value:model.profileName" class="k-textbox">
+                            <script> kendo.bind($('#profileName'),viewModel)</script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label class="col-xs-2 control-label" style="text-align: right"><@spring.message "profile.description"/></label>
+                        <div class="col-xs-10">
+                            <input type="text" id = "description" style="width:100%" name="description"  data-label='<@spring.message "profile.description"/>' required data-bind="value:model.description" class="k-textbox">
+                            <script> kendo.bind($('#description'),viewModel)</script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group"  >
+                        <div class="col-xs-2" style="text-align: right">
+                            <label class="control-label"><@spring.message "profile.configurationitem"/></label>
+                        </div>
+                        <div class="col-xs-10">
+                            <div class="pull-left" id="list-toolbar" style="padding-bottom:15px;">
+                                <span id="addGrid"data-bind="click:create" type="button" class="btn btn-default k-grid-add" style="float:left;margin-right:5px"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+                                <span id="deleteGrid" data-bind="click:remove" class="btn btn-danger" style="float:left;"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+                            </div>
+
+                            <div style="clear:both;">
+                                <div id="Grid" style="width: 100%;"></div>
+                            </div>
+                            <script>kendo.bind($('#list-toolbar'), viewModel);</script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="text-right k-window-toolbar" id="gridToolbar">
+        <span class="btn btn-primary" style="margin-right: 10px"  data-bind="click:save"> <@spring.message "jrap.save"/></span>
+        <span class="btn btn-default" data-bind="click:close" type="button"  ><@spring.message "jrap.cancel"/></span>
+    </div>
+    <script>kendo.bind($('#gridToolbar'), viewModel);</script>
+</div>
+
+<script type="text/javascript">
+     var validator = $("#mainform").kendoValidator({
+         invalidMessageType : "tooltip"
+     }).data("kendoValidator");
+
+     <#if RequestParameters.profileId??>
+        Jrap.loadViewModel({url:'${base.contextPath}/sys/profile/query?profileId=${RequestParameters.profileId!}',model:viewModel.model});
+     </#if>
+
+     var baseUrl = "${base.contextPath}/sys/profilevalue/";
+     var dataSource = new kendo.data.DataSource({
+         transport: {
+             read: {
+                 url: baseUrl + "query?profileId=${RequestParameters.profileId!0}",
+                 type: "POST",
+                 dataType: "json"
+             },
+             destroy: {
+                 url: baseUrl + "remove",
+                 type: "POST",
+                 contentType: "application/json"
+             },
+             parameterMap: function (options, type) {
+                 if (type !== "read" && options.models) {
+                     var datas = Jrap.prepareSubmitParameter(options, type);
+                     return kendo.stringify(datas);
+                 } else if (type === "read") {
+                     return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options);
+                 }
+             }
+         },
+         batch: true,
+         schema: {
+             data: 'rows',
+             total: 'total',
+             model: {
+                 id: "profileValueId",
+                 fields: {
+                     levelName: {},
+                     levelValue: {validation: {required: true}},
+                     levelName: {validation: {required: true}},
+                     profileValue: {validation: {required: true}}
+                 }
+             }
+         }
+     });
+
+     $("#Grid").kendoGrid({
+         dataSource: dataSource,
+         navigatable: false,
+         resizable: true,
+         scrollable: true,
+         height: 375,
+         editable: true,
+         selectable: "multiple,rowbox",
+         autoBind:<#if RequestParameters.profileId??> true <#else> false </#if>,
+         columns: [
+             {
+                 field: "levelId",
+                 title: '<@spring.message "profilevalue.levelid"/>',
+                 width: 120,
+                 template: function (dataItem) {
+                     var v = dataItem.levelId;
+                     if (v > 0) {
+                         $.each(profileLevelData, function (i, temp) {
+                             if (temp.value == v) {
+                                 v = temp.meaning;
+                                 return v;
+                             }
+                         })
+                     }
+                     return v;
+                 },
+                 editor: function (container, options) {
+                     $('<input required name="' + options.field + '"/>')
+                         .appendTo(container)
+                         .kendoDropDownList({
+                             dataTextField: "meaning",
+                             dataValueField: "value",
+                             valuePrimitive: true,
+                             dataSource: profileLevelData,
+                             select: function(e) {
+                                options.model.set('levelValue', null);
+                                options.model.set('levelName', null);
+                                if(e.dataItem.value == '10'){
+                                    options.model.set('levelValue', 'GLOBAL');
+                                    options.model.set('levelName', 'GLOBAL');
+                                }
+                             }
+                         });
+                 }
+             }, {
+                 field: "levelName",
+                 title: '<@spring.message "profilevalue.levelvalue"/>',
+                 width: 120,
+                 editor: function (container, options) {
+                     if (options.model.levelId == 10) {
+                         container.html(options.model.levelName)
+                     } else if (options.model.levelId == 20) {
+                         $('<input required name="' + options.field + '"/>')
+                             .appendTo(container)
+                             .kendoLov({
+                                 contextPath:'${base.contextPath}',
+                                 locale:'${base.locale}',
+                                 code:'LOV_ROLE',
+                                 model:options.model,
+                                 textField:'levelName',
+                                 select:function(e){
+                                     var data = e.item;
+                                     options.model.set("levelValue",data.roleId);
+                                     options.model.set("levelName",data.roleCode);
+                                 }
+                             });
+                     } else if(options.model.levelId == 30){
+                         $('<input required name="' + options.field + '"/>')
+                             .appendTo(container)
+                             .kendoLov({
+                                 contextPath:'${base.contextPath}',
+                                 locale:'${base.locale}',
+                                 code:'user_lov',
+                                 model:options.model,
+                                 textField:'levelName',
+                                 select:function(e){
+                                     var data = e.item;
+                                     options.model.set("levelValue",data.userId);
+                                     options.model.set("levelName",data.userName);
+                                 }
+                             });
+                     }
+                 }
+             }, {
+                 field: "profileValue",
+                 title: '<@spring.message "profilevalue.profilevalue"/>',
+                 width: 120
+             }]
+     })
+
+ </script>
+</body>
+</html>

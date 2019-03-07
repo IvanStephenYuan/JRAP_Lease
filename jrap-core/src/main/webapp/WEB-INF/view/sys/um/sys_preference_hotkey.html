@@ -1,0 +1,202 @@
+<#--
+* description: 首选项热键配置
+* author:zhizheng.yang@jingrui.com
+*-->
+<#include "../../include/header.html">
+    <style>
+        .key{
+            padding: 3px;
+            color: #aaa;
+            font: bold 9pt arial;
+            text-decoration: none;
+            text-align: center;
+            width: 44px;
+            height: 41px;
+            margin: 5px;
+            background: #eff0f2;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            border-top: 1px solid #f5f5f5;
+            -webkit-box-shadow: inset 0 0 25px #e8e8e8, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
+            -moz-box-shadow: inset 0 0 25px #e8e8e8,
+            0 1px 0 #c3c3c3,
+            0 2px 0 #c9c9c9,
+            0 2px 3px #333;
+            box-shadow: inset 0 0 25px #e8e8e8, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
+            text-shadow: 0px 1px 0px #f5f5f5;
+            filter: dropshadow(color=#f5f5f5, offx=0, offy=1);
+        }
+
+
+        input{
+            cursor: default;
+        }
+
+    </style>
+<body>
+<script>
+
+    var data = [];
+    var userId = '${Session.userId}';
+    var viewModel = kendo.observable({
+        model:{}
+    })
+
+</script>
+<div class="page-content" style="padding-bottom: 0px">
+    <div class="bootstrap-growl alert alert-info alert-dismissible" style="margin-bottom: 0px">
+        <@spring.message "hotkey.preference.prompt" /><span class="key">Shift</span> +<span class="key">C</span>
+    </div>
+
+<div id="content" class="form-horizontal panel-body" style="min-height: 339px">
+    <#list hotkeys as hotkey>
+        <div class="form-group col-xs-6">
+            <label for="${hotkey.hotkeyId}" class="col-xs-4 control-label">${hotkey.code}:</label>
+            <div class="col-xs-8">
+                <input data-key="${hotkey.hotkey!''}"
+                       name="${hotkey.code}"
+                        id="${hotkey.hotkeyId}"
+                       data-code="${hotkey.code}"
+                       data-level="${hotkey.hotkeyLevel}"
+                       data-level-id="${hotkey.hotkeyLevelId}"
+                       data-dto-token="${hotkey._token}"
+                       class="k-textbox"
+                       value="${hotkey.hotkey!''}"
+
+                style="width: 100%"/>
+
+                <span class="help-block" style="margin-bottom: 0;min-height: 17px;color: #b1afaf">${hotkey.description!""}</span>
+            </div>
+        </div>
+        <script>
+            var input = $('#${hotkey.hotkeyId}');
+            if(input.val() == ""){
+                input.val("<@spring.message 'hotkey.hotkey.null' />");
+            }
+            input.bind("keydown",function (e) {
+                var value = ""
+                    ,omit = [8,9,27,32,46,255,173,174,175,176,177,179];  //backspace、tab、空格、delete键及F几代表的功能键
+                var key  = e.key.toUpperCase(),keyCode = e.keyCode;
+                if(e.metaKey == true || $.inArray(e.keyCode,omit) >= 0){
+                    //options.model.set("hotkey","");
+                    this.value = "<@spring.message 'hotkey.hotkey.null' />"
+                }else if(key != "PROCESS"){
+                    e.preventDefault();
+                    value = value + (e.ctrlKey == true?"Ctrl+":"");
+                    value = value + (e.altKey == true?"Alt+":"");
+                    value = value + (e.shiftKey == true?"Shift+":"");
+                    if(keyCode != 17 && keyCode != 18 && keyCode != 16){
+                        if((keyCode<112 || keyCode>123) && value == ""){
+                            value = "Ctrl+" +key
+                        }else {
+                            value = value + key;
+                        }
+                    }
+                    this.value = value
+                    //options.model.set("hotkey",this.value);
+                }
+            }).bind("keyup",function (e) {
+                var lastValue = this.value.substr(this.value.length-1,1);
+                if(lastValue == "+"){
+                   // options.model.set("hotkey","");
+                    this.value = "<@spring.message 'hotkey.hotkey.null' />"
+                }
+
+            }).bind("focus",function () {
+                var lastValue =  this.value.substr(this.value.length-1,1);
+                if(lastValue == "+"){
+                    //options.model.set("hotkey","");
+                    this.value = "<@spring.message 'hotkey.hotkey.null' />"
+                }
+            }).bind("input",function (e) {
+                //options.model.set("hotkey","");
+                this.value = "<@spring.message 'hotkey.hotkey.null' />"
+            }).bind("blur",function () {
+                validator.validate()
+            })
+
+        </script>
+    </#list>
+</div>
+<script>
+var validator =  $("#content").kendoValidator({
+    invalidMessageType : "tooltip",
+    validateOnBlur:false,
+    messages: {
+        custom: "<@spring.message 'hotkey.hotkey.duplicated' />",
+    },
+    rules: {
+        custom: function(input) {
+            var isValid = true;
+            $("[data-code]").each(function () {
+                if(input.val() != "" && input.val() != "<@spring.message 'hotkey.hotkey.null' />"&& this.value == input.val() && this.id != input.attr("id")){
+                    isValid =  false;
+                }
+            });
+            return isValid;
+        }
+    }
+}).data("kendoValidator");
+</script>
+    <div class="text-right k-window-toolbar" style="position: initial;    margin: 0 -10px;width: 800px;"><span style="margin-right: 10px" class="btn btn-primary" onclick="saveData()">保存</span><span onclick="cancel()" class="btn btn-default">取消</span></div>
+
+</div>
+
+<script>
+    function saveData() {
+       if(validator.validate()){
+           $("[data-code]").each(function () {
+               var options = this.dataset;
+               if(this.value == "<@spring.message 'hotkey.hotkey.null' />")this.value = "";
+               if(this.value != options.key){
+                   if(options.level == "user" && options.levelId == userId){
+                       data.push({hotkeyId:this.id,code:options.code,hotkeyLevel:"user",hotkeyLevelId:userId,hotkey:this.value,__status:"update",_token:options.dtoToken})
+                   }else {
+                       data.push({code:options.code,hotkeyLevel:"user",hotkeyLevelId:userId,hotkey:this.value,__status:"add"})
+                   }
+               }
+           });
+
+           $.ajax("${base.contextPath}/sys/hotkey/submit",{
+               type: 'POST',
+               contentType:'application/json',
+               data: kendo.stringify(data),
+               success: function (result) {
+                   data = [];
+                   if(result.success){
+                       Jrap.showToast({
+                           type:'success',
+                           message: $l('jrap.tip.success')
+                       });
+                       window.parent.$("#hotkeyWin").data("kendoWindow").close();
+
+                   }else {
+                       kendo.ui.showErrorDialog({
+                           title: $l('jrap.error'),
+                           width: 400,
+                           message: result.message
+                       })
+                   }
+               },
+               error:function () {
+                   data = [];
+               }
+           })
+       }
+    }
+
+    if (top.autoResizeIframe) {
+        top.autoResizeIframe(window.parent.code, $(document).height()+100, function () {
+            var win = window.parent.$("#hotkeyWin").data("kendoWindow");
+            win.setOptions({
+                height: $(document).height()
+            });
+            win.center();
+        })
+    }
+    function cancel() {
+        window.parent.$("#hotkeyWin").data("kendoWindow").close();
+    }
+</script>
+</body>
+</html>

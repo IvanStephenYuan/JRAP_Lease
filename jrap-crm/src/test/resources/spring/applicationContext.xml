@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@52c0cecb$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+                           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <!--<context:component-scan base-package="**.*.service"/>-->
+    <!--<context:component-scan base-package="**.*.components"/>-->
+
+    <context:property-placeholder location="classpath:config.properties"/>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://60.191.89.154:13306/jrap_dev"/>
+        <property name="username" value="jrap_dev"/>
+        <property name="password" value="jrap_dev"/>
+    </bean>
+
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/jrap_dev"/>
+        <property name="username" value="jrap_dev"/>
+        <property name="password" value="jrap_dev"/>
+    </bean>-->
+
+    <!-- config transactionManager -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath*:/**/*Mapper.xml"/>
+        <property name="configLocation" value="classpath:mybatis-configuration.xml"/>
+    </bean>
+
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+
+    <!-- mapper definition -->
+    <bean id="mapperScannerConfigurer" class="com.jingrui.jrap.mybatis.spring.MapperScannerConfigurer">
+        <property name="basePackage" value="com.jingrui.**.mapper"/>
+        <property name="processPropertyPlaceHolders" value="true"/>
+        <property name="propertiesMap">
+            <map>
+                <entry key="mappers" value="com.jingrui.jrap.mybatis.common.Mapper"/>
+                <entry key="IDENTITY" value="${mybatis.identity}"/>
+                <entry key="seqFormat" value="{3}_s.nextVal"/>
+                <entry key="enableMethodAnnotation" value="true"/>
+            </map>
+        </property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+</beans>

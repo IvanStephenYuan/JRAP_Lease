@@ -1,0 +1,64 @@
+<#include "../include/header.html">
+    <body>
+    <div id="page-content">
+        <form id="mainform" class="form-horizontal">
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label"><@spring.message "excel.upload"/>:</label>
+                        <div class="col-sm-4">
+                            <input type="file" name="files" id="uploadExcelFile" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                            <label class="col-sm-3 control-label"><@spring.message "excel.fileformatillustration"/>:</label>
+                        <div class="col-sm-4">
+                            <label>1.第一行用于描述各字段（第二行为字段行），若为空在第一格写*</label>
+                            <label>2.第三行开始为数据行,各行第一列不能为空,若为空在第一列用*代替</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label"></label>
+                        <div class="col-sm-4">
+                            <span type="button"  onclick="getTemplate()" class="btn btn-primary" style="float:left;margin-right:5px"><i class="fa fa-plus-square" style="margin-right:3px;"></i>获取导入模板</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <div id="batchDiv" style="display: none"></div>
+
+    <script>
+        $("#uploadExcelFile").kendoUpload({
+            async: {
+                saveUrl: "${base.contextPath}/sys/import/${RequestParameters.tableName}?${_csrf.parameterName}=${_csrf.token}",
+            }
+        });
+    </script>
+
+    <script>
+        function getTemplate(tableName) {
+            var $inputToken=$('<input>').attr({name:"${_csrf.parameterName}",value:"${_csrf.token}",type:"hidden"});
+            var $form = $("<form>");
+            $form.attr({
+                target: '_self',
+                method: 'post',
+                action: '${base.contextPath}/sys/export/template/${RequestParameters.tableName}'
+            });
+            $form.append($inputToken);
+            $form.id='smbForm';
+            $("#batchDiv").empty().append($form);
+            $($form).submit();
+            $("#batchDiv").empty();
+        }
+    </script>
+    </body>
+    </html>

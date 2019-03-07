@@ -1,0 +1,37 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+
+    <!--对外API Spring Security 配置-->
+    <!--
+    * pattern  URL匹配模式
+    * create-session 是否创建后台session
+    * entry-point-ref 入口点,访问过程中如果发生异常,会返回到入口点
+    * access-decision-manager-ref 认证管理器
+    -->
+    <http pattern="/api/rest/**"
+          create-session="stateless"
+          use-expressions="true"
+          entry-point-ref="oauth2AuthenticationEntryPoint"
+          access-decision-manager-ref="oauth2AccessDecisionManager">
+        <csrf disabled="true"/>
+        <!--拒绝匿名访问-->
+        <anonymous enabled="true"/>
+        <!-- 设置访问权限控制 -->
+        <intercept-url pattern="/api/**" access="isFullyAuthenticated()"/>
+        <!-- oauth 资源过滤器,与resource server配置对应 -->
+        <custom-filter ref="apiResourceServer" before="PRE_AUTH_FILTER"/>
+        <!-- 访问次数过滤器 -->
+        <custom-filter ref="accessLimitFilter" after="FILTER_SECURITY_INTERCEPTOR"/>
+        <!-- 访问拒绝处理器 -->
+        <access-denied-handler ref="oauth2AccessDeniedHandler"/>
+    </http>
+
+    <!--访问限制过滤器-->
+    <beans:bean id="accessLimitFilter" class="com.jingrui.jrap.security.ApiAccessLimitFilter" />
+
+
+</beans:beans>

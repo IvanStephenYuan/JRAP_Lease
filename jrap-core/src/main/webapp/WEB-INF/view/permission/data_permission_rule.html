@@ -1,0 +1,245 @@
+<#include "../include/header.html">
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+    <script src="${base.contextPath}/common/code?PermissionField=SYS.AUTHORITY_SEGMENT"
+            type="text/javascript"></script>
+
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "datapermissionrule.rulecode"/>'
+                   data-bind="value:model.ruleCode" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "datapermissionrule.ruleName"/>'
+                   data-bind="value:model.ruleName" class="k-textbox">
+        <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+
+    <div id="editMaskWin"></div>
+    <div id="editSqlWin"></div>
+</div>
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+    var BaseUrl = _basePath;
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/sys/data/permission/rule/query",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/sys/data/permission/rule/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/sys/data/permission/rule/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/sys/data/permission/rule/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "ruleId",
+                fields: {
+                    ruleCode: {validation: {required: true}},
+                    ruleName: {validation: {required: true}},
+                    permissionField: {validation: {required: true}},
+                },
+                editable: function (col) {
+                    if ((col == 'ruleCode' || col=='permissionField')&& this.ruleId) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+    });
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+                    {
+                field: "ruleCode",
+                title: '<@spring.message "datapermissionrule.ruleCode"/>',
+                width: 80,
+            },
+                    {
+                field: "ruleName",
+                title: '<@spring.message "datapermissionrule.ruleName"/>',
+                width: 150
+            },
+            {
+                field: "permissionField",
+                title: '<@spring.message "datapermissionrule.permissionfield"/>',
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.permissionField || '';
+                    $.each(PermissionField, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return false;
+                        }
+                    })
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: PermissionField
+                        });
+                }
+            },
+            {
+                title:'编辑规则项',
+                width : 40,
+                headerAttributes: {
+                    style  : "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template : function (rowdata) {
+                    if (!!rowdata.ruleId) {
+
+                        return '<a href="#" onclick="openDetailWin(' + rowdata.ruleId + ',\''+rowdata.ruleCode+'\',\''+rowdata.permissionField+'\')"><@spring.message "jrap.edit"/></a>'
+                    } else return ''
+                },
+                sortable: false
+            }
+
+//            {
+//                field: "编辑规则",
+//                title: '编辑规则项',
+//                width: 40,
+//                command: [{
+//                    name: 'edit',
+//                    template: '<a href="javascript:void(0)" class="k-grid-edit"><@spring.message "jrap.edit"/></a>',
+//                    click: function (e) {
+//                        var data = this.dataItem($(e.target).closest("tr"));
+//                        if (!data.ruleId) {
+//                            return false;
+//                        }
+//                        var onClose = function () {
+//                            $("#editMaskWin").empty();
+//                        }
+//                        if(data.permissionField!="_PERMISSION_CUSTOM_SQL"){
+//
+//                        var win = $("#editMaskWin").data("kendoWindow");
+//                        win.center().open();
+//                        e.preventDefault();
+//                        }else{
+//
+//                            var win = $("#editSqlWin").data("kendoWindow");
+//                            win.center().open();
+//                            e.preventDefault();
+//                        }
+//                    }
+//                }],
+//                headerAttributes: {
+//                    "class": "table-header-cell",
+//                    style: "text-align: center"
+//                },
+//                attributes: {style: "text-align:center"}
+//
+//            }
+
+        ],
+        editable: true
+    });
+
+    $("#editSqlWin").kendoWindow({
+        actions: ["Close"],
+        title: $l('编辑规则项'),
+        draggable: true,
+        height: "600px",
+        width: "90%",
+        modal:true,
+        resizable: false,
+        visible:false,
+        iframe:true
+    });
+
+    $("#editMaskWin").kendoWindow({
+        actions: ["Close"],
+        title: $l('编辑规则项'),
+        draggable: true,
+        height: "600px",
+        width: "90%",
+        modal:true,
+        resizable: false,
+        visible:false,
+        iframe:true
+    });
+
+    function openDetailWin(ruleId,ruleCode,permissionField) {
+        if (!ruleId) {
+            return false;
+        }
+
+        if(permissionField!="_PERMISSION_CUSTOM_SQL"){
+            var roleWin = $("#editMaskWin").data("kendoWindow");
+            roleWin.refresh("${base.contextPath}/permission/data_permission_rule_detail.html?ruleId=" +ruleId+"&ruleCode="+ruleCode+"&permissionField="+permissionField);
+        }else{
+            var roleWin = $("#editSqlWin").data("kendoWindow");
+            roleWin.refresh("${base.contextPath}/permission/data_permission_rule_detail_sql.html?ruleId=" +ruleId+"&ruleCode="+ruleCode+"&permissionField="+permissionField);
+        }
+
+        if(parent.autoResizeIframe){
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function(){
+                roleWin.center().open();
+            })
+        }else {
+            roleWin.center().open();
+        }
+    }
+</script>
+</body>
+</html>

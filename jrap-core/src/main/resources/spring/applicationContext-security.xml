@@ -1,0 +1,12 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                                 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+    <beans:bean class="com.jingrui.jrap.security.ResourceAccessor"></beans:bean>
+    <!--webservice的权限控制,单独拿出来-->
+    <beans:import resource="cxfSecurity.xml"/>
+    <!-- 根据项目需求选择使用CAS或标准登录方式  -->
+    <!-- <beans:import resource="casSecurity.xml"/> -->
+     <beans:import resource="standardSecurity.xml"/>
+ </beans:beans>

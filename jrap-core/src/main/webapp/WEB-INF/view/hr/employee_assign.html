@@ -1,0 +1,189 @@
+<#-- 
+ * description: 岗位选择
+ * version: 3.0
+ * author:
+        hailin.xu@jingrui.com
+        yuliao.chen@jingrui.com
+ *
+ -->
+<#include "../include/header.html">
+
+<body>
+<script>
+    var employeeId = '${RequestParameters.employeeId!0}';
+    function addPosition() {
+        var selectPosition =  window.parent.$("#select-position").kendoWindow({
+            actions: ["Close"],
+            width: 700,
+            height: 400,
+            title: '<@spring.message "position.selectposition"/>',
+            visible: false,
+            iframe: true,
+            modal:true,
+            content:'employee_assign_add.html?employeeId=' + employeeId,
+            close:function(e){
+                window.parent.$("#assign-dialog").data("kendoWindow").open();
+            }
+        }).data("kendoWindow");
+        selectPosition.center().open();
+
+
+    }
+
+    function contains(e){
+        var val=true;
+        for(var i=0;i<dataSource.data().length;i++)
+        if(e==dataSource.data()[i].positionId){val=false}
+        return val;
+    }
+
+
+
+
+    function saveChange() {
+        // check primaryPositionFlag unique
+        var items = grid.dataItems();
+        if (items.length == 0)
+            return;
+        var ppf = 0;
+        items.forEach(function (r, i) {
+            if (r.primaryPositionFlag == 'Y') {
+                ppf++;
+            }
+        });
+        if (ppf != 1) {
+            kendo.ui.showErrorDialog({
+                title: $l('jrap.error'),
+                message: '<@spring.message "jrap.error.moreunit"/>'
+            });
+            return;
+        }
+        dataSource.sync();
+    }
+    function deleteData() {
+        Jrap.deleteGridSelection({
+            grid: $("#grid")
+        });
+    }
+</script>
+
+
+<div id="page-content" >
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span onclick="addPosition()" class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"><@spring.message "jrap.new"/></span>
+        <span onclick="saveChange()" class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;" data-bind="click:saveChange"><@spring.message "jrap.save"/></span>
+        <span onclick="deleteData()" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+    </div>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+
+    <script type="text/javascript">
+
+        var crudServiceBaseUrl = '${base.contextPath}/hr/employee/assign';
+        var dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/query?employeeId=" + employeeId,
+                    type: "POST",
+                    dataType: "json"
+                },
+                create: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                update: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = Jrap.prepareSubmitParameter(options, type);
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return {};
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: 'assignId',
+                    fields: {
+                        employeeId: {defaultValue: employeeId},
+                        primaryPositionFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                        enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                    }
+                }
+            },
+            change: function (e) {
+                if (e.action == 'itemchange' && e.field == 'primaryPositionFlag') {
+                    var item = e.items[0];
+                    if (item.primaryPositionFlag == 'Y') {
+                        this.data().forEach(function (r, i) {
+                            if (r !== item) {
+                                r.set('primaryPositionFlag', 'N')
+                            }
+                        });
+                        grid.refresh()
+                    }
+                }
+                if(e.action == "sync"){
+                    window.parent.$("#assign-dialog").data("kendoWindow").close();
+                }
+            }
+        });
+
+        var grid = $("#grid").kendoGrid({
+            dataSource: dataSource,
+            navigatable: false,
+            height: '100%',
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            editable: true,
+            selectable: "multiple rowbox",
+            columns: [
+                {
+                    title: '<@spring.message "position.name"/>',
+                    template: function (dataItem) {
+                        return dataItem.positionName
+                    }
+                },
+                {
+                    title: '<@spring.message "hrorgunit.name"/>',
+                    template: function (dataItem) {
+                        return dataItem.unitName
+                    }
+                },
+                {
+                    field: "primaryPositionFlag",
+                    title: '<@spring.message "employee.ismainposition"/>',
+                    headerAttributes: {style: "text-align:center"},
+                    attributes: {style: "text-align:center"}
+                },
+                {
+                    field: "enabledFlag",
+                    title: '<@spring.message "employee.enabledflag"/>',
+                    headerAttributes: {style: "text-align:center"},
+                    attributes: {style: "text-align:center"}
+                }
+            ]
+        }).data('kendoGrid');
+        Jrap.autoResizeGrid("#grid");
+    </script>
+
+</div>
+</body>
+</html>

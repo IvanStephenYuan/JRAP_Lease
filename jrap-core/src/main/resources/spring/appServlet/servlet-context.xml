@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+
+    <bean id="jacksonObjectMapper" class="com.jingrui.jrap.core.json.JacksonMapper" />
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="jacksonObjectMapper" />
+        <property name="targetMethod" value="configure" />
+        <property name="arguments">
+            <list>
+                <value type="com.fasterxml.jackson.databind.DeserializationFeature">FAIL_ON_UNKNOWN_PROPERTIES</value>
+                <value>false</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Enables the Spring MVC @Controller programming model -->
+	<!-- <mvc:annotation-driven /> -->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <ref bean="jacksonObjectMapper"/>
+                </property>
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json</value>
+                        <value>text/plain</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <bean id="validator" class="com.jingrui.jrap.core.validator.ComplexCommonValidator" />
+
+    <mvc:resources mapping="/lib/**" location="/lib/" />
+    <mvc:resources mapping="/resources/**" location="/resources/" />
+
+ 	<mvc:view-controller path="/login.html" view-name="/login" />
+ 	<mvc:view-controller path="/index" view-name="redirect:/" />
+
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+	    <property name="templateLoaderPaths">
+            <list>
+                <value>/WEB-INF/view</value>
+                <value>/WEB-INF/templates</value>
+            </list>
+        </property>
+		<!-- <property name="templateLoaderPath" value="/WEB-INF/screen" /> -->
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="auto_import">spring.ftl as spring</prop>
+				<prop key="template_update_delay">2</prop><!-- 模板更新检查时间(秒) -->
+				<prop key="number_format">#</prop>
+				<prop key="date_format">yyyy-MM-dd</prop>
+                <prop key="time_format">HH:mm:ss</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+               <!--  <prop key="classic_compatible">true</prop> -->
+			</props>
+		</property>
+	</bean>
+
+    <bean id="freeMarkerViewResolverConfig" abstract="true">
+        <property name="cache" value="true" />
+        <property name="contentType" value="text/html;charset=UTF-8" />
+        <property name="requestContextAttribute" value="base"/>
+        <property name="exposeRequestAttributes" value="true" />
+        <property name="exposeSessionAttributes" value="true" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="allowSessionOverride" value="true"/>
+    </bean>
+
+	<bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver" parent="freeMarkerViewResolverConfig">
+        <property name="viewClass" value="com.jingrui.jrap.core.web.DefaultFreeMarkerView" />
+        <property name="suffix" value=".html" />
+        <property name="order" value="0" />
+    </bean>
+    
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver" parent="freeMarkerViewResolverConfig">
+        <property name="viewClass" value="com.jingrui.jrap.core.web.ScreenView" />
+        <property name="suffix" value=".view"/>
+        <property name="order" value="2" />
+    </bean>
+
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver" parent="freeMarkerViewResolverConfig">
+        <property name="viewClass" value="com.jingrui.jrap.core.web.FormView" />
+        <property name="order" value="1" />
+    </bean>
+    
+    <bean id="screenTagFactory" class="com.jingrui.jrap.core.web.view.ViewTagFactory">
+        <property name="basePackage" value="com.jingrui.jrap.core.web.view.ui"/>
+    </bean>
+
+    <!--<bean  class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" >-->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/html;charset=UTF-8</value>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+	<!-- <bean id="messageSource" class="com.jingrui.jrap.core.i18n.CacheMessageSource"></bean> -->
+    
+    <bean id="themeResolver" class="org.springframework.web.servlet.theme.SessionThemeResolver">
+        <property name="defaultThemeName" value="bootstrap" />
+    </bean>
+    
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+        <property name="defaultLocale" value="zh_CN"/>
+        <!--<property name="defaultTimeZone" value="GMT-0800"/>-->
+    </bean>
+
+    <mvc:interceptors>
+        <bean class="com.jingrui.jrap.core.interceptor.MonitorInterceptor"/>
+	</mvc:interceptors>
+
+    <!--  Metrics Invoke AOP-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <!-- AOP Bean -->
+    <bean class="com.jingrui.jrap.metrics.MetricsConfigurationBean"></bean>
+    <bean id="metricAspect" class="com.jingrui.jrap.metrics.MetricAspect"></bean>
+    <bean id="excelExportAspect" class="com.jingrui.jrap.excel.service.impl.JrapExcelExportAspect"></bean>
+    <bean id="invokeAspect" class="com.jingrui.jrap.intergration.aop.JrapInvokeAspect"></bean>
+    <bean id="invokeExceptionAspect" class="com.jingrui.jrap.intergration.aop.JrapInvokeExceptionAspect"></bean>
+
+
+	<!-- Imports user-defined @Controller beans that process client requests -->
+	<import resource="controllers.xml" />
+</beans>

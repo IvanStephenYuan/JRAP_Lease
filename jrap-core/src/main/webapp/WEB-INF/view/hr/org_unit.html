@@ -1,0 +1,600 @@
+<#--
+* description: 组织管理页面
+* author:jialong.zuo@jingrui.com
+* version: 3.0
+-->
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?unitCategoryData=SYS.UNIT_CATEGORY" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?unitTypeData=SYS.UNIT_TYPE" type="text/javascript"></script>
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid",{
+        save: function() {
+                var items=dataSource.data();
+                var key2=0;
+                for(var i=0;i<items.length;i++){
+                    if(items[i].unitId !=null && items[i].parentId!=null&&items[i].unitId==items[i].parentId){
+                        key2=1;
+                        break;
+                    }
+                    for(var j=i+1;j<items.length;j++){
+                        if(items[i].unitId != null && items[i].unitId==items[j].parentId&&items[i].parentId==items[j].unitId){
+                            key2=1;
+                            break;
+                        }
+                        if(key2==1){
+                            break;
+                        }
+                    }
+                }
+                if(key2==0) {
+                    $('#grid').data('kendoGrid').saveChanges();
+                }else{
+                    kendo.ui.showInfoDialog({
+                        message: '<@spring.message "jrap.error.conflict"/>'
+                    });
+                }
+        },
+        copy:function(e){
+            if(grid.selectedDataItems().length==1){
+                var item=grid.selectedDataItems()[0];
+                newViewModel.model.set("unitCode",item.unitCode);
+                newViewModel.model.set("name",item.name);
+                newViewModel.model.set("parentId",item.parentId);
+                newViewModel.model.set("parentName",item.parentName);
+                newViewModel.model.set("managerPosition",item.managerPosition);
+                newViewModel.model.set("positionName",item.positionName);
+                newViewModel.model.set("companyId",item.companyId);
+                newViewModel.model.set("companyName",item.companyName);
+                newViewModel.model.set("description",item.description);
+                newViewModel.model.set("enabledFlag",item.enabledFlag);
+                newData();
+            }else{
+                kendo.ui.showInfoDialog({
+                    message: $l('jrap.tip.selectrow')
+                });
+            }
+        }
+    });
+
+    var newViewModel = kendo.observable({
+        model: {},
+        save: function () {
+            if(validator.validate()) {
+                var key = 0;
+                for (var i = 0; i < dataSource.data().length; i++) {
+                    if (dataSource.data()[i].name == newViewModel.model.name && dataSource.data()[i].parentId == newViewModel.model.parentId) {
+                        key = 1;
+                        break;
+                    }
+                }
+                if (key == 0) {
+                    newViewModel.model.__status = 'add';
+                    Jrap.submitForm({
+                        url: '${base.contextPath}/hr/unit/submit',
+                        formModel: newViewModel.model,
+                        success: function (data) {
+                            $.each(newViewModel.model.toJSON(), function (i, item) {
+                                newViewModel.model.set(i, null);
+                            });
+                            $("#newWin").data("kendoWindow").close();
+                            $('#grid').data('kendoGrid').dataSource.query();
+                        }
+                    });
+                } else {
+                    kendo.ui.showInfoDialog({
+                        message: '<@spring.message "hrorgunit.exist"/>'
+                    });
+                }
+            }
+        },
+        close:function(e){
+        	$("#newWin").data("kendoWindow").close();
+
+        }
+    });
+
+</script>
+
+<div class="col-sm-12" style="margin-top: 10px;">
+    <ul class="nav nav-tabs" id="mytab">
+        <li class="active"><a href="#maintain" data-toggle="tab"><@spring.message "hrorgunit.unitinfo"/></a></li>
+        <li class=""><a href="#showTreeUnit" data-toggle="tab"
+                        onclick="querydata()"><@spring.message "hrorgunit.unittreelist"/></a></li>
+    </ul>
+    <div id="tabContent" class="tab-content">
+        <div class="tab-pane fade in active" style="margin-top: 10px;" id="maintain">
+            <div id="page-content">
+                <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+                     <span type="button" class="btn btn-primary"
+                            style="float:left;margin-right:5px" data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+                     <span class="btn btn-primary " style="float:left;margin-right:5px;"
+                          data-bind="click:copy"><i class="fa fa-copy" style="margin-right:3px;"></i><@spring.message "jrap.copy"/></span>
+                     <span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;"
+                          data-bind="click:save"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+                    <span class="btn btn-danger" style="float:left;" data-bind="click:remove"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+                </div>
+                <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+                <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+                    <input placeholder='<@spring.message "hrorgunit.unitcode"/>' type="text"
+                           style="float:left;width:130px;margin-right:5px;" data-bind="value:model.unitCode"
+                           class="k-textbox">
+                    <div style="float:left;margin-right:5px;">
+                        <input placeholder='<@spring.message "hrorgunit.name"/>' type="text"
+                               style="float:left;width:130px;margin-right:5px;" data-bind="value:model.name"
+                               class="k-textbox">
+                    </div>
+                    <div style="float:left;margin-right:5px;">
+                        <input id="unitType" placeholder='<@spring.message "hrorgunit.unittype"/>' type="text"
+                               style="width: 150px" data-bind="value:model.unitType"
+                        >
+                        <script>
+                            $("#unitType").kendoComboBox({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: unitTypeData
+                            });
+                        </script>
+                    </div>
+                    <div style="float:left;margin-right:5px;">
+                        <input type="text" id="parentId2" placeholder='<@spring.message "hrorgunit.parentName"/>'
+                               style="width:150px;" data-bind="value:model.parentId">
+                        <script>
+                            $("#parentId2").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_UNIT")}, {
+                                query: function (e) {
+                                    e.param['enabledFlag'] = 'Y';
+                                }
+                            }))
+                        </script>
+                    </div>
+
+                    <span class="btn btn-primary" style="float:left;margin-right:5px;" data-bind="click:query"
+                          type="submit"><i class="fa fa-search" style="margin-right:3px;"></i><@spring.message "jrap.query"/></span>
+                    <div style="clear:both"></div>
+                </div>
+                <script>kendo.bind($('#query-form'), viewModel);</script>
+
+                <div id='grid-container' style="clear: both">
+                    <div id="grid"></div>
+                </div>
+            </div>
+ </div>
+
+<div id="showTreeUnit" class="tab-pane fade">
+<div id="treeList"></div>
+</div>
+    </div>
+</div>
+<script>
+    Jrap.initEnterQuery("#query-form", viewModel.query);
+    var treeDataSource = new kendo.data.TreeListDataSource({
+        transport: {
+            read: {
+                url: "${base.contextPath}/hr/unit/queryall",
+                type: "POST",
+                dataType: "json"
+            }
+        },
+        schema: {
+            data: 'rows',
+            model: {
+                id:'unitId',
+                fields: {
+                    parentId:{field:'parentId',nullable:true}
+                },
+
+                expanded: true
+            }
+        }
+    });
+
+    var treeList = $("#treeList").kendoTreeList({
+        dataSource: treeDataSource,
+        navigatable: false,
+        height: "100%",
+        resizable: false,
+        scrollable: false,
+        editable: false,
+        columns: [
+            {field: "name", title: '<@spring.message "hrorgunit.name"/>'},
+            {field: "unitCode", title: '<@spring.message "hrorgunit.unitcode"/>'},
+            {field: "positionName", title: '<@spring.message "position.name"/>'},
+            {field: "description", title: '<@spring.message "hrorgunit.description"/>'}
+        ]
+
+    }).data("kendoTreeList");
+
+    function querydata() {
+        treeDataSource.read();
+    }
+    var grid = $("#treeList").parent();
+    var avaHeight = $(window).height() - grid.offset().top - 70;
+    grid.outerHeight(avaHeight);
+    $("#treeList").data('kendoTreeList').resize();
+    $(window).resize(function () {
+        var grid = $("#treeList").parent();
+        var avaHeight = $(window).height() - grid.offset().top - 10;
+        grid.outerHeight(avaHeight);
+        $("#treeList").data('kendoTreeList').resize();
+    });
+
+</script>
+
+<div id="newWin" style="padding: 15px 0px 0px 0px;display: none">
+    <div id="page-content1">
+        <form class="form-horizontal">
+                <div class="form-group" style="margin-left:0px;margin-right:0px">
+                    <label class="col-xs-3  control-label"
+                           style="text-align: right"><@spring.message "hrorgunit.unitcode"/></label>
+                    <div class="col-xs-5">
+                        <input id="unitCode" name="unitCode" required
+                               type="text"
+                               data-label='<@spring.message "hrorgunit.unitcode"/>'
+                               data-bind="value:model.unitCode" class="k-textbox"
+                               style="width: 100%;">
+                        <span class="k-invalid-msg" data-for="unitCode"></span>
+
+                        <script>kendo.bind($('#unitCode'), newViewModel);</script>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-left:0px;margin-right:0px">
+                    <label class="col-xs-3   control-label"
+                           style="text-align: right"><@spring.message "hrorgunit.parentname"/></label>
+                    <div class="col-xs-5">
+                        <input type="text" id="parentId" placeholder='<@spring.message "hrorgunit.parentName"/>'
+                               style="width:100%;" data-bind="value:model.parentId,text:model.parentName">
+                        <script>
+                            $("#parentId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_UNIT")}, {
+                                query: function (e) {
+                                    e.param['enabledFlag'] = 'Y';
+                                }
+                            }));
+                            kendo.bind($('#parentId'), newViewModel);
+                        </script>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-left:0px;margin-right:0px">
+                    <label class="col-xs-3   control-label"
+                           style="text-align: right"><@spring.message "hrorgunit.name"/></label>
+                    <div class="col-xs-5">
+                        <input id="name" type="text"  data-label='<@spring.message "hrorgunit.name"/>' required data-bind="value:model.name" style="width: 100%;">
+                        <span class="k-invalid-msg" data-for="name"></span>
+                        <script>
+                            $("#name").kendoTLEdit({
+                                idField: 'unitId',
+                                field: 'name',
+                                dto: "com.jingrui.jrap.hr.dto.HrOrgUnit",
+                                model: newViewModel.model
+                            });
+                            kendo.bind($('#name'), newViewModel);
+                        </script>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-left:0px;margin-right:0px">
+                    <label class="col-xs-3   control-label"
+                           style="text-align: right"><@spring.message "hrorgunit.description"/></label>
+                    <div class="col-xs-5">
+                        <input id="description" type="text" data-bind="value:model.description" style="width: 100%;">
+                        <script>
+                            $("#description").kendoTLEdit({
+                                idField: 'unitId',
+                                field: 'description',
+                                dto: "com.jingrui.jrap.hr.dto.HrOrgUnit",
+                                model: newViewModel.model
+                            });
+                            kendo.bind($('#description'), newViewModel);
+                        </script>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-left:0px;margin-right:0px">
+                    <label class="col-xs-3   control-label"
+                           style="text-align: right"><@spring.message "hrorgunit.companyname"/></label>
+                    <div class="col-xs-5">
+                        <input id="unitcompany" type="text" placeholder='<@spring.message "hrorgunit.companyname"/>'
+                               data-bind="value:model.companyId,text:model.companyName" style="width:100%;">
+                        <script>
+                            $("#unitcompany").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_COMPANY")}, {
+                                query: function (e) {
+                                    e.param['enabledFlag'] = 'Y';
+                                }
+                            }));
+                            kendo.bind($('#unitcompany'), newViewModel);
+                        </script>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-left:0px;margin-right:0px">
+                    <label class="col-xs-3   control-label"
+                           style="text-align: right"><@spring.message "jrap.enableflag"/></label>
+                    <div class="col-xs-6" style="padding-top: 7px">
+                           <input id="checkbox" checked="checked" name="checkbox" type="checkbox" data-bind="value:model.enabledFlag" />
+                    </div>
+                    <script>
+                        $("#checkbox").kendoCheckbox({
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        });
+                        kendo.bind($('#checkbox'), newViewModel);
+                    </script>
+               </div>
+           </form>
+         </div>
+       <div id="btn-footer" class="text-right" style="bottom: 0px;padding-bottom:15px;position: fixed;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+        <span class="btn btn-primary" data-bind="click:save" type="submit" style="margin-right:5px"><@spring.message "jrap.save"/></span>
+        <span class="btn btn-default" data-bind="click:close" type="button" style="margin-right:25px"><@spring.message "jrap.cancel"/></span>
+      </div>
+    </div>
+
+
+<script>kendo.bind($('#btn-footer'), newViewModel);</script>
+
+<script type="text/javascript">
+
+    var dataSource = Jrap.createGridDataSource({
+        url:'${base.contextPath}/hr/unit/',
+        model: {
+            id: "unitId",
+            fields: {
+                unitId: {type: "int", editable: false},
+                unitCode: {
+                    validation: {
+                        required: true
+                    }
+                },
+                name: {
+                    validation: { required: true}
+                },
+                unitCategory:{defaultValue:unitCategoryData[0].value},
+                unitType:{defaultValue:unitTypeData[0].value},
+                enabledFlag:{defaultValue: 'Y',type: 'boolean',checkedValue:'Y',uncheckedValue:'N'}
+            },
+            editable: function (col) {
+                if (col == "unitCode" && this.unitId) {
+                    return false;
+                }
+                return true;
+            }
+        },
+    });
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        navigatable: true,
+        dataBound: function(){
+            if(parent.autoResizeIframe){
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        sortable: true,
+        selectable: 'multiple,rowbox',
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        editable: true,
+        columns: [
+            {
+                field: "unitCode",
+                title: '<@spring.message "hrorgunit.unitcode"/>',
+                width: 120
+            },
+            {
+                field: "name",
+                sortable: false,
+                title: '<@spring.message "hrorgunit.name"/>',
+                width: 180,
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '" />')
+                            .appendTo(container)
+                            .kendoTLEdit({
+                                idField: 'unitId',
+                                field: 'name',
+                                dto: "com.jingrui.jrap.hr.dto.HrOrgUnit",
+                                model: options.model
+                            });
+                }
+            },{
+                field: "unitCategory",
+                title: '<@spring.message "hrorgunit.unitcategory"/>',
+                width: 110,
+                template: function (dataItem) {
+                    var v = dataItem.unitCategory ? dataItem.unitCategory : "";
+                    $.each(unitCategoryData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDropDownList({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: unitCategoryData
+                            });
+                }
+            },{
+                field: "unitType",
+                title: '<@spring.message "hrorgunit.unittype"/>',
+                width: 100,
+                template: function (dataItem) {
+                    var v = dataItem.unitType ? dataItem.unitType : "";
+                    $.each(unitTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDropDownList({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: unitTypeData
+                            });
+                }
+            },
+            {
+                field: "parentCode",
+                title: '<@spring.message "hrorgunit.parentCode"/>',
+                width: 100,
+                editor : function(container, options) {
+                    var html = '<span data-bind="text:parentCode"></span>';
+                    $(html).appendTo(container);
+                }
+            },
+            {
+                field: "parentId",
+                title: '<@spring.message "hrorgunit.parentName"/>',
+                width: 120,
+                template: function (dataItem) {
+                    return dataItem['parentName'] || ''
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_UNIT"/>, {
+                                query: function (e) {
+                                    e.param['enabledFlag'] = 'Y'
+                                },
+                                textField: 'parentName',
+                                model: options.model,
+                                change:function() {
+                                    var v = this.value();
+                                    if (v == undefined  || v == ""){
+                                        options.model.set('parentCode', "")
+                                    }else{
+                                        options.model.set('parentCode', this._dataItem.unitCode);
+                                    }
+                               }
+                    }));
+                }
+            },
+            {
+                field: "companyCode",
+                width: 100,
+                title: '<@spring.message "company.companyCode"/>', width: 120,
+                editor : function(container, options) {
+                    var html = '<span data-bind="text:companyCode"></span>';
+                    $(html).appendTo(container);
+                }
+            },
+            {
+                field: "companyId",
+                width: 120,
+                title: '<@spring.message "hrorgunit.companyname"/>', width: 120,
+                template: function (dataItem) {
+                    return dataItem['companyName'] || ''
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_COMPANY"/>, {
+                                query: function (e) {
+                                    e.param['enabledFlag'] = 'Y'
+                                },
+                                textField: 'companyName',
+                                model: options.model,
+                                change:function() {
+                                    var v = this.value();
+                                    if (v == undefined  || v == ""){
+                                        options.model.set('companyCode', "")
+                                    }else{
+                                        options.model.set('companyCode',this._dataItem.companyCode)
+                                    }
+                                }
+                    }));
+                }
+            },
+            {
+                field: "description",
+                sortable: false,
+                title: '<@spring.message "resource.description"/>',
+                width: 180,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoTLEdit({
+                            idField: 'unitId',
+                            field: 'description',
+                            dto: "com.jingrui.jrap.hr.dto.HrOrgUnit",
+                            model: options.model
+                        });
+                }
+            },
+            {
+                field: "managerPosition",
+                title: '<@spring.message "hrorgunit.department_manager"/>', width: 120,
+                template: function (dataItem) {
+                    return dataItem['positionName'] || ''
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_POSITION"/>, {
+                        query: function (e) {
+                            var uid = grid.dataItem(this.input.parents('tr')[0]).unitId;
+                            e.param['enabledFlag'] = 'Y';
+                            e.param['unitId'] = uid;
+                        },
+                        textField: 'positionName',
+                        model: options.model
+                    }));
+                }
+            },
+            {
+                field : "enabledFlag",
+                title : '<@spring.message "jrap.enableflag"/>',
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                width : 80
+            }
+        ]
+    }).data("kendoGrid");
+
+    var validator = $("#newWin").kendoValidator({
+        invalidMessageType: "tooltip"
+    }).data("kendoValidator");
+
+
+    function newData() {
+        //  $(".k-tooltip-validation").remove();
+        $("#newWin").kendoWindow({
+            actions: ["Close"],
+            title: $l('jrap.new'),
+            draggable: false,
+            height: "350px",
+            width: "500px",
+            modal: true,
+            close:function(){
+                validator.cancelValidator();
+            }
+        });
+        var win = $("#newWin").data("kendoWindow");
+        win.center().open();
+    }
+
+
+</script>
+</body>
+</html>

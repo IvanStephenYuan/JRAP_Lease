@@ -1,0 +1,258 @@
+<#--
+* description: 请假申请界面
+* author:jialong.zuo@jingrui.com
+* version: 1.0
+*
+-->
+<#include "../../include/header.html">
+
+<body>
+<div id="content-container">
+    <div id="page-content">
+        <div id="newVacation" style="display: none">
+            <div class="panel" style="border:none;box-shadow: none;">
+                <form class="form-horizontal" id="form">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2"><@spring.message 'demovacation.startdate'/></label>
+                                <div class="col-sm-4">
+                                    <input id="startDate" name="startDate"  data-role="datepicker"
+                                           data-bind="value:model.startDate"  style="width: 100%"
+                                           required data-label="<@spring.message 'demovacation.startdate'/>"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2"><@spring.message 'demovacation.needdays'/></label>
+                                <div class="col-sm-4">
+                                    <input id="needDays" name="needDays" data-role="mastedtextbox"
+                                            data-bind="value:model.needDays" style="width: 100%" class="k-textbox"
+                                           required data-label="<@spring.message 'demovacation.needdays'/>"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2"><@spring.message 'demovacation.leavereason'/></label>
+                                <div class="col-sm-4">
+                                    <input id="leaveReason" name="leaveReason" data-role="mastedtextbox"
+                                           data-bind="value:model.leaveReason" style="width: 100%" class="k-textbox"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <button id="button" type="button">提交申请</button>
+                        </div>
+                    </div>
+                    <div id="dynamicFormBody" class="panel-body">
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+            <span onclick="newVacationRequest()" class="btn btn-success k-grid-save-changes"
+                  style="float:left;margin-right:5px;"><i class="fa fa-trash-o" style="margin-right:3px;"></i>新建请假申请</span>
+        </div>
+        <div style="clear:both">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+<script>
+    var validator = $("#form").kendoValidator({
+        invalidMessageType : "tooltip"
+    }).data("kendoValidator");
+
+    function newVacationRequest() {
+        var win = $("#newVacation").data("kendoWindow");
+        win.center().open();
+    }
+
+    $("#newVacation").kendoWindow({
+        actions: ["Close"],
+        title: '新建请假流程',
+        draggable: true,
+        height: "400px",
+        width: "600px",
+        resizable: false,
+        modal: true,
+        //初始化时设置为隐藏状态
+        visible: false,
+        close: onClose
+    });
+    function onClose() {
+        //userViewModel 清空
+        var formData = viewModel.model.toJSON();
+        for (var k in formData) {
+            viewModel.model.set(k, null);
+        }
+    }
+
+
+    var crudServiceBaseUrl = "${base.contextPath}/wfl/vacation",
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/query",
+                        type: "POST",
+                        dataType: "json"
+                    }
+                },
+                batch: true,
+                serverPaging: true,
+                pageSize: 10,
+                schema: {
+                    data: 'rows',
+                    total: 'total',
+                    model: {
+                        id: "id"
+                    }
+                }
+            });
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        navigatable: false,
+        height: '100%',
+        editable: false,
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+//                    {   field: "userCode",
+//                        title: '<@spring.message "code.code"/>',
+//                        width: 120,
+//                        headerAttributes: {
+//                            "class": "table-header-cell",
+//                            style: "text-align: center"
+//                        } }
+            {
+                title: "历史请假记录",
+                width: 100
+            },
+            {
+                field: "startDate",
+                title: '开始时间',
+                width: 120,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                }
+            },
+            {
+                field: "needDays",
+                title: '请假天数',
+                width: 100,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                }
+            },
+            {
+                field: "leaveReason",
+                title: '请假理由',
+                width: 100,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                }
+            }
+//                    {
+//                        field: 'endTime_',
+//                        title: '申请状态',
+//                        width: 140,
+//                        template: function (dataItem) {
+//                            if(null!=dataItem.endTime_){
+//                                return "<span style='color:#5d6d7c;'>审批结束</span>";
+//                            }else{
+//                                return "<span style='color:green;'>正在审批</span>";
+//                            }
+//                        }
+//                    }
+        ],
+        editable: false
+    }).data("kendoGrid");
+
+
+    var comboData = new kendo.data.DataSource({
+        type: "odata",
+        transport: {
+            read: {
+                url: '${base.contextPath}/wfl/repository/process-definitions?latest=true&size=99999&sort=deploymentId&order=desc',
+                dataType: "json"
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        schema: {
+            data: "data",
+            total: 'total',
+            model: {
+                id: "id",
+                fields: {
+                    name: {type: 'string'}
+                }
+            }
+        },
+        requestStart: function (e) {
+            viewModel.model.set('procDefId', null);
+            $('#dynamicFormBody').empty();
+        },
+        requestEnd: function (e) {
+        }
+    });
+
+    window.viewModel = kendo.observable({
+        model: {},
+        processes: comboData
+    });
+
+    kendo.bind($("#newVacation"), viewModel);
+
+
+    $("#button").kendoButton({
+        click: function (e) {
+            /*                    var processDefinitionId = viewModel.model.procDefId;
+             if (!processDefinitionId) {
+             alert('no selection');
+             return;
+             }*/
+            if (validator.validate()) {
+                $.ajax({
+                    url: '${base.contextPath}/wfl/runtime/process-instances/vacation',
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: kendo.stringify(viewModel.model),
+                    success: function (args) {
+                        if (args.success === false) {
+                            kendo.ui.showErrorDialog({
+                                title: $l('jrap.error'),
+                                message: args.message
+                            });
+                        } else {
+                            kendo.ui.showInfoDialog({
+                                title: $l('jrap.tip.info'),
+                                message: $l('jrap.tip.success')
+                            });
+                            $("#newVacation").data("kendoWindow").close();
+                            $('#grid').data('kendoGrid').dataSource.query();
+                        }
+                    }
+                });
+            }
+        }
+    })
+
+    Jrap.autoResizeGrid("#grid");
+
+</script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<#--
+* description: 用户首选项
+* version: 1.0 
+* author:hailin.xu@jingrui.com
+* author:njq.niu@jingrui.com
+* --> 
+<#include "../../include/header.html">
+<body>
+    <script src="${base.contextPath}/common/code?timeZones=SYS.TIME_ZONE" type="text/javascript"></script>
+    <!-- BEGIN VALIDATION STATES-->
+    <script type="text/javascript">
+        var myDashBoardViewModel = kendo.observable({
+            model: {},
+            saveMyDash: function () {
+                $("#userDashGrid").data('kendoGrid').saveChanges();
+                $("#userDashBoardWin").data("kendoWindow").close();
+            }
+        });
+    </script>
+    <div id="page-content">
+        <div class="form-horizontal">
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="control-label col-md-3"><@spring.message "preference.timezone"/></label>
+                    <div class="col-md-4">
+                        <select  data-role="dropdownlist" data-value-primitive="true" data-text-field="meaning" style="width:100%" data-value-field="value"
+                                 data-bind="source: timeZones, value: data.timeZone,events: {change: onChange}"></select>
+                        <small class="help-block"><@spring.message "preference.timezone.description"/></small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3"><@spring.message "preference.locale"/></label>
+                    <div class="col-md-4">
+                        <select  data-role="dropdownlist" style="width:100%" data-bind="value: data.locale, events: {change: onChange}">
+                            <#list languages as lang>
+                                <option value="${lang.langCode}">${lang.description}</option>
+                            </#list>
+                        </select>
+                        <small class="help-block"><@spring.message "preference.locale.description"/></small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3" ><@spring.message "preference.theme"/></label>
+                    <div class="col-md-4">
+                        <select data-role="dropdownlist" style="width:100%" data-value-primitive="true" data-bind="value: data.theme, events: {change: onChange}">
+                            <option value="bootstrap" selected>Bootstrap</option>
+                            <option value="material">Material</option>
+                            <option value="fiori">Fiori</option>
+                        </select>
+                    </div>
+                    <small class="help-block">
+                    </small>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3"><@spring.message "preference.tabstrip"/></label>
+                <div class="col-md-4">
+                    <input id="checkbox" checked="checked" style="margin-top:5px;" name="checkbox" type="checkbox" data-bind="value: data.nav,events: {change: onChange}"/>
+                    <script>
+                        $("#checkbox").kendoCheckbox({
+                            checkedValue: 'Y',
+                            label: '<@spring.message "preference.tabstrip.enable"/>',
+                            uncheckedValue: 'N'
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group">
+                    <label class="control-label col-md-3"><@spring.message "preference.homepageconfiguration"/></label>
+                    <div class="col-md-4">
+                        <label class="control-label">
+                            <div><a style="text-decoration:underline" href="javascript:void(0)"
+                                    onclick="openUserDashBoardWin()"><@spring.message "preference.configuration"/></a></div>
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-md-3"><@spring.message "hotkeyconfiguration"/></label>
+                    <div class="col-md-4">
+                        <label class="control-label">
+                            <div><a style="text-decoration:underline" href="javascript:void(0)"
+                                    onclick="openHotkeyWin()"><@spring.message "preference.configuration"/></a></div>
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        <button class="btn btn-primary" style="width:100px" data-bind="enabled:enabled,click:savePreference"><@spring.message "jrap.save"/></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="userDashBoardWin" style="display: none">
+        <div class="pull-left" style="padding-bottom:10px;">
+                <span class="btn btn-primary" style="float:left;margin-right:5px;"
+                      onclick="openChooseDashBoardWin()"><@spring.message "userdashboard.adddashboard"/></span>
+        </div>
+        <div class="pull-left" style="padding-bottom:10px;">
+                <span class="btn btn-danger" style="float:left;margin-right:5px;"
+                      onclick="deleteMyDashBoard()"><@spring.message "jrap.delete"/></span>
+        </div>
+        <div class="pull-left" style="padding-bottom:10px;">
+        <span id="saveForm" class="btn btn-success k-grid-save-changes"
+              data-bind="click:saveMyDash"><@spring.message "jrap.save"/></span>
+            <script>kendo.bind($('#saveForm'), myDashBoardViewModel);</script>
+        </div>
+        <div style="clear:both;">
+            <div id="userDashGrid"></div>
+        </div>
+
+    </div>
+
+    <div id="dashBoardWin" style="display: none">
+        <div class="pull-left" style="padding-bottom:10px;">
+                <span class="btn btn-success" style="float:left;margin-right:5px;"
+                      onclick="addDash()"><@spring.message "jrap.add"/></span>
+        </div>
+        <div style="clear:both;">
+            <div id="dashGrid"></div>
+        </div>
+    </div>
+    <div id="hotkeyWin"></div>
+    <script type="text/javascript">
+        var code = '${RequestParameters.functionCode!}';
+        function initPreference() {
+            $.ajax({
+                type: "POST",
+                url: "${base.contextPath}/sys/preferences/queryPreferences",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (result) {
+                    if (result.success) {
+                        var data = viewModel.get('data');
+                        $.each(result.rows, function (i, r) {
+                            data.set(r.preferences,r.preferencesValue);
+                            data.set(r.preferences+"_token",r._token);
+                            data.set(r.preferences+"_preferencesId",r.preferencesId)
+                        });
+                    }
+                }
+            }); 
+        }
+		var needReload = false;
+        var viewModel = kendo.observable({
+            enabled:true,
+            data:{
+                locale:'${base.getLocale()}',
+                timeZone:'${Session.timeZone}',
+                theme:'${base.getTheme().getName()}',
+                nav:'N'
+            },
+            onChange : function(){
+                needReload = true;
+            },
+            timeZones: timeZones,
+            savePreference: function(){
+               var sf = this, preferences = [];
+               var data = viewModel.toJSON().data;
+               $.each(data, function (k, v) {
+                   if(k.indexOf('_token') == -1 && k.indexOf('_preferencesId') == -1) {
+                       preferences.push({
+                           preferences: k,
+                           preferencesValue: v,
+                           _token : data[k+'_token'],
+                           preferencesId: data[k+'_preferencesId']
+                       });
+                   }
+               });
+               sf.set('enabled', false);
+               $.ajax({
+                   type: "POST",
+                   url: "${base.contextPath}/sys/preferences/savePreferences",
+                   contentType: "application/json",
+                   data: kendo.stringify(preferences),
+                   dataType: "json",
+                   success: function (result) {
+                       if (result.success) {
+                           kendo.ui.showInfoDialog({
+                               message:'<@spring.message "jrap.tip.success"/>'
+                           }).done(function(e){
+                               if(needReload){
+                                   top.location.reload();
+                               }
+                           })
+                       }else{
+                           kendo.ui.showErrorDialog({
+                               message:result.message
+                           })
+                       }
+                  }
+             }).complete(function(){
+                 sf.set('enabled', true)
+             });
+			}
+       });
+       initPreference();
+        kendo.bind($('#page-content'), viewModel);
+
+        $("#userDashBoardWin").kendoWindow({
+            actions: ["Close"],
+            title: $l('<@spring.message "userdashboard.mydashboard"/>'),
+            draggable: true,
+            width: 700,
+            height: 500,
+            modal: true,
+            resizable: false,
+            //初始化时设置为隐藏状态
+            visible: false,
+            open:function(){
+                myDashBoardDataSource.fetch();
+            },
+            close: refreshMyDashGrid
+        });
+
+        function openUserDashBoardWin() {
+            var win = $("#userDashBoardWin").data("kendoWindow");
+            win.center().open();
+        }
+        function refreshMyDashGrid() {
+            $("#userDashGrid").data('kendoGrid').dataSource.page(1);
+        }
+
+        function deleteMyDashBoard() {
+            Jrap.deleteGridSelection({
+                grid: $('#userDashGrid   ')
+            });
+        }
+
+        var BaseUrl = "${base.contextPath}/dashboard/",
+                myDashBoardDataSource = new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: BaseUrl + "query",
+                            type: "GET",
+                            dataType: "json"
+                        },
+                        destroy: {
+                            url: BaseUrl + "remove",
+                            type: "POST",
+                            contentType: "application/json"
+                        },
+                        create: {
+                            url: BaseUrl + "add",
+                            type: "POST",
+                            contentType: "application/json"
+                        },
+                        update: {
+                            url: BaseUrl + "/update",
+                            type: "POST",
+                            contentType: "application/json"
+                        },
+                        parameterMap: function (options, type) {
+                            if (type !== "read" && options.models) {
+                                var datas = Jrap.prepareSubmitParameter(options, type);
+                                return kendo.stringify(datas);
+                            }
+                        }
+                    },
+                    batch: true,
+                    serverPaging: true,
+                    pageSize: 10,
+                    schema: {
+                        data: 'rows',
+                        total: 'total',
+                        model: {
+                            id: "userDashboardId",
+                            fields: {
+                                dashboardCode: {editable: false},
+                                dashboardTitle: {editable: false},
+                                dashboardUrl: {editable: false},
+                                dashboardSequence: {editable: true},
+                                enabledFlag: {editable: false},
+                            }
+                        }
+                    }
+                });
+
+        $("#userDashGrid").kendoGrid({
+            dataSource: myDashBoardDataSource,
+            navigatable: false,
+            autoBind: false,
+            height: 440,
+            resizable: true,
+            scrollable: true,
+            selectable: 'multiple,rowbox',
+            columns: [
+                {
+                    field: "dashboardCode",
+                    title: '<@spring.message "sys.dashboard.dashboardcode"/>',
+                    width: 120,
+                },
+                {
+                    field: "dashboardTitle",
+                    title: '<@spring.message "sys.dashboard.dashboardtitle"/>',
+                    width: 120,
+                },
+                {
+                    field: "dashboardUrl",
+                    title: '<@spring.message "sys.dashboard.dashboardmainpage"/>',
+                    width: 120,
+                },
+                {
+                    field: "dashboardSequence",
+                    title: '<@spring.message "userdashboard.dashboardsequence"/>',
+                    width: 70,
+                },
+                {
+                    field: "enabledFlag",
+                    title: '<@spring.message "interface.enableflag"/>',
+                    attributes: {style: "text-align:center"},
+                    width: 60,
+                }
+
+            ],
+            editable: true
+        }).data("kendoGrid");
+
+
+        $("#dashBoardWin").kendoWindow({
+            actions: ["Close"],
+            title: $l('仪表盘'),
+            draggable: true,
+            width: 800,
+            height: 450,
+            modal: true,
+            resizable: false,
+            open:function(){
+                dashBoardDataSource.fetch();
+            },
+            //初始化时设置为隐藏状态
+            visible: false
+        });
+
+        function openChooseDashBoardWin() {
+            var win = $("#dashBoardWin").data("kendoWindow");
+
+            win.center().open();
+        }
+
+        function addDash() {
+            var selection = $('#dashGrid').data('kendoGrid').selectedDataItems();
+            for (var i = 0; i < selection.length; i++) {
+                if ($("#userDashGrid").data("kendoGrid").dataSource.data().length == 0) {
+                    var userGridData = {};
+                    userGridData["dashboardCode"] = selection[i].dashboardCode;
+                    userGridData["dashboardTitle"] = selection[i].title;
+                    userGridData["dashboardUrl"] = selection[i].url;
+                    userGridData["dashboardId"] = selection[i].dashboardId;
+                    $("#userDashGrid").data("kendoGrid").dataSource.add(userGridData);
+                } else {
+                    var key = true;
+                    for (var j = 0; j < $("#userDashGrid").data("kendoGrid").dataSource.data().length; j++) {
+                        if ($("#userDashGrid").data("kendoGrid").dataSource.data()[j].dashboardId == selection[i].dashboardId) {
+                            key = false;
+                        }
+                    }
+                    if (key) {
+                        var userGridData = {};
+                        userGridData["dashboardCode"] = selection[i].dashboardCode;
+                        userGridData["dashboardTitle"] = selection[i].title;
+                        userGridData["dashboardUrl"] = selection[i].url;
+                        userGridData["dashboardId"] = selection[i].dashboardId;
+                        $("#userDashGrid").data("kendoGrid").dataSource.add(userGridData);
+                    }
+                }
+            }
+            $("#dashBoardWin").data("kendoWindow").close();
+        }
+
+        var BaseUrl = "${base.contextPath}/sys/dashboard/",
+                dashBoardDataSource = new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: BaseUrl + "query",
+                            type: "GET",
+                            dataType: "json"
+                        },
+                        parameterMap: function (options, type) {
+                            if (type !== "read" && options.models) {
+                                var datas = Jrap.prepareSubmitParameter(options, type);
+                                return kendo.stringify(datas);
+                            } else if (type === "read") {
+                                myDashBoardViewModel.model.enabledFlag="Y";
+                                return Jrap.prepareQueryParameter(myDashBoardViewModel.model.toJSON(), options);
+                            }
+                        }
+                    },
+                    batch: true,
+                    serverPaging: true,
+                    pageSize: 10,
+                    schema: {
+                        data: 'rows',
+                        total: 'total',
+                        model: {
+                            id: "dashboardId"
+                        }
+                    }
+                });
+
+        $("#dashGrid").kendoGrid({
+            dataSource: dashBoardDataSource,
+            navigatable: false,
+            autoBind: false,
+            height: 390,
+            selectable: 'multiple,rowbox',
+            pageable: {
+                pageSizes: [5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "dashboardCode",
+                    title: '<@spring.message "sys.dashboard.dashboardcode"/>',
+                    width: 120,
+                },
+                {
+                    field: "description",
+                    title: '<@spring.message "sys.dashboard.dashboarddescription"/>',
+                    width: 120,
+                },
+                {
+                    field: "title",
+                    title: '<@spring.message "sys.dashboard.dashboardtitle"/>',
+                    width: 120,
+                },
+                {
+                    field: "url",
+                    title: '<@spring.message "sys.dashboard.dashboardmainpage"/>',
+                    width: 120,
+                }
+            ]
+        }).data("kendoGrid");
+
+
+
+
+        function openHotkeyWin() {
+            var win =  $("#hotkeyWin").kendoWindow({
+                actions: ["Close"],
+                title: $l('<@spring.message "hotkeyconfiguration"/>'),
+                draggable: true,
+                width: 800,
+                height: 400,
+                modal: true,
+                iframe:true,
+                resizable: false,
+                content:'${base.contextPath}/sys/preference/hotkey/query',
+                //初始化时设置为隐藏状态
+                visible: false
+            }).data("kendoWindow");
+            win.center().open();
+        }
+    </script>
+</body>
+</html>

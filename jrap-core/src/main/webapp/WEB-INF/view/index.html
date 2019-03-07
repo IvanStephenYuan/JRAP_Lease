@@ -1,0 +1,864 @@
+﻿<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+    <meta charset="utf-8" />
+    <title>${SYS_TITLE!'JingRui Application Platform'}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="X-CSRF-TOKEN" />
+    <link href="${base.contextPath}/lib/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="${base.contextPath}/lib/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/lib/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <script src="${base.contextPath}/lib/kendoui/js/jquery.min.js"></script>
+    <script src="${base.contextPath}/lib/websocket/sockjs.js"></script>
+    <script>var _baseContext = '${base.contextPath}'</script>
+    <#include "include/components.html">
+
+    <link href="${base.contextPath}/lib/assets/global/plugins/bootstrap-toastr/toastr.min.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/lib/assets/layouts/layout4/css/layout.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/lib/assets/layouts/layout4/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color" />
+    <link href="${base.contextPath}/lib/assets/layouts/layout4/css/custom.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/resources/upload/favicon.png?v=${Session.sysFaviconVersion!}" rel="shortcut icon"/>
+    <style>
+        .nav > li > a:focus, .nav > li > a:hover {
+            background-color: inherit !important;
+        }
+        .nav > li > a:focus, .nav > li > a:hover {
+            background-color: inherit !important;
+        }
+
+        #mainTab .k-tabstrip-items li{
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            height: auto !important;
+            min-width:70px;
+            text-align:center;
+        }
+        #mainTab .k-tabstrip-items li span.k-link{
+            background: 0 0!important;
+            border: 0;
+            margin: 0;
+            color: #678098;
+            display: block;
+            padding: 10px 20px;
+        }
+
+        #mainTab .k-tabstrip-items li:hover{
+            background-color: #f2f6f9;
+            border-top: 3px solid #f2f6f9 !important;
+        }
+
+        #mainTab .k-tabstrip-items li:hover span.k-link{
+            color: #5b9bd1;
+        }
+
+        #mainTab .k-tabstrip-items li.k-state-active{
+            background: 0 0;
+            margin: 0;
+            position: relative;
+            background-color: #e9ecf3;
+            cursor: default;
+            border-top: 3px solid #5C9ACF!important;
+            border-bottom-color: transparent;
+            height: auto !important;
+        }
+
+        #mainTab .k-tabstrip-items li.k-state-active span.k-link{
+            color: #5b9bd1;
+            display: block;
+            padding: 10px 20px;
+        }
+
+
+        #mainTab .k-tabstrip-items{
+            width: 100%;
+            /*  border-bottom: 1px solid #ddd;*/
+            margin: 0px !important;
+            background-color: #fff;
+            list-style-type: none;
+            position: relative;
+            /* vertical-align: top;*/
+            white-space: nowrap;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        #tabstrip-parent, #tabstrip {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            border-width: 0;
+        }
+
+        #mainTab >.k-content{
+            margin: 0;
+            padding: 0;
+            overflow:hidden;
+        }
+
+        #mainTab .k-tabstrip-items .k-state-default.k-state-hover .k-i-close{
+            visibility: visible;
+        }
+
+        #mainTab .k-tabstrip-prev,#mainTab .k-tabstrip-next {
+            top:2px;
+            background-color:#fff !important;
+            display: inline-block !important;
+        }
+
+        #mainTab .k-i-arrow-w:hover,.k-i-arrow-e:hover{
+            color: #36c6d3;
+        }
+
+        #mainTab .k-i-arrow-w {
+            position: absolute;
+            background-color: #fff;
+            text-align: center;
+        }
+        #mainTab .k-i-arrow-e{
+            position: absolute;
+            background-color: #fff;
+            text-align: center;
+        }
+
+        .k-tabstrip-wrapper .k-content iframe{
+            height:100%;
+            width:100%;
+            padding:0px;
+        }
+
+        .page-content{
+            position: relative;
+        }
+
+        .tabstrip-context-menu{
+            list-style-type: none;
+            padding: 5px 15px;
+            font-size: 14px !important;
+            background:#fff;padding: 7px 0px;
+            font-size: 12px !important;
+            cursor: pointer;
+            border: 1px solid #efefef;
+            background-color: #fff;
+        }
+        .tabstrip-context-menu .k-item{
+            height: 22px;
+            width: 140px;
+            line-height: 22px;
+        }
+        .tabstrip-context-menu .k-item:hover{
+            background-color: #f2f6f9;
+        }
+        .tabstrip-context-menu .k-item .k-link{
+            padding:0px 42px 0px 25px;
+        }
+        .page-content-main{
+            background: 0 0;
+        }
+        .title.point::before{
+            content: " ";
+            border: 3px solid red;/*设置红色*/
+            border-radius:3px;/*设置圆角*/
+            position: absolute;
+            z-index: 1000;
+            right: 0%;
+            margin-right: -5px;
+            margin-top: -5px;
+        }
+
+        #search-fld{
+            border: 1px solid #aeb2c4;
+            background: #3b3f51;
+            border-radius: 20px !important;
+            height: 30px;
+            color: #aeb2c4;
+            width: 250px !important;
+            text-indent: 30px;
+            margin-top: 22px;
+        }
+        #search-fld:hover,#search-fld:focus{
+            outline: none;
+        }
+
+        #search-fld::-webkit-input-placeholder{
+            color: #aeb2c4;
+        }
+        #search-fld::-moz-placeholder {
+            color: #aeb2c4;
+        }
+        #search-fld:-ms-input-placeholder {
+            color: #aeb2c4;
+        }
+
+        #search-fld_listbox{
+            background: #575d77;
+            list-style: none;
+            color: #dadce4;
+            border-radius: 6px !important;
+            padding: 0px
+        }
+
+        #search-fld_listbox li{
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #search-fld_listbox li.k-state-focused,#search-fld_listbox li.k-state-hover{
+            background-color: #606683;
+        }
+
+        #search-fld-list{
+            border-radius: 6px !important;
+            box-shadow: 0 5px 10px rgba(0,0,0,.2);
+        }
+
+        #search-fld-list .slimScrollDiv{
+            margin-top: 9px;
+        }
+        #search-fld-list .slimScrollDiv .slimScrollBar{
+            border-radius: 6px !important;
+        }
+
+
+    </style>
+
+</head>
+<body class="page-container-bg-solid page-header-fixed page-sidebar-closed-hide-logo page-sidebar-fixed">
+    <div class="page-header navbar navbar-fixed-top">
+        <div class="page-header-inner ">
+            <div class="page-logo">
+                <a href="index.html">
+                    <img src="${base.contextPath}/resources/upload/logo.png?v=${Session.sysLogoVersion!}" alt="logo" title="${SYS_TITLE!'JingRui Application Platform'}" height="70" width="100" class="logo-default" />
+                    <span class="page-title">${SYS_TITLE!'Application Platform'}</span>
+                </a>
+                <div class="menu-toggler sidebar-toggler"></div>
+            </div>
+            <a href="javascript:" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"> </a>
+            <div id="page-nav" class="page-actions" style="display: none">
+                <div class="btn-group">
+                    <button type="button" class="btn red-haze btn-sm dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                        <span class="hidden-sm hidden-xs"><@spring.message "page.pagenavigation"/> &nbsp;</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <ul class="dropdown-menu" id="tabstrip-menu" role="menu"></ul>
+                </div>
+            </div>
+            <div class="page-top">
+                <div class="top-menu">
+                    <ul class="nav navbar-nav pull-right">
+
+                        <li class="dropdown dropdown-user dropdown-dark" style="position: relative">
+                            <i style="position: absolute;left: 20px;line-height: 75px;color: #aeb2c4;" class="fa fa-search"></i>
+                            <input id="search-fld"  type="text" name="param" placeholder='<@spring.message "jrap.quicknavigation"/>'>
+                        </li>
+
+                        <li class="dropdown dropdown-user dropdown-dark">
+                            <a href="${base.contextPath}/sys/sys_shortcut.html"
+                               title="<@spring.message 'shortcut.shortcut'/>"
+                               style="height: 75px;padding: 28px 10px 18px;" data-target="#long"
+                               data-toggle="modal">
+                                <i class="fa fa-television" style="color: #aeb2c4;"></i>
+                                <span class="username username-hide-on-mobile" style="color: #aeb2c4;"></span>
+                            </a>
+                        </li>
+                        <#if SYS_USER_ROLES??>
+                            <li id="AShortcut" class="dropdown dropdown-user dropdown-dark" style="display: none">
+                                <a href="javascript:" class="dropdown-toggle" data-toggle="dropdown"
+                                   data-hover="dropdown" data-close-others="true">
+                                    <span class="username username-hide-on-mobile"
+                                          style="height: 30px;padding-top: 4px;"><@spring.message 'role.changerole'/></span></a>
+                                <ul class="dropdown-menu dropdown-menu-default">
+                                    <#list SYS_USER_ROLES as roles>
+                                        <li>
+                                            <#if roles.roleId == CURRENT_USER_ROLE>
+                                                <a href="javascript:">
+                                                    <i class="icon-user" style="color: #3598dc"></i>
+                                                    <#else>
+                                                        <a href="${base.contextPath}/sys/role/change?roleId=${roles.roleId}">
+                                                            <i class="icon-user"></i>
+                                            </#if>
+                                            ${roles.roleName}</a>
+                                        </li>
+                                    </#list>
+                                </ul>
+                            </li>
+                        </#if>
+
+
+
+                        <li class="dropdown dropdown-user dropdown-dark">
+                            <a href="javascript:" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                <span class="username username-hide-on-mobile">${Session.userName!''}</span>
+                                <img alt="" class="img-circle" src="${base.contextPath}/lib/assets/layouts/layout4/img/avatar9.jpg" /> </a>
+                            <ul class="dropdown-menu dropdown-menu-default">
+                                <li>
+                                    <a href="javascript:myProfile();">
+                                        <i class="icon-user"></i>
+                                        <@spring.message "user.info"/>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:sysPreferences();">
+                                        <i class="fa fa-cogs"></i>
+                                        <@spring.message "jrap.preferences"/>
+                                    </a>
+                                </li>
+                                <li class="divider"> </li>
+                                <li>
+                                     <a href="javascript:logout();">
+                                        <i class="icon-key"></i>
+                                         <@spring.message "jrap.logout"/>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="long" role="basic" style="padding-top: 110px">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 700px; height:550px">
+                <div class="modal-body">
+                    <div id="page-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="static" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">确认框</h4>
+                </div>
+                <div class="modal-body">
+                    <p> 添入成功</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" class="btn dark btn-outline">Cancel</button>
+                    <button type="button" data-dismiss="modal" class="btn green">Continue Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="page-container">
+        <div class="page-sidebar-wrapper">
+            <div class="page-sidebar navbar-collapse collapse">
+                <ul id="page-sidebar-menu" class="page-sidebar-menu" data-keep-expanded="false" data-auto-scroll="false" data-slide-speed="200"></ul>
+            </div>
+        </div>
+
+        <div class="page-content-wrapper">
+            <div class="page-content">
+                <div class="page-head"  style="display: none">
+                    <div class="page-title" style="display: inline-block">
+                        <h1 id="page-title"></h1>
+                    </div>
+                    <div class="page-toolbar">
+                        <div class="btn-group pull-right">
+                            <button type="button" data-close-others="true" class="btn green btn-sm btn-outline dropdown-toggle" data-toggle="dropdown">
+                                <@spring.message "jrap.action"/>
+                                <i class="fa fa-angle-down"></i>
+                            </button>
+                            <ul class="dropdown-menu pull-right" id="page-button" role="menu" style="min-width: 135px">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-content-main">
+                    <div id="page-content-loading">
+                        <i class="fa fa-refresh fa-spin"></i>
+                        <span><@spring.message "jrap.loading"/></span>
+                    </div>
+
+                    <div id="mainTab" style="position:absolute;left:-10000px;top:-10000px;outline: 0 !important;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--[if lt IE 9]>
+    <script src="${base.contextPath}/lib/assets/global/plugins/respond.min.js"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/excanvas.min.js"></script>
+    <![endif]-->
+
+    <script src="${base.contextPath}/lib/assets/global/plugins/js.cookie.min.js" type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/bootstrap-toastr/toastr.js" type="text/javascript"></script>
+
+    <script src="${base.contextPath}/lib/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+
+    <script src="${base.contextPath}/lib/assets/global/scripts/app.js" type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/assets/layouts/layout4/scripts/layout.min.js" type="text/javascript"></script>
+
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.all.min.js?v=20180104"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/cultures/kendo.culture.${base.locale.toString()?replace('_','-')}.js?v=20180104"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/messages/kendo.messages.${base.locale.toString()?replace('_','-')}.js?v=20180104"></script>
+    <script src="${base.contextPath}/common/hotkey"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.jrap.js?v=20180104"></script>
+
+    <script>
+        $(document).ready(function () {
+            Jrap.initWebSocket();
+            Jrap.onMessage("SYS_REPEAT_LOGIN",function (data,socket) {
+                socket.close();
+                $.ajax({
+                    url:"${base.contextPath}/logout",
+                    data:{
+                        "${_csrf.parameterName}":"${_csrf.token}"
+                    },
+                    type:"POST"
+                });
+                bootbox.dialog({
+                    message: '<@spring.message "jrap.repeat_login"/>',
+                    title: '<@spring.message "jrap.prompt"/>',
+                    buttons: {
+                        success: {
+                            label: '<@spring.message "jrap.ok"/>',
+                            className: "green",
+                            callback:function(){
+                                window.location.reload();
+                            }
+                        }
+                    }
+                })
+            });
+
+            /*
+             toastr.options = {
+             "closeButton": true,
+             "debug": true,
+             "positionClass": "toast-top-left",
+             "showDuration": "1000",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+             "hideMethod": "fadeOut"
+             }
+             toastr.success("123","title",toastr.options);
+            */
+        });
+        var nav = '${Session.nav!0}';
+        function myProfile() {
+            openTab('MY_PROFILE', '<@spring.message "user.info"/>', '${base.contextPath}/sys/um/sys_user_info.html');
+        }
+        function sysPreferences() {
+            openTab('SYS_PREFERENCE', '<@spring.message "jrap.preferences"/>', '${base.contextPath}/sys/um/sys_preferences.html');
+        }
+        function logout() {
+
+            bootbox.dialog({
+                message: '<@spring.message "jrap.confirm_exit"/>',
+                title: '<@spring.message "jrap.prompt"/>',
+                buttons: {
+                    success: {
+                        label: '<@spring.message "jrap.ok"/>',
+                        className: "btn-primary",
+                        callback: function () {
+                            $("#logoutForm").submit();
+                        }
+                    }, cancel: {
+                        className: "btn-default",
+                        label: '<@spring.message "jrap.cancel"/>'
+                    }
+                }
+            })
+        }
+
+        function refreshPage(event){
+            var tabid = $(event).data("tabid");
+            $("#mainTab").data("kendoTabStrip").refreshTab(tabid);
+        }
+
+        function closePage(event){
+            var tabid = $(event).data("tabid");
+            closeTab(tabid);
+        }
+
+        function closeTab(id){
+            $("#mainTab").data("kendoTabStrip").closeTab(id);
+        }
+
+        function addShortcut(functionCode) {
+            $.ajax({
+                url: '${base.contextPath}/sys/shortcut/submit?functionCode=' + functionCode,
+                success: function (args) {
+                    if (args != "") {
+                        bootbox.dialog({
+                            message: '<@spring.message "jrap.success"/>',
+                            title: '<@spring.message "jrap.prompt"/>',
+                            buttons: {
+                                success: {
+                                    label: '<@spring.message "jrap.ok"/>',
+                                    className: "green"
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+
+        }
+
+        function createMenu(html,datas, top){
+            for(var i=0;i<datas.length;i++){
+                var data = datas[i];
+                html.push('<li class="nav-item">');
+                if(data.children){
+                    html.push('<a href="javascript:;" class="nav-link">');
+                    html.push('<i class="'+(data.icon||'fa fa-cube')+'"></i>');
+                   // if(top){
+                        html.push('<span class="title">' + data.text + '</span>');
+                   // }else {
+                      //  html.push(data.text);
+                  //  }
+                    html.push('<span class="arrow"></span></a><ul class="sub-menu">');
+                    createMenu(html,data.children);
+                    html.push('</ul>')
+                } else if(data.url){
+                    html.push('<a class="nav-link" id="link_'+data.functionCode+'" href="javascript:openTab(\''+data.functionCode+'\',\''+data.text+'\', \''+data.url+'\')">');
+                    html.push('<i class="'+(data.icon||'')+'"></i>');
+                    html.push('<span class="title">' + data.text + '</span>');
+                    html.push('</a>')
+                }
+                html.push('</li>')
+            }
+        }
+
+        function showTabLoading(show){
+            $('#page-content-loading')[show ? 'show' : 'hide']();
+            if(show){
+                $("#mainTab").css({
+                    'position':'absolute',
+                    'left':'-10000px',
+                    'top':'-10000px'
+                })
+            }else{
+                $("#mainTab").css({
+                    'position':'static',
+                    'left':'0px',
+                    'top':'0px'
+                })
+            }
+        }
+
+        function openTab(id,title,url, closeIcon){
+            var mainTab = $("#mainTab").data("kendoTabStrip");
+            $('html,body').animate({
+                scrollTop: 0
+            }, 'fast');
+            if(nav != "Y"){
+                if($.inArray(id, mainTab.tabids) == -1){
+                    this.showTabLoading(true)
+                }
+            }
+
+            if(url.indexOf('?') == -1){
+                url += '?functionCode=' + id;
+            }else{
+                url += '&functionCode=' + id;
+            }
+
+            mainTab.append({
+                text : title,
+                tabid : id,
+                contentIframe : url,
+                closeIcon: closeIcon = closeIcon === undefined ? true : closeIcon,
+                encoded: false
+            });
+            if(nav == "Y"){
+                $('#mainTab').children(".k-state-active");
+            }
+        }
+
+
+        function findByCode(functionCode){
+             var data= null;
+             for(var i=0;i<menuItems.length;i++)
+             {
+                if(menuItems[i].functionCode == functionCode){
+                    data = menuItems[i];
+                    break;
+                }
+             }
+             return data;
+        }
+
+        var isInitScroller = false;
+        var isChangeWidth = false;
+        function scrollerInit(){
+            var e = $("#mainTab").find(".k-i-arrow-e .fa-chevron-right");
+            var w = $("#mainTab").find(".k-i-arrow-w .fa-chevron-left");
+            var height = $('#mainTab .k-tabstrip-items').outerHeight();
+            var position = $('#mainTab .k-tabstrip-items').position();
+            if(!e.length){
+                $("#mainTab").find(".k-i-arrow-e").append('<i class="fa fa-chevron-right" aria-hidden="true"></i>');
+                $("#mainTab").find(".k-i-arrow-e").css({
+                    top:position.top||0,
+                    right:position.right||0,
+                    height:height+"px",
+                    lineHeight:height+"px",
+                    width:'5%'
+                })
+            }
+            if(!w.length){
+                $("#mainTab").find(".k-i-arrow-w").append('<i class="fa fa-chevron-left" aria-hidden="true"></i>');
+                var width = $('.page-content').outerWidth()-$('#mainTab').outerWidth()+2;
+                $("#mainTab").find(".k-i-arrow-w").css({
+                    top:position.top||0,
+                    left:position.left||0,
+                    lineHeight:height+"px",
+                    height:height+"px",
+                    width:'5%'
+                })
+            }
+        }
+
+        function initTabStripItems(obj){
+            var hasScroller = $("#mainTab").hasClass("k-tabstrip-scrollable");
+
+            if(!isInitScroller && hasScroller ){
+                scrollerInit();
+                $("#mainTab .k-tabstrip-items").css("cssText", "display:inline-block;width:90% !important;margin-left:5% !important;");                isInitScroller = true;
+                isChangeWidth = false;
+            }
+            if(!isChangeWidth && !hasScroller){
+                $("#mainTab .k-tabstrip-items").css("cssText", "display:inline-block;width:100% !important;margin:0% !important;");                isInitScroller = false;
+                isChangeWidth = true;
+            }
+
+            if(!$(obj.item).find(".arrow.close").length){
+                $(obj.item).find(".k-icon.k-i-close").append('<span class="arrow close" style="margin: 5px 5px;position: absolute;display: none"></span>');            }
+
+            $("#mainTab .k-tabstrip-items li").off("mouseover").off("mouseout").on({
+                "mouseover":function (e) {
+                    $(e.currentTarget).find(".arrow.close").css("display","inline-block");
+                },
+                "mouseout":function (e) {
+                    $(e.currentTarget).find(".arrow.close").css("display","none");
+                }
+            });
+        }
+
+        function initTabList(){
+            var mainTab = $("#mainTab").data("kendoTabStrip");
+            var html=[];
+            $.each(mainTab.items(),function(i,v){
+                var tabid = $(v).find("span.k-link").attr("data-tabid");
+                if( tabid == "home"){
+                    html.push('<li><a href="javascript:openTab(\'home\',\'首页\',\'home.html\')"><span style="padding-right:20px;" ><i class="icon-home"   style=" margin-right: 10px;" ></i>'+v.textContent+"</span></a></li>");
+                }else{
+                    var data = findByCode(tabid);
+                    if(!data) {
+                        data = {
+                            icon:'fa fa-file',
+                            functionCode: tabid,
+                            text: v.innerText,
+                            url: ''
+                        }
+                    }
+                    html.push('<li><a href="javascript:;openTab(\''+data.functionCode+'\',\''+data.text+'\', \''+data.url+'\')">');
+                    html.push('<span style="margin-right:10px;display:block"><i  style=" margin-right: 10px;" class="'+(data.icon||'')+'"></i>'+v.textContent+'</span>');
+                    html.push('<span data-tabid='+tabid+' class="badge badge-danger close-btn">X</span></a></li>');
+
+                }
+            });
+            $("#tabstrip-menu").html(html.join(''));
+        }
+
+        $('#tabstrip-menu').on("click",'.close-btn', function(event){
+            event.preventDefault();
+            event.stopPropagation();
+            var tabid = $(event.target).data("tabid");
+            $("#mainTab").data("kendoTabStrip").closeTab(tabid);
+
+        });
+
+        //自动匹配查找
+        var searchAutoComplete =  $("#search-fld").kendoAutoComplete({
+
+            template: '<table  border="0"> <tr><td style="padding:5px;"><span class="#=icon#"></span></td><td><strong>#= text #</strong></td></tr>    <tr><td></td><td><span style="color:rgb(158,158,158)">#= functionCode #</span></td></tr></table>',
+            highlightFirst: true,
+            dataTextField: "codeAndText",
+            filter: "contains",
+            height: 320,
+            select:function(e){
+                var item = e.item;
+                var idx = item[0].dataset.offsetIndex;
+                var selection = this.dataItems()[idx];
+                openTab(selection.functionCode,selection.text, selection.url);
+            }
+        }).data("kendoAutoComplete");
+
+        $("#search-fld_listbox").addClass("scroller");
+        $("#search-fld_listbox").css("height","320px");
+
+        function loadMenu(){
+            $.ajax({
+                type: 'GET',
+                url: '${base.contextPath}/sys/function/menus',
+                contentType: "application/json; charset=utf-8",
+                success: function (datas) {
+                    var html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'home\',\'<@spring.message "jrap.home"/>\', \'home.html\');" class="nav-link"><i class="icon-home"></i><span class="title"><@spring.message "jrap.home"/></span></a></li>'];
+
+                    datas = [].concat(datas);
+                    createMenu(html,datas, true);
+                    $("#page-sidebar-menu").append(html.join(''));
+                    menuItems = convertToLine(datas);
+                    searchAutoComplete.setDataSource(menuItems);
+                }
+            });
+        }
+
+        var menuItems = [];
+        //将tree形的数据转换成线形数据
+        function convertToLine(datas){
+            var arr=[];
+            function build(d){
+                if (d.children) {
+                    $.each(d.children,function(i,r){
+                        build(r);
+                    });
+                }else{
+                     //将数据转换使实现text和code双查询
+                    d.codeAndText=d.functionCode+d.text;
+                    arr.push(d);
+                }
+            }
+            $.each(datas,function(i,r){
+                build(r);
+            });
+
+            arr.push({
+                functionCode:"MY_PROFILE",
+                icon:"icon-user",
+                text:'<@spring.message "user.info"/>',
+                url:"${base.contextPath}/sys/um/sys_user_info.html"
+            });
+            arr.push({
+                functionCode:"SYS_PREFERENCE",
+                icon:"icon-user",
+                text:'<@spring.message "jrap.preferences"/>',
+                url:"${base.contextPath}/sys/um/sys_preferences.html"
+            });
+            return arr;
+        }
+
+        function init(){
+            loadMenu();
+            $("#mainTab").kendoTabStrip({
+                height:'100%',
+                animation:  false,
+                closeIcon : true,
+                contextMenu : true,
+                refresh:function(){
+                    showTabLoading(true);
+                },
+                load:function(para){
+                    var iframe = para.iframe[0];
+                    window.autoResizeIframe(iframe.name);
+                    showTabLoading(false);
+                },
+                activate:function(obj){
+                    $('#page-title').html(obj.item.innerText);
+                    var id = $(obj.item).find('.k-link').data('tabid');
+                    var html=[];
+                    html.push('<li> <a href="javascript:;"  id="page-refresh-button" onclick="refreshPage(this)"><i class="icon-refresh"></i>  <@spring.message "jrap.refresh" /></a> </li>');
+
+                    if(id!="home"){
+                        html.push('<li> <a href="javascript:;"  id="page-addshortCut-button" onclick="addShortcut(\'' + id + '\')"><i class="fa fa-plus-square"></i>  <@spring.message "shortcut.addshortcut"/></a> </li>');
+                        html.push('<li><a href="javascript:;" id="page-close-button" onclick="closePage(this)" ><i class="icon-close"></i>  <@spring.message "jrap.logout" /></a></li>');
+                    }
+                    $("#page-button").html(html.join(''));
+                    $("#page-close-button").data("tabid",id);
+                    $("#page-refresh-button").data("tabid",id);
+                    $('#page-sidebar-menu').find('li.active').removeClass('active');
+                    $('#link_'+id).parents('li.nav-item').addClass('active');
+                    if(nav == "Y"){
+                        initTabStripItems(obj);
+                    }else{
+                        initTabList();
+                    }
+
+                },
+                close:function(){
+                    if(nav != "Y"){
+                        initTabList();
+                    }
+                }
+
+            }).data("kendoTabStrip");
+            $("#mainTab").parent().attr("id", "tabstrip-parent");
+            openTab('home', '<@spring.message "jrap.home"/>', 'home.html', false);
+            if(nav=="Y"){
+                $("#mainTab .k-tabstrip-items").css("display","inline-block");
+                $("#AShortcut").css("display","block");
+            }else{
+                $(".page-content-wrapper .page-content .page-head").css("display","block");
+                $("#AShortcut").css("display","block");
+                $("#page-nav").css("display","block");
+            }
+
+        }
+
+        var viewHeight = $(window).height(), contentHeight = viewHeight - 159;
+        function autoResizeIframe(id, height, callback){
+            setTimeout(function(){
+                var iframe = $('#iframe_'+id)[0];
+                if(iframe != null && iframe.contentDocument != null) {
+                    var subWeb = iframe.contentDocument;
+                    $(iframe).height(Math.max(Math.max(subWeb.body.clientHeight, contentHeight), height||0));
+                }
+                if(callback) callback.call(window)
+            }, 50)
+
+        }
+
+
+
+        function sessionExpiredLogin(){
+
+            bootbox.dialog({
+                message: '<@spring.message "jrap.login.timeout"/>',
+                title: '<@spring.message "jrap.prompt"/>',
+                buttons:{
+                    success:{
+                        label:'<@spring.message "jrap.ok"/>',
+                        className:"green",
+                        callback:function(){
+                            window.location.href = "${base.contextPath}/login"
+                        }
+                    }
+                }
+            })
+        }
+        init();
+
+        Jrap.onMessage("SYS_BADGE",function (data,socket){
+            Jrap.showBadge(data.parameter);
+        })
+    </script>
+    <form id="logoutForm" method="post" target="_self" action="${base.contextPath}/logout" style="display: none;">
+        <input name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        <input type="submit"/>
+    </form>
+</body>
+</html>

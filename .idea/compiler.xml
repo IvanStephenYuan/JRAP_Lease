@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="jrap" />
+        <module name="jrap-core" />
+        <module name="jrap-core-db" />
+        <module name="jrap-crm" />
+        <module name="jrap-crm-db" />
+        <module name="jrap-db" />
+        <module name="jrap-gateway" />
+        <module name="jrap-gateway-db" />
+        <module name="jrap-interface" />
+        <module name="jrap-interface-db" />
+        <module name="jrap-job" />
+        <module name="jrap-job-db" />
+        <module name="jrap-mail" />
+        <module name="jrap-mail-db" />
+        <module name="jrap-oauth2" />
+        <module name="jrap-oauth2-db" />
+        <module name="jrap-report" />
+        <module name="jrap-report-db" />
+        <module name="jrap-task" />
+        <module name="jrap-task-db" />
+        <module name="jrap-workflow" />
+        <module name="jrap-workflow-db" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

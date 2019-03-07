@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+
+    <!-- 引入config.properties属性文件 -->
+    <context:property-placeholder location="classpath:config.properties"/>
+
+    <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+    </bean>
+
+    <bean id="redisSentinelConfiguration"
+          class="org.springframework.data.redis.connection.RedisSentinelConfiguration">
+        <property name="master">
+            <bean class="org.springframework.data.redis.connection.RedisNode">
+                <property name="name" value="mymaster"/>
+            </bean>
+        </property>
+        <property name="sentinels" ref="redisNodes"/>
+    </bean>
+
+    <bean id="redisClusterConfiguration"
+          class="org.springframework.data.redis.connection.RedisClusterConfiguration">
+        <property name="clusterNodes" ref="clusterRedisNodes"/>
+    </bean>
+
+    <bean id="clusterRedisNodes" class="com.jingrui.jrap.core.impl.RedisNodeAutoConfig">
+        <property name="sentinels" value="${redis.cluster:}"/>
+    </bean>
+
+    <bean id="redisNodes" class="com.jingrui.jrap.core.impl.RedisNodeAutoConfig">
+        <property name="sentinels" value="${redis.sentinel}"/>
+    </bean>
+
+    <!--这里添加的是Redis，因为使用的是Spring里自带的Redis的Session策略 -->
+    <bean id="v2redisConnectionFactory" class="com.jingrui.jrap.core.JedisConnectionFactoryBean">
+
+        <property name="useSentinel" value="${redis.useSentinel}"/>
+        <property name="sentinelConfiguration" ref="redisSentinelConfiguration"/>
+
+        <property name="useCluster" value="${redis.useCluster:false}"/>
+        <property name="clusterConfiguration" ref="redisClusterConfiguration"/>
+        <property name="hostName" value="${redis.ip:localhost}"/>
+        <property name="port" value="${redis.port:6379}"/>
+        <property name="database" value="${redis.db:10}"/>
+        <property name="password" value="${redis.password:}"/>
+        <property name="poolConfig">
+            <bean class="redis.clients.jedis.JedisPoolConfig">
+                <property name="maxIdle" value="999"/>
+                <property name="maxTotal" value="9999"/>
+                <property name="minIdle" value="20"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="stringRedisSerializer"
+          class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+
+    <bean id="v2redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="v2redisConnectionFactory"/>
+        <property name="keySerializer" ref="stringRedisSerializer"/>
+        <property name="valueSerializer" ref="stringRedisSerializer"/>
+        <property name="hashKeySerializer" ref="stringRedisSerializer"/>
+        <property name="hashValueSerializer" ref="stringRedisSerializer"/>
+    </bean>
+    <!-- 这里的是为了下面的 Session策略过滤器提供构造函数传入的参数，因为Session过滤器要依赖该对象来构造，所以创建一个先 -->
+    <bean name="redisOperationsSessionRepository"
+          class="org.springframework.session.data.redis.RedisOperationsSessionRepository">
+        <constructor-arg ref="v2redisConnectionFactory"/>
+        <property name="defaultMaxInactiveInterval" value="${session.expire.time:3600}"/>
+    </bean>
+
+    <!-- 这个是Session策略过滤器，即将容器原有的Session持久化机制，代替为Spring的 Redis持久化Session机制。 -->
+    <!-- 注意，这个名字与 web.xml里的targetBean的下value是要一致的。 -->
+    <bean name="springSession" class="org.springframework.session.web.http.SessionRepositoryFilter">
+        <constructor-arg ref="redisOperationsSessionRepository"/>
+        <property name="httpSessionStrategy" ref="cookieHttpSessionStrategy"/>
+    </bean>
+
+    <bean id="promptCache" class="com.jingrui.jrap.cache.impl.HashStringRedisCacheGroup">
+        <property name="name" value="prompt"/>
+        <property name="type" value="java.lang.String"/>
+        <property name="keyField" value="promptCode"/>
+        <property name="groupField" value="lang"/>
+        <property name="valueField" value="description"/>
+        <property name="loadOnStartUp" value="true"/>
+        <property name="sqlId" value="com.jingrui.jrap.system.mapper.PromptMapper.selectForCache"/>
+    </bean>
+
+    <bean id="functionCache" class="com.jingrui.jrap.cache.impl.HashStringRedisCacheGroup">
+        <property name="name" value="function"/>
+        <property name="type" value="com.jingrui.jrap.function.dto.Function"/>
+        <property name="groupField" value="lang"/>
+        <property name="keyField" value="functionId"/>
+        <property name="loadOnStartUp" value="true"/>
+        <property name="sqlId" value="com.jingrui.jrap.function.mapper.FunctionMapper.selectForCache"/>
+    </bean>
+
+    <bean id="preferenceCache" class="com.jingrui.jrap.cache.impl.HashStringRedisCacheGroup">
+        <property name="name" value="preference"/>
+        <property name="type" value="com.jingrui.jrap.system.dto.SysPreferences"/>
+        <property name="groupField" value="userId"/>
+        <property name="keyField" value="preferences"/>
+        <property name="loadOnStartUp" value="true"/>
+        <property name="sqlId" value="com.jingrui.jrap.system.mapper.SysPreferencesMapper.selectAll"/>
+    </bean>
+
+
+    <bean id="resourceItemCache" class="com.jingrui.jrap.cache.impl.ResourceItemCache">
+        <property name="name" value="resource_item"/>
+    </bean>
+    <bean id="roleResourceItemCache" class="com.jingrui.jrap.cache.impl.RoleResourceItemCache">
+        <property name="name" value="role_resource_item"/>
+    </bean>
+    <bean id="resourceCustomizationCache" class="com.jingrui.jrap.cache.impl.ResourceCustomizationCache">
+        <property name="name" value="resource_customization"/>
+    </bean>
+    <bean id="resourceItemElementCache" class="com.jingrui.jrap.cache.impl.ResourceItemElementCache">
+        <property name="name" value="resource_item_element"/>
+    </bean>
+    <bean id="resourceItemAssignCache" class="com.jingrui.jrap.cache.impl.ResourceItemAssignCache">
+        <property name="name" value="resource_item_assign"/>
+    </bean>
+    <bean id="roleFunctionCache" class="com.jingrui.jrap.cache.impl.RoleFunctionCache">
+        <property name="name" value="role_function"/>
+    </bean>
+    <bean id="roleResourceCache" class="com.jingrui.jrap.cache.impl.RoleResourceCache">
+        <property name="name" value="role_resource"/>
+    </bean>
+    <bean id="lovCache" class="com.jingrui.jrap.cache.impl.LovCache">
+        <property name="name" value="lov"/>
+    </bean>
+    <bean id="formCache" class="com.jingrui.jrap.cache.impl.HashStringRedisCache">
+        <property name="name" value="form"/>
+        <property name="type" value="com.jingrui.jrap.system.dto.Form"/>
+        <property name="keyField" value="code"/>
+        <property name="loadOnStartUp" value="true"/>
+        <property name="sqlId" value="com.jingrui.jrap.system.mapper.FormBuilderMapper.selectAll"/>
+    </bean>
+    <bean id="hotkeyCache" class="com.jingrui.jrap.cache.impl.HotkeyCache">
+        <property name="name" value="hotkey"/>
+        <property name="loadOnStartUp" value="true"/>
+    </bean>
+    <bean id="codeCache" class="com.jingrui.jrap.cache.impl.SysCodeCache">
+        <property name="name" value="code"/>
+    </bean>
+
+
+
+    <bean id="sysCodeRuleCache" class="com.jingrui.jrap.cache.impl.SysCodeRuleCache">
+        <property name="name" value="code_rule"/>
+    </bean>
+
+    <bean id="dataPermissionRuleCache" class="com.jingrui.jrap.cache.impl.DataPermissionRuleCache">
+        <property name="name" value="data_permission_rule"/>
+    </bean>
+
+    <bean id="userCache" class="com.jingrui.jrap.cache.impl.UserCache" >
+        <property name="name" value="user" />
+    </bean>
+
+    <bean id="cacheManager" class="com.jingrui.jrap.cache.impl.CacheManagerImpl">
+        <property name="caches">
+            <list>
+                <ref bean="promptCache"/>
+                <ref bean="functionCache"/>
+                <ref bean="roleFunctionCache"/>
+                <ref bean="roleResourceCache"/>
+                <ref bean="lovCache"/>
+                <ref bean="codeCache"/>
+                <ref bean="formCache"/>
+                <ref bean="resourceCustomizationCache"/>
+                <ref bean="resourceItemCache"/>
+                <ref bean="roleResourceItemCache"/>
+                <ref bean="resourceItemElementCache"/>
+                <ref bean="resourceItemAssignCache"/>
+                <ref bean="sysCodeRuleCache"/>
+                <ref bean="dataPermissionRuleCache"/>
+                <ref bean="preferenceCache"/>
+
+                <bean class="com.jingrui.jrap.cache.impl.RedisCache">
+                    <property name="name" value="resource_url"/>
+                    <property name="type" value="com.jingrui.jrap.function.dto.Resource"/>
+                    <property name="keyField" value="url"/>
+                    <property name="loadOnStartUp" value="true"/>
+                    <property name="sqlId"
+                              value="com.jingrui.jrap.function.mapper.ResourceMapper.selectAllWithoutMultiLanguage"/>
+                </bean>
+                <bean class="com.jingrui.jrap.cache.impl.RedisCache">
+                    <property name="name" value="resource_id"/>
+                    <property name="type" value="com.jingrui.jrap.function.dto.Resource"/>
+                    <property name="keyField" value="resourceId"/>
+                    <property name="loadOnStartUp" value="true"/>
+                    <property name="sqlId"
+                              value="com.jingrui.jrap.function.mapper.ResourceMapper.selectAllWithoutMultiLanguage"/>
+                </bean>
+                <bean class="com.jingrui.jrap.cache.impl.RedisCache">
+                    <property name="name" value="role"/>
+                    <property name="type" value="com.jingrui.jrap.account.dto.Role"/>
+                    <property name="keyField" value="roleCode"/>
+                    <property name="loadOnStartUp" value="true"/>
+                    <property name="sqlId" value="com.jingrui.jrap.account.mapper.RoleMapper.selectAllWithoutMultiLanguage"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="cacheReloadProcessor" class="com.jingrui.jrap.cache.impl.CacheReloadProcessor">
+        <property name="queue" value="queue:cache:reload"/>
+        <property name="publishMessageTo" value="topic:cache:reloaded"/>
+    </bean>
+
+    <bean id="cacheJoinType" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="targetMapClass" value="java.util.HashMap"/>
+        <property name="sourceMap">
+            <map key-type="java.lang.String" value-type="com.jingrui.jrap.cache.CacheResolve">
+                <entry key="function" value-ref="hashStringRedisCacheGroupResolve"/>
+                <entry key="_code" value-ref="codeRedisCacheGroupResolve"/>
+                <entry key="_lov" value-ref="lovRedisCacheGroupResolve"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="hashStringRedisCacheGroupResolve" class="com.jingrui.jrap.cache.impl.HashStringRedisCacheGroupResolve"></bean>
+    <bean id="hashStringRedisCacheResolve" class="com.jingrui.jrap.cache.impl.HashStringRedisCacheResolve"></bean>
+    <bean id="codeRedisCacheGroupResolve" class="com.jingrui.jrap.cache.impl.CodeRedisCacheGroupResolve"></bean>
+    <bean id="lovRedisCacheGroupResolve" class="com.jingrui.jrap.cache.impl.LovRedisCacheGroupResolve"></bean>
+</beans>

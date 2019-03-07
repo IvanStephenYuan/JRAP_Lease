@@ -1,0 +1,63 @@
+<#--
+* description: 显示当前流程的变量
+* version: 1.0
+*
+-->
+<#include "../../include/header.html">
+<script src="${base.contextPath}/resources/js/wfl/wfl.js"></script>
+<body>
+<div id="content-container">
+    <div id="page-content">
+        <div class="panel" style="border:none;box-shadow: none;">
+            <form class="form-horizontal">
+                <header>
+                    <span>FOR TEST ONLY</span>
+                    <br/>
+                    <span>当前流程变量</span>
+                </header>
+                <div class="panel-body" id="dynamicGridBody">
+                    <table id="varsTable" style="width:100%;">
+                        <thead>
+                        <tr>
+                            <td style="width: 100px;">Name</td>
+                            <td style="width: 200px;">Value</td>
+                        </tr>
+                        </thead>
+                        <tbody id="varsTableBody" style="max-height: 100px;overflow: scroll;"></tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+
+    function fillTable() {
+        var tb = $('#varsTable');
+        $.each(parent.executionVariables, function (i, r) {
+            var tr = WFL.ce('tr', tb)
+            WFL.ce('td', tr).text(i);
+            WFL.ce('td', tr).text(r);
+        });
+    }
+
+    fillTable();
+
+    function validate() {
+        alert('//TODO 执行表单校验')
+        return true;//REQUIRED
+    }
+
+
+    function getFormProperties() {
+        return {};
+    }
+
+    $(document).ready(function () {
+
+    });
+
+
+</script>
+</body>
+</html>

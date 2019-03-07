@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="demo">
+  <process id="servicetasktest" name="ServiceTask 测试" isExecutable="true">
+    <startEvent id="sid-246DD157-CC3D-4F5F-A034-E1F88719EC66"></startEvent>
+    <serviceTask id="sid-12EC4C21-6348-47C6-AC30-10C54BDE8791" name="调用class" activiti:class="com.jingrui.jrap.activiti.demo.DemoServiceTask"></serviceTask>
+    <sequenceFlow id="sid-61C15979-F8EC-44BD-8F91-96116D9BAF61" sourceRef="sid-246DD157-CC3D-4F5F-A034-E1F88719EC66" targetRef="sid-12EC4C21-6348-47C6-AC30-10C54BDE8791"></sequenceFlow>
+    <endEvent id="sid-BBEBD45A-7B91-4A1B-9DF9-444D2E629C0B"></endEvent>
+    <serviceTask id="sid-530C3C72-02DE-4722-97F4-1F6D501F8BB1" name="调用 delegate" activiti:delegateExpression="${demoServiceTaskDelegate}"></serviceTask>
+    <sequenceFlow id="sid-44ECC7C8-3818-4ECF-87AF-9A142AB0FF3E" sourceRef="sid-12EC4C21-6348-47C6-AC30-10C54BDE8791" targetRef="sid-530C3C72-02DE-4722-97F4-1F6D501F8BB1"></sequenceFlow>
+    <serviceTask id="sid-127993F8-411B-4AF3-AEA5-812A7933AB08" name="执行 UEL 表达式" activiti:expression="#{demoServiceTaskDelegate.method1(execution,task2Output)}"></serviceTask>
+    <sequenceFlow id="sid-171CDEF9-F8CF-4915-A976-502BE8D3F927" sourceRef="sid-530C3C72-02DE-4722-97F4-1F6D501F8BB1" targetRef="sid-127993F8-411B-4AF3-AEA5-812A7933AB08"></sequenceFlow>
+    <sequenceFlow id="sid-51882E59-889A-4F9D-9F30-A7069D8E088D" sourceRef="sid-127993F8-411B-4AF3-AEA5-812A7933AB08" targetRef="sid-BBEBD45A-7B91-4A1B-9DF9-444D2E629C0B"></sequenceFlow>
+    <textAnnotation id="sid-B09E5AC7-9169-4594-A6C2-19D22B0A6131">
+      <text>service 类只会初始化一次， 类似 servlet 的模式。
+</text>
+    </textAnnotation>
+    <association id="sid-07E52BEF-7006-47FF-8E33-BF6598DDF34F" sourceRef="sid-B09E5AC7-9169-4594-A6C2-19D22B0A6131" targetRef="sid-12EC4C21-6348-47C6-AC30-10C54BDE8791" associationDirection="None"></association>
+    <textAnnotation id="sid-6D241CE6-5265-4A93-989A-EC944EAC050B">
+      <text>调用定义为 bean 的 JavaDelegate
+</text>
+    </textAnnotation>
+    <association id="sid-69803FAC-AC82-4BD2-99DB-610B4B916550" sourceRef="sid-6D241CE6-5265-4A93-989A-EC944EAC050B" targetRef="sid-530C3C72-02DE-4722-97F4-1F6D501F8BB1" associationDirection="None"></association>
+    <textAnnotation id="sid-B1593628-D8C9-49CB-9D15-B8DDCA530269">
+      <text>通过表达式调用一个 service 的方法，可以传参数</text>
+    </textAnnotation>
+    <association id="sid-FD582D7B-0E65-4B7B-BAB0-D10F7EEC78F5" sourceRef="sid-B1593628-D8C9-49CB-9D15-B8DDCA530269" targetRef="sid-127993F8-411B-4AF3-AEA5-812A7933AB08" associationDirection="None"></association>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_servicetasktest">
+    <bpmndi:BPMNPlane bpmnElement="servicetasktest" id="BPMNPlane_servicetasktest">
+      <bpmndi:BPMNShape bpmnElement="sid-246DD157-CC3D-4F5F-A034-E1F88719EC66" id="BPMNShape_sid-246DD157-CC3D-4F5F-A034-E1F88719EC66">
+        <omgdc:Bounds height="30.0" width="30.0" x="60.0" y="165.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-12EC4C21-6348-47C6-AC30-10C54BDE8791" id="BPMNShape_sid-12EC4C21-6348-47C6-AC30-10C54BDE8791">
+        <omgdc:Bounds height="80.0" width="100.0" x="120.0" y="140.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-BBEBD45A-7B91-4A1B-9DF9-444D2E629C0B" id="BPMNShape_sid-BBEBD45A-7B91-4A1B-9DF9-444D2E629C0B">
+        <omgdc:Bounds height="28.0" width="28.0" x="600.0" y="317.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-B09E5AC7-9169-4594-A6C2-19D22B0A6131" id="BPMNShape_sid-B09E5AC7-9169-4594-A6C2-19D22B0A6131">
+        <omgdc:Bounds height="50.0" width="316.0" x="75.0" y="15.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-07E52BEF-7006-47FF-8E33-BF6598DDF34F" id="BPMNShape_sid-07E52BEF-7006-47FF-8E33-BF6598DDF34F">
+        <omgdc:Bounds height="75.44529159474638" width="50.29854899057763" x="92.70835070187208" y="64.06641670262681"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-530C3C72-02DE-4722-97F4-1F6D501F8BB1" id="BPMNShape_sid-530C3C72-02DE-4722-97F4-1F6D501F8BB1">
+        <omgdc:Bounds height="80.0" width="100.0" x="285.0" y="140.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-6D241CE6-5265-4A93-989A-EC944EAC050B" id="BPMNShape_sid-6D241CE6-5265-4A93-989A-EC944EAC050B">
+        <omgdc:Bounds height="20.0" width="229.0" x="330.0" y="60.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-69803FAC-AC82-4BD2-99DB-610B4B916550" id="BPMNShape_sid-69803FAC-AC82-4BD2-99DB-610B4B916550">
+        <omgdc:Bounds height="60.10131145835139" width="2.1775837484909744" x="331.3487081257545" y="79.22434427082429"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-127993F8-411B-4AF3-AEA5-812A7933AB08" id="BPMNShape_sid-127993F8-411B-4AF3-AEA5-812A7933AB08">
+        <omgdc:Bounds height="80.0" width="100.0" x="285.0" y="291.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-B1593628-D8C9-49CB-9D15-B8DDCA530269" id="BPMNShape_sid-B1593628-D8C9-49CB-9D15-B8DDCA530269">
+        <omgdc:Bounds height="20.0" width="202.0" x="300.0" y="420.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-FD582D7B-0E65-4B7B-BAB0-D10F7EEC78F5" id="BPMNShape_sid-FD582D7B-0E65-4B7B-BAB0-D10F7EEC78F5">
+        <omgdc:Bounds height="48.173600956899236" width="16.113238940755934" x="305.429083654622" y="371.2342932715504"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-44ECC7C8-3818-4ECF-87AF-9A142AB0FF3E" id="BPMNEdge_sid-44ECC7C8-3818-4ECF-87AF-9A142AB0FF3E">
+        <omgdi:waypoint x="220.0" y="179.31550802139037"></omgdi:waypoint>
+        <omgdi:waypoint x="285.0" y="178.42566844919787"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-69803FAC-AC82-4BD2-99DB-610B4B916550" id="BPMNEdge_sid-69803FAC-AC82-4BD2-99DB-610B4B916550">
+        <omgdi:waypoint x="331.3768115942029" y="80.0"></omgdi:waypoint>
+        <omgdi:waypoint x="333.5507246376812" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-171CDEF9-F8CF-4915-A976-502BE8D3F927" id="BPMNEdge_sid-171CDEF9-F8CF-4915-A976-502BE8D3F927">
+        <omgdi:waypoint x="335.0" y="220.0"></omgdi:waypoint>
+        <omgdi:waypoint x="335.0" y="291.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-51882E59-889A-4F9D-9F30-A7069D8E088D" id="BPMNEdge_sid-51882E59-889A-4F9D-9F30-A7069D8E088D">
+        <omgdi:waypoint x="385.0" y="331.0"></omgdi:waypoint>
+        <omgdi:waypoint x="600.0" y="331.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-07E52BEF-7006-47FF-8E33-BF6598DDF34F" id="BPMNEdge_sid-07E52BEF-7006-47FF-8E33-BF6598DDF34F">
+        <omgdi:waypoint x="93.33076045372172" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.33243841868583" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-FD582D7B-0E65-4B7B-BAB0-D10F7EEC78F5" id="BPMNEdge_sid-FD582D7B-0E65-4B7B-BAB0-D10F7EEC78F5">
+        <omgdi:waypoint x="305.2310344827586" y="420.0"></omgdi:waypoint>
+        <omgdi:waypoint x="321.6206896551724" y="371.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-61C15979-F8EC-44BD-8F91-96116D9BAF61" id="BPMNEdge_sid-61C15979-F8EC-44BD-8F91-96116D9BAF61">
+        <omgdi:waypoint x="90.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="120.0" y="180.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

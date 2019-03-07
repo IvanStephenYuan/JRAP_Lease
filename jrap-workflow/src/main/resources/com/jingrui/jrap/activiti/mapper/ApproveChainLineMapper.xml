@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.activiti.mapper.ApproveChainLineMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.activiti.dto.ApproveChainLine">
+        <result column="APPROVE_CHAIN_LINE_ID" property="approveChainLineId" jdbcType="DECIMAL" />
+        <result column="APPROVE_CHAIN_ID" property="approveChainId" jdbcType="DECIMAL" />
+        <result column="NAME" property="name" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="APPROVE_TYPE" property="approveType" jdbcType="VARCHAR" />
+        <result column="ASSIGNEE" property="assignee" jdbcType="VARCHAR" />
+        <result column="ASSIGN_GROUP" property="assignGroup" jdbcType="VARCHAR" />
+        <result column="FORM_KEY" property="formKey" jdbcType="VARCHAR" />
+        <result column="SEQUENCE" property="sequence" jdbcType="DECIMAL" />
+        <result column="SKIP_EXPRESSION" property="skipExpression" jdbcType="VARCHAR" />
+        <result column="BREAK_ON_SKIP" property="breakOnSkip" jdbcType="VARCHAR" />
+        <result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="selectByHeaderId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT * FROM WFL_APPROVE_CHAIN_LINE
+        WHERE APPROVE_CHAIN_ID = #{headerId}
+          AND ENABLE_FLAG='Y'
+        ORDER BY SEQUENCE,APPROVE_CHAIN_LINE_ID
+    </select>
+
+    <select id="selectByNodeId" resultMap="BaseResultMap">
+        SELECT
+            *
+        FROM
+            WFL_APPROVE_CHAIN_LINE
+        WHERE
+            APPROVE_CHAIN_ID =(
+                SELECT
+                    MAX(H.APPROVE_CHAIN_ID)
+                FROM
+                    WFL_APPROVE_CHAIN_HEADER H
+                WHERE
+                    H.PROCESS_KEY = #{processKey}
+                AND H.USERTASK_ID = #{nodeId}
+            )
+        ORDER BY
+            SEQUENCE ,
+            APPROVE_CHAIN_LINE_ID
+    </select>
+
+</mapper>

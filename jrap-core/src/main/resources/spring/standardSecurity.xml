@@ -1,0 +1,87 @@
+<!-- 此文件用于标准登录方式 -->
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                                 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+
+    <http security="none" pattern="/resources/**"/>
+    <http security="none" pattern="/lib/**"/>
+    <http security="none" pattern="/timeout"/>
+    <http security="none" pattern="/verifiCode"/>
+
+    <http access-decision-manager-ref="accessDecisionManager"  >
+        <csrf request-matcher-ref="csrfSecurityRequestMatcher"/>
+        <!--<csrf disabled="true"/>-->
+        <intercept-url pattern="/login" access="permitAll"/>
+        <intercept-url pattern="/login.html" access="permitAll"/>
+        <!--       <intercept-url pattern="/common/**" access="permitAll" />-->
+        <intercept-url pattern="/websocket/**" access="permitAll"/>
+        <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
+        <access-denied-handler error-page="/access-denied"/>
+        <session-management invalid-session-url="/timeout"/>
+
+        <form-login login-page='/login'
+                    authentication-success-handler-ref="successHandler"
+                    authentication-failure-handler-ref="loginFailureHandler"/>
+        <!--authentication-failure-url="/login?error=true"/>-->
+        <!-- 验证码拦截器 -->
+        <custom-filter ref="captchaVerifierFilter" before="FORM_LOGIN_FILTER"/>
+
+
+        <logout logout-url="/logout" success-handler-ref="logoutHandler"/>
+
+        <headers defaults-disabled="true">
+            <!--    <xss-protection enabled="true"></xss-protection>-->
+            <cache-control/>
+        </headers>
+    </http>
+
+    <beans:bean id="loginFailureHandler" class="com.jingrui.jrap.security.LoginFailureHandler"/>
+    <beans:bean class="com.jingrui.jrap.security.UserLoginInfoCollectionLisenter"></beans:bean>
+
+    <!-- 认证管理器,确定用户,角色及相应的权限 -->
+    <beans:bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased">
+        <!-- 投票器 -->
+        <beans:constructor-arg>
+            <beans:list>
+                <beans:bean class="com.jingrui.jrap.security.CustomWebExpressionVoter"/>
+                <beans:bean class="org.springframework.security.access.vote.RoleVoter"/>
+                <beans:bean class="org.springframework.security.access.vote.AuthenticatedVoter"/>
+                <beans:bean class="com.jingrui.jrap.security.PermissionVoter"/>
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
+
+    <!--<beans:import resource="standardSecurity-LDAP.xml"/>-->
+    <authentication-manager>
+        <!--Ldap验证-->
+        <!-- <authentication-provider ref="ldapAuthProvider" />-->
+        <!--标准登录验证-->
+        <authentication-provider user-service-ref="customUserDetailsService">
+            <password-encoder ref="passwordManager"/>
+        </authentication-provider>
+    </authentication-manager>
+
+    <beans:bean id="captchaVerifierFilter" class="com.jingrui.jrap.security.CaptchaVerifierFilter">
+        <beans:property name="captchaField" value="verifiCode"/>
+    </beans:bean>
+
+    <beans:bean id="successHandler" class="com.jingrui.jrap.security.CustomAuthenticationSuccessHandler"/>
+
+    <beans:bean id="logoutHandler" class="com.jingrui.jrap.security.CustomLogoutSuccessHandler"/>
+
+    <beans:bean id="csrfSecurityRequestMatcher" class="com.jingrui.jrap.security.CsrfSecurityRequestMatcher">
+        <beans:property name="excludeUrls">
+            <beans:list>
+                <beans:value>/login/**</beans:value>
+                <beans:value>/logout/**</beans:value>
+                <beans:value>/websocket/**</beans:value>
+                <beans:value>/ureport/**</beans:value>
+                <beans:value>/kendo/export</beans:value>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
+
+</beans:beans>

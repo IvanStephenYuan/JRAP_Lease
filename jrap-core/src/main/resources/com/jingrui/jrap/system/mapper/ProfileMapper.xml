@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.system.mapper.ProfileMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.system.dto.Profile" extends="com.jingrui.jrap.mapper.StdMapper.STD">
+        <id column="PROFILE_ID" property="profileId" jdbcType="DECIMAL"/>
+        <result column="PROFILE_NAME" property="profileName" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectByName" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT  PROFILE_ID, PROFILE_NAME, DESCRIPTION
+        FROM SYS_PROFILE
+        WHERE PROFILE_NAME = #{profileName,jdbcType=VARCHAR}
+    </select>
+</mapper>

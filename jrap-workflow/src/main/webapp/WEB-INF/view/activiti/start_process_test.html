@@ -1,0 +1,249 @@
+<#--
+        * description: 快速编码界面
+        *author:jialong.zuo@jingrui.com
+        * version: 1.0
+        *
+        -->
+<#include "../include/header.html">
+
+<body>
+
+<div id="content-container">
+    <div id="page-content">
+        <div class="panel" style="border:none;box-shadow: none;">
+            <form class="form-horizontal">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-sm-1">模拟用户</label>
+                            <input id="empCode" data-role="mastedtextbox" data-bind="value:model.userId" class="col-sm-3 k-textbox" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-sm-1">业务主键</label>
+                            <input id="empCode" data-role="mastedtextbox" data-bind="value:model.businessKey" class="col-sm-3 k-textbox" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-sm-1">选择流程</label>
+                            <input id="dropdownlist" data-role="combobox"
+                                   data-bind="source:processes,
+                                   value:model.processDefinitionId,
+                                   events: {change: onChange}"
+                                   data-text-field="name"
+                                   data-value-field="id"
+                                   data-value-primitive="true"
+
+                                   />
+                            <a href="javascript:refresh()" style="width:20px;height:20px;margin-left:6px;"><i class="fa fa-refresh"></i></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button id="button" type="button">启动流程</button>
+                    </div>
+                </div>
+                <div id="dynamicFormBody" class="panel-body">
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function refresh() {
+        comboData.read();
+    }
+
+    var comboData = new kendo.data.DataSource({
+        type: "odata",
+        transport: {
+            read: {
+                url: '${base.contextPath}/wfl/repository/process-definitions?latest=true&size=99999&sort=deploymentId&order=desc',
+                dataType: "json"
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        schema: {
+            data: "data",
+            total: 'total',
+            model: {
+                id: "id",
+                fields: {
+                    name: {type: 'string'}
+                }
+            }
+        },
+        requestStart:function(e){
+            viewModel.model.set('processDefinitionId', null);
+            $('#dynamicFormBody').empty();
+        },
+        requestEnd :function(e) {
+        }
+    });
+
+    window.viewModel = kendo.observable({
+        model: {
+            userId: 'Jessen',
+            businessKey: '104'
+        },
+        processes: comboData
+
+        , onChange: function (e) {
+            $('#dynamicFormBody').empty();
+            newDynamicTables(viewModel.model.processDefinitionId);
+        }
+    });
+
+    kendo.bind($("#page-content"), viewModel)
+
+
+    function newDynamicTables(id) {
+        var dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "${base.contextPath}/process-definition/" + id + "/properties",
+                    dataType: "json"
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            schema: {
+                data: 'data',
+                total: 'total',
+                model: {
+                    id: "id",
+                    fields: {
+                        name: {type: 'string'}
+                    }
+                },
+                errors: function (res) {
+                    if (!res.success && res.message) {
+                        return res.message;
+                    }
+                }
+            }
+        });
+        dataSource.fetch(function () {
+            var data = dataSource.data();
+            var dynamicFormBody = document.getElementById('dynamicFormBody');
+
+            $.each(data, function (i, item) {
+
+                viewModel.model.set(item.id, item.value);
+
+                if (item.id == 'comment' || item.id == 'approveResult' || item.id == "ACT_RETRACT") {
+                    return;
+                }
+                var row = ce('div', dynamicFormBody, {'class': 'row'});
+                var form_group = ce('div', row, {'class': 'form-group'})
+                ce('label', form_group, {'class': 'col-sm-3 control-label'}).innerText = item.name;
+                var div = ce('div', form_group, {'class': 'col-sm-6'})
+
+                if (item.type == 'enum') {
+                    var dataKey = item.id + "_enumValues";
+                    dynamicObserv[dataKey] = item.enumValues
+                    ce('select', div, {
+                        'data-role': 'combobox',
+                        'data-bind': 'source:' + dataKey + ' ,value:model.' + item.id,
+                        'data-value-field': 'id',
+                        'data-text-field': 'name',
+                        'data-value-primitive': 'true',
+                        'style': 'width:160px'
+                    });
+                    return;
+                }
+
+                var type = 'text';
+                var cls = 'k-textbox';
+                if (item.type == 'date') {
+                    type = 'datetimepicker';
+                    cls = 'k-datetimepicker';
+                    viewModel.model.set(item.id, new Date())
+                } else if (item.type == 'long') {
+                    type = 'numerictextbox'
+                    cls = 'k-numerictextbox'
+                }
+                var ipts = ce('input', div, {'data-role': type, 'class': cls, 'data-bind': "value:model." + item.id, style: 'width:160px'})
+            });
+            kendo.bind($('#dynamicFormBody'), viewModel);
+
+        });
+
+
+    }
+    ;
+
+
+    // create html element
+    function ce(name, parent, attr) {
+        var e = document.createElement(name);
+        if (parent) {
+            if (attr) {
+                if (typeof attr == 'string') {
+                    e.id = attr;
+                } else {
+                    for (var k in attr) {
+                        e.setAttribute(k, attr[k]);
+                    }
+                }
+            }
+            parent.appendChild(e);
+        }
+        return e;
+    }
+
+    $("#button").kendoButton({
+        click: function (e) {
+            var processDefinitionId = viewModel.model.processDefinitionId;
+            if (!processDefinitionId) {
+                alert('no selection');
+                return;
+            }
+
+            var vars = [];
+            var data = viewModel.model.toJSON();
+            var userId = data.userId;
+            var businessKey = data.businessKey;
+            delete data['userId']
+            delete data['businessKey']
+            $.each(data, function (i, r) {
+                vars.push({name: i, value: r})
+            });
+            var para = {
+                processDefinitionId: processDefinitionId,
+                businessKey: businessKey,
+                variables: vars
+            };
+
+            $.ajax({
+                url: '${base.contextPath}/wfl/runtime/process-instances?userId=' + userId,
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                data: kendo.stringify(para),
+                success: function (args) {
+                    if (args.success === false) {
+                        kendo.ui.showErrorDialog({
+                            title: $l('jrap.error'),
+                            message: args.message
+                        });
+                    } else {
+                        kendo.ui.showInfoDialog({
+                            title: $l('jrap.tip.info'),
+                            message: $l('jrap.tip.success')
+                        });
+                    }
+                }
+            });
+        }
+    })
+
+</script>
+</body>
+</html>

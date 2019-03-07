@@ -1,0 +1,1260 @@
+<#include "/include/header.html">
+<body>
+<script>
+    viewModel = kendo.observable({
+
+        data: {
+            all: 'N',
+            gateway: 'N',
+            interface: 'N',
+            job: 'N',
+            mail: 'N',
+            oauth: 'N',
+            report: 'N',
+            task: 'N',
+            workflow: 'N',
+        }
+    });
+
+    function generatePom(module) {
+        var result =
+            "<h5>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;"+ module +"&lt;/artifactId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>" +
+            "</h5>" +
+            "<h5>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;"+module+"&lt;/artifactId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>" +
+            "</h5>";
+        return result;
+    }
+
+    function generateDBPom(module){
+        var result =
+            "<h5>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;"+ module +"&lt;/artifactId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>" +
+            "</h5>";
+        return result;
+    }
+
+    function generatePlugin(module) {
+        var result =
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;"+ module +"&lt;/artifactId&gt;<br/>" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>";
+        return result;
+    }
+
+    var dbPomStart = "<h4>core-db/pom.xml</h4><h5>&lt;dependencies&gt;<br/><h5>" ;
+    var dbPomEnd = "<h5>&lt;/dependencies&gt;</h5><br/>";
+    var pomStart = "<h4>core/pom.xml</h4><h5>&lt;dependencies&gt;<br/><h5>";
+    var pomEnd = "&lt;/dependencies&gt;<br/>";
+    var pluginStart =  "<h5>" +
+        "&lt;plugin&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>";
+    var pluginEnd = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>" +
+        "&lt;/plugin&gt;<br/>" +
+        "</h5>";
+    var jrap =
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap&lt;/artifactId&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-pom&lt;/artifactId&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;pom&lt;/type&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>" +
+        "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>";
+
+    function addDependency() {
+        var dependency = new Set();
+        if (viewModel.data.all == 'Y') {
+            dependency = new Set(['gateway', 'interface', 'job', 'mail', 'oauth', 'report', 'task', 'workflow']);
+        } else {
+            if (viewModel.data.gateway == 'Y') {
+                dependency.add("gateway");
+                dependency.add("oauth");
+            }
+            if (viewModel.data.interface == 'Y') {
+                dependency.add("interface");
+                dependency.add("oauth");
+            }
+            if (viewModel.data.job == 'Y' || viewModel.data.mail == 'Y') {
+                dependency.add("job");
+                dependency.add("mail");
+            }
+            if (viewModel.data.oauth == 'Y') {
+                dependency.add("oauth");
+            }
+            if (viewModel.data.report == 'Y') {
+                dependency.add("report");
+            }
+            if (viewModel.data.task == 'Y') {
+                dependency.add("task");
+            }
+            if (viewModel.data.workflow == 'Y') {
+                dependency.add("workflow");
+                dependency.add("job");
+            }
+        }
+        return dependency;
+    }
+
+    function createPom() {
+        var dependency = addDependency();
+        var plugin = '';
+        var pom = '';
+        var dbpom = '';
+        if (dependency.size == 8) {
+            pom = jrap;
+            dbpom = generateDBPom('jrap-db');
+            plugin = generatePlugin('jrap');
+        } else {
+            pom = generatePom('jrap-core');
+            dbpom = generateDBPom('jrap-core-db');
+            plugin = generatePlugin('jrap-core');
+            dependency.forEach(function (index, row) {
+                if (row == "gateway") {
+                    pom += generatePom('jrap-gateway');
+                    dbpom += generateDBPom('jrap-gateway-db');
+                    plugin += generatePlugin('jrap-gateway');
+                } else if (row == "interface") {
+                    pom += generatePom('jrap-interface');
+                    dbpom += generateDBPom('jrap-interface-db');
+                    plugin += generatePlugin('jrap-interface');
+                } else if (row == "job") {
+                    pom += generatePom('jrap-job');
+                    dbpom += generateDBPom('jrap-job-db');
+                    plugin += generatePlugin('jrap-job');
+                } else if (row == "oauth") {
+                    pom += generatePom('jrap-oauth2');
+                    dbpom += generateDBPom('jrap-oauth2-db');
+                    plugin += generatePlugin('jrap-oauth2');
+                } else if (row == "report") {
+                    pom += generatePom('jrap-report');
+                    dbpom += generateDBPom('jrap-report-db');
+                    plugin += generatePlugin('jrap-report');
+                } else if (row == "task") {
+                    pom += generatePom('jrap-task');
+                    dbpom += generateDBPom('jrap-task-db');
+                    plugin += generatePlugin('jrap-task');
+                } else if (row == "workflow") {
+                    pom += generatePom('jrap-workflow');
+                    dbpom += generateDBPom('jrap-workflow-db');
+                    plugin += generatePlugin('jrap-workflow');
+                } else if (row == "mail") {
+                    pom += generatePom('jrap-mail');
+                    dbpom += generateDBPom('jrap-mail-db');
+                    plugin += generatePlugin('jrap-mail');
+                }
+            });
+        }
+        pom = pomStart + pom + pomEnd + pluginStart + plugin + pluginEnd;
+        dbpom = dbPomStart + dbpom + dbPomEnd;
+
+        $("#dynamicPom").html(pom);
+        $("#dynamicDbPom").html(dbpom);
+        $("#tabstrip .k-tabstrip-items .k-item").removeClass("k-state-active");
+        $("#customModule").addClass("k-state-active");
+        $("#tabstrip .k-content").hide();
+        $("#tabstrip .k-content:last").show();
+    }
+
+</script>
+
+<div style="padding:15px 15px 0">
+    <div style="padding:15px 15px 0">
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="panel">
+                    <form class="form-horizontal" id="form1">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">选择模块:</label>
+                                <div class="col-sm-4">
+                                    <input id="all" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.all"/><br/>
+                                    <input id="workflow" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.workflow"/><br/>
+                                    <input id="job" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.job"/><br/>
+                                    <input id="oauth" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.oauth"/><br/>
+                                    <input id="mail" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.mail"/><br/>
+
+                                </div>
+                                <script>
+                                    $("#all").kendoCheckbox({
+                                        checkedValue: 'Y',
+                                        label: "全选",
+                                        uncheckedValue: 'N',
+                                    });
+                                    kendo.bind($('#all'), viewModel);
+
+                                    $("#all").parent().on("click", function (e) {
+                                        if (viewModel.data.all == "Y") {
+                                            viewModel.data.forEach(function (index, row) {
+                                                viewModel.data.set(row, "Y");
+                                            })
+                                        } else if (viewModel.data.all == "N") {
+                                            viewModel.data.forEach(function (index, row) {
+                                                viewModel.data.set(row, "N");
+                                            })
+                                        }
+                                    });
+
+                                    $("#workflow").kendoCheckbox({
+                                        checkedValue: 'Y',
+                                        label: "工作流模块",
+                                        uncheckedValue: 'N',
+                                        change: function () {
+                                            if (viewModel.data.workflow == "N") {
+                                                viewModel.data.set("all", "N");
+                                            }
+                                        }
+                                    });
+                                    kendo.bind($('#workflow'), viewModel);
+
+                                    $("#job").kendoCheckbox({
+                                        enable: false,
+                                        label: "计划任务模块",
+                                        checkedValue: 'Y',
+                                        uncheckedValue: 'N',
+                                        change: function () {
+                                            if (viewModel.data.job == "N") {
+                                                viewModel.data.set("all", "N");
+                                            }
+                                        }
+                                    });
+                                    kendo.bind($('#job'), viewModel);
+
+                                    $("#oauth").kendoCheckbox({
+                                        enable: false,
+                                        label: "Oauth2模块",
+                                        checkedValue: 'Y',
+                                        uncheckedValue: 'N',
+                                        change: function () {
+                                            if (viewModel.data.oauth == "N") {
+                                                viewModel.data.set("all", "N");
+                                            }
+                                        }
+                                    });
+                                    kendo.bind($('#oauth'), viewModel);
+
+                                    $("#mail").kendoCheckbox({
+                                        enable: false,
+                                        label: "邮件模块",
+                                        checkedValue: 'Y',
+                                        uncheckedValue: 'N',
+                                        change: function () {
+                                            if (viewModel.data.mail == "N") {
+                                                viewModel.data.set("all", "N");
+                                            }
+                                        }
+                                    });
+                                    kendo.bind($('#mail'), viewModel);
+
+                                </script>
+                                <div class="col-sm-4">
+                                    <br/>
+                                    <input id="report" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.report"/><br/>
+                                    <input id="gateway" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.gateway"/><br/>
+                                    <input id="interface" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.interface"/><br/>
+                                    <input id="task" style="margin-top:5px;" name="checkbox" type="text"
+                                           data-bind="enabled: isEnabled,value:data.task"/><br/>
+                                    <script>
+                                        kendo.bind($('#combobox'), viewModel);
+                                    </script>
+                                    <span class="k-invalid-msg" data-for="combobox"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer text-left" id="toolbar">
+                            <span class="btn btn-success" onclick="createPom()">生成自定义模块</span>
+                        </div>
+                        <script>
+
+                            $("#report").kendoCheckbox({
+                                enable: false,
+                                label: "报表模块",
+                                checkedValue: 'Y',
+                                uncheckedValue: 'N',
+                                change: function () {
+                                    if (viewModel.data.report == "N") {
+                                        viewModel.data.set("all", "N");
+                                    }
+                                }
+                            });
+                            kendo.bind($('#report'), viewModel);
+
+                            $("#gateway").kendoCheckbox({
+                                enable: false,
+                                label: "服务注册模块",
+                                checkedValue: 'Y',
+                                uncheckedValue: 'N',
+                                change: function () {
+                                    if (viewModel.data.gateway == "N") {
+                                        viewModel.data.set("all", "N");
+                                    }
+                                }
+                            });
+                            kendo.bind($('#gateway'), viewModel);
+
+                            $("#interface").kendoCheckbox({
+                                enable: false,
+                                label: "接口管理模块",
+                                checkedValue: 'Y',
+                                uncheckedValue: 'N',
+                                change: function () {
+                                    if (viewModel.data.interface == "N") {
+                                        viewModel.data.set("all", "N");
+                                    }
+                                }
+                            });
+                            kendo.bind($('#interface'), viewModel);
+
+                            $("#task").kendoCheckbox({
+                                enable: false,
+                                label: "并行任务模块",
+                                checkedValue: 'Y',
+                                uncheckedValue: 'N',
+                                change: function () {
+                                    if (viewModel.data.task == "N") {
+                                        viewModel.data.set("all", "N");
+                                    }
+                                }
+                            });
+                            kendo.bind($('#task'), viewModel);
+                        </script>
+                    </form>
+                </div>
+
+
+            </div>
+
+            <div class="col-sm-7" style="height:170px;">
+                <div id="tabstrip" style="height:100%">
+                    <ul>
+                        <li id="primeMoudle" class="k-state-active">
+                            核心模块
+                        </li>
+                        <li>
+                            工作流模块
+                        </li>
+                        <li>
+                            计划任务模块
+                        </li>
+                        <li>
+                            Oauth2模块
+                        </li>
+                        <li>
+                            邮件模块
+                        </li>
+                        <li>
+                            报表模块
+                        </li>
+                        <li>
+                            服务注册模块
+                        </li>
+                        <li>
+                            接口管理模块
+                        </li>
+                        <li>
+                            并行任务模块
+                        </li>
+                        <li id="customModule">
+                            自定义模块：核心模块 + 勾选模块
+                        </li>
+                    </ul>
+                    <div>
+                        <span class="rainy">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="rainy">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-workflow&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-workflow&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-workflow&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-workflow-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="sunny">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="sunny">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="cloudy">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-job-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-mail-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="sunny">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-report&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-report&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-report&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-report-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="sunny">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-gateway&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-gateway&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-gateway&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-gateway-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="sunny">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-interface&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-interface&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-interface&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-interface-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-oauth2-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="sunny">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h4>core/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-task&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;war&lt;/type&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-task&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;classifier&gt;classes&lt;/classifier&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;provided&lt;/scope&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                            <h5>
+                                &lt;plugin&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-task&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlay&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/overlays&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;<br/>
+                                &lt;/plugin&gt;<br/>
+                            </h5>
+                        </div>
+                        <div style="width: auto;display: inline-block;vertical-align: top;">
+                            <h4>core-db/pom.xml</h4>
+                            <h5>
+                                &lt;dependencies&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-core-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                            </h5>
+                            <h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;dependency&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;com.jingrui&lt;/groupId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;jrap-task-db&lt;/artifactId&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${'$'}{jrap.version}&lt;/version&gt;<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/dependency&gt;<br/>
+                                &lt;/dependencies&gt;<br/>
+                            </h5>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="rainy">&nbsp;</span>
+                        <div style="width: 45%;display: inline-block;" class="weather">
+                            <h5 id="dynamicPom">点击“生成自定义按钮”生成。
+                            </h5>
+                        </div>
+                        <div id="dynamicDbPom" style="width: auto;display: inline-block;vertical-align: top;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                var tabstrip = $("#tabstrip").kendoTabStrip({
+                    height: '100%',
+                    animation: false,
+                    select: function (tab) {
+                        $("#tabstrip .k-content").hide();
+                    }
+                }).data("kendoTabStrip");
+                tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var item = $(e.target).closest(".k-item");
+                    var index = item.index(),
+                        prev = item.next().length == 1 ? item.next() : item.prev();
+                    tabstrip.remove(item.index());
+                    tabstrip.select(prev)
+                });
+            </script>
+        </div>
+</body>
+</html>

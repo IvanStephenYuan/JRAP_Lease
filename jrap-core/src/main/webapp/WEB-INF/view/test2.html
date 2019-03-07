@@ -1,0 +1,157 @@
+<#include "include/header.html">
+<body>
+
+    <div id="example" style="margin:50px;">
+        <div class="demo-section k-content">
+            <div id="tickets">
+                <form id="ticketsForm">
+                    <ul id="fieldlist">
+                        <li>
+                            <label for="fullname" class="required">Your Name</label>
+                            <input type="text" id="fullname" name="fullname" class="k-textbox" placeholder="Full name" required validationMessage="Enter {0}" style="width: 220px;" />
+                        </li>
+                        <li>
+                            <label for="search" class="required">Movie</label>
+                            <input type="search" id="search" name="search" required validationMessage="Select movie" style="width: 220px;" /><span class="k-invalid-msg" data-for="search"></span>
+                        </li>
+                        <li class="confirm">
+                            <button class="k-button k-primary" type="submit">Submit</button>
+                        </li>
+                        <li class="confirm">
+                            <button class="k-button k-primary" type="button" onclick="test()">Change</button>
+                        </li>
+                        <li class="status">
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+
+        <style>
+            #fieldlist {
+                margin: 0;
+                padding: 0;
+            }
+
+            #fieldlist li {
+                list-style: none;
+                padding-bottom: .7em;
+                text-align: left;
+            }
+
+            #fieldlist label {
+                display: block;
+                padding-bottom: .3em;
+                font-weight: bold;
+                text-transform: uppercase;
+                font-size: 12px;
+                color: #444;
+            }
+
+            #fieldlist li.status {
+                text-align: center;
+            }
+
+            #fieldlist li .k-widget:not(.k-tooltip),
+            #fieldlist li .k-textbox {
+                margin: 0 5px 5px 0;
+            }
+
+            .confirm {
+                padding-top: 1em;
+            }
+
+            .valid {
+                color: green;
+            }
+
+            .invalid {
+                color: red;
+            }
+
+            #fieldlist li input[type="checkbox"] {
+                margin: 0 5px 0 0;
+            }
+
+            span.k-widget.k-tooltip-validation {
+                display; inline-block;
+                width: 160px;
+                text-align: left;
+                border: 0;
+                padding: 0;
+                margin: 0;
+                background: none;
+                box-shadow: none;
+                color: red;
+            }
+
+            .k-tooltip-validation .k-warning {
+                display: none;
+            }
+        </style>
+
+        <script>
+            $(document).ready(function() {
+                var data = [
+                    "12 Angry Men",
+                    "Il buono, il brutto, il cattivo.",
+                    "Inception",
+                    "One Flew Over the Cuckoo's Nest",
+                    "Pulp Fiction",
+                    "Schindler's List",
+                    "The Dark Knight",
+                    "The Godfather",
+                    "The Godfather: Part II",
+                    "The Shawshank Redemption"
+                ];
+
+                $("#search").kendoAutoComplete({
+                    dataSource: data,
+                    separator: ", "
+                });
+
+                $("#time").kendoDropDownList({
+                    optionLabel: "--Start time--"
+                });
+
+                $("#amount").kendoNumericTextBox();
+
+                var validator = $("#ticketsForm").kendoValidator({
+                        rules: {
+                            custom: function (input) {
+                                if (input.is("#search")) {
+                                    if($('#fullname').val()){
+                                        alert(1)
+                                        return false;
+                                    }
+                                }
+
+                                return true;
+                            }
+                        }
+
+                }).data("kendoValidator"),
+                    status = $(".status");
+
+                $("form").submit(function(event) {
+                    event.preventDefault();
+                    if (validator.validate()) {
+                        status.text("Hooray! Your tickets has been booked!")
+                            .removeClass("invalid")
+                            .addClass("valid");
+                    } else {
+                        status.text("Oops! There is invalid data in the form.")
+                            .removeClass("valid")
+                            .addClass("invalid");
+                    }
+                });
+            });
+            function test(){
+                $('#search').removeAttr('required')
+            }
+        </script>
+    </div>
+
+
+    </body>
+    </html>

@@ -1,0 +1,94 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="jrap:war exploded">
+    <output-path>$PROJECT_DIR$/jrap/target/jrap</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>true</exploded>
+        <module>jrap</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="jrap" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="archive" name="jrap-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-db" />
+          </element>
+          <element id="archive" name="jrap-core-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-core-db" />
+          </element>
+          <element id="library" level="project" name="Maven: org.springframework:spring-core:4.3.11.RELEASE" />
+          <element id="library" level="project" name="Maven: commons-logging:commons-logging:1.2" />
+          <element id="library" level="project" name="Maven: org.liquibase:liquibase-groovy-dsl:1.2.1" />
+          <element id="library" level="project" name="Maven: org.codehaus.groovy:groovy-sql:2.4.1" />
+          <element id="library" level="project" name="Maven: org.liquibase:liquibase-core:3.4.2" />
+          <element id="library" level="project" name="Maven: org.codehaus.groovy:groovy:2.4.1" />
+          <element id="library" level="project" name="Maven: org.codehaus.groovy:groovy-all:2.4.1" />
+          <element id="library" level="project" name="Maven: org.codehaus.groovy:groovy-xml:2.4.1" />
+          <element id="library" level="project" name="Maven: org.apache.poi:poi:3.16" />
+          <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.10" />
+          <element id="library" level="project" name="Maven: org.apache.commons:commons-collections4:4.1" />
+          <element id="library" level="project" name="Maven: org.apache.poi:poi-ooxml:3.16" />
+          <element id="library" level="project" name="Maven: org.apache.poi:poi-ooxml-schemas:3.16" />
+          <element id="library" level="project" name="Maven: org.apache.xmlbeans:xmlbeans:2.6.0" />
+          <element id="library" level="project" name="Maven: stax:stax-api:1.0.1" />
+          <element id="library" level="project" name="Maven: com.github.virtuald:curvesapi:1.04" />
+          <element id="library" level="project" name="Maven: mysql:mysql-connector-java:5.1.34" />
+          <element id="library" level="project" name="Maven: com.microsoft.sqlserver:sqljdbc4:4.2" />
+          <element id="library" level="project" name="Maven: com.oracle:ojdbc7:12.1.0.1.0" />
+          <element id="library" level="project" name="Maven: org.postgresql:postgresql:42.2.2" />
+          <element id="library" level="project" name="Maven: ch.qos.logback:logback-core:1.1.7" />
+          <element id="library" level="project" name="Maven: ch.qos.logback:logback-classic:1.1.7" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.21" />
+          <element id="library" level="project" name="Maven: ch.qos.logback:logback-access:1.1.7" />
+          <element id="library" level="project" name="Maven: commons-lang:commons-lang:2.6" />
+          <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.4" />
+          <element id="archive" name="jrap-crm-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-crm-db" />
+          </element>
+          <element id="archive" name="jrap-job-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-job-db" />
+          </element>
+          <element id="archive" name="jrap-oauth2-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-oauth2-db" />
+          </element>
+          <element id="archive" name="jrap-report-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-report-db" />
+          </element>
+          <element id="archive" name="jrap-mail-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-mail-db" />
+          </element>
+          <element id="archive" name="jrap-gateway-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-gateway-db" />
+          </element>
+          <element id="archive" name="jrap-interface-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-interface-db" />
+          </element>
+          <element id="archive" name="jrap-task-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-task-db" />
+          </element>
+          <element id="archive" name="jrap-workflow-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-workflow-db" />
+          </element>
+        </element>
+      </element>
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/jrap/target/jrap/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="javaee-facet-resources" facet="jrap/web/Web" />
+      <element id="artifact" artifact-name="jrap-core:war exploded" />
+      <element id="artifact" artifact-name="jrap-crm:war exploded" />
+      <element id="artifact" artifact-name="jrap-job:war exploded" />
+      <element id="artifact" artifact-name="jrap-report:war exploded" />
+      <element id="artifact" artifact-name="jrap-mail:war exploded" />
+      <element id="artifact" artifact-name="jrap-oauth2:war exploded" />
+      <element id="artifact" artifact-name="jrap-gateway:war exploded" />
+      <element id="artifact" artifact-name="jrap-interface:war exploded" />
+      <element id="artifact" artifact-name="jrap-task:war exploded" />
+      <element id="artifact" artifact-name="jrap-workflow:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${SYS_TITLE!'JingRui Application Platform'}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="X-CSRF-TOKEN" />
+    <link href="${base.contextPath}/resources/upload/favicon.png?v=${Session.sysFaviconVersion!}" rel="shortcut icon"/>
+    <!--[if IE 8]>
+    <script src="${base.contextPath}/lib/polyfill/respond.min.js"></script>
+    <script src="${base.contextPath}/lib/polyfill/es5-shim.min.js"></script>
+    <![endif]-->
+    <script src="${base.contextPath}/lib/kendoui/js/jquery.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.all.min.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/jszip.min.js"></script>
+
+    <link href="${base.contextPath}/lib/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="${base.contextPath}/lib/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.common-${base.getTheme().getName()}.min.css?v=20181015" rel="stylesheet" type="text/css"/>
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.${base.getTheme().getName()}.min.css?v=20181015" rel="stylesheet" type="text/css"/>
+
+    <!-- <link href="${base.contextPath}/lib/kendoui/styles/kendo.common.min.css" rel="stylesheet" type="text/css"/>
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.uniform.min.css" rel="stylesheet" type="text/css"/> -->
+
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.jrap.css?v=20181015" rel="stylesheet" type="text/css"/>
+    <script src="${base.contextPath}/lib/kendoui/js/cultures/kendo.culture.${base.locale.toString()?replace('_','-')}.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/messages/kendo.messages.${base.locale.toString()?replace('_','-')}.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.jrap.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/jquery.blockui.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/jquery.placeholder.js"></script>
+    <style>
+        input::-ms-clear{display:none;}
+        .my-placeholder { color: #aaa; }
+    </style>
+    <script>
+        _basePath = '${base.contextPath}', _locale = '${base.locale}';
+        kendo.culture("${base.locale.toString()?replace('_','-')}");
+        _currentFunctionCode = '${RequestParameters.functionCode!}';
+        window.accessConfig = ${accessService.accessData()};
+        hotKeys = [];
+        $(function() {
+            if( ! ("placeholder" in document.createElement('input'))){
+                $('input, textarea').placeholder({customClass:'my-placeholder'});
+            }
+        });
+    </script>
+    <script src="${base.contextPath}/common/hotkey"></script>
+    <script src="${base.contextPath}/common/prompts"></script>
+    <#include "head_custom.html">
+</head>
+<#macro lov lovid>${lovProvider.getLov(base.contextPath,base.locale,lovid)}</#macro>

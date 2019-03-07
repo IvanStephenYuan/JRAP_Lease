@@ -1,0 +1,1185 @@
+<#include "../include/header.html">
+    <script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script src="${base.contextPath}/common/code?valueAlignType=SYS.ALIGN_TYPE" type="text/javascript"></script>
+    <script type="text/javascript">
+        var viewModel = Jrap.createGridViewModel('#Grid', {
+            model: {"ruleId": "${RequestParameters.ruleId}"}
+        });
+
+        var detailViewModel = Jrap.createGridViewModel('#detailGrid', {
+            model: {"ruleId": "${RequestParameters.ruleId}"}
+        });
+
+        var viewModel2 = kendo.observable({
+            selected: {
+                valueAlignType:"CENTER",
+            },
+            fieldType: "",
+            source: [{"meaning": "<@spring.message 'lovitem.conditionfieldtextfield'/>", "value": "TEXT"},
+                {"meaning": "<@spring.message 'flexrulefield.numberbox'/>", "value": "INT"},
+                {"meaning": "<@spring.message 'flexrulefield.lovbox'/>", "value": "LOV"},
+                {"meaning": "<@spring.message 'flexrulefield.multilanguagebox'/>", "value": "MULTI"},
+                // {"meaning": "值列表","value": "POPUP"},
+                {"meaning": "<@spring.message 'flexrulefield.dropdownbox'/>", "value": "SELECT"},
+                {"meaning": "<@spring.message 'flexrulefield.datebox'/>", "value": "DATE"}
+            ],
+            dataDsType: [
+                {value: 'url', text: '<@spring.message "lovitem.ds_type.url"/>'},
+                {value: 'code', text: '<@spring.message "lovitem.ds_type.code"/>'}
+            ],
+            ontypeSelect: function (e) {
+                var item = e.item;
+                var text = item.text();
+                //获取到下拉框选中内容 根据选中内容判断是否显示
+                if (text === "下拉框" || text === "SELECT") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "block")
+                    $("#conditionFieldSelectVfvalueField").css("display", "block")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "block")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                    viewModel2.selected.set('conditionFieldSelectDto', null)
+
+                } else if (text == "MULTI" || text === "多语言框") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dtoField").css("display", "block")
+                    $("#lovField").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "block")
+                    $("#FieldSelectId").css("display", "block")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                    viewModel2.selected.set('conditionFieldSelectDto', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+
+                }
+                else if (text === "LOV框" || text === "LOV") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "block")
+                    $("#conditionFieldSelectVfvalueField").css("display", "block")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "block")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                    viewModel2.selected.set('conditionFieldSelectDto', null)
+
+                    viewModel2.selected.set('comboboxType', null)
+                } else if (text === "日期框" || text === "DATE") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "none")
+                    $("#timeFiled").css("display", "block")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                    viewModel2.selected.set('conditionFieldSelectDto', null)
+                    viewModel2.selected.set('comboboxType', null)
+                } else if (text === "数字框" || text === "INT") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "block")
+                    $("#range").css("display", "block")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                    viewModel2.selected.set('conditionFieldSelectDto', null)
+                    viewModel2.selected.set('comboboxType', null)
+                }
+                else {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                    viewModel2.selected.set('conditionFieldSelectDto', null)
+                    viewModel2.selected.set('comboboxType', null)
+                }
+            },
+            oncomboboxTypeSelect: function (e) {
+                var item = e.item;
+                var text = item.text();
+                //获取到下拉框选中内容 根据选中内容判断是否显示
+                if (text == "URL") {
+                    $("#selectCode").css("display", "none")
+                    $("#url").css("display", "block")
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+//                    viewModel2.selected.set('conditionFieldSelectTf', null)
+//                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                }
+                else if (text == "快速编码" || text == "Sys Code") {
+                    $("#url").css("display", "none")
+                    $("#selectCode").css("display", "block")
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+//                    viewModel2.selected.set('conditionFieldSelectTf', null)
+//                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                }
+                else {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    $("#selectCode").css("display", "none")
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                }
+            }
+        });
+
+    </script>
+    <body>
+
+    <div class="col-sm-12" style="margin-top: 10px;">
+        <ul class="nav nav-tabs" id="mytab">
+            <li class="active"><a href="#maintain" data-toggle="tab"><@spring.message "flex.ruledetail"/></a></li>
+            <li class=""><a href="#minortain" data-toggle="tab"><@spring.message "flex.rulefield"/></a></li>
+        </ul>
+        <div id="tabContent" class="tab-content">
+            <div class="tab-pane fade in active" style="margin-top: 10px;" id="maintain">
+                <div id="page-content-detail">
+                    <div class="pull-left" id="toolbar-btn-detail" style="padding-bottom:10px;">
+                        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"
+                              data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+                        <span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;"
+                              data-bind="click:save"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+                        <span class="btn btn-danger" style="float:left;" data-bind="click:remove"><i
+                                class="fa fa-trash-o"
+                                style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+                    </div>
+                    <script>kendo.bind($('#toolbar-btn-detail'), detailViewModel);</script>
+                    <div style="clear:both">
+                        <div id="detailGrid"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="minortain" class="tab-pane fade">
+                <div id="page-content">
+                    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+                        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"
+                              data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+                        <span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;"
+                              data-bind="click:save"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+                        <span class="btn btn-danger" style="float:left;" data-bind="click:remove"><i
+                                class="fa fa-trash-o"
+                                style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+                    </div>
+                    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+                    <div style="clear:both">
+                        <div id="Grid"></div>
+                    </div>
+                </div>
+
+                <!-- 编辑界面 -->
+                <form id="queryEdit" class="modal-content form-horizontal" role="form" autocomplete="off"
+                      style="display:none">
+                    <div class="col-xs-offset-1" style="margin-top:10px">
+
+                        <div class="form-group ">
+                            <label class="col-xs-3 control-label"><@spring.message "lovitem.field_type"/></label>
+                            <div class="col-xs-5">
+                                <input id="type" data-role="combobox" data-value-primitive="true"
+                                       style="width: 100%" data-text-field="meaning" data-value-field="value"
+                                       data-bind="source:source,value:selected.type,events:{select:ontypeSelect}"/>
+                                <script>kendo.bind($('#type'), viewModel2);</script>
+                            </div>
+                        </div>
+                        <div class="form-group" id="columnWidthId">
+                            <label class="col-xs-3 control-label"><@spring.message
+                                "flexfield.columnwidth"/></label>
+                            <div class="col-xs-5">
+                                <input type="number" id="columnWidth" style="width: 100%;text-align:right"
+                                       data-bind="value:selected.columnWidth" placeholder="8"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#columnWidth'), viewModel2);</script>
+                            </div>
+                        </div>
+                        <div class="form-group" id="labelWidthId">
+                            <label class="col-xs-3 control-label"><@spring.message
+                                "flexfield.labelwidth"/></label>
+                            <div class="col-xs-5">
+                                <input type="number" id="labelWidth" style="width: 100%;text-align:right"
+                                       data-bind="value:selected.labelWidth" placeholder="4"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#labelWidth'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="labelNameId">
+                            <label class="col-xs-3 control-label"><@spring.message
+                                "flexfield.labelname"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="labelName" style="width: 100%"
+                                       data-bind="value:selected.labelName"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#labelName'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="conditionFieldSelectTftextField" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message "textField"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldSelectTf" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldSelectTf"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#conditionFieldSelectTf'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="conditionFieldSelectVfvalueField" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message "valueField"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldSelectVf" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldSelectVf"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#conditionFieldSelectVf'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="valueAlignTypeValueField" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message "flexfield.valuealigntype"/></label>
+                            <div class="col-xs-5">
+                                <input id="valueAlignType" name="valueAlignType"
+                                       style="width: 100%" data-bind="value: selected.valueAlignType"/>
+                                <script>
+                                    $("#valueAlignType").kendoDropDownList({
+                                        dataTextField: "meaning",
+                                        dataValueField: "value",
+                                        valuePrimitive: true,
+                                        dataSource: valueAlignType,
+                                    });
+                                    kendo.bind($('#valueAlignType'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="FieldSelectId" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message "id"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldSelectId" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldSelectId"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#conditionFieldSelectId'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="FieldSelectIdField" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message "idField"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldSelectIdFiled" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldSelectIdFiled"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#conditionFieldSelectIdFiled'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="dsType" style="display:none">
+                            <label class="col-xs-3 control-label"> <@spring.message "lovitem.ds_type"/></label>
+                            <div class="col-xs-5">
+                                <input id="comboboxType" data-role="combobox" data-value-primitive="true"
+                                       style="width: 100%" data-text-field="text" data-value-field="value"
+                                       data-bind="source:dataDsType,value:selected.comboboxType,events:{select:oncomboboxTypeSelect}"/>
+                                <script>kendo.bind($('#comboboxType'), viewModel2);</script>
+                            </div>
+                        </div>
+                        <div class="form-group" id="selectCode" style="display:none">
+                            <label class="col-xs-3 control-label"> <@spring.message
+                                "lovitem.conditionfieldselectcode"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldSelectCode" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldSelectCode,text:selected.conditionFieldSelectCode"
+                                       >
+                                <!--<script>kendo.bind($('#conditionFieldSelectCode'), viewModel2);</script>-->
+                                <script>
+                                    $("#conditionFieldSelectCode").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_CODE")}, {
+                                    }));
+                                    kendo.bind($('#conditionFieldSelectCode'), viewModel2);</script>
+                            </div>
+                        </div>
+                        <div class="form-group" id="url" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message "Url"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldSelectUrl" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldSelectUrl"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#conditionFieldSelectUrl'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="dtoField" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message "dto"/></label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldSelectDto" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldSelectDto"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#conditionFieldSelectDto'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <!-- lov框 -->
+                        <div class="form-group" id="lovField" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message
+                                "lovitem.conditionfieldlovcode"/> </label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionFieldLovCode" name="conditionFieldLovCode" style="width: 100%"
+                                       data-bind="value:selected.conditionFieldLovCode,text:selected.conditionFieldLovCode"
+                                       >
+                                <script>
+                                    $("#conditionFieldLovCode").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_LIST")}, {
+                                    }));
+                                    kendo.bind($('#conditionFieldLovCode'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="precision" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message
+                                "flex.precision"/> </label>
+                            <div class="col-xs-5">
+                                <input type="text" id="conditionPrecision" style="width: 100%"
+                                       data-bind="value:selected.conditionPrecision">
+                                <script>
+                                    $('#conditionPrecision').kendoNumericTextBox({
+                                        decimals: 0,
+                                        min: 0
+                                    });
+                                    kendo.bind($('#conditionPrecision'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="range" style="display: none">
+                            <label class="col-xs-3 control-label"><@spring.message
+                                "flex.range"/> </label>
+                            <div class="col-xs-2">
+                                <input type="text" id="conditionMinRange" style="width: 100%"
+                                       data-bind="value:selected.conditionMinRange" placeholder="min">
+                                <script>
+                                    $('#conditionMinRange').kendoNumericTextBox({});
+                                    kendo.bind($('#conditionMinRange'), viewModel2);</script>
+                            </div>
+                            <div class="col-xs-2">
+                                <input type="text" id="conditionMaxRange" style="width: 100%"
+                                       data-bind="value:selected.conditionMaxRange" placeholder="max">
+                                <script>
+                                    $('#conditionMaxRange').kendoNumericTextBox({});
+                                    kendo.bind($('#conditionMaxRange'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="timeFiled" style="display:none">
+                            <label class="col-xs-3 control-label"><@spring.message
+                                "flex.hastime"/> </label>
+                            <div class="col-xs-5">
+                                <input type="checkbox" id="conditionTimeFiled" style="margin-top:5px;"
+                                       data-bind="value:selected.hasTime"
+                                       class="k-checkbox ">
+                                <script>
+                                    $("#conditionTimeFiled").kendoCheckbox({
+                                        checkedValue: 'Y',
+                                        uncheckedValue: 'N'
+                                    });
+                                    kendo.bind($('#conditionTimeFiled'), viewModel2);</script>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer" id="gridSave" style="display: none">
+                        <span class="btn btn-primary" onclick="hideForm('Grid')">确定</span>
+                    </div>
+                    <div class="modal-footer" id="detailGridSave" style="display: none">
+                        <span class="btn btn-primary" onclick="hideForm('detailGrid')">确定</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var BaseUrl = _basePath;
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: BaseUrl + "/fnd/flex/rule/field/query",
+                    type: "POST",
+                    dataType: "json"
+                },
+                update: {
+                    url: BaseUrl + "/fnd/flex/rule/field/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                destroy: {
+                    url: BaseUrl + "/fnd/flex/rule/field/remove",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                create: {
+                    url: BaseUrl + "/fnd/flex/rule/field/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        for (var i = 0; i < options.models.length; i++) {
+                            options.models[i].ruleId = "${RequestParameters.ruleId}";
+                        }
+                        var datas = Jrap.prepareSubmitParameter(options, type)
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "fieldId",
+                    fields: {
+                        fieldType: {validation: {required: true}},
+                        fieldColumnWidth: {validation: {required: true}},
+                        fieldColumnNumber: {validation: {required: true}},
+                        fieldSequence: {validation: {required: true}},
+                        modelColumnId: {validation: {required: true}},
+                        requiredFlag: {
+                            defaultValue: 'Y',
+                            type: 'boolean',
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N',
+                        },
+                        readableFlag: {
+                            defaultValue: 'N',
+                            type: 'boolean',
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N',
+                        }
+                    }
+                }
+            }
+        });
+
+        $("#Grid").kendoGrid({
+            dataSource: dataSource,
+            height: '320px',
+            resizable: true,
+            scrollable: true,
+            navigatable: false,
+            selectable: 'multiple, rowbox',
+            columns: [
+                {
+                    field: "modelColumnId",
+                    title: '<@spring.message "flexrulefield.modelcolumnid"/>',
+                    width: 80,
+                    template: function (dataItem) {
+                        return dataItem['columnName'] || '';
+                    },
+                    editor: function (container, options) {
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov"LOV_FLEX_MODEL_COLUMN"/>,{
+                            textField: 'columnName',
+                            valueField: 'modelColumnId',
+                            model: options.model,
+                            query:function (e) {
+                                e.param['modelId'] = '${RequestParameters.modelId}';
+                            },
+                        }));
+                    }
+                },
+                {
+                    field: "description",
+                    title: '<@spring.message "flexrulefield.description"/>',
+                    width: 120,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    attributes: {style: "text-align:center"},
+                },
+                {
+                    title: '<@spring.message "flexrulefield.config"/>',
+                    width: 160,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    attributes: {style: "text-align:center"},
+                    template: function (e) {
+                        return '<a href="javascript:void(0)" id="lovItemType"   onclick="openEditor(this)"><@spring.message "jrap.edit"/></a>'
+                    }
+
+                },
+                {
+                    field: "fieldSequence",
+                    title: '<@spring.message "flexrulefield.fieldsequence"/>',
+                    width: 70
+                },
+                {
+                    field: "fieldColumnNumber",
+                    title: '<@spring.message "flexrulefield.fieldcolumnnumber"/>',
+                    width: 70
+                },
+                {
+                    field: "fieldColumnWidth",
+                    title: '<@spring.message "flexrulefield.fieldcolumnwidth"/>',
+                    width: 70
+                },
+                {
+                    field: 'readableFlag',
+                    title: '<@spring.message "flexrulefield.readableflag"/>',
+                    width: 70,
+                    headerAttributes: {
+                        style: "text-align:center"
+                    },
+                    attributes: {
+                        style: "text-align:center"
+                    }
+                },
+                {
+                    field: 'requiredFlag',
+                    title: '<@spring.message "flexrulefield.requiredflag"/>',
+                    width: 70,
+                    headerAttributes: {
+                        style: "text-align:center"
+                    },
+                    attributes: {
+                        style: "text-align:center"
+                    }
+                }
+            ],
+            editable: true,
+            dataBound: function (e) {
+                var row = this.tbody.find(">tr[data-uid=" + viewModel2.selected.uid + "]");
+                if (row) {
+                    this.select(row);
+                }
+            }
+        });
+
+        var edit;
+        function openEditor(item) {
+            showAilgnInput=true;
+            $("#gridSave").show();
+            var node = item;
+            while (node.tagName != "TR") {
+                node = node.parentNode;
+            }
+            var grid = $("#Grid").data("kendoGrid");
+            var select = grid.select(node);
+            edit = $("#queryEdit").kendoWindow({
+                width: 400,
+                resizable: false,
+                title: '<@spring.message "lovitem.type"/>',
+                modal: true,
+                open: openEditWin(grid),
+                close: function (e) {
+                    var grid = $("#Grid").data("kendoGrid");
+                    var select = grid.select();
+                    select.removeClass("k-state-selected");
+                    cleanModel2();
+                    $("#gridSave").hide();
+                }
+            }).data("kendoWindow");
+            edit.center().open();
+
+        }
+
+        function openEditWin(grid) {
+            if (grid.selectedDataItems()[0].fieldType != null && grid.selectedDataItems()[0].fieldType != "") {
+                    var type = jQuery.parseJSON(grid.selectedDataItems()[0].fieldType);
+                    $.each(type, function (name, value) {
+                        viewModel2.selected.set(name, value);
+                    });
+                }
+                //打开时对其做处理
+                if (viewModel2.selected.type == "SELECT") {
+                    $("#dsType").css("display", "block")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    $("#conditionFieldSelectTftextField").css("display", "block")
+                    $("#conditionFieldSelectVfvalueField").css("display", "block")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    if (!viewModel2.selected.comboboxType) {
+                        if (viewModel2.selected.conditionFieldSelectCode) {
+                            viewModel2.selected.set('comboboxType', "code")
+                        } else if (viewModel2.selected.conditionFieldSelectUrl
+                            || viewModel2.selected.conditionFieldSelectVf
+                            || viewModel2.selected.conditionFieldSelectTf) {
+                            viewModel2.selected.set('comboboxType', "url")
+                        }
+                    }
+
+                    // if(viewModel2.selected.comboboxType){
+                    if (viewModel2.selected.comboboxType == "url") {
+                        $("#selectCode").css("display", "none")
+                        viewModel2.selected.set('conditionFieldSelectCode', null)
+                        $("#url").css("display", "block")
+                        $("#lovField").css("display", "none")
+                        viewModel2.selected.set('conditionFieldLovCode', null)
+
+                    } else if (viewModel2.selected.comboboxType == "code") {
+                        $("#url").css("display", "none")
+                        viewModel2.selected.set('conditionFieldSelectUrl', null)
+                        $("#selectCode").css("display", "block")
+                        $("#lovField").css("display", "none")
+                        /viewModel2.selected.set('conditionFieldLovCode', null)
+                       // viewModel2.selected.set('conditionFieldSelectCode', null)
+                    }
+                } else if (viewModel2.selected.type == "LOV") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "block")
+                    $("#conditionFieldSelectVfvalueField").css("display", "block")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "block")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    // viewModel2.selected.set('conditionFieldSelectTf', null)
+                   // viewModel2.selected.set('conditionFieldSelectVf', null)
+                } else if (viewModel2.selected.type == "MULTI") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "block")
+                    $("#FieldSelectIdField").css("display", "block")
+                    $("#FieldSelectId").css("display", "block")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+
+                } else if (viewModel2.selected.type == "DATE") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "none")
+                    $("#timeFiled").css("display", "block")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                } else if (viewModel2.selected.type == "INT") {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "block")
+                    $("#range").css("display", "block")
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                } else {
+                    $("#url").css("display", "none")
+                    $("#conditionFieldSelectTftextField").css("display", "none")
+                    $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    if(showAilgnInput){
+                        $("#valueAlignTypeValueField").css("display", "block")
+                    }else{
+                        $("#valueAlignTypeValueField").css("display", "none")
+                    }
+                    $("#selectCode").css("display", "none")
+                    $("#dsType").css("display", "none")
+                    $("#lovField").css("display", "none")
+                    $("#dtoField").css("display", "none")
+                    $("#FieldSelectIdField").css("display", "none")
+                    $("#FieldSelectId").css("display", "none")
+                    $("#timeFiled").css("display", "none")
+                    $("#precision").css("display", "none")
+                    $("#range").css("display", "none")
+                    viewModel2.selected.set('conditionMinRange', null)
+                    viewModel2.selected.set('conditionMaxRange', null)
+                    viewModel2.selected.set('conditionPrecision', null)
+                    viewModel2.selected.set('conditionFieldSelectIdFiled', null)
+                    viewModel2.selected.set('conditionFieldSelectId', null)
+                    viewModel2.selected.set('hasTime', null)
+                    viewModel2.selected.set('conditionFieldLovCode', null)
+                    viewModel2.selected.set('conditionFieldSelectCode', null)
+                    viewModel2.selected.set('conditionFieldSelectUrl', null)
+                    viewModel2.selected.set('conditionFieldSelectTf', null)
+                    viewModel2.selected.set('conditionFieldSelectVf', null)
+                }
+        }
+
+        var showAilgnInput=true;
+        function openDeatilEditor(item) {
+            showAilgnInput=false;
+            $("#detailGridSave").show();
+            $("#columnWidthId").hide();
+            $("#labelWidthId").hide();
+            $("#labelNameId").hide();
+
+            var node = item;
+            while (node.tagName != "TR") {
+                node = node.parentNode;
+            }
+            var grid = $("#detailGrid").data("kendoGrid");
+            var select = grid.select(node);
+            edit = $("#queryEdit").kendoWindow({
+                width: 400,
+                resizable: false,
+                title: '<@spring.message "lovitem.type"/>',
+                modal: true,
+                open: openEditWin(grid),
+                close: function (e) {
+                    var grid = $("#detailGrid").data("kendoGrid");
+                    var select = grid.select();
+                    select.removeClass("k-state-selected");
+                    cleanModel2();
+                    $("#detailGridSave").hide();
+                    $("#columnWidthId").show();
+                    $("#labelWidthId").show();
+                    $("#labelNameId").show();
+                }
+            }).data("kendoWindow");
+            edit.center().open();
+        }
+
+        function hideForm(girdDiv) {
+            var grid = $('#' + girdDiv).data("kendoGrid");
+            grid.selectedDataItems()[0].fieldType = kendo.stringify(viewModel2.selected);
+            grid.selectedDataItems()[0]._status = 'update';
+            grid.selectedDataItems()[0].dirty = true;
+            grid.select().find('td')[2].setAttribute('class', 'k-dirty-cell');
+            var select = grid.select();
+            edit.close();
+            select.removeClass("k-state-selected");
+            cleanModel2();
+        }
+
+
+        function cleanModel2() {
+            viewModel2.selected.set('type', null)
+            viewModel2.selected.set('columnWidth', null)
+            viewModel2.selected.set('labelWidth', null)
+            viewModel2.selected.set('labelName', null)
+            viewModel2.selected.set('conditionFieldSelectCode', null)
+            viewModel2.selected.set('conditionFieldSelectUrl', null)
+            viewModel2.selected.set('conditionFieldSelectTf', null)
+            viewModel2.selected.set('conditionFieldSelectVf', null)
+            viewModel2.selected.set('conditionFieldLovCode', null)
+            viewModel2.selected.set('conditionFieldSelectDto', null)
+        }
+
+        var detailBaseUrl = _basePath;
+        detailDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: detailBaseUrl + "/fnd/flex/rule/detail/query",
+                    type: "POST",
+                    dataType: "json"
+                },
+                update: {
+                    url: detailBaseUrl + "/fnd/flex/rule/detail/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                destroy: {
+                    url: detailBaseUrl + "/fnd/flex/rule/detail/remove",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                create: {
+                    url: detailBaseUrl + "/fnd/flex/rule/detail/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        for (var i = 0; i < options.models.length; i++) {
+                            options.models[i].ruleId = "${RequestParameters.ruleId}";
+                        }
+                        var datas = Jrap.prepareSubmitParameter(options, type)
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Jrap.prepareQueryParameter(detailViewModel.model.toJSON(), options)
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "detailId",
+                    fields: {
+                        fieldValue: {validation: {required: true}},
+                        fieldType: {validation: {required: true}},
+                        fieldName: {validation: {required: true}},
+                    },
+                    editable: function (col) {
+                        if (col == 'fieldValue' && this.fieldType == null) {
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+            }
+        });
+
+
+        var dataSourceLists = [];
+
+        $("#detailGrid").kendoGrid({
+            dataSource: detailDataSource,
+            height: '350px',
+            resizable: true,
+            scrollable: true,
+            navigatable: false,
+            selectable: 'multiple, rowbox',
+            columns: [
+                {
+                    field: "fieldName",
+                    title: '<@spring.message "flexruledetail.fieldname"/>',
+                    width: 120
+                },
+                {
+                    title: '<@spring.message "flexruledetail.filetype"/>',
+                    width: 80,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    attributes: {style: "text-align:center"},
+                    template: function (e) {
+                        return '<a href="javascript:void(0)"  onclick="openDeatilEditor(this)"><@spring.message "jrap.edit"/></a>'
+                    }
+
+                },
+                {
+                    field: "fieldValue",
+                    title: '<@spring.message "flexruledetail.fieldvalue"/>',
+                    width: 120,
+                    template: function (dataItem) {
+                        if (dataItem.fieldType == "") {
+                            return '';
+                        }
+                        var style = jQuery.parseJSON(dataItem.fieldType);
+                        if (style.type == 'SELECT') {
+                            var v = dataItem["fieldValue"];
+                            $.each(dataSourceLists, function (i, n) {
+                                if ((n[style.conditionFieldSelectVf] || '') == (v || '')) {
+                                    v = n[style.conditionFieldSelectTf];
+                                    return false;
+                                }
+                            })
+                            return v || '';
+                        }
+                        return dataItem.fieldValue;
+                    },
+                    headerAttributes: {
+                        style: "text-align:center"
+                    },
+                    attributes: {
+                        style: "text-align:center"
+                    },
+                    editor: function (container, options) {
+                        if (options.model.fieldType != "") {
+                        var style = jQuery.parseJSON(options.model.fieldType);
+                        if (style.type == 'INT') {
+                            $('<input required name="' + options.field + '"/>')
+                                .appendTo(container)
+                                .kendoNumericTextBox({
+                                    min: style.conditionMinRange,
+                                    max: style.conditionMaxRange,
+                                    decimals: style.conditionPrecision
+                                });
+                        }
+                        else if (style.type == 'SELECT' && style.conditionFieldSelectUrl != null) {
+                                $.ajax({
+                                    url: _basePath + '/' + style.conditionFieldSelectUrl,
+                                    dataType: "json",
+                                    async: false,
+                                    success: function (data) {
+                                        dataSourceLists = data.rows;
+                                    }
+                                })
+                            $('<input required name="' + options.field + '"/>')
+                                .appendTo(container)
+                                .kendoDropDownList({
+                                    dataTextField: style.conditionFieldSelectTf,
+                                    dataValueField: style.conditionFieldSelectVf,
+                                    model: options.model,
+                                    dataSource: dataSourceLists,
+                                })
+                        } else if (style.type == 'SELECT' && style.conditionFieldSelectCode != null) {
+                                $.ajax({
+                                    url: _basePath + '/common/code/' + style.conditionFieldSelectCode + '/',
+                                    dataType: "json",
+                                    async: false,
+                                    success: function (data) {
+                                        dataSourceLists = data;
+                                    }
+                                })
+
+                            $('<input required name="' + options.field + '"/>')
+                                .appendTo(container)
+                                .kendoDropDownList({
+                                    dataTextField: style.conditionFieldSelectTf,
+                                    dataValueField: style.conditionFieldSelectVf,
+                                    model: options.model,
+                                    dataSource: dataSourceLists,
+                                });
+                        } else if (style.type == 'LOV') {
+                            $('<input required name="' + options.field + '"/>')
+                                .appendTo(container)
+                                .kendoLov({
+                                    contextPath: _basePath,
+                                    locale: _locale,
+                                    code: style.conditionFieldLovCode
+                                });
+                        } else if (style.type == 'MULTI') {
+                            $('<input required name="' + options.field + '"/>')
+                                .appendTo(container)
+                                .kendoTLEdit({
+                                    idField: style.conditionFieldSelectId,
+                                    field: style.conditionFieldSelectIdFiled,
+                                    dto: style.conditionFieldSelectDto,
+                                    model: options.model
+                                })
+                        } else if (style.type == 'DATE') {
+                            if (style.hasTime == 'Y') {
+                                $('<input required name="' + options.field + '"/>')
+                                    .appendTo(container)
+                                    .kendoDateTimePicker({});
+                            } else {
+                                $('<input required name="' + options.field + '"/>')
+                                    .appendTo(container)
+                                    .kendoDatePicker({});
+                            }
+                        } else {
+                            $('<input class="k-textbox" required name="' + options.field + '"/>')
+                                .appendTo(container)
+                        }
+                        } else {
+                            viewModel2.selected.set('type', 'TEXT');
+                            options.model.fieldType = kendo.stringify(viewModel2.selected);
+                            $('<input class="k-textbox" required name="' + options.field + '"/>')
+                                .appendTo(container)
+                        }
+                    }
+                },
+            ],
+            editable: true,
+
+            dataBound: function (e) {
+                var row = this.tbody.find(">tr[data-uid=" + viewModel2.selected.uid + "]");
+                if (row) {
+                    this.select(row);
+                }
+            },
+        }).data("kendoGrid");
+
+    </script>
+    </body>
+    </html>

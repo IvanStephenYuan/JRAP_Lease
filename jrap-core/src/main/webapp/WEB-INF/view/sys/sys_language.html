@@ -1,0 +1,83 @@
+<#--
+ * description: 角色界面
+ * version: 1.0 
+ * author:qingliang.zeng@jingrui.com
+-->
+<#include "../include/header.html">
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#langGrid");
+</script>
+<body >
+ <div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-hotkey="hotkey_create" data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-hotkey="hotkey_save"   data-bind="click:save" style="float:left;margin-right:5px;"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+        <span class="btn btn-danger" data-hotkey="hotkey_delete"  data-bind="click:remove" style="float:left;margin-right:5px;"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+       <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+    </div>
+     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+        <input type="text"  data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "language.langcode"/>' data-bind="value:model.langCode" class="k-textbox">
+        <input type="text"  data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "language.description"/>'data-bind="value:model.description"  class="k-textbox">
+        <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><i class="fa fa-search" style="margin-right:3px;"></i><@spring.message "jrap.query"/></span>
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div style="clear:both">
+        <div id="langGrid"></div>
+    </div>
+</div>
+
+ 
+<script type="text/javascript">
+    Jrap.initEnterQuery("#query-form", viewModel.query);
+    var dataSource = Jrap.createGridDataSource({
+        url:'${base.contextPath}/sys/language/',
+        model: {
+            id: "langCode",
+            fields: {
+                langCode: {editable: true, validation: {required: true}},
+                baseLang: {validation: {required: true}}
+            },
+            editable: function (col) {
+                if (col == 'langCode' && this.langCode) {
+                    return false;
+                }
+                return true;
+            }
+        }
+    });
+
+
+    $("#langGrid").kendoGrid({
+        dataSource: dataSource,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        editable: true,
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "langCode",
+                title: '<@spring.message "language.langcode"/>',
+                width: 120
+            }, {
+                field: "description",
+                title: '<@spring.message "language.description"/>'
+            },
+        ]
+    });
+
+</script>
+</body>
+</html>

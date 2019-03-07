@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.activiti.mapper.HiIdentitylinkMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.activiti.dto.HiIdentitylink">
+        <result column="ID_" property="id_" jdbcType="VARCHAR" />
+        <result column="GROUP_ID_" property="groupId_" jdbcType="VARCHAR" />
+        <result column="TYPE_" property="type_" jdbcType="VARCHAR" />
+        <result column="USER_ID_" property="userId_" jdbcType="VARCHAR" />
+        <result column="TASK_ID_" property="taskId_" jdbcType="VARCHAR" />
+        <result column="PROC_INST_ID_" property="procInstId_" jdbcType="VARCHAR" />
+        <result column="READ_FLAG_" property="readFlag_" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <update id="updateReadFlag" parameterType="com.jingrui.jrap.activiti.dto.HiIdentitylink" >
+        UPDATE ACT_HI_IDENTITYLINK
+        SET READ_FLAG_ = #{readFlag_,jdbcType=VARCHAR}
+        WHERE  USER_ID_= #{userId_,jdbcType=VARCHAR}
+        AND PROC_INST_ID_ = #{procInstId_,jdbcType=VARCHAR}
+    </update>
+
+    <insert id="insertCarbonCopy" >
+        INSERT INTO ACT_HI_IDENTITYLINK (ID_, TYPE_, USER_ID_, PROC_INST_ID_)
+        VALUES (#{id, jdbcType=VARCHAR},
+            #{type, jdbcType=VARCHAR},
+            #{userId, jdbcType=VARCHAR},
+            #{processInstanceId, jdbcType=VARCHAR}
+        )
+
+    </insert>
+
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.activiti.mapper.RulesMapper">
+
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.activiti.dto.WflRules" extends="com.jingrui.jrap.mapper.StdMapper.STD">
+        <id property="ruleId" column="RULE_ID" jdbcType="DECIMAL"/>
+        <result property="ruleCode" column="RULE_CODE" jdbcType="VARCHAR"/>
+        <result property="processKey" column="PROCESS_KEY" jdbcType="VARCHAR"/>
+        <result property="nodeId" column="NODE_ID" jdbcType="VARCHAR"/>
+        <result property="ruleContent" column="RULE_CONTENT"/>
+    </resultMap>
+    <select id="selectByExecution" resultMap="BaseResultMap" >
+        SELECT * FROM WFL_RULES R
+        WHERE R.PROCESS_KEY = #{processKey,jdbcType=VARCHAR}
+        <if test="nodeId!=null">
+          AND R.NODE_ID = #{nodeId,jdbcType=VARCHAR}
+        </if>
+        <if test="nodeId==null">
+            AND R.NODE_ID IS NULL
+        </if>
+        ORDER BY R.RULE_ID DESC
+    </select>
+    <select id="selectByRuleCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT * FROM WFL_RULES R WHERE R.RULE_CODE = #{ruleCode}
+    </select>
+</mapper>

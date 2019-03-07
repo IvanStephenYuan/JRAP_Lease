@@ -1,0 +1,1027 @@
+<#include "../include/header.html">
+<body>
+<script type="text/javascript">
+
+    var code = '${RequestParameters.code!0}';
+    var crudServiceBaseUrl = "${base.contextPath}/sys/parameter/config";
+    var dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: crudServiceBaseUrl + "/query?code=${RequestParameters.code!0}&targetId=${RequestParameters.targetId!0}",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: crudServiceBaseUrl + "/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: crudServiceBaseUrl + "/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: crudServiceBaseUrl + "/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    for (var index = 0; index < options.models.length; index++) {
+                        options.models[index].extraAttribute = JSON.stringify(options.models[index].extraAttribute);
+                    }
+                    return kendo.stringify(Jrap.prepareSubmitParameter(options, type));
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options);
+                }
+            }
+        },
+        requestEnd: function (e) {
+            var response = e.response;
+            if (!response || !response.rows)
+                return;
+            var rows = response.rows;
+            for (var index = 0; index < rows.length; index++) {
+                rows[index].extraAttribute = JSON.parse(rows[index].extraAttribute);
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        serverSorting: true,
+        pageSize: 20,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "parameterId",
+                fields: {
+                    code: {defaultValue: '${RequestParameters.code!0}'},
+                    targetId: {defaultValue: '${RequestParameters.targetId!0}'},
+                    display: {validation: {required: true}},
+                    tableFieldName: {validation: {required: true}},
+                    title: {validation: {required: true}},
+                    required: {defaultValue: 'N', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    readOnly: {defaultValue: 'N', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    enabled: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    defaultType: {defaultValue: "const"},
+                    sourceType: {defaultValue: 'LOV'},
+                    sourceCode: {},
+                    sourceName: {},
+                    lineNumber: {defaultValue: 1},
+                    columnNumber: {defaultValue: 1},
+                    displayLength: {defaultValue: 12},
+                    labelWidth: {defaultValue: 2}
+                },
+                editable: function (cell) {
+                    if (cell == "dataLength" && this["display"] != "textBox") {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+    });
+
+    var viewModel = Jrap.createGridViewModel("#grid", {
+        save: function () {
+            var flag = [];
+            if (code == "TASK") {
+                var data = dataSource.data();
+                var title = [];
+                $.each(data, function (i, v) {
+                    if(flag.indexOf("TITLE") <= -1) {
+                        if (title.indexOf(v.title) > -1) {
+                            flag.push("TITLE");
+                        } else {
+                            title.push(v.title);
+                        }
+                    }
+                    if(flag.indexOf("POSITION") <= -1) {
+                        var column = [];
+                        $.each(data, function (i, d) {
+                            if(v.lineNumber == d.lineNumber) {
+                                column.push(d.columnNumber);
+                            }
+                        });
+                        var columnSet = new Set(column);
+                        if(column.length > columnSet.size) {
+                            flag.push("POSITION");
+                        }
+                    }
+                });
+            }
+            if (flag.length == 0) {
+                $("#grid").data('kendoGrid').saveChanges();
+            } else {
+                showError(flag);
+            }
+        },
+        dataSource: dataSource
+    });
+
+    function showError(flag) {
+        if (flag.indexOf("TITLE") > -1 && flag.indexOf("POSITION") > -1) {
+            kendo.ui.showErrorDialog({
+                message: '<@spring.message "parameterconfig.titleandposition.repeat"/>'
+            });
+            return;
+        }
+        if (flag.indexOf("TITLE") > -1) {
+            kendo.ui.showErrorDialog({
+                message: '<@spring.message "parameterconfig.title.repeat"/>'
+            });
+        }
+        if (flag.indexOf("POSITION") > -1) {
+            kendo.ui.showErrorDialog({
+                message: '<@spring.message "parameterconfig.position.repeat"/>'
+            });
+        }
+    }
+
+    var paramsDataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: "${base.contextPath}/sys/report/queryReportFileParams?reportCode=" + "${RequestParameters.reportCode!0}",
+                type: "POST",
+                dataType: "json"
+            },
+        },
+        schema: {
+            data: 'rows',
+            total: 'total',
+        }
+    });
+
+    var sourceTypeDataOfCode = [
+        {meaning: "<@spring.message 'parameterconfig.lov'/>", value: "LOV"},
+        {meaning: "<@spring.message 'lovitem.conditionfieldselectcode'/>", value: "CODE"},
+    ];
+
+    var sourceTypeDataOfLov = [
+        {meaning: "<@spring.message 'parameterconfig.lov'/>", value: "LOV"},
+    ];
+
+    if(code != 'TASK'){
+        var codeValueFieldData = [
+            {meaning: "codeValueId", value: "codeValueId"},
+            {meaning: "value", value: "value"},
+        ];
+        var cascadeFromFieldData = [
+            {meaning: "parentCodeValueId", value: "parentCodeValueId"},
+            {meaning: "parentCodeValue", value: "parentCodeValue"},
+        ];
+    }
+
+    var initMinDate = new Date(1900, 0, 1);
+    var initMaxDate = new Date(2099, 11, 31);
+    var cascadeFromField;
+</script>
+<form id="config" class="modal-content form-horizontal" role="form" autocomplete="off" style="display:none">
+    <div class="col-xs-offset-1" style="margin-top:10px">
+
+        <div class="form-group" id="datePickerFromForm" style="display: none">
+            <label class="col-xs-2 control-label" for="datePickerFrom"><@spring.message
+                "parameterconfig.datepickerfrom"/></label>
+            <div class="col-xs-7">
+                <input id="datePickerFrom" name="datePickerFrom"
+                       data-bind="value:model.extraAttribute.datePickerFrom" style="width: 100%"/>
+                <span class="k-invalid-msg" data-for="datePickerFrom"></span>
+            </div>
+            <script>
+                $("#datePickerFrom").kendoDatePicker({
+                    format: "{0:yyyy-MM-dd}",
+                    change: function () {
+                        var datePickerTo = $("#datePickerTo").data("kendoDatePicker");
+                        var defaultDate = $("#defaultValue").data("kendoDatePicker");
+                        var value = this.value();
+                        if (!value) {
+                            value = initMinDate;
+                        }
+                        datePickerTo.min(value);
+                        isNotEmpty(defaultDate) ? defaultDate.min(value) : "";
+                        minDate = value;
+                        viewModel.model.extraAttribute.set("datePickerFrom", this.value());
+                    }
+                }).data("kendoDatePicker");
+                kendo.bind($("#datePickerFrom"), viewModel);
+            </script>
+        </div>
+
+        <div class="form-group" id="datePickerToForm" style="display: none">
+            <label class="col-xs-2 control-label" for="datePickerTo"><@spring.message
+                "parameterconfig.datepickerto"/></label>
+            <div class="col-xs-7">
+                <input id="datePickerTo" name="datePickerTo" data-bind="value:model.extraAttribute.datePickerTo"
+                       style="width: 100%"/>
+                <span class="k-invalid-msg" data-for="datePickerTo"></span>
+            </div>
+            <script>
+                $("#datePickerTo").kendoDatePicker({
+                    format: "{0:yyyy-MM-dd}",
+                    change: function () {
+                        var datePickerFrom = $("#datePickerFrom").data("kendoDatePicker");
+                        var defaultDate = $("#defaultValue").data("kendoDatePicker");
+                        var value = this.value();
+                        if (!value) {
+                            value = initMaxDate;
+                        }
+                        datePickerFrom.max(value);
+                        isNotEmpty(defaultDate) ? defaultDate.max(value) : "";
+                        maxDate = value;
+                        viewModel.model.extraAttribute.set("datePickerTo", this.value());
+                    }
+                }).data("kendoDatePicker");
+                kendo.bind($("#datePickerTo"), viewModel);
+            </script>
+        </div>
+
+        <div class="form-group" id="sourceTypeForm">
+            <label class="col-xs-2 control-label" for="sourceType"><@spring.message
+                "parameterconfig.sourcetype"/></label>
+            <div class="col-xs-7">
+                <input id="sourceType" name="sourceType" data-bind="value:model.sourceType" style="width: 100%"/>
+                <span class="k-invalid-msg" data-for="sourceType"></span>
+            </div>
+            <br>
+            <script>
+                $("#sourceType").kendoDropDownList({
+                    dataTextField: "meaning",
+                    dataValueField: "value",
+                    valuePrimitive: true,
+                    change: function () {
+                        viewModel.model.set("sourceCode", "");
+                        viewModel.model.set("sourceName", "");
+                        sourceCode = "";
+                        sourceType = this.value();
+                        reloadSourceCodeLov();
+                        initDefaultValue("", "", "change");
+                        if(code != 'TASK'){
+                            showCodeValueFieldForm();
+                            reloadCascadeFromField('');
+                        }
+                    }
+                }).data("kendoDropDownList");
+                kendo.bind($("#sourceType"), viewModel);
+            </script>
+        </div>
+
+        <div class="form-group" id="sourceCodeForm" style="display: none">
+            <label class="col-xs-2 control-label" for="sourceCode"><@spring.message
+                "parameterconfig.sourcecode"/></label>
+            <div class="col-xs-7">
+                <input id="sourceCode" name="sourceCode" data-bind="value:model.sourceCode,text:model.sourceName"
+                       style="width: 100%"/>
+                <span class="k-invalid-msg" data-for="sourceCode"></span>
+            </div>
+            <script>
+
+                $("#sourceCode").kendoLov({
+                    code: "LOV_REPORT_SOURCE",
+                    contextPath: _basePath,
+                    locale: _locale,
+                    change: function (e) {
+                        if (null == viewModel.model.sourceCode || "" == viewModel.model.sourceCode) {
+                            viewModel.model.set("sourceName", "");
+                        } else {
+                            viewModel.model.set("sourceName", this._dataItem.description);
+                        }
+                        sourceCode = this.value();
+                        initDefaultValue("", "", "change");
+                    },
+                    model: viewModel.model
+                }).data("kendoLov");
+                kendo.bind($("#sourceCode"), viewModel);
+            </script>
+        </div>
+
+        <#if RequestParameters.code != 'TASK' >
+            <div class="form-group" id="codeValueFieldForm" style="display: none">
+                <label class="col-xs-2 control-label" for="codeValueField"><@spring.message
+                    "parameterconfig.codevaluefield"/></label>
+                <div class="col-xs-7">
+                    <input id="codeValueField" name="codeValueField" data-bind="value:model.extraAttribute.codeValueField" style="width: 100%"/>
+                    <span class="k-invalid-msg" data-for="codeValueField"></span>
+                </div>
+                <br>
+                <script>
+                    $("#codeValueField").kendoDropDownList({
+                        dataTextField: "meaning",
+                        dataValueField: "value",
+                        valuePrimitive: true,
+                        dataSource: codeValueFieldData,
+                        index: 0,
+                        select: function (e) {
+                            codeValueField = e.dataItem.value;
+                            initDefaultValue("", "", "change");
+                        }
+                    }).data("kendoDropDownList");
+                    kendo.bind($("#codeValueField"), viewModel);
+                </script>
+            </div>
+        </#if>
+
+        <div class="form-group" id="defaultTypeForm">
+            <label class="col-xs-2 control-label" for="defaultType"><@spring.message
+                "parameterconfig.defaulttype"/></label>
+            <div class="col-xs-7">
+                <input id="defaultType" name="defaultType" data-bind="value:model.defaultType" style="width: 100%"/>
+                <span class="k-invalid-msg" data-for="defaultType"></span>
+            </div>
+            <br>
+            <script>
+                $("#defaultType").kendoDropDownList({
+                    dataTextField: "meaning",
+                    dataValueField: "value",
+                    valuePrimitive: true,
+                    select: function (e) {
+                        defaultType = e.dataItem.value;
+                        initDefaultValue("", "", "change");
+                    }
+                }).data("kendoDropDownList");
+                kendo.bind($("#defaultType"), viewModel);
+            </script>
+        </div>
+
+        <div class="form-group" id="defaultValueForm">
+            <label class="col-xs-2 control-label" for="defaultValue"><@spring.message
+                "parameterconfig.defaultvalue"/>
+                <span data-toggle="valueHint" data-placement="top" style="color:orange"
+                      class="glyphicon glyphicon-question-sign"></span>
+            </label>
+            <div class="col-xs-7">
+                <input id="defaultValue" name="defaultValue" data-bind="value:model.defaultValue"
+                       style="width: 100%"/>
+                <span data-for="defaultValue" class="k-invalid-msg"></span>
+                <span class="help-block" id="check" style="display: none"><span class="btn btn-primary"
+                                                                                onclick="checkDefaultValue()"><@spring.message "parameterconfig.execute"/></span></span>
+            </div>
+
+            <script>
+                kendo.bind($("#defaultValue"), viewModel);
+            </script>
+        </div>
+
+        <div class="form-group" id="cascadeFromForm" style="display: none">
+            <label class="col-xs-2 control-label" for="cascadeFrom"><@spring.message
+                "parameterconfig.cascadefrom"/></label>
+            <div class="col-xs-7">
+                <input id="cascadeFrom" name="cascadeFrom" data-bind="value:model.extraAttribute.cascadeFrom"
+                       style="width: 100%"/>
+                <span class="k-invalid-msg" data-for="cascadeFrom"></span>
+            </div>
+            <script>
+                if ('${RequestParameters.code!0}' == 'REPORT' && ('${RequestParameters.sourceType!0}'== 'buildin' || '${RequestParameters.sourceType!0}' == 'jdbc')) {
+                    $("#cascadeFrom").kendoComboBox({
+                        dataSource: paramsDataSource,
+                        valuePrimitive: true,
+                    }).data("kendoComboBox");
+                    kendo.bind($("#cascadeFrom"), viewModel);
+                } else {
+                    $("#cascadeFrom").kendoMaskedTextBox({}).data("kendoMaskedTextBox");
+                    kendo.bind($("#cascadeFrom"), viewModel);
+                }
+            </script>
+        </div>
+
+        <div class="form-group" id="cascadeFromFieldForm" style="display: none">
+            <label class="col-xs-2 control-label" for="cascadeFromField"><@spring.message
+                "parameterconfig.cascadefromfield"/></label>
+            <div class="col-xs-7">
+                <input id="cascadeFromField" name="cascadeFromField"
+                       data-bind="value:model.extraAttribute.cascadeFromField" style="width: 100%"/>
+                <span class="k-invalid-msg" data-for="cascadeFromField"></span>
+            </div>
+            <script>
+                cascadeFromField = $("#cascadeFromField").kendoMaskedTextBox({}).data("kendoMaskedTextBox");
+                kendo.bind($("#cascadeFromField"), viewModel);
+            </script>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <span class="btn btn-primary" onclick="hideForm()"><@spring.message "jrap.ok"/></span>
+    </div>
+</form>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+<span class="btn btn-primary" style="float:left;margin-right:5px;" data-bind="click:create">
+    <i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;"
+              data-bind="click:save">
+    <i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+        <span class="btn btn-danger" style="float:left;" data-bind="click:remove">
+    <i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+
+    <div style="clear: both;">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<div id="editWin"></div>
+<div id="newWin"></div>
+<script type="text/javascript">
+    Jrap.initEnterQuery("#query-form", viewModel.query);
+
+    $(document).ready(function () {
+        $('[data-toggle="valueHint"]').kendoTooltip({
+            position: "right",
+            width: 220,
+            content: function () {
+                return "默认类型为sql时 lov控件需返回text和value字段 其他控件只需返回value字段 日期类型返回字段格式为yyyy-MM-dd 返回字段必须取别名as text 或as value";
+            }
+        });
+    });
+
+    function isNotEmpty(obj) {
+        if (obj != undefined && obj != null && obj != "") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    function checkDefaultValue() {
+        var value = $("#defaultValue").val();
+        if (!isNotEmpty(value)) {
+            kendo.ui.showErrorDialog({
+                message: '<@spring.message "parameterconfig.sqlnotempty"/>'
+            });
+            return;
+        }
+        $.ajax({
+            type: 'POST',
+            url: '${base.contextPath}/sys/parameter/config/checkDefaultValue',
+            data: kendo.stringify(value),
+            contentType: "application/json",
+            dataType: 'json',
+            success: function (data) {
+                if (data.success == true) {
+                    kendo.ui.showInfoDialog({
+                        message: data.message
+                    })
+                } else {
+                    kendo.ui.showErrorDialog({
+                        message: data.message
+                    })
+                }
+            }
+        });
+    }
+
+    function getDynamicDataSourceUrl() {
+        if (sourceType == 'LOV') {
+            return "getLov";
+        } else if (sourceType == 'CODE') {
+            return "getCode";
+        }
+    }
+
+    var dynamicDataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: "${base.contextPath}/sys/parameter/config/" + getDynamicDataSourceUrl(),
+                type: "POST",
+                dataType: "json"
+            },
+        },
+        schema: {
+            data: 'rows',
+            total: 'total',
+        }
+
+    });
+
+    var otherTypeData = [
+        {meaning: "<@spring.message 'parameterconfig.const'/>", value: "const"},
+        {meaning: "<@spring.message 'parameterconfig.sql'/>", value: "sql"},
+    ];
+
+    var dateTypeData = [
+        {meaning: "<@spring.message 'parameterconfig.const'/>", value: "const"},
+        {meaning: "<@spring.message 'parameterconfig.sql'/>", value: "sql"},
+        {meaning: "<@spring.message 'parameterconfig.currentdate'/>", value: "currentDate"},
+    ];
+
+    var config, defaultValue, displayType, defaultType, sourceType, sourceCode, minDate, maxDate,codeValueField;
+
+    function reloadSourceCodeLov() {
+        var lov = $("#sourceCode").data("kendoLov");
+        if (sourceType == undefined || sourceType == 'LOV') {
+            lov.setLovCode("LOV_REPORT_SOURCE");
+        } else if (sourceType == 'CODE') {
+            lov.setLovCode("LOV_CODE");
+        }
+    }
+
+    function paramConfig(uid) {
+        var data = viewModel.dataSource.getByUid(uid);
+        displayType = data.display;
+        sourceCode = data.sourceCode;
+        sourceType = data.sourceType;
+        reloadSourceCodeLov(data.sourceType);
+        defaultType = data.defaultType;
+        changeSourceType();
+        changeDefaultType();
+        showForm();
+        var extra = data.extraAttribute;
+        if(code != 'TASK'){
+            showCodeValueFieldForm();
+        }
+        if (extra != null) {
+            if(code != 'TASK'){
+                reloadCascadeFromField(extra.cascadeFromField);
+            }
+            if ("datePicker" == displayType) {
+                var datePickerFrom = $("#datePickerFrom").data("kendoDatePicker");
+                var datePickerTo = $("#datePickerTo").data("kendoDatePicker");
+                var fromDate = isNotEmpty(extra.datePickerFrom) ? extra.datePickerFrom : initMinDate;
+                var toDate = isNotEmpty(extra.datePickerTo) ? extra.datePickerTo : initMaxDate;
+                minDate = fromDate;
+                maxDate = toDate;
+                datePickerTo.min(fromDate);
+                datePickerFrom.max(toDate);
+            }
+        }
+        initDefaultValue(data.defaultValue, data.defaultText, "init");
+        config = $("#config").kendoWindow({
+            width: 550,
+            resizable: true,
+            title: '<@spring.message "parameterconfig.config"/>',
+            modal: true,
+        }).data("kendoWindow");
+        config.center().open();
+    }
+
+    function changeSourceType() {
+        if ("LOV" == displayType) {
+            $("#sourceType").data("kendoDropDownList").setDataSource(sourceTypeDataOfLov);
+        } else if ("comboBox" == displayType || "multiSelect" == displayType) {
+            $("#sourceType").data("kendoDropDownList").setDataSource(sourceTypeDataOfCode);
+        }
+        if (isNotEmpty(sourceType)) {
+            $("#sourceType").data("kendoDropDownList").value(sourceType);
+        }
+    }
+
+    function changeDefaultType() {
+        if ("datePicker" == displayType) {
+            $("#defaultType").data("kendoDropDownList").setDataSource(dateTypeData);
+        } else {
+            $("#defaultType").data("kendoDropDownList").setDataSource(otherTypeData);
+        }
+        if (isNotEmpty(defaultType)) {
+            $("#defaultType").data("kendoDropDownList").value(defaultType);
+        }
+    }
+    function hideForm() {
+        if ("sql" == defaultType) {
+            viewModel.model.set("defaultText", null);
+        } else if ("const" == defaultType) {
+            if ("multiSelect" == displayType) {
+                viewModel.model.set("defaultValue", viewModel.model.defaultText);
+                viewModel.model.set("defaultText", null);
+            }
+        }
+        config.close();
+    }
+    function show(selector) {
+        $(selector).css("display", "block");
+    }
+    function hide(selector) {
+        $(selector).css("display", "none");
+    }
+    function validate(p0, p1, p2, p3, p4, p5, p6) {
+        p0 ? show("#sourceTypeForm") : hide("#sourceTypeForm");
+        p1 ? show("#sourceCodeForm") : hide("#sourceCodeForm");
+        p2 ? show("#defaultValueForm") : hide("#defaultValueForm");
+        p3 ? show("#datePickerFromForm") : hide("#datePickerFromForm");
+        p4 ? show("#datePickerToForm") : hide("#datePickerToForm");
+        p5 ? show("#cascadeFromForm") : hide("#cascadeFromForm");
+        p6 ? show("#cascadeFromFieldForm") : hide("#cascadeFromFieldForm");
+    }
+    function showForm() {
+        if ("multiSelect" == displayType) {
+            validate(true, true, true, false, false, false, false);
+        } else if ("comboBox" == displayType) {
+            validate(true, true, true, false, false, true, true);
+        } else if ("textBox" == displayType) {
+            validate(false, false, true, false, false, false, false);
+        } else if ("LOV" == displayType) {
+            validate(true, true, true, false, false, false, false);
+        } else if ("datePicker" == displayType) {
+            validate(false, false, true, true, true, false, false);
+        }
+    }
+
+    function showCodeValueFieldForm(){
+        if("comboBox" == displayType && "CODE" == sourceType){
+            show("#codeValueFieldForm");
+        }else{
+            hide("#codeValueFieldForm");
+        }
+    }
+
+    function reloadCascadeFromField (cascadeFromFieldValue){
+        if (cascadeFromField) {
+            cascadeFromField.wrapper[0].outerHTML = '<input id="cascadeFromField"  name="cascadeFromField"  data-bind="value:model.extraAttribute.cascadeFromField" style="width: 100%" />';
+            cascadeFromField.destroy();
+        }
+        if (sourceType == undefined || sourceType == 'LOV') {
+            cascadeFromField = $('#cascadeFromField').kendoMaskedTextBox({
+                width: 100,
+                height: 100,
+                value: isNotEmpty(cascadeFromFieldValue) ? cascadeFromFieldValue : "",
+                change: function () {
+                    viewModel.model.extraAttribute.set("cascadeFromField", this.value());
+                }
+            }).data("kendoMaskedTextBox");
+        } else if (sourceType == 'CODE') {
+            cascadeFromField = $("#cascadeFromField").kendoComboBox({
+                dataTextField: "meaning",
+                dataValueField: "value",
+                dataSource: cascadeFromFieldData,
+                valuePrimitive: true,
+                value: isNotEmpty(cascadeFromFieldValue) ? cascadeFromFieldValue : "",
+                change: function () {
+                    viewModel.model.extraAttribute.set("cascadeFromField", this.value());
+                }
+            }).data("kendoComboBox");
+        }
+    }
+
+    function getCodeValueField(){
+        if("comboBox" == displayType && 'CODE' == sourceType){
+            return "&codeValueField=" + codeValueField;
+        }
+        return '';
+    }
+
+    function initDefaultValue(value, text, flag) {
+        if ("sql" == defaultType) {
+            $("#check").css("display", "block");
+        } else {
+            $("#check").css("display", "none");
+        }
+        if ("change" == flag) {
+            viewModel.model.set("defaultValue", "");
+        }
+        var hasDataSource = false;
+        if (isNotEmpty(sourceCode)) {
+            hasDataSource = true;
+            dynamicDataSource.options.transport.read.url = "${base.contextPath}/sys/parameter/config/" + getDynamicDataSourceUrl() + "?sourceCode=" + sourceCode + getCodeValueField();
+            dynamicDataSource.read();
+        } else {
+            dynamicDataSource.options.transport.read.url = "";
+        }
+        if (defaultValue) {
+            if ("sql" == defaultType) {
+                defaultValue.wrapper[0].outerHTML = '<textarea id="defaultValue"  name="defaultValue"  data-bind="value:model.defaultValue"  rows="8" cols="" style="width: 100%" />';
+            } else {
+                defaultValue.wrapper[0].outerHTML = '<input id="defaultValue"  name="defaultValue"  data-bind="value:model.defaultValue" style="width: 100%" />';
+            }
+            defaultValue.destroy();
+        } else {
+            if ("sql" == defaultType) {
+                $("#defaultValue").replaceWith('<textarea id="defaultValue"  name="defaultValue"  data-bind="value:model.defaultValue"  rows="8" cols="" style="width: 100%" />')
+            }
+        }
+        if ("sql" == defaultType) {
+            defaultValue = $("#defaultValue").kendoMaskedTextBox({
+                width: 100,
+                height: 100,
+                value: isNotEmpty(value) ? value : "",
+                change: function () {
+                    viewModel.model.set("defaultValue", this.value());
+                }
+            }).data("kendoMaskedTextBox");
+            if (!hasDataSource && ("multiSelect" == displayType || "comboBox" == displayType || "LOV" == displayType)) {
+                defaultValue.enable(false);
+            }
+        } else if ("currentDate" == defaultType) {
+            defaultValue = $("#defaultValue").kendoDatePicker({
+                format: "{0:yyyy-MM-dd}",
+            }).data("kendoDatePicker");
+            defaultValue.enable(false);
+        } else if ("const" == defaultType || null == defaultType || "" == defaultType) {
+            if ("multiSelect" == displayType) {
+                if (isNotEmpty(value)) {
+                    value = value.split(",");
+                }
+                defaultValue = $("#defaultValue").kendoMultiSelect({
+                    dataSource: dynamicDataSource,
+                    dataTextField: "textField",
+                    dataValueField: "valueField",
+                    autoBind: false,
+                    width: 100,
+                    height: 100,
+                    value: isNotEmpty(value) ? value : "",
+                    change: function () {
+                        var v = this.value();
+                        var currentValue = null;
+                        if (v.length != 0) {
+                            currentValue = "";
+                            for (var i = 0; i < v.length; i++) {
+                                currentValue += v[i] + ",";
+                            }
+                        }
+                        viewModel.model.set("defaultText", currentValue);
+                    }
+                }).data("kendoMultiSelect");
+                if (!hasDataSource) {
+                    defaultValue.enable(false);
+                }
+            } else if ("comboBox" == displayType) {
+                defaultValue = $("#defaultValue").kendoComboBox({
+                    dataTextField: "textField",
+                    dataValueField: "valueField",
+                    valuePrimitive: true,
+                    autoBind: false,
+                    filter: "contains",
+                    dataSource: dynamicDataSource,
+                    value: isNotEmpty(value) ? value : "",
+                    change: function () {
+                        viewModel.model.set("defaultValue", this.value());
+                    }
+                }).data("kendoComboBox");
+                if (!hasDataSource) {
+                    defaultValue.enable(false);
+                }
+            } else if ("LOV" == displayType) {
+                defaultValue = $("#defaultValue").kendoLov({
+                    code: sourceCode,
+                    contextPath: _basePath,
+                    locale: _locale,
+                    change: function () {
+                        viewModel.model.set("defaultValue", this.value());
+                        viewModel.model.set("defaultText", this.text());
+                    }
+                }).data("kendoLov");
+                if (!hasDataSource) {
+                    defaultValue.enable(false);
+                }
+                if (isNotEmpty(value)) {
+                    defaultValue.value(value);
+                    defaultValue.text(text);
+                }
+            } else if ("textBox" == displayType) {
+                defaultValue = $("#defaultValue").kendoMaskedTextBox({
+                    width: 100,
+                    height: 100,
+                    value: isNotEmpty(value) ? value : "",
+                    change: function () {
+                        viewModel.model.set("defaultValue", this.value());
+                    }
+                }).data("kendoMaskedTextBox");
+            } else if ("datePicker" == displayType) {
+                defaultValue = $("#defaultValue").kendoDatePicker({
+                    format: "{0:yyyy-MM-dd}",
+                    change: function () {
+                        viewModel.model.set("defaultValue", this._oldText);
+                    }
+                }).data("kendoDatePicker");
+                if (isNotEmpty(value)) {
+                    defaultValue.value(new Date(value));
+                }
+                defaultValue.min(minDate);
+                defaultValue.max(maxDate);
+            }
+        }
+
+    }
+
+    var displayData = [
+        {meaning: "<@spring.message 'parameterconfig.multiselect'/>", value: "multiSelect"},
+        {meaning: "<@spring.message 'parameterconfig.combobox'/>", value: "comboBox"},
+        {meaning: "<@spring.message 'parameterconfig.textbox'/>", value: "textBox"},
+        {meaning: "<@spring.message 'parameterconfig.lov'/>", value: "LOV"},
+        {meaning: "<@spring.message 'parameterconfig.datepicker'/>", value: "datePicker"}
+    ];
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: viewModel.dataSource,
+        navigatable: true,
+        sortable: true,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        scrollable: true,
+        editable: true,
+        selectable: 'multiple,rowbox',
+        columns: [
+            {
+                field: "display",
+                sortable: false,
+                title: "<@spring.message 'parameterconfig.display'/>",
+                width: 60,
+                template: function (dataItem) {
+                    var v = dataItem.display ? dataItem.display : "";
+                    $.each(displayData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: displayData,
+                            index: 0,
+                            change: function (e) {
+                                var value = this.value();
+                                if (value != "textBox") {
+                                    options.model.dataLength = "";
+                                }
+                                grid.refresh();
+                            }
+                        });
+
+                }
+            }, {
+                field: "tableFieldName",
+                title: "<@spring.message 'parameterconfig.tablefieldname'/>",
+                width: 60,
+                sortable: false,
+                editor: function (container, options) {
+                    if('${RequestParameters.code!0}' == 'REPORT' && ('${RequestParameters.sourceType!0}'== 'buildin' || '${RequestParameters.sourceType!0}' == 'jdbc')){
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoComboBox({
+                                filter: "contains",
+                                dataSource: paramsDataSource,
+                                valuePrimitive: true,
+                                index: 0,
+                            });
+                    }else{
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoMaskedTextBox({});
+                    }
+
+                }
+            }, {
+                field: "title",
+                title: "<@spring.message 'parameterconfig.title'/>",
+                width: 60,
+                sortable: false,
+
+            },
+        <;#if RequestParameters.code != 'TASK' >
+    {
+        field: "description",
+        title: "<@spring.message 'parameterconfig.description'/>",
+        width: 80,
+        sortable: false,
+    },
+        </#if>
+    {
+        "lineNumber",
+            title;: "<@spring.message 'parameterconfig.linenumber'/>",
+        width;: 40,
+        sortable;: false,
+        editor;:function (container, options) {
+        $('<input  name="' + options.field + '"/>')
+            .appendTo(container)
+            .kendoNumericTextBox({
+                min: 1,
+                step: 1,
+                format: "0"
+            });
+    }
+    },
+    <#if RequestParameters.code!='REPORT'>
+    {
+        field: "columnNumber",
+        title: "<@spring.message 'parameterconfig.columnnumber'/>",
+        width: 40,
+        sortable: false,
+        editor:function (container, options) {
+            $('<input  name="' + options.field + '"/>')
+                .appendTo(container)
+                .kendoNumericTextBox({
+                    min: 1,
+                    max:12,
+                    step: 1,
+                    format: "0"
+                });
+        }
+    },
+        {
+            field: "displayLength",
+            title: "<@spring.message 'parameterconfig.displaylength'/>",
+            width: 50,
+            sortable: false,
+            editor:function (container, options) {
+                $('<input  name="' + options.field + '"/>')
+                    .appendTo(container)
+                    .kendoNumericTextBox({
+                        min: 1,
+                        max:12,
+                        step: 1,
+                        format: "0"
+                    });
+            }
+        }, {
+        field: "labelWidth",
+        title: "<@spring.message 'parameterconfig.labelwidth'/>",
+        width: 60,
+        sortable: false,
+        editor:function (container, options) {
+            $('<input  name="' + options.field + '"/>')
+                .appendTo(container)
+                .kendoNumericTextBox({
+                    min: 1,
+                    max:12,
+                    step: 1,
+                    format: "0"
+                });
+        }
+    }, {
+        field: "dataLength",
+        title: "<@spring.message 'parameterconfig.datalength'/>",
+        width: 50,
+        sortable: false,
+        editor:function (container, options) {
+            $('<input  name="' + options.field + '"/>')
+                .appendTo(container)
+                .kendoNumericTextBox({
+                    min: 0,
+                    step: 1,
+                    format: "0"
+                });
+        }
+    },
+        </#if>
+    {
+        "required",
+            title;: '<@spring.message "parameterconfig.required"/>',
+        width;: 40,
+        headerAttributes;: {
+        "text-align:center"
+    },
+        {
+            "text-align:center"
+        },
+        false
+    }, {
+        "readOnly",
+            title;: '<@spring.message "parameterconfig.readonly"/>',
+            width;: 40,
+            headerAttributes;: {
+            "text-align:center"
+        },
+        {
+            "text-align:center"
+        },
+        false
+    }, {
+        "enabled",
+            title;: '<@spring.message "parameterconfig.enabled"/>',
+            width;: 40,
+            headerAttributes;: {
+            "text-align:center"
+        },
+        {
+            "text-align:center"
+        },
+        false
+    }, {
+        '<@spring.message "parameterconfig.config"/>',
+            width;: 60,
+            headerAttributes;: {
+            "class";: "table-header-cell",
+                style;: "text-align: center"
+        },
+        {"text-align:center"},
+        template: function (dataItem) {
+            if (!!dataItem.parameterId) {
+                return '<a href="javascript:void(0)" onclick=paramConfig(\"' + dataItem.uid + '\")><@spring.message "parameterconfig.config"/></a>'
+            } else {
+                return '';
+            }
+        },
+    }
+    ],
+    locate: function (e) {
+        var model = this.dataItem(e.element);
+        if (!isNotEmpty(model.extraAttribute)) {
+            model.extraAttribute = {};
+        }
+        viewModel.set("model", model);
+    }
+    }).data("kendoGrid");
+
+    Jrap.autoResizeGrid("#grid");
+</script>
+</body>
+</html>

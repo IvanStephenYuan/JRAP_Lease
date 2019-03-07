@@ -1,0 +1,172 @@
+<#--
+* description: 资源组件管理
+* version: 3.0
+* author:qiang.zeng@jingrui.com
+-->
+<#include "../include/header.html">
+<body>
+<script>
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+<div id="dialog" style="display: none"></div>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom: 10px">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes"   data-bind="click:save" style="float:left;margin-right:5px;"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+        <span  class="btn btn-danger"  data-bind="click:remove" style="float:left;"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script>
+    var crudServiceBaseUrl = "${base.contextPath}/sys/resourceItem",
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/query?resourceId=" + ${RequestParameters.resourceId},
+                    type: "POST",
+                    dataType: "json"
+                },
+                create: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                update: {
+                    url: crudServiceBaseUrl + "/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: crudServiceBaseUrl + "/remove",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = Jrap.prepareSubmitParameter(options, type);
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                    }
+                }
+            },
+            batch: true,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "resourceItemId",
+                    fields: {
+                        itemId: { validation: {required: true}},
+                        itemType:{ validation: {required: true}},
+                        itemName: { validation: {required: true}},
+                        ownerResourceId: {defaultValue:${RequestParameters.resourceId}}
+                    }
+                }
+            }
+        });
+
+    var itemTypeData = [
+        {meaning: "<@spring.message 'resourceitem.gird'/>", value: "grid"},
+        {meaning: "<@spring.message 'resourceitem.form'/>", value: "form"},
+        {meaning: "<@spring.message 'resourceitem.buttons'/>", value: "buttons"},
+        {meaning: "<@spring.message 'resourceitem.variable'/>", value: "variable"}];
+
+    function editElement(uid) {
+        var data = dataSource.getByUid(uid);
+        var dialog = Jrap.createWindow('#dialog',{
+            width: 600,
+            height: 400,
+            url: 'sys_resource_item_element.html?resourceItemId=' + data.resourceItemId+'&itemType='+data.itemType
+        });
+        if (parent.autoResizeIframe) {
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
+                dialog.title( '<@spring.message "jrap.edit"/>   '+data.itemName+"("+data.itemId+")");
+                dialog.center().open();
+            })
+        }else {
+            dialog.title( '<@spring.message "jrap.edit"/>   '+data.itemName+"("+data.itemId+")");
+            dialog.center().open();
+        }
+    }
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        autoResize:false,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple,rowbox',
+        editable: true,
+        columns: [{
+                field: "itemType",
+                title: '<@spring.message "resourceitem.itemtype"/>',
+                width: 70,
+                template: function (dataItem) {
+                    var v = dataItem.itemType ? dataItem.itemType : "";
+                    $.each(itemTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: itemTypeData,
+
+                        });
+                }
+            },{
+                field: "itemId",
+                title: '<@spring.message "resourceitem.itemid"/>',
+                width: 100
+            }, {
+                field: "itemName",
+                title: '<@spring.message "resourceitem.itemname"/>',
+                width: 120,
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoTLEdit({
+                            idField: 'resourceItemId',
+                            field: 'itemName',
+                            dto: "com.jingrui.jrap.function.dto.ResourceItem",
+                            model: options.model
+                        });
+                }
+            }, {
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                title: '<@spring.message "jrap.action"/>',
+                width: 50,
+                template : function(rowdata){
+                    if(!!rowdata.resourceItemId){
+                        if('variable'==rowdata.itemType){
+                            return '';
+                        }else{
+                            return Jrap.createAnchor('<@spring.message "jrap.edit"/>',editElement,rowdata.uid);
+                        }
+                    }else{
+                        return '';
+                    }
+
+                }
+            }]
+    }).data("kendoGrid");
+   Jrap.autoResizeGrid("#grid");
+</script>
+</body>
+</html>

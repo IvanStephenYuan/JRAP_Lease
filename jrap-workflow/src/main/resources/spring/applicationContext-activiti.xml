@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ~ #{copyright}# -->
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <context:property-placeholder location="classpath:config.properties"/>
+
+    <!--<bean id="customUserEntityManager" class="com.jingrui.jrap.activiti.manager.CustomUserEntityManager"/>-->
+    <!--<bean id="customGroupEntityManager" class="com.jingrui.jrap.activiti.manager.CustomGroupEntityManager"/>-->
+
+    <bean id="customGroupDataManager" lazy-init="true" class="com.jingrui.jrap.activiti.manager.CustomGroupDataManager">
+    </bean>
+
+    <bean id="customUserDataManager" lazy-init="true" class="com.jingrui.jrap.activiti.manager.CustomUserDataManager">
+    </bean>
+
+    <bean id="customBehaviorFactory" class="com.jingrui.jrap.activiti.custom.CustomBehaviorFactory"/>
+
+    <bean id="activitiBeanProvider" class="com.jingrui.jrap.activiti.custom.ActivitiBeanProvider"/>
+
+    <bean id="notificationListener" class="com.jingrui.jrap.activiti.listeners.NotificationListener"/>
+
+    <bean id="taskCreateNotificationListener" class="com.jingrui.jrap.activiti.listeners.TaskCreateNotificationListener"/>
+
+    <bean id="taskEndNotificationListener" class="com.jingrui.jrap.activiti.listeners.TaskEndNotificationListener"/>
+
+    <bean id="autoDeliverListener" class="com.jingrui.jrap.activiti.listeners.AutoDelegateListener"/>
+
+
+    <!--自定义图片生成器-->
+    <bean id="processDiagramGenerator" class="com.jingrui.jrap.activiti.custom.DefaultProcessDiagramGenerator">
+    </bean>
+
+    <!-- 创建一个流程引擎的配置对象 -->
+    <bean id="processEngineConfiguration" class="com.jingrui.jrap.activiti.custom.CustomSpringProcessEngineConfiguration">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="databaseType" value="${db.type}"/>
+        <property name="transactionManager" ref="transactionManager"/>
+        <!-- 设置数据库schema的更新方式 -->
+        <property name="databaseSchemaUpdate" value="true"/>
+        <property name="activityFontName" value="simsun"></property>
+        <property name="labelFontName" value="simsun"></property>
+        <property name="annotationFontName" value="simsun"></property>
+
+        <property name="mailServerHost" value="${activiti.mailServerHost}"/>
+        <property name="mailServerPort" value="${activiti.mailServerPort}"/>
+        <property name="mailServerDefaultFrom" value="${activiti.mailServerUsername}"/>
+        <property name="mailServerUsername" value="${activiti.mailServerUsername}"/>
+        <property name="mailServerPassword" value="${activiti.mailServerPassword}"/>
+
+        <property name="asyncExecutorActivate" value="true"/>
+
+        <property name="dbIdentityUsed" value="false"/>
+        <!--<property name="taskService" ref="taskService"/>-->
+
+
+        <property name="activityBehaviorFactory" ref="customBehaviorFactory"/>
+
+        <property name="groupDataManager" ref="customGroupDataManager"/>
+        <property name="userDataManager" ref="customUserDataManager"/>
+
+        <property name="beans" ref="activitiBeanProvider"/>
+
+        <property name="processDiagramGenerator" ref="processDiagramGenerator"/>
+
+        <property name="customDefaultBpmnParseHandlers">
+
+            <list>
+                <!--<bean class="com.jingrui.jrap.activiti.custom.AddListenerUserTaskParseHandler">-->
+                <!--<constructor-arg index="0" value="create"/>-->
+                <!--<constructor-arg index="1" ref="notificationListener"/>-->
+                <!--</bean>-->
+                <!--<bean class="com.jingrui.jrap.activiti.custom.AutoEndProcessParseHandler">-->
+                <!--</bean>-->
+                <bean class="com.jingrui.jrap.activiti.custom.CustomUserTaskParseHandler"/>
+            </list>
+        </property>
+        <property name="dbSqlSessionFactory" ref="customDbSqlSessionFactory"/>
+
+
+        <!--<property name="customFormTypes">-->
+        <!--<list>-->
+        <!--<bean class="org.activiti.explorer.form.UserFormType"/>-->
+        <!--<bean class="org.activiti.explorer.form.ProcessDefinitionFormType"/>-->
+        <!--<bean class="org.activiti.explorer.form.MonthFormType"/>-->
+        <!--</list>-->
+        <!--</property>-->
+
+        <!--<property name="customSessionFactories">-->
+        <!--<list>-->
+        <!--<bean class="com.jingrui.jrap.activiti.manager.CustomUserEntityManagerFactory">-->
+        <!--<property name="customUserEntityManager" ref="customUserEntityManager"/>-->
+        <!--</bean>-->
+        <!--<bean class="com.jingrui.jrap.activiti.manager.CustomGroupEntityManagerFactory">-->
+        <!--<property name="customGroupEntityManager" ref="customGroupEntityManager"/>-->
+        <!--</bean>-->
+        <!--</list>-->
+        <!--</property>-->
+        <!--<property name="postBpmnParseHandlers">-->
+        <!--<list>-->
+        <!--<bean class="com.jingrui.jrap.activiti.handlers.MyBpmnParseHandler"/>-->
+        <!--</list>-->
+        <!--</property>-->
+
+        <!--<property name="customPreCommandInterceptors">-->
+        <!--<list>-->
+        <!--<bean class="com.jingrui.jrap.activiti.interceptors.MyCommandInterceptor"/>-->
+        <!--</list>-->
+        <!--</property>-->
+
+    </bean>
+
+    <bean id="customDbSqlSessionFactory" class="com.jingrui.jrap.activiti.custom.CustomDbSqlSessionFactory"/>
+
+    <!-- 创建一个流程引擎bean -->
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+    </bean>
+    <!-- 创建activiti提供的各种服务 -->
+    <!-- 工作流仓储服务 -->
+    <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService"/>
+    <!-- 工作流运行服务 -->
+    <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService"/>
+    <!--  工作流任务服务-->
+    <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService"/>
+
+    <!--<bean id="taskService" class="com.jingrui.jrap.activiti.custom.task.CustomTaskService">-->
+    <!--<constructor-arg ref="processEngineConfiguration"/>-->
+    <!--</bean>-->
+
+    <!--  工作流历史数据服务-->
+    <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService"/>
+    <!--  工作流管理服务-->
+    <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
+    <!-- 工作流user服务 -->
+    <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService"/>
+
+    <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
+
+
+    <bean id="restResponseFactory" class="com.jingrui.jrap.activiti.custom.CustomRestResponseFactory">
+    </bean>
+
+    <bean class="org.activiti.rest.common.application.DefaultContentTypeResolver"/>
+
+    <bean class="com.jingrui.jrap.activiti.custom.ForecastActivityCmd"/>
+
+</beans>

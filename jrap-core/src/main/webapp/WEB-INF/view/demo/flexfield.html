@@ -1,0 +1,178 @@
+<#--
+        * description: 公司编辑页面
+        *author:jialong.zuo@jingrui.com
+        * version: 1.0
+        *
+        -->
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/common/code?companyLevel=FND.COMPANY.LEVEL&companyType=FND.COMPANY.TYPE"
+        type="text/javascript"></script>
+<script>
+    var newViewModel = Jrap.createGridViewModel("#grid");
+//    newViewModel.model.set("companyType","NORMAL");
+//    newViewModel.model.set("attribute10","10003");
+//    newViewModel.model.set("parentCompanyName","公司1");
+</script>
+
+
+
+<div id="page-content" >
+
+    <form class="form-horizontal" >
+        <div class="row">
+            <div class="col-xs-6" >
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"
+                           style="text-align: right">弹性域触发规则字段</label>
+                    <div class="col-xs-8">
+                        <input id="ruleField" type="text" data-bind="value:model.ruleField"
+                               style="width: 100%;">
+                        <small class="help-block">选择公司等级或公司类型，根据弹性域规则项匹配所符合的规则并动态生成弹性域。</small>
+                        <script>
+                            $("#ruleField").kendoComboBox({
+                                valuePrimitive: true,
+                                dataSource: ["公司类型", "公司等级"],
+                                change:function (e) {
+                                    Jrap.createFlexField('COMPANY HEADER RULE', newViewModel.model, 'flexfield');
+                                    Jrap.createGridFlexField('COMPANY LINE RULE', newViewModel.model,'grid');
+                                }
+                            });
+                            kendo.bind($('#ruleField'), newViewModel);</script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="flexfield"></div>
+    </form>
+
+
+    <div id='grid-container' style="clear: both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script>
+
+    var validator = $("#page-content").kendoValidator({
+        valid: function (e) {
+        },
+        invalidMessageType: "tooltip"
+    }).data("kendoValidator");
+
+
+    var url = '${base.contextPath}/fnd/company/';
+
+    var Model = kendo.data.Model.define({
+        id: "companyId",
+        fields: {
+            // companyType: { editable: false},
+            companyCode: {type: "int"},
+            companyShortName: {}
+        }
+    });
+    var model = new Model();
+
+    var dataSource = new kendo.data.DataSource(
+        {
+            transport: {
+                read: {
+                    url: '${base.contextPath}/fnd/company/query',
+                    type: "POST",
+                    dataType: "json"
+                },
+                create: {
+                    url: "${base.contextPath}/fnd/company/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                update: {
+                    url: "${base.contextPath}/fnd/company/submit",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: "${base.contextPath}/fnd/company/remove",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = Jrap.prepareSubmitParameter(options, type);
+                        return kendo.stringify(datas);
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: Model
+            }
+        });
+
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        navigatable: false,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        scrollable: true,
+        selectable: 'multiple,rowbox',
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "companyShortName",
+                title: '<@spring.message "company.companyShortName"/>',
+                width: 120,
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoTLEdit({
+                            idField: 'companyId',
+                            field: 'companyShortName',
+                            dto: "com.jingrui.jrap.fnd.dto.Company",
+                            model: options.model
+                        });
+                }
+            },
+            {
+                field: "startDateActive",
+                title: '<@spring.message "user.startactivedate"/>',
+                width: 160,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                format: "{0:yyyy-MM-dd}",
+                attributes: {
+                    style: "text-align:center"
+                },
+                editor: function (container, options) {
+                    //获得到期时间
+                    var end = options.model.endDateActive;
+                    var opts = {
+                        format: "yyyy-MM-dd"
+                    };
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDatePicker(opts);
+                }
+            }
+        ],
+        editable: true
+    }).data("kendoGrid");
+
+</script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<#include "../include/header.html">
+    <script type="text/javascript">
+        var viewModel = Jrap.createGridViewModel('#Grid', {
+            model: {"ruleSetId": "${RequestParameters.ruleSetId}"},
+        });
+    </script>
+    <body>
+    <div id="page-content">
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+            <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><i
+                    class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+            <span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;"
+                  data-bind="click:save"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+            <span class="btn btn-danger" style="float:left;" data-bind="click:remove"><i class="fa fa-trash-o"
+                                                                                         style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+        </div>
+        <div class="pull-left" style="padding-bottom:10px;padding-top: 5px">
+            <span style="padding-left: 30px"><@spring.message "flexrule.defineruleinstruction"/></span>
+        </div>
+        <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+        <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+                   placeholder='<@spring.message "FlexRule.ruleCode"/>'
+                   data-bind="value:model.ruleCode" class="k-textbox">
+            <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+            <div style="clear:both"></div>
+        </div>
+        <script>kendo.bind($('#query-form'), viewModel);</script>
+        <div style="clear:both">
+            <div id="Grid"></div>
+        </div>
+    </div>
+    <div id="ruleFieldWin"></div>
+
+    <script type="text/javascript">
+
+        Jrap.initEnterQuery('#query-form', viewModel.query);
+
+        var BaseUrl = _basePath;
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: BaseUrl + "/fnd/flex/rule/query",
+                    type: "POST",
+                    dataType: "json"
+                },
+                update: {
+                    url: BaseUrl + "/fnd/flex/rule/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                destroy: {
+                    url: BaseUrl + "/fnd/flex/rule/remove",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                create: {
+                    url: BaseUrl + "/fnd/flex/rule/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        for (var i = 0; i < options.models.length; i++) {
+                            options.models[i].ruleSetId = "${RequestParameters.ruleSetId}";
+                        }
+                        var datas = Jrap.prepareSubmitParameter(options, type)
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "ruleId",
+                    fields: {
+                        ruleCode: {validation: {required: true}},
+                        description: {validation: {required: true}},
+                        enableFlag: {
+                            defaultValue: 'Y',
+                            type: 'boolean',
+                            checkedValue: 'Y',
+                            uncheckedValue: 'N'
+                        }
+                    }
+                }
+            }
+        });
+
+        $("#Grid").kendoGrid({
+            dataSource: dataSource,
+            resizable: true,
+            scrollable: true,
+            navigatable: false,
+            selectable: 'multiple, rowbox',
+            dataBound: function () {
+                if (parent.autoResizeIframe) {
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                }
+            },
+            columns: [
+                {
+                    field: "ruleCode",
+                    title: '<@spring.message "flexrule.rulecode"/>',
+                    width: 120
+                },
+                {
+                    field: "description",
+                    title: '<@spring.message "flexrule.description"/>',
+                    width: 120
+                },
+                {
+                    attributes: {style: "text-align:center"},
+                    title: '<@spring.message "flexrule.definerulefield"/>',
+                    command: [{
+                        name: 'edit',
+                        template: '<a href="javascript:void(0)" class="k-grid-edit"><@spring.message "jrap.edit"/></a>',
+                        click: function (e) {
+                            var data = this.dataItem($(e.target).closest("tr"));
+                            if (!data.ruleId) {
+                                return false;
+                            }
+                            var onClose = function () {
+                                $("#ruleFieldWin").empty();
+                                $('#Grid').data('kendoGrid').dataSource.query();
+                            }
+
+                            $("#ruleFieldWin").kendoWindow({
+                                actions: ["Close"],
+                                title: $l('<@spring.message "flexrule.definerulefield"/>'),
+                                draggable: true,
+                                height: "550px",
+                                width: "90%",
+                                close: onClose,
+                                content: "${base.contextPath}/flexfield/flex_rule_field.html?modelId=${RequestParameters.modelId}&ruleId=" + data.ruleId,
+                                iframe: true,
+                                modal: true,
+                                resizable: false
+                            });
+                            var win = $("#ruleFieldWin").data("kendoWindow");
+                            win.center().open();
+                            e.preventDefault();
+                        }
+                    }],
+                    width: 70,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    }
+                },
+                {
+                    field: 'enableFlag',
+                    title: '<@spring.message "employee.enabledflag"/>',
+                    width: 120,
+                    headerAttributes: {
+                        style: "text-align:center"
+                    },
+                    attributes: {
+                        style: "text-align:center"
+                    }
+                }
+
+            ],
+            editable: true
+        });
+
+
+    </script>
+    </body>
+    </html>

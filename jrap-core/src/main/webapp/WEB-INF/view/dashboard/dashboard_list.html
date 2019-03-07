@@ -1,0 +1,76 @@
+<#-- 
+* description: 仪表盘列表
+* author:njq.niu@jingrui.com
+* version: 1.0 
+* 
+-->
+<script type="text/javascript">
+var dashBoardViewModel = kendo.observable({
+    model: {},
+    query:function(){
+        $('#grid').data('kendoGrid').dataSource.page(1);
+    }
+});
+</script>
+<div id="dashboard-add-form" class="panel">
+  <form class="form-horizontal">
+	   <div class="panel-body">
+            <div class="col-sm-10">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label"><@spring.message "userdashboard.dashboardcode"/></label>
+                    <div class="col-sm-9">
+                        <input name="dashboardCode" data-bind="value:model.dashboardCode" style="width:100%" data-role="maskedtextbox" class="k-textbox" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <span class="btn btn-primary k-btn-query" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+            </div>
+            </div>
+    </form>
+</div>
+<div id="grid"></div>
+<script type="text/javascript">
+		kendo.bind($('#dashboard-add-form'), dashBoardViewModel);
+        dataSource = new kendo.data.DataSource({
+            transport   : {
+                read : {
+                    url : "${base.contextPath}/sys/dashboard/query",
+                    type : "POST",
+                    dataType : "json"
+                },
+                parameterMap: function (options, type) {
+                    if (type === "read") {
+                        return Jrap.prepareQueryParameter(dashBoardViewModel.model.toJSON(), options);
+                    }
+                }
+            },
+            serverPaging: true,
+            pageSize    : 10,
+            schema      : {
+                data  : 'rows',
+                total : 'total'
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource : dataSource,
+            navigatable: false,
+            height:'300px',
+            scrollable: true,
+            editable:false,
+            columns    : [
+                {field: "dashboardCode", title: 'dashboardCode', width: 80},
+                {field: "title", title: 'title', width: 80}
+            ]
+        }).on('dblclick',function(e){
+            var item = $(this).data('kendoGrid').dataItem($(e.target).closest('tr'));
+            if(item){
+                addDashboard(item)
+            }
+        });
+
+
+</script>
+</body>
+</html>

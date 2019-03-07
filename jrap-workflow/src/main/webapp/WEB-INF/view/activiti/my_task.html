@@ -1,0 +1,390 @@
+<#include "../include/header.html">
+<body>
+<style>
+    span[class='k-window-title'] {
+        user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+</style>
+<div id="content-container">
+    <div id="page-content">
+        <div class="panel" style="padding: 0px;border:none;box-shadow: none;">
+            <form class="form-horizontal" id="myForm">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">流程 ID</label>
+                                <div class="col-sm-9">
+                                    <input type="text" style="width: 100%"
+                                           data-bind="value:model.processInstanceId" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">流程名称</label>
+                                <div class="col-sm-9">
+                                    <input type="text" style="width: 100%" data-bind="value:model.processDefinitionNameLike" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">申请人</label>
+                                <div class="col-sm-9">
+                                    <input type="text" style="width: 100%"
+                                           data-bind="value:model.startUserName" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">优先级</label>
+                                <div class="col-sm-9">
+                                    <input id="priority" data-bind="value:model.priority" style="width: 100%;"/>
+                                    <script type="text/javascript">
+
+                                        $("#priority").kendoDropDownList({
+                                            dataTextField: "label",
+                                            dataValueField: "maximumPriority",
+                                            template: function(data){
+                                                return '<span style="display:inline-block;height:25px;margin-right:10px;width:25px;border:1px solid #ccc;background-color:'+data.color+'">&nbsp;</span><span class="k-state-default">'+data.label+'</span>'
+                                            },
+                                            dataSource: [
+                                                { label: "所有级别", color:'#fff' },
+                                                { label: "高", maximumPriority: 100, minimumPriority:67, color:'#D91E18' },
+                                                { label: "中", maximumPriority: 66, minimumPriority:34, color:'#F3C200' },
+                                                { label: "低", maximumPriority: 33, minimumPriority:0, color:'#26C281'}
+                                            ]
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">创建时间</label>
+                                <div class="col-sm-4" style="padding-right: 0;">
+                                    <input style="width: 100%" data-role="datepicker" data-bind="value:model.createdAfter" class="k-datepicker">
+                                </div>
+                                <div class="col-sm-1" style="padding-left: 0;padding-right: 0;text-align:center"><label class="control-label">-</label></div>
+                                <div class="col-sm-4" style="padding-left: 0;">
+                                    <input type="text" style="width: 100%" data-role="datepicker"
+                                           data-bind="value:model.createdBefore" class="k-datepicker">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4 ">
+                            <span class="btn btn-default pull-right" type="button" data-bind="click:resetForm">
+		                        <i class="fa fa-eraser" style="margin-right:3px;"></i>
+		                    <@spring.message "jrap.reset"/></span>
+		                    <span class="btn btn-primary pull-right" data-bind="click:queryGrid"
+                                  type="submit">
+		                        <i class="fa fa-search" style="margin-right:3px;"></i>
+		                    <@spring.message "jrap.query"/></span>
+                        </div>
+
+                   </div>
+
+                </div>
+
+
+            </form>
+            <div class="row">
+
+            </div>
+        </div>
+
+        <div style="clear:both">
+            <div id="taskListGrid"  class="table"></div>
+        </div>
+
+    </div>
+</div>
+
+<div id="taskDetailWin"></div>
+<div id="runtimeWin"></div>
+
+<script type="text/javascript">
+
+    function openDetailWin(taskId, uid) {
+        var rec = dataSource.getByUid(uid);
+        window.top.openTab("PROCESS_TASK_" + taskId, rec.processName + '-' + rec.startUserName, '${base.contextPath}/activiti/task_detail.html?taskId=' + taskId + '&processInstanceId=' + rec.processInstanceId, true);
+    }
+
+    function openRuntimeWin(uid){
+        var rec = dataSource.getByUid(uid);
+        $("#runtimeWin").kendoWindow({
+            title: "流程运行状态",
+            height: "500px",
+            width: "90%",
+            content: "${base.contextPath}/activiti/process_instance.html?processInstanceId=" + rec.processInstanceId,
+            iframe:true,
+            modal: true,
+            visible:false,
+            resizable:false
+        });
+        if(parent.autoResizeIframe){
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function(){
+                var win = $("#runtimeWin").data("kendoWindow");
+                win.center().open();
+            })
+        }else{
+            var win = $("#runtimeWin").data("kendoWindow");
+            win.center().open();
+        }
+    }
+
+    function doQuery() {
+        $('#taskListGrid').data('kendoGrid').dataSource.page(1);
+    }
+
+    viewModel = kendo.observable({
+        model: {},
+        queryGrid: doQuery,
+        resetForm: function (e) {
+            var formData = viewModel.model.toJSON();
+            for (var k in formData) {
+                viewModel.model.set(k, null);
+            }
+        }
+    });
+    kendo.bind($('#page-content'), viewModel);
+    $("#priority").data('kendoDropDownList').select(0)
+    dataSource = new kendo.data.DataSource(
+            {
+                transport: {
+                    read: {
+                        url: '${base.contextPath}/wfl/query/tasks',
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: "json"
+                    },
+                    parameterMap: function (options, type) {
+                        if (type === "read") {
+                            var map = viewModel.model.toJSON();
+                            map.start = (options.page - 1) * options.pageSize;
+                            map.size = options.pageSize;
+                            if (options.sort && options.sort.length > 0) {
+                                map.sort = options.sort[0].field || 'priority';
+                                map.order = options.sort[0].dir || 'desc';
+                            }else {
+                                map.sort =  'priority';
+                                map.order = 'desc';
+                            }
+                            for (var k in map) {
+                                if (map[k] === '' || map[k] === null || map[k] === undefined)
+                                    delete map[k]
+                            }
+                            if(map.createdBefore){
+                                map.createdBefore.setHours(23);
+                                map.createdBefore.setMinutes(59);
+                                map.createdBefore.setSeconds(59);
+                            }
+                            if(map.priority){
+                                map.maximumPriority = map.priority.maximumPriority;
+                                map.minimumPriority = map.priority.minimumPriority;
+                                delete map.priority;
+                            }
+
+
+                            return kendo.stringify(map);
+                        }
+                    }
+                },
+                batch: true,
+                serverPaging: true,
+                serverSorting: true,
+                sort: {field: 'priority', dir: 'desc'},
+                pageSize: 10,
+                schema: {
+                    data: 'data',
+                    total: 'total',
+                    model: {
+                        id: "id",
+                        fields: {}
+                    }
+                }
+            });
+
+            $("#taskListGrid").kendoGrid({
+                dataSource: dataSource,
+                navigatable: false,
+                resizable: true,
+                sortable: true,
+                scrollable : 'multiple, rowbox',
+                dataBound:function(){
+                    if(parent.autoResizeIframe){
+                        parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                    }
+                },
+                pageable: {
+                    pageSizes: [5, 10, 20, 50],
+                    refresh: true,
+                    buttonCount: 5
+                },
+                columns: [
+
+                    {
+                        field: "processInstanceId",
+                        title: '流程 ID',
+                        width: 60,
+                        sortable: false,
+                        headerAttributes: {
+                            style: "text-align: center"
+                        },
+                        attributes: {
+                            style: "text-align: center"
+                        },
+                    },
+                    {
+                        field: "id",
+                        title: '操作',
+                        headerAttributes: {
+                            style: "text-align: center"
+                        },
+                        attributes: {
+                            style: "text-align: center"
+                        },
+                        width: 60,
+                        template: function (dataItem) {
+                            var div = "<div>";
+                            div += Jrap.createAnchor("<span style='margin-right:5px'>办理</span>", openDetailWin, dataItem.id, dataItem.uid);
+                            div += "</div>"
+                            return div;
+                        },
+                        sortable: false
+                    },
+                    {
+                        field: "processName",
+                        title: '流程名称',
+                        width: 100,
+                        sortable: false
+                    },
+                    {
+                        field: "description",
+                        title: '流程描述',
+                        width: 180,
+                        template: function (dataItem) {
+                            return dataItem.description ||""; /*+ Jrap.createAnchor("<span class='fa fa-eye' style='float:right'/>",openRuntimeWin,dataItem.uid);*/
+                        },
+                        sortable: false
+                    },
+                    {
+                        field: "name",
+                        title: '审批环节',
+                        width: 100,
+                        template: function (dataItem) {
+                            return dataItem.name ||""; /*+ Jrap.createAnchor("<span class='fa fa-eye' style='float:right'/>",openRuntimeWin,dataItem.uid);*/
+                        },
+                        sortable: false
+                    },
+                    {
+                        field: "startUserName",
+                        title: '申请人',
+                        width: 100,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center"
+                        },
+                        attributes: {style: "text-align:center"},
+                        template: function (dataItem) {
+                            if(dataItem.startUserName){
+                                return dataItem.startUserName + " (" + dataItem.startUserId + ")";
+                            }
+                            return "";
+                        },
+                        sortable: false
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间',
+                        headerAttributes: {
+                            style: "text-align: center"
+                        },
+                        attributes: {
+                            style: "text-align: center"
+                        },
+                        width: 120,
+                    },
+                    {
+                        field: 'priority',
+                        title: '优先级',
+                        headerAttributes: {
+                            style: "text-align: center"
+                        },
+                        attributes: {
+                            style: "text-align: center"
+                        },
+                        width: 180,
+                        template: function (dataItem) {
+                        	var timeDescr;
+                        	if(dataItem.dueTime == null){
+                                if (dataItem.priority < 33) {
+                                    timeDescr = "低";
+                                } else if (dataItem.priority < 66){
+                                    timeDescr = "中";
+                                }else {
+                                    timeDescr = "高";
+                                }
+                            } else {
+                                if(dataItem.dueTime < 0 ){
+                                    timeDescr = "已超时:"
+                                } else {
+                                    timeDescr = "剩余时间:"
+                                }
+                                var dueTime = Math.abs(dataItem.dueTime);
+                                timeDescr += Jrap.getDurationTime(dueTime)
+                            }
+                            if (dataItem.priority < 33)
+                            	return "<div class='priority-low'>"+timeDescr+"</div>";
+                            if (dataItem.priority < 66)
+                                return "<div class='priority-median'>"+timeDescr+"</div>";
+                            return "<div class='priority-high'>"+timeDescr+"</div>";
+                        }
+                    }],
+                editable: false
+            }).data("kendoGrid");
+
+</script>
+<style type="text/css">
+
+    .task-resolved {
+        color: blue;
+    }
+
+    .task-pending {
+        color: lightblue;
+    }
+
+    .priority-low, .priority-median, .priority-high {
+        display:inline-block;
+        width: 80%;
+        height: 80%;
+        text-align: center;
+        line-height: 30px;
+        color: white;
+    }
+    .priority-low {
+        background: #26C281;
+    }
+
+    .priority-median {
+        background: #F3C200;
+    }
+
+    .priority-high {
+        background-color: #D91E18;
+    }
+</style>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.account.mapper.UserRoleMapper" >
+
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.account.dto.UserRole" extends="com.jingrui.jrap.mapper.StdMapper.STD" >
+        <id column="SUR_ID" property="surId" jdbcType="DECIMAL" />
+        <result column="USER_ID" property="userId" jdbcType="DECIMAL" />
+        <result column="ROLE_ID" property="roleId" jdbcType="DECIMAL" />
+        <result column="DEFAULT_FLAG" property="defaultFlag" jdbcType="VARCHAR" />
+    </resultMap>
+  
+    <sql id="Base_Column_List" >
+        SUR_ID, USER_ID, ROLE_ID, DEFAULT_FLAG
+    </sql>
+    
+    <delete id="deleteByUserId" parameterType="java.lang.Long" >
+        DELETE FROM SYS_USER_ROLE
+        WHERE USER_ID = #{userId,jdbcType=DECIMAL}
+    </delete>
+    
+    <delete id="deleteByRecord" parameterType="com.jingrui.jrap.account.dto.UserRole">
+        DELETE FROM SYS_UESR_ROLE
+        WHERE USER_ID = #{userId,jdbcType=DECIMAL}
+            AND ROLE_ID = #{roleId,jdbcType=DECIMAL}
+    </delete>
+
+    <delete id="deleteByRoleId" parameterType="java.lang.Long">
+      DELETE FROM SYS_USER_ROLE
+      WHERE ROLE_ID = #{roleId,jdbcType=DECIMAL}
+    </delete>
+
+</mapper>

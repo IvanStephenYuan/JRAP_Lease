@@ -1,0 +1,36 @@
+<div class="scroller" style="height: 339px;" data-always-visible="1" data-rail-visible="0">
+    <ul class="feeds">
+        <#if message??>
+            <#list message as c>
+                <li>
+                    <div class="col1">
+                        <div class="cont">
+                            <div class="cont-col1">
+                                <#if c.priority lt 30 >
+                                    <div class="label label-sm label-success">
+                                        <i class="fa fa-bell-o"></i>
+                                    </div>
+                                <#elseif c.priority lt 60>
+                                    <div class="label label-sm label-info">
+                                        <i class="fa fa-bullhorn"></i>
+                                    </div>
+                                 <#else>
+                                    <div class="label label-sm label-danger">
+                                        <i class="fa fa-bolt"></i>
+                                    </div>
+                                </#if>
+                            </div>
+                            <div class="cont-col2">
+                                <div class="desc">
+                                    <a href="javascript:window.top.openTab('PROCESS_TASK_${c.id}', '${c.processName}'||'待办审批', '${base.contextPath}/activiti/task_detail.html?taskId=${c.id}&processInstanceId=${c.processInstanceId}', true);">
+                                        ${c.processName!} (${c.startUserName!})
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </#list>
+        </#if>
+    </ul>
+</div>

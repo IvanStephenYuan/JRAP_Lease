@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:screen xmlns:h="http://www.jingrui.com/jrap" >
+    <script src="${base.contextPath}/common/code?resourceTypeData=SYS.RESOURCE_TYPE&amp;codeYesNo=SYS.YES_NO" type="text/javascript"></script>
+    <span id="centeredNotification" style="display:none;"></span>
+    <script id="scriptA"><![CDATA[
+        function onShow(e) {
+            if (e.sender.getNotifications().length == 1) {
+                var element = e.element.parent(),
+                    eWidth = element.width(),
+                    eHeight = element.height(),
+                    wWidth = $(window).width(),
+                    wHeight = $(window).height(),
+                    newTop, newLeft;
+
+                newLeft = Math.floor(wWidth / 2 - eWidth / 2);
+                newTop = Math.floor(wHeight / 2 - eHeight / 2);
+
+                e.element.parent().css({
+                    top: newTop,
+                    left: newLeft
+                });
+            }
+        }
+        var errorTemplate = '<div class="k-widget k-tooltip k-tooltip-validation"' +
+            'style="margin:0.5em"><span class="k-icon k-warning"> </span>' +
+            '#=message#<div class="k-callout k-callout-n"></div></div>'
+
+        var validator = $("#form1").kendoValidator({
+            //errorTemplate: errorTemplate
+        }).data("kendoValidator");
+        
+        var centered = $("#centeredNotification").kendoNotification({
+                stacking: "down",
+                show: onShow,
+                autoHideAfter: 1000,
+                button: true
+            }).data("kendoNotification");
+        var tabCounter = 2;
+            
+        var viewModel = kendo.observable({
+                isEnabled: true,
+                data: {
+                    //userName:'Admin',
+                    userId: 3,
+                    flozen:'Y',
+                    //id:101,
+                    name:'功能管理'
+                },
+                validateForm: function() {
+                    //validator.validate();
+                    this.data.set('userId', null)
+                        //this.set('data',{})
+                },
+                comboboxSource: [{
+                    text: "Cotton",
+                    value: "1"
+                }, {
+                    text: "Polyester",
+                    value: "2"
+                }, {
+                    text: "Cotton/Polyester",
+                    value: "3"
+                }, {
+                    text: "Rib Knit",
+                    value: "4"
+                }],
+                showInfo: function() {
+                    kendo.ui.showInfoDialog({
+                        message: '您的订单已经提交!'
+                    }).done(function(e) {
+                        centered.show('你点击了 ' + e.button)
+                    })
+                },
+                showError: function() {
+                    kendo.ui.showErrorDialog({
+                        message: '错误信息!'
+                    }).done(function(e) {
+                        centered.show('你点击了 ' + e.button)
+                    })
+                },
+                showWarning: function() {
+                    kendo.ui.showWarningDialog({
+                        message: '警告信息!'
+                    }).done(function(e) {
+                        centered.show('你点击了 ' + e.button)
+                    })
+                },
+                showConfirm: function() {
+                    kendo.ui.showConfirmDialog({
+                        title: '提示',
+                        message: '确认删除么?'
+                    }).done(function(e) {
+                        centered.show('你点击了 ' + e.button)
+                    })
+                },
+                showCustom: function() {
+                    kendo.ui.showDialog({
+                        title: '自定义窗口',
+                        width: 400,
+                        message: $('#modal-body').html(),
+                        buttons: [{
+                            text: "按钮1",
+                            type: 'primary',
+                            click: function(e) {
+                                e.dialog.destroy();
+                                e.deferred.resolve({
+                                    button: "BUTTON1"
+                                });
+                            }
+                        }, {
+                            text: "按钮2",
+                            type: 'success',
+                            click: function(e) {
+                                e.dialog.destroy();
+                                e.deferred.resolve({
+                                    button: "BUTTON2"
+                                });
+                            }
+                        }, {
+                            text: "按钮3",
+                            type: 'danger',
+                            click: function(e) {
+                                e.dialog.destroy();
+                                e.deferred.resolve({
+                                    button: "BUTTON2"
+                                });
+                            }
+                        }]
+                    }).done(function(e) {
+                        centered.show('你点击了 ' + e.button)
+                    })
+                },
+                showWindow: function() {
+                    if ($('#win').data('kendoWindow')) {
+                        $('#win').data('kendoWindow').open()
+                    } else {
+                        $('#win').kendoWindow({
+                            width: 600,
+                            height: 500,
+                            modal: true,
+                            title: "Rams's Ten Principles of Good Design",
+                            content: "combobox.html"
+                        }).data('kendoWindow').center();
+                    }
+                },
+                openTab: function() {
+                    var tab = $("#tabstrip").data("kendoTabStrip");
+                    tab.append({
+                        tabid: 'Item-' + (++tabCounter),
+                        text: 'Item ' + (++tabCounter) + ' <span class="k-icon k-i-close"></span>',
+                        encoded: false,
+                        content: '<p>Appended item " '+ tabCounter +' " content</p>'
+                    });
+                    var num = tab.tabGroup.children().length - 1;
+                    tab.select(tab.tabGroup.children().length - 1);
+                }
+            });
+            
+            $('#customBtn').on('click', function() {
+            kendo.ui.showInfoDialog({
+                title: '自定义窗口',
+                width: 400,
+                message: $('#modal-body').html()
+            })
+        })
+        $('#selectedBtn').on('click', function() {
+                var grid = $("#grid").data("kendoGrid");
+                alert("选中" + grid.selectedDataItems().length + "条");
+            })
+           function lovQuery(e) {
+                        e.param['current_time'] = new Date();
+                        e.param['userId'] = viewModel.data.userId;
+                       };
+           function lovSelect(e) {
+                        viewModel.data.set('productId', '1')
+                        viewModel.data.set('userId', e.item.roleCode)
+                       };
+          function productsParam(options, type) {
+                         if (type === "read") {
+                          var filter = options.filter.filters[0]
+                          var map = {};
+                          map[filter.field] = filter.value;
+                           return map;
+                          }
+                      }
+                      
+          function parameterMap(options, type){
+                    if (type !== "read" && options.models) {
+                        var datas = options.models
+                        if (type == 'create' || type == 'update') {
+                            datas = options.models.map(function(data) {
+                                data['__status'] = (type == 'create' ? 'add' : 'update');
+                                return data;
+                            })
+                        }
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Jrap.prepareQueryParameter({}, options);
+                    }
+                }
+    
+    
+            function dsEditable(col) {
+                if (col == 'type' && this.url == 'sys/sys_lov.html') {
+                    return false;
+                }
+                return true;
+            }
+            function requestError(e){
+                alert(e.errors);
+            }
+            function schemaError(res){
+                if (!res.success && res.message) {
+                    return res.message;
+                }
+            }
+            function dingClick(e) {
+                e.preventDefault();
+                alert('顶!~')
+            }
+            function urlEditor(container, options) {
+                $('<input required name="' + options.field + '"/>')
+                .appendTo(container)
+                .kendoMaskedTextBox({});
+            }
+            function typeTemplate(dataItem) {
+                var v = dataItem.type;
+                $.each(resourceTypeData, function(i, n) {
+                    if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                        v = n.meaning;
+                        return false;
+                    }
+                })
+                return v;
+            }
+            function typeEditor(container, options) {
+                $('<input required name="' + options.field + '"/>')
+                    .appendTo(container)
+                    .kendoComboBox({
+                        dataTextField: "meaning",
+                        dataValueField: "value",
+                        dataSource: resourceTypeData
+                    });
+            }
+            function lovTemplate(dataItem) {
+                return dataItem['name'] || ''
+            }
+            function lovEditor(container, options) {
+                $('<input required name="' + options.field + '"/>')
+                    .appendTo(container)
+                    .kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_ROLE")}, {
+                        textField: 'name',
+                        select: function(e) {
+                            options.model.set('phone', e.item.phone)
+                        },
+                        model: options.model
+                    }));
+            }
+            function nameEditor(container, options) {
+                $('<input required name="' + options.field + '"/>')
+                    .appendTo(container)
+                    .kendoTLEdit({
+                        idField: 'id',
+                        field: options.field,
+                        dto: "com.jingrui.jrap.function.dto.Resource",
+                        model: options.model
+                    });
+            }
+            function bodEditor(container, options) {
+                $('<input required name="' + options.field + '"/>')
+                    .appendTo(container)
+                    .kendoDatePicker();
+            }
+            function descEditor(container, options) {
+                $('<input name="' + options.field + '"/>')
+                    .appendTo(container)
+                    .kendoTLEdit({
+                        idField: 'id',
+                        field: options.field,
+                        dto: "com.jingrui.jrap.function.dto.Resource",
+                        modal: false,
+                        model: options.model
+                    });
+            }
+            function gridLocate(e){
+                var d = this.dataItem(e.element);
+            }
+    ]]></script>
+
+     <h:dataSource id="productsData" serverFiltering="true">
+        <h:transport parameterMap="productsParam">
+            <h:read url="${base.contextPath}/sys/lov/query"></h:read>
+        </h:transport>
+        <h:schema data="rows"></h:schema>
+     </h:dataSource>
+     <h:dataSource id="catagoriesData"> 
+         <h:transport>
+            <h:read url="${base.contextPath}/sys/lov/query"></h:read>
+         </h:transport>
+         <h:schema data="rows"></h:schema>
+     </h:dataSource>
+    
+    <div id="win"></div>
+    <div style="padding:15px 15px 0">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="panel">
+                    <form class="form-horizontal" id="form1">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">TextBox:</label>
+                                <div class="col-sm-4">
+                                    <h:maskedTextBox name="userId" class="userId" style="width: 100%;" id="maskedtextbox" bind="enabled: isEnabled, value:data.userId" required="true" bindModel="viewModel">
+                                         <h:validation>
+                                            <h:item name="required" msg="Enter {0}"/>
+                                         </h:validation>
+                                    </h:maskedTextBox>
+                                </div>
+                                <label class="col-sm-2 control-label">ComboBox:</label>
+                                <div class="col-sm-4">
+                                    <h:combobox id="combobox" name="combobox" placeholder="combobox" valuePrimitive="true" dataTextField="text" dataValueField="value" bind="enabled: isEnabled, source: comboboxSource, value:data.productId" style="width: 100%;"  required="true" bindModel="viewModel" />
+                                    <span class="k-invalid-msg" data-for="combobox"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Lov:</label>
+                                <div class="col-sm-4">
+                                    <h:lov id="lov" name="lov" placeholder="lov" data-bind="enabled: isEnabled, value:data.userId,text:data.userName" style="width: 100%" code="LOV_ROLE" locale="${base.locale}" contextPath="${base.contextPath}" query="lovQuery" select="lovSelect" bindModel="viewModel" />
+                                    <span class="k-invalid-msg" data-for="lov"></span>
+                                </div>
+
+                                <label class="col-sm-2 control-label">DatePicker:</label>
+                                <div class="col-sm-4">
+                                    <h:datePicker id="datepicker" name="datepicker" style="width: 100%;" placeholder="datepicker" max="2016-12-24" bind="enabled: isEnabled,value:data.birthday" required="true" bindModel="viewModel" />
+                                    <span class="k-invalid-msg" data-for="datepicker"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">TLEdit:</label>
+                                <div class="col-sm-4">
+                                   <h:tlEdit id="tl" placeholder="多语言" bind="value:data.name"  style="width: 100%;" idField="id" field="name" dto="com.jingrui.jrap.function.dto.Resource" model="viewModel.data" bindModel="viewModel"></h:tlEdit>
+                                    <span class="k-invalid-msg" data-for="tl"></span>
+                                </div>
+                                <label class="col-sm-2 control-label">Checkbox:</label>
+                                <div class="col-sm-4">
+                                    <h:checkbox checkedValue="Y" uncheckedValue="N" id="checkbox" name="checkbox" bind="enabled: isEnabled,value:data.flozen" label="this is a checkbox" bindModel="viewModel"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                            <label class="col-sm-2 control-label">单选框:</label>
+                              <div class="col-sm-4">
+                            <h:radio id="radio"  bind="enabled: isEnabled,value:data.flozen" bindModel="viewModel">
+                                <h:items>
+                                    <h:item label="A" value="N"/>
+                                    <h:item label="B" value="2"/>
+                                    <h:item label="C" value="3"/>
+                                </h:items>
+                            </h:radio>
+                            </div>
+
+                            <label class="col-sm-2 control-label">numericTextBox:</label>
+                             <div class="col-sm-4">
+                                <h:numericTextBox id="ntb" bind="enabled: isEnabled,value:data.number" bindModel="viewModel" min="0" max="100" >
+                                </h:numericTextBox>
+                             </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Combobox-A:</label>
+                                <div class="col-sm-4">
+                                    <h:combobox id="categories" dataSource="catagoriesData"  style="width: 100%;" dataValueField="code" dataTextField="code" filter="contains" placeholder="Select category..."  />
+                                </div>
+
+                                <label class="col-sm-2 control-label">Combobox-B:</label>
+                                <div class="col-sm-4">
+                                    <h:combobox id="products" disabled="true" cascadeFrom="categories" style="width: 100%;" dataSource="productsData" dataValueField="code" dataTextField="code" placeholder="Select product..." filter="contains" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                            <label class="col-sm-2 control-label">textarea:</label>
+                            <div class="col-sm-6">
+                              <h:textarea id="TA" height="50" name="textarea" required="true" width="300" bind="value:data.flozen" bindModel="viewModel" />
+                              <span class="k-invalid-msg" data-for="datepicker"></span>
+                             </div>
+                             </div>
+                        </div>
+                        <div class="panel-footer text-left" id="toolbar">
+                            <span class="btn btn-success" data-bind="click:validateForm">校验</span>
+                            <span class="btn btn-info" data-bind="click:showInfo">提示窗口</span>
+                            <span class="btn btn-warning" data-bind="click:showWarning">警告窗口</span>
+                            <span class="btn btn-danger" data-bind="click:showError">错误窗口</span>
+                            <span class="btn btn-danger" data-bind="click:showConfirm">确认窗口</span>
+                            <span class="btn btn-default" data-bind="click:showCustom">自定义窗口</span>
+                            <span class="btn btn-default" data-bind="click:openTab">打开标签页</span>
+                        </div>
+                        <script>
+                            kendo.bind($('#toolbar'), viewModel);
+                        </script>
+                    </form>
+                </div>
+            </div>
+            <script>
+               $("#form1").kendoValidator({
+             }).data("kendoValidator");
+            </script>
+            <style>
+                .k-tabstrip-wrapper,
+                .k-tabstrip-wrapper .k-content {
+                    height: 100%;
+                }
+            </style>
+            <div class="col-sm-6" style="height:70px;">
+                <h:tabStrip id="tabstrip" value="Paris" animation="false">
+                    <h:tabs>
+                        <h:tab title="Paris">
+                            <span class="rainy"><![CDATA[&nbsp;]]></span>
+                            <div class="weather">
+                               <h2>
+                                 <span>17<![CDATA[&ordm;]]>C</span> </h2>
+                               <p>Rainy weather in Paris.</p>
+                           </div>
+                        </h:tab>
+                        <h:tab title="New York">
+                             <span class="sunny"><![CDATA[&nbsp;]]></span>
+                            <div class="weather">
+                                <h2><span>29<![CDATA[&ordm;]]>C</span></h2>
+                                <p>Sunny weather in New York.</p>
+                            </div>
+                        </h:tab>
+                        <h:tab title="London">
+                            <span class="sunny"><![CDATA[&nbsp;]]></span>
+                            <div class="weather">
+                                <h2><span>21<![CDATA[&ordm;]]>C</span></h2>
+                                <p>Sunny weather in London.</p>
+                            </div>
+                        </h:tab>
+                        <h:tab title="Moscow">
+                            <span class="cloudy"><![CDATA[&nbsp;]]></span>
+                            <div class="weather">
+                                <h2><span>16<![CDATA[&ordm;]]>C</span></h2>
+                                <p>Cloudy weather in Moscow.</p>
+                            </div>
+                        </h:tab>
+                    </h:tabs>
+                </h:tabStrip>
+            </div>
+            <script>
+               var tabstrip = $("#tabstrip").data("kendoTabStrip");
+                tabstrip.tabGroup.on("click", ".k-i-close", function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var item = $(e.target).closest(".k-item");
+                    var index = item.index(),
+                    prev = item.next().length == 1 ? item.next() : item.prev();
+                    tabstrip.remove(item.index());
+                    tabstrip.select(prev)
+                });
+            </script>
+        </div>
+        
+    </div>
+    
+    <div id="modal-body" style="display:none;">
+        <p class="text-semibold text-main">Bootstrap Modal Vertical Alignment Center</p>
+        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut
+            aliquip ex ea commodo consequat.</p>
+        <br />
+        <p class="text-semibold text-main">Popover in a modal</p>
+        <p>This
+            <button class="btn btn-sm btn-warning demo-modal-popover add-popover" data-toggle="popover" data-trigger="focus" data-content="And here's some amazing content. It's very engaging. right?" data-original-title="Popover Title">button</button>                should trigger a popover on click.
+        </p>
+        <br />
+        <p class="text-semibold text-main">Tooltips in a modal</p>
+        <p>
+            <a class="btn-link text-bold add-tooltip" href="#" data-original-title="Tooltip">This link</a> and
+            <a class="btn-link text-bold add-tooltip" href="#" data-original-title="Tooltip">that link</a> should have tooltips on hover.
+        </p>
+    </div>
+    
+    <div id="dialog"></div>
+    <h:dataSource id="gridDataSource" batch="true" pageSize="10" serverPaging="true" serverSorting="true" error="requestError">
+      <h:transport parameterMap="parameterMap">
+        <h:read url="${base.contextPath}/sys/resource/query" type="POST" dataType="json"/>
+        <h:create url="${base.contextPath}/sys/resource/submit" type="POST" contentType="application/json" />
+        <h:update url="${base.contextPath}/sys/resource/submit" type="POST" contentType="application/json" />
+        <h:destroy url="${base.contextPath}/sys/resource/remove" type="POST" contentType="application/json" />
+      </h:transport>
+      <h:schema data="rows" total="total" errors="schemaError">
+        <h:model id="resourceId" editable="dsEditable">
+           <h:fields>
+               <h:item name="loginRequire" defaultValue="Y" type="boolean" checkedValue="Y" uncheckedValue="N"/>
+               <h:item name="accessCheck" defaultValue="Y" type="boolean" checkedValue="Y" uncheckedValue="N"/>
+               <h:item name="type" defaultValue=""/>
+               <h:item name="url">
+                   <h:validation required="true"/>
+               </h:item>
+               <h:item name="name">
+                   <h:validation required="true"/>
+               </h:item>
+               <h:item name="bod" defaultValue="date:2016-01-01"/>
+           </h:fields>
+        </h:model>        
+      </h:schema>
+      <h:sort>
+            <h:item field="url" dir="asc"/>
+      </h:sort>
+    </h:dataSource>
+    <div class="row">
+        <div class="col-xs-12" style="height:500px;clear:both">
+            <h:grid id="grid" dataSource="gridDataSource"  selectable="multiple, rowbox" editable="inline" sortable="true" height="500" resizable="true" rownumber="true" navigatable="true" locate="gridLocate">
+                <h:pageable pageSizes="all,5,10,20,50" buttonCount="5" refresh="true"></h:pageable>
+                  <h:toolbar>
+                     <h:item name="create">
+                        <h:template>
+                          <![CDATA[<span class=" btn btn-primary k-grid-add">#=text#</span>]]>
+                        </h:template>
+                     </h:item>
+                     <h:item name="save">
+                         <h:template>
+                          <![CDATA[<span class="btn btn-success k-grid-save-changes">#=text#</span>]]>
+                        </h:template>
+                    </h:item>
+                     <h:item name="cancel"> 
+                        <h:template>
+                          <![CDATA[<span class="btn btn-default k-grid-cancel-changes">取消</span>]]>
+                        </h:template>
+                       </h:item>
+                     <h:item>
+                        <h:template>
+                          <![CDATA[<span id="customBtn" class="btn btn-warning">个性化</span>]]>
+                        </h:template>
+                     </h:item>
+                     <h:item >
+                         <h:template>
+                          <![CDATA[<span id="selectedBtn" class="btn btn-default">获取选中行数据</span>]]>
+                        </h:template>
+                     </h:item>
+                  </h:toolbar>
+                  <h:columns>
+                      <h:column title='操作'  width="120">
+                          <h:command>
+                              <h:item name="edit"/>
+                              <h:item name="destroy"/>
+                              <h:item name="ding" click="dingClick">
+                                <h:template>
+                                 <![CDATA[ <a class="k-button k-button-icontext k-grid-ding"><span class="fa fa-thumbs-up"></span></a>]]>
+                                </h:template>
+                              </h:item>
+                          </h:command>
+                          <h:headerAttributes style="text-align:center"/>
+                          <h:attributes style="text-align:center"/>
+                      </h:column>
+                      <h:column field="url" title='<@spring.message "resource.url"/>' width="200" editor="urlEditor"/>
+                      <h:column field="type" title='<@spring.message "resource.type"/>' width="120" editor="typeEditor" template="fn:typeTemplate"/>
+                      <h:column field="lov" title='lov' width="120" editor="lovEditor" template="fn:lovTemplate" />
+                      <h:column field="phone" title='phone' width="80" />
+                      <h:column field="name" title='<@spring.message "resource.name"/>' width="120" editor="nameEditor"/>
+                      <h:column field="bod" title='生日' width="120" editor="bodEditor" />
+                      <h:column field="loginRequire" title='<@spring.message "resource.loginrequire"/>' width="70">
+                          <h:headerAttributes style="text-align:center"/>
+                          <h:attributes style="text-align:center"/>
+                      </h:column>
+                      <h:column field="accessCheck" title='<@spring.message "resource.accesscheck"/>' width="70">
+                          <h:headerAttributes style="text-align:center"/>
+                          <h:attributes style="text-align:center"/>
+                      </h:column>
+                      <h:column field="description" title='<@spring.message "resource.description"/>' width="150" editor="descEditor" />
+                  </h:columns>
+                </h:grid>
+            </div>
+        </div>
+    
+    
+</h:screen>

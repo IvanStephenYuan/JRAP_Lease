@@ -1,0 +1,32 @@
+<#--
+ * description: LOV preview界面
+ * version: 1.0 
+ *author:hailin.xu@jingrui.com
+ * -->
+<#include "../include/header.html">
+<body>
+<div id="content-container">
+    <div id="page-content">
+        <div class="panel" style="padding: 0px;">
+            <form class="form-horizontal">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">lov</label>
+								<div class="col-sm-10">
+									<input type="text" id="lovId" style="width:100%"   name="lovId">
+								     <script>
+									    $("#lovId").kendoLov(${lovProvider.getLov(base.contextPath, base.locale, RequestParameters.code)})  
+									</script>
+								</div>
+							</div>
+						</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

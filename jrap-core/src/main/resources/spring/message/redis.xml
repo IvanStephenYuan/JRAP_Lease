@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+
+    <bean id="mapSerializer" class="org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer">
+        <constructor-arg type="java.lang.Class" value="java.util.HashMap"/>
+        <property name="objectMapper" ref="objectMapper"/>
+    </bean>
+
+    <!-- 发布消息工具类 -->
+    <bean class="com.jingrui.jrap.message.impl.MessagePublisherImpl"/>
+
+    <!--发布/订阅监听-->
+    <bean class="com.jingrui.jrap.message.TopicListenerContainer">
+        <property name="connectionFactory" ref="v2redisConnectionFactory"/>
+        <property name="recoveryInterval" value="10000"/>
+        <!--<property name="messageListeners" ref="messageListeners"/>-->
+    </bean>
+
+    <bean id="simpleQueueConsumer" class="com.jingrui.jrap.message.impl.SimpleMessageConsumer"/>
+
+    <!--队列监听-->
+    <bean class="com.jingrui.jrap.message.QueueListenerContainer">
+        <property name="connectionFactory" ref="v2redisConnectionFactory"/>
+        <property name="recoveryInterval" value="5000"/>
+        <property name="stringRedisSerializer" ref="stringRedisSerializer"/>
+        <property name="listeners">
+            <list>
+                <!-- auto detect bean with annotation QueueMonitor -->
+            </list>
+        </property>
+    </bean>
+
+</beans>

@@ -1,0 +1,9 @@
+package com.jingrui.jrap.activiti.demo;
+import com.jingrui.jrap.exp.dto.Employee
+import java.lang.System
+rule "rule1"
+	when
+		u: Employee(employeeName=="zsy")
+	then
+		System.out.println("rule1:"+u);
+end

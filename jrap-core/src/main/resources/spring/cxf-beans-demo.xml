@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright ZheJiang JingRui Co.,Ltd.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd ">
+
+    <!-- WS-Security拦截器 校验用户名密码 -->
+    <bean id="serverInInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+        <constructor-arg>
+            <map>
+                <entry key="action" value="UsernameToken"/>
+                <!-- 密码类型，PasswordText表示明文 ,PasswordDigest加密-->
+                <entry key="passwordType" value="PasswordText"/>
+                <entry key="passwordCallbackRef">
+                    <!-- 回调函数引用 -->
+                    <bean id="serverPasswordCallback" class="com.jingrui.jrap.demo.ws.ServerPasswordCallback">
+                        <!--校验用户名和密码-->
+                        <property name="username" value="admin"></property>
+                        <property name="password" value="admin"></property>
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="service1" class="com.jingrui.jrap.demo.ws.HelloWorldImpl"/>
+    <jaxws:endpoint id="hello" implementor="#service1" address="/HelloWorldService" >
+        <jaxws:inInterceptors>
+               <ref bean="serverInInterceptor"></ref>
+        </jaxws:inInterceptors>
+    </jaxws:endpoint>
+
+</beans>

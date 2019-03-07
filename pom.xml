@@ -1,0 +1,1000 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.jingrui</groupId>
+    <artifactId>jrap-lease</artifactId>
+    <packaging>pom</packaging>
+    <!--<packaging>war</packaging>-->
+    <version>1.3-SNAPSHOT</version>
+    <modules>
+        <module>jrap</module>
+        <module>jrap-db</module>
+        <module>jrap-core</module>
+        <module>jrap-core-db</module>
+        <module>jrap-job</module>
+        <module>jrap-job-db</module>
+        <module>jrap-oauth2</module>
+        <module>jrap-oauth2-db</module>
+        <module>jrap-gateway</module>
+        <module>jrap-gateway-db</module>
+        <module>jrap-interface</module>
+        <module>jrap-interface-db</module>
+        <module>jrap-task</module>
+        <module>jrap-task-db</module>
+        <module>jrap-pom</module>
+        <module>jrap-report</module>
+        <module>jrap-report-db</module>
+        <module>jrap-mail</module>
+        <module>jrap-mail-db</module>
+        <module>jrap-workflow</module>
+        <module>jrap-workflow-db</module>
+        <module>jrap-crm</module>
+        <module>jrap-crm-db</module>
+    </modules>
+    <name>jrap parent</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <!--<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>-->
+        <!--<project.build.version>1.3-SNAPSHOT</project.build.version>-->
+        <project.buildDate>${maven.build.timestamp}</project.buildDate>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.security.version>4.0.4.RELEASE</spring.security.version>
+        <spring.version>4.3.11.RELEASE</spring.version>
+        <freemarker.version>2.3.21</freemarker.version>
+        <junit.version>4.12</junit.version>
+        <mybatis.version>3.3.0</mybatis.version>
+        <mybatis.spring.version>1.2.3</mybatis.spring.version>
+        <jackson.version>2.8.8</jackson.version>
+        <jolbox.version>0.8.0.RELEASE</jolbox.version>
+        <quartz.version>2.2.3</quartz.version>
+        <jedis.version>2.9.0</jedis.version>
+        <spring.redis.version>1.7.0.RELEASE</spring.redis.version>
+        <logback.version>1.1.7</logback.version>
+        <activiti.version>6.0.0</activiti.version>
+        <drools.version>5.6.0.Final</drools.version>
+        <cxf.version>3.1.7</cxf.version>
+        <metrics.version>3.1.2</metrics.version>
+        <poi.version>3.16</poi.version>
+        <spring.rabbit.version>1.7.1.RELEASE</spring.rabbit.version>
+        <xalan.version>2.7.2</xalan.version>
+        <!-- sonar-analysis -->
+        <sonar.exclusions>**.js</sonar.exclusions>
+        <skipLiquibaseRun>true</skipLiquibaseRun>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- jrap模块依赖开始 -->
+            <!-- jrap-db -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- core -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-core</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-core</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-core-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- crm -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-crm</artifactId>
+                <type>war</type>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-crm</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-crm-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- job -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-job</artifactId>
+                <type>war</type>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-job</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-job-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- oauth2 -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-oauth2</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-oauth2</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-oauth2-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- gateway -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-gateway</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-gateway</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-gateway-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- interface -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-interface</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-interface</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-interface-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- task -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-task</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-task</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-task-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- report -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-report</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-report</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-report-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- mail -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-mail</artifactId>
+                <type>war</type>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-mail</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-mail-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+
+            <!-- workflow -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-workflow</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-workflow-db</artifactId>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-workflow</artifactId>
+                <classifier>classes</classifier>
+                <version>1.3-SNAPSHOT</version>
+            </dependency>
+	    
+            <!-- jrap模块依赖结束 -->
+            <dependency>
+                <artifactId>joda-time</artifactId>
+                <groupId>joda-time</groupId>
+                <version>2.7</version>
+            </dependency>
+
+            <!-- 原jrap pom 依赖开始-->
+            <dependency>
+                <groupId>com.bstek.ureport</groupId>
+                <artifactId>ureport2-console</artifactId>
+                <version>2.2</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet.jsp</groupId>
+                <artifactId>javax.servlet.jsp-api</artifactId>
+                <version>2.3.1</version>
+                <scope>provided</scope>
+            </dependency>
+
+
+            <dependency>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+                <version>${xalan.version}</version>
+            </dependency>
+
+
+            <!-- <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>0.9.6</version>
+            </dependency> -->
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>1.3</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.9.5</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+
+            <!--Spring-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-redis</artifactId>
+                <version>${spring.redis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.session</groupId>
+                <artifactId>spring-session</artifactId>
+                <version>1.2.2.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-cas</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security.oauth</groupId>
+                <artifactId>spring-security-oauth2</artifactId>
+                <version>2.0.7.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-ldap</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-jwt</artifactId>
+                <version>1.0.4.RELEASE</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
+            </dependency>
+
+            <!--工作流相关-->
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-engine</artifactId>
+                <version>${activiti.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-spring</artifactId>
+                <version>${activiti.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-bpmn-converter</artifactId>
+                <version>${activiti.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-json-converter</artifactId>
+                <version>${activiti.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.activiti</groupId>
+                <artifactId>activiti-rest</artifactId>
+                <version>${activiti.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-codec</artifactId>
+                <version>1.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-transcoder</artifactId>
+                <version>1.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>xmlgraphics-commons</artifactId>
+                <version>2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.drools</groupId>
+                <artifactId>drools-compiler</artifactId>
+                <version>${drools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.drools</groupId>
+                <artifactId>drools-core</artifactId>
+                <version>${drools.version}</version>
+            </dependency>
+            <!--end-->
+
+            <!--cxf-->
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxws</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-transports-http</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-ws-security</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <!--end-->
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>4.7</version>
+            </dependency>
+
+            <!--  begin metrics -->
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-healthchecks</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-annotation</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-jvm</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-servlet</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-servlets</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+
+
+            <!--<dependency>
+                   <groupId>io.dropwizard.metrics</groupId>
+                   <artifactId>metrics-ganglia</artifactId>
+                   <version>${metrics.version}</version>
+               </dependency>
+               <dependency>
+                   <groupId>io.dropwizard.metrics</groupId>
+                   <artifactId>metrics-graphite</artifactId>
+                   <version>${metrics.version}</version>
+               </dependency> -->
+            <dependency>
+                <groupId>com.ryantenney.metrics</groupId>
+                <artifactId>metrics-spring</artifactId>
+                <version>3.1.3</version>
+            </dependency>
+            <!-- end  metrics -->
+            <!--add by xiangyuQi-->
+            <dependency>
+                <groupId>net.sf.json-lib</groupId>
+                <artifactId>json-lib</artifactId>
+                <version>2.4</version>
+                <classifier>jdk15</classifier>
+            </dependency>
+
+            <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+            <!--end -->
+
+            <!-- excel -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <!-- end excel -->
+
+            <!--kaptcha -->
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>kaptcha</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <!-- -->
+
+            <!--redisson -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>3.2.2</version>
+            </dependency>
+            <!--end redisson -->
+
+            <!-- quartz -->
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-jobs</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+
+            <!--rabbitmq-->
+            <dependency>
+                <groupId>org.springframework.amqp</groupId>
+                <artifactId>spring-rabbit</artifactId>
+                <version>${spring.rabbit.version}</version>
+            </dependency>
+
+            <!-- websocket -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-websocket</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-messaging</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <!-- Wsdl4j-->
+            <dependency>
+                <groupId>wsdl4j</groupId>
+                <artifactId>wsdl4j</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+            <!-- end Wsdl4j -->
+            <!-- 原jrap pom 依赖结束-->
+
+            <!-- 原jrap parent pom 依赖开始-->
+            <!--测试-->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>20170516</version>
+            </dependency>
+
+            <!--数据库驱动-->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.34</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>sqljdbc4</artifactId>
+                <version>4.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>ojdbc7</artifactId>
+                <version>12.1.0.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.2.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.1.0.Final</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>5.2.4.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>1.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>${mybatis.spring.version}</version>
+            </dependency>
+            <!-- jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.21</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.8.9</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>2.7.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>commons-compiler</artifactId>
+                <version>2.7.8</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>0.9.5</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.4</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4.1</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>net.coobird</groupId>
+                <artifactId>thumbnailator</artifactId>
+                <version>0.4.8</version>
+            </dependency>
+
+            <!-- 原jrap parent pom 依赖结束-->
+
+            <!-- 原jrap db pom 依赖开始-->
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-groovy-dsl</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>2.4.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-xml</artifactId>
+                <version>2.4.1</version>
+            </dependency>
+
+            <!-- 原jrap db pom 依赖结束-->
+
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.5.201505241946</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.5.201505241946</version>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- if including source jars, use the no-fork goals
+                     otherwise both the Groovy sources and Java stub sources
+                     will get included in your jar -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <!-- source plugin \> = 2.1 is required to use the no-fork goals -->
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                            <goal>test-jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.liquibase</groupId>
+                    <artifactId>liquibase-maven-plugin</artifactId>
+                    <version>3.4.2</version>
+                    <configuration>
+                        <skip>${skipLiquibaseRun}</skip>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>clearCheckSums</id>
+                            <phase>process-resources</phase>
+                            <configuration>
+                                <driver>${db.driver}</driver>
+                                <url>${db.url}</url>
+                                <username>${db.user}</username>
+                                <password>${db.password}</password>
+                                <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+                            </configuration>
+                            <goals>
+                                <goal>clearCheckSums</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>update</id>
+                            <phase>process-resources</phase>
+                            <configuration>
+                                <changeLogFile>com/jingrui/jrap/db/liquibase.groovy</changeLogFile>
+                                <driver>${db.driver}</driver>
+                                <url>${db.url}</url>
+                                <username>${db.user}</username>
+                                <password>${db.password}</password>
+                                <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+                            </configuration>
+                            <goals>
+                                <goal>update</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>9.2.11.v20150529</version>
+                    <configuration>
+                        <webAppConfig>
+                            <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
+                        </webAppConfig>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>1.5</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>addSources</goal>
+                                <goal>addTestSources</goal>
+                                <goal>generateStubs</goal>
+                                <goal>compile</goal>
+                                <goal>testGenerateStubs</goal>
+                                <goal>testCompile</goal>
+                                <goal>removeStubs</goal>
+                                <goal>removeTestStubs</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <nonFilteredFileExtensions>
+                            <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+                            <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

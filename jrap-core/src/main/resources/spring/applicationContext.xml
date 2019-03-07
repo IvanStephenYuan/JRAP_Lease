@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+                           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <context:property-placeholder location="classpath:config.properties"/>
+
+    <bean id="coreApplicationListener" class="com.jingrui.jrap.core.ApplicationListenerBean"/>
+
+
+    <!-- middleware datasource  com.jingrui.jrap.core.JndiObjectFactoryBean-->
+    <!-- jndi dataSource-->
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="${db.jndiName}"/>
+    </bean>
+    <!-- builtin datasource -->
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName"-->
+    <!--value="com.mysql.jdbc.Driver"/>-->
+    <!--<property name="url" value="jdbc:mysql://127.0.0.1:3306/hap_dev"/>-->
+    <!--<property name="username" value="hap_dev"/>-->
+    <!--<property name="password" value="hap_dev"/>-->
+    <!--</bean>-->
+
+    <bean id="languageProvider" class="com.jingrui.jrap.core.impl.LanguageProviderImpl"/>
+
+    <bean id="messageSource" class="com.jingrui.jrap.core.i18n.CacheMessageSource"/>
+
+    <!-- config transactionManager -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath*:/**/*Mapper.xml"/>
+        <property name="plugins">
+            <array>
+                <bean class="com.jingrui.jrap.core.interceptor.RequestContextInterceptor"/>
+                <bean class="com.jingrui.jrap.core.interceptor.MultiLanguageInterceptor"/>
+                <bean class="com.jingrui.jrap.core.interceptor.SecurityTokenInterceptor"/>
+                <bean class="com.jingrui.jrap.core.interceptor.OvnInterceptor"/>
+                <bean class="com.jingrui.jrap.core.interceptor.AuditInterceptor"/>
+                <bean class="com.github.pagehelper.PageHelper"/>
+                <bean class="com.jingrui.jrap.core.interceptor.CacheJoinInterceptor">
+                    <property name="cacheJoinType" ref="cacheJoinType"></property>
+                </bean>
+            </array>
+        </property>
+        <property name="configLocation" value="classpath:mybatis-configuration.xml"/>
+    </bean>
+
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+
+    <!-- mapper definition -->
+    <bean id="mapperScannerConfigurer" class="com.jingrui.jrap.mybatis.spring.MapperScannerConfigurer">
+        <property name="basePackage" value="*.**.mapper"/>
+        <property name="processPropertyPlaceHolders" value="true"/>
+        <property name="propertiesMap">
+            <map>
+                <entry key="mappers" value="com.jingrui.jrap.mybatis.common.Mapper"/>
+                <entry key="IDENTITY" value="${mybatis.identity}"/>
+                <entry key="dataBaseType" value="${db.type}"/>
+                <entry key="seqFormat" value="{3}_s.nextVal"/>
+                <entry key="enableMethodAnnotation" value="true"/>
+            </map>
+        </property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <context:component-scan base-package="**.*.service"/>
+    <context:component-scan base-package="**.*.components"/>
+
+    <bean id="requestAD" class="com.jingrui.jrap.core.impl.ServiceExecutionAdvice"/>
+
+    <aop:config expose-proxy="true">
+        <aop:pointcut id="servicePointcut" expression="execution(* *..*ServiceImpl.*(..))"/>
+        <aop:advisor advice-ref="requestAD" pointcut-ref="servicePointcut"/>
+    </aop:config>
+
+
+    <!-- 密码加密 PasswordEncoder-->
+    <bean id="passwordManager" class="com.jingrui.jrap.security.PasswordManager">
+        <property name="siteWideSecret" value="Zxa1pO6S6uvBMlY"/>
+    </bean>
+
+
+    <!-- 线程池 -->
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <!-- 核心线程数 -->
+        <property name="corePoolSize" value="5"/>
+        <!-- 最大线程数 -->
+        <property name="maxPoolSize" value="250"/>
+        <!-- 队列最大长度 -->
+        <property name="queueCapacity" value="1000"/>
+        <!-- 线程池维护线程所允许的空闲时间，默认为60s -->
+        <property name="keepAliveSeconds" value="120"/>
+    </bean>
+
+    <bean id="freeMarkerBeanProvider" class="com.jingrui.jrap.core.web.FreeMarkerBeanProvider"/>
+
+    <bean id="distributeLockTemplate" class="com.jingrui.jrap.lock.impl.DistributedLockFactoryBean">
+        <property name="mode" value="MULTIPLE"/>
+    </bean>
+</beans>

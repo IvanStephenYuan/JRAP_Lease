@@ -1,0 +1,366 @@
+<#include "../include/header.html"/>
+<script type="text/javascript">
+  var viewModel = kendo.observable({
+    model: {
+      isEnabled: <#if RequestParameters.codeId??> false <#else> true </#if>,
+      enabledFlag: 'Y'
+      },
+      create: function () {
+        $('#codeValueGrid').data('kendoGrid').addRow();
+      },
+      save: function () {
+        if (validator.validate()) {
+          viewModel.model.__status = <#if RequestParameters.codeId??> 'update' <#else> 'add'</#if>;
+        <#if RequestParameters.codeId??>
+        <#else>
+          viewModel.model.type = 'USER';
+        </#if>;
+          Jrap.submitForm({
+            url: '${base.contextPath}/sys/code/submit',
+            formModel: viewModel.model,
+            grid: {"codeValues": $("#codeValueGrid")},
+            success: function (data) {
+              window.parent.viewModel.refresh();
+              closeWin();
+            }
+          });
+        }
+      },
+      close: function () {
+        closeWin();
+      },
+      exportExcel:function () {
+        $("#codeValueGrid").data('kendoGrid').saveAsExcel();
+      },
+      remove:function(){
+        Jrap.deleteGridSelection({
+          grid: $("#codeValueGrid")
+        });
+      }
+  });
+
+    <#if RequestParameters.codeId??>
+        Jrap.loadViewModel({
+            url:'${base.contextPath}/sys/code/query?codeId=${RequestParameters.codeId!0}',
+            model:viewModel.model
+        });
+    </#if>
+
+    function closeWin() {
+        window.parent.$('#codeWindow').data("kendoWindow").close();
+    }
+</script>
+<div id="content-container">
+    <div id="page-content" >
+        <form class="form-horizontal" >
+            <div id="form">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-xs-4  control-label" style="text-align: right"><@spring.message "code.code"/></label>
+                        <div class="col-xs-8">
+                            <input id="code" name="code" type="text" data-bind="enabled: model.isEnabled, value:model.code" data-role="maskedtextbox" style="width: 100%;" required data-label="<@spring.message 'code.code'/>"
+                             onblur="Jrap.createGridFlexField('SYS_CODE_VALUE_RULE', viewModel.model, 'codeValueGrid')">
+                            <script>kendo.bind($('#code'), viewModel);</script>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-xs-4 control-label" style="text-align: right"><@spring.message "code.parentcodeid"/></label>
+                        <div class="col-xs-8">
+                            <input id="parentCodeId" name="parentCodeId" type="text" data-bind="value:model.parentCodeId,text:model.parentCodeDescription" style="width: 100%;">
+                            <script>
+                                $("#parentCodeId").kendoLov($.extend(<@lov "LOV_CODE_ID"/>, {
+                                    query: function (e) {
+                                        e.param['enabledFlag'] = 'Y'
+                                    },
+                                    textField: 'parentCodeDescription',
+                                    model: viewModel.model,
+                                    change:function(e) {
+                                        var v = this.value();
+                                        if (v == "" || v == undefined ){
+                                            var data = grid.dataSource.data();
+                                            for (var i=0; i<data.length;i++){
+                                                data[i].parentCodeValueId = "";
+                                                data[i].parentCodeValueMeaning = "";
+                                                data[i].dirty = true;
+                                            }
+                                            grid.refresh();
+                                        }
+                                    }
+                                }));
+                                kendo.bind($('#parentCodeId'), viewModel);
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label class="col-xs-2 control-label" style="text-align: right"><@spring.message "code.description"/></label>
+                        <div class="col-xs-10">
+                            <input id="description" name="description" type="text"
+                                   data-bind="value:model.description" style="width: 100%;"
+                                   required data-label="<@spring.message 'code.description'/>">
+                            <script>
+                                $("#description").kendoTLEdit({
+                                    idField: 'codeId',
+                                    field: 'description',
+                                    dto: "com.jingrui.jrap.system.dto.Code",
+                                    model: viewModel.model
+                                });
+                                kendo.bind($('#description'), viewModel);
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group" >
+                        <label class="col-xs-2 control-label" style="text-align: right"><@spring.message "jrap.enableflag"/></label>
+                        <div class="col-xs-3">
+                            <input id="codeCheckbox" style="margin-top:5px;" checked="checked" name="checkbox" type="checkbox" data-bind="value:model.enabledFlag"/>
+                            <script>
+                                $("#codeCheckbox").kendoCheckbox({
+                                    type: 'boolean',
+                                    checkedValue:'Y',
+                                    uncheckedValue:'N'
+                                });
+                            </script>
+                            <script>kendo.bind($('#codeCheckbox'), viewModel);</script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group"  >
+                        <div class="col-xs-2" style="text-align: right">
+                            <label class="control-label"><@spring.message "code.valuelist"/></label>
+                        </div>
+                        <div class="col-xs-10">
+                            <#if RequestParameters.type?? &&  RequestParameters.type == 'SYSTEM'>
+                                <#else>
+                                    <div class="pull-left" id="toolbar-btn" style="padding-bottom:15px;">
+                                        <span id="addGrid"data-bind="click:create" data-hotkey="hotkey_create" type="button" class="btn btn-default k-grid-add" style="float:left;margin-right:5px"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+                                        <span id="deleteGrid" data-bind="click:remove" data-hotkey="hotkey_delete" class="btn btn-danger" style="float:left;margin-right:5px"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+                                        <#if RequestParameters.codeId??>
+                                        <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+                                        </#if>
+                                    </div>
+                            </#if>
+
+                            <div style="clear:both;">
+                                <div id="codeValueGrid" style="width: 100%;"></div>
+                            </div>
+                            <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+    <div class="text-right k-window-toolbar" id="gridToolbar">
+        <span class="btn btn-primary" data-hotkey="hotkey_save" style="margin-right: 10px"  data-bind="click:save"> <@spring.message "jrap.save"/></span>
+        <span class="btn btn-default" data-hotkey="hotkey_cancel" data-bind="click:close" type="button"  ><@spring.message "jrap.cancel"/></span>
+    </div>
+</div>
+<script>
+    kendo.bind($('#gridToolbar'), viewModel);
+    var validator = $("#form").kendoValidator({
+        invalidMessageType : "tooltip"
+    }).data("kendoValidator");
+
+    <#if RequestParameters.type?? &&  RequestParameters.type == 'SYSTEM'>
+        document.getElementById("deleteGrid").style.display="none";
+        document.getElementById("addGrid").style.display="none";
+    </#if>
+
+    var crudServiceBaseUrl = "${base.contextPath}/sys/codevalue";
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: crudServiceBaseUrl + "/query?codeId=${RequestParameters.codeId!0}",
+                type: "POST",
+                dataType: "json"
+            },
+            create: {
+                url: "${base.contextPath}/sys/code/submit",
+                contentType: "application/json",
+                type: "POST"
+            },
+            update: {
+                url: "${base.contextPath}/sys/code/submit",
+                contentType: "application/json",
+                type: "POST"
+            },
+            destroy: {
+                url: crudServiceBaseUrl + "/remove",
+                contentType: "application/json",
+                type: "POST"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type);
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options);
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 20,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "codeValueId",
+                fields: {
+                    value: {validation: {required: true}},
+                    meaning: {validation: {required: true}},
+                    orderSeq: {type: "number"},
+                    enabledFlag:{defaultValue: 'Y',type: 'boolean',checkedValue:'Y',uncheckedValue:'N'}
+                },
+                editable: function (col) {
+                    if(col == 'value' && this.codeValueId) {
+                        return false;
+                    } else if (col == 'parentCodeValueId' && !viewModel.model.parentCodeId) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+    });
+
+    var Model = kendo.data.Model.define({
+        id: "codeValueId",
+        fields: {
+            code: {},
+        }
+    });
+    var model = new Model();
+
+
+    var grid = $("#codeValueGrid").kendoGrid({
+          dataSource: dataSource,
+          navigatable: false,
+          height: '250px',
+          resizable: true,
+          scrollable: true,
+          selectable: 'multiple,rowbox',
+          editable: true,
+          excel: {
+            fileName: "${RequestParameters.code!'list'}"+".xlsx",
+          },
+          dataBound: function () {
+            if (parent.autoResizeIframe) {
+              parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+          },
+          autoBind:<#if RequestParameters.codeId??> true <#else> false </#if>,
+          columns: [
+          {
+            field: "value",
+            title: '<@spring.message "codevalue.value"/>',
+            width: 80
+          },
+          {
+            field: "meaning",
+            title: '<@spring.message "codevalue.meaning"/>',
+            width: 120,
+            editor: function (container, options) {
+              $('<input required name="' + options.field + '"/>')
+              .appendTo(container)
+              .kendoTLEdit({
+                idField: 'codeValueId',
+                field: 'meaning',
+                dto: "com.jingrui.jrap.system.dto.CodeValue",
+                model: options.model
+              });
+            }
+          },
+          {
+            field: "description",
+            title: '<@spring.message "codevalue.description"/>',
+            width: 130,
+            editor: function (container, options) {
+              $('<input name="' + options.field + '"/>')
+              .appendTo(container)
+              .kendoTLEdit({
+                idField: 'codeValueId',
+                field: options.field,
+                dto: "com.jingrui.jrap.system.dto.CodeValue",
+                model: options.model
+              });
+            }
+          },
+          {
+            field: "orderSeq",
+            attributes: {style: "text-align:center"},
+            headerAttributes: {
+              style: "text-align: center"
+            },
+            title: '<@spring.message "codevalue.orderseq"/>',
+            width: 60
+          },{
+            field: "parentCodeValueId",
+            title: '<@spring.message "codevalue.parentcodevalueid"/>',
+            width: 80,
+            template: function (dataItem) {
+              return dataItem['parentCodeValueMeaning'] || ''
+            },
+            editor: function (container, options) {
+              $('<input name="' + options.field + '"/>')
+              .appendTo(container)
+              .kendoLov($.extend(<@lov "LOV_CODE_VALUE"/>, {
+                query: function (e) {
+                  e.param['enabledFlag'] = 'Y';
+                  var parentCodeId = viewModel.model.parentCodeId;
+                  if(parentCodeId!=null && parentCodeId!=undefined && parentCodeId!=""){
+                    e.param['codeId'] = parentCodeId;
+                  }
+                },
+                change: function(){
+                  var data = this._dataItem || {};
+                  options.model.set("parentCodeValueId",data.codeValueId);
+                  options.model.set("parentCodeValue",data.value);
+                },
+                textField: 'parentCodeValueMeaning',
+                model: options.model
+              }));
+            }
+
+          },
+          {
+            field : "tag",
+            title : '<@spring.message "codevalue.tag"/>',
+            attributes: {style: "text-align:center"},
+            width : 80
+          },
+          {
+            field : "enabledFlag",
+            title : '<@spring.message "jrap.enableflag"/>',
+            attributes: {style: "text-align:center"},
+            headerAttributes: {
+              style: "text-align: center"
+            },
+            width : 70
+          }
+        ]
+    }).data("kendoGrid");
+
+
+    if(!viewModel.model.isEnabled){
+        Jrap.createGridFlexField('SYS_CODE_VALUE_RULE', viewModel.model, 'codeValueGrid');
+    }
+</script>
+</body>
+</html>

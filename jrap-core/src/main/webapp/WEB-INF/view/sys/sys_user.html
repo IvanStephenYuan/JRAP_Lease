@@ -1,0 +1,444 @@
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/common/code?userStatusData=SYS.USER_STATUS" type="text/javascript"></script>
+<script type="text/javascript">
+    var viewModelPd = kendo.observable({
+        model: {},
+        resetPassword: function (e) {
+            var validator = $("#passwordWin").data("kendoValidator");
+            if (validator.validate()) {
+                Jrap.request({
+                    type: 'POST',
+                    url: "${base.contextPath}/sys/user/password/reset",
+                    contentType:'application/x-www-form-urlencoded',
+                    data: viewModelPd.model.toJSON(),
+                    success: function(data){
+                        $("#passwordWin").data("kendoWindow").close();
+                    }
+                })
+            }
+        },
+        closeWin: function (e) {
+            $("#passwordWin").data("kendoWindow").close();
+        }
+    });
+    var viewModel = Jrap.createGridViewModel('#grid',{
+        userStatusData: userStatusData
+    });
+</script>
+<div id="roleWin"></div>
+<div id="dialog"></div>
+<div class="panel" id="passwordWin" style="margin:0px;border: 0px;padding: 0px"></div>
+<div id="itemWin"></div>
+<div id="content-container">
+    <div id="page-content">
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+            <span class="btn btn-primary k-grid-add" data-hotkey="hotkey_create" style="float:left;margin-right:5px;" data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+            <span class="btn btn-success k-grid-save-changes"  data-hotkey="hotkey_save" style="float:left;margin-right:5px;" data-bind="click:save"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+            <span class="btn btn-danger" style="float:left;margin-right:5px;"  data-hotkey="hotkey_delete" data-bind="click:remove"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+            <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+        </div>
+        <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+        <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <div style="float:left;margin-right:5px;">
+            <input type="text" id="roleId" data-bind="value:model.roleId,text:model.roleName"
+                   style="width:110px" placeholder="<@spring.message 'role.roleName'/>"
+            >
+            <script>
+                $("#roleId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_ROLE")}));
+
+                kendo.bind($('#roleId'), viewModel);
+            </script>
+            </div>
+            <input data-role="maskedtextbox" placeholder="<@spring.message 'user.userName'/>"
+                   type="text" class="k-textbox" type="text" style="float:left;width:130px;margin-right:5px;"
+                   data-bind="value:model.userName"/>
+            <input data-role="maskedtextbox" placeholder='<@spring.message "employee.employeeCode"/>'
+                   type="text" style="float:left;width:130px;margin-right:5px;" data-bind="value:model.employeeCode" class="k-textbox">
+            <input data-role="maskedtextbox" placeholder='<@spring.message "employee.name"/>' type="text"
+                   style="width: 130px;float:left;margin-right:5px;" data-bind="value:model.employeeName" class="k-textbox">
+            <div style="float:left;margin-right:5px;">
+                <select data-role="combobox" data-value-primitive="true" placeholder='<@spring.message "user.status"/>' style="width:130px;"
+                        data-text-field="meaning" data-value-field="value"
+                        data-bind="source: userStatusData, value: model.status"></select>
+            </div>
+            <span class="btn btn-primary" data-bind="click:query" type="submit"><i class="fa fa-search" style="margin-right:3px;"></i><@spring.message "jrap.query"/></span>
+        </div>
+           <script>kendo.bind($('#query-form'), viewModel);</script>
+        <div style="clear:both">
+             <div id="grid" style="clear: both"></div>
+         </div>
+    </div>
+</div>
+<script id="passWdTemplate" type="text/x-kendo-template">
+     <div class="modal-body">
+         <form id="passwdForm"  class="form-horizontal"  role="form" autocomplete="off">
+             <div class="col-sm-12">
+                 <div class="form-group">
+                     <label class="col-sm-4 control-label "><@spring.message "user.username"/></label>
+                     <div class="col-sm-6">
+                         <input type="text" readonly style="width:100%" class="k-textbox k-state-disabled"  data-bind="value:model.userName"/>
+                     </div>
+                 </div>
+             </div>
+             <div class="col-sm-12">
+                 <div class="form-group">
+                     <label class="col-sm-4 control-label "><@spring.message"user.new_password"/></label>
+                     <div class="col-sm-6">
+                         <input name="password" type="text" id="password" style="width:100%" autocomplete="off" class="k-textbox" required data-bind="value:model.password"/>
+                     </div>
+                 </div>
+             </div>
+             <div class="col-sm-12">
+                 <div class="form-group">
+                     <label class="col-sm-4 control-label"><@spring.message"user.again_new_password"/></label>
+                     <div class="col-sm-6">
+                         <input  id="passwordAgain" type="text" required  style="width:100%" name="passwordAgain" autocomplete="off" class="k-textbox" data-bind="value:model.passwordAgain"/>
+                     </div>
+                 </div>
+             </div>
+         </form>
+     </div>
+     <div class="modal-footer" >
+         <span class="btn btn-primary" id="submit" type="submit" data-bind="click:resetPassword" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+         <span class="btn btn-default" id="closeWin" type="button" data-bind="click:closeWin"  style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
+     </div>
+</script>
+  <script>
+
+      Jrap.initEnterQuery('#query-form', viewModel.query);
+
+      $("#passwordWin").kendoWindow({
+          width: 500,
+          title: '<@spring.message "user.updatepassword"/>',
+          resizable: false,
+          visible: false,
+          modal: true,
+          close: function() {
+              var formData = viewModelPd.model.toJSON();
+              for (var k in formData) {
+                  viewModelPd.model.set(k, null);
+              }
+          }
+      });
+
+
+
+      function choiceRole(userId, userName) {
+          var roleWin = $("#roleWin").data("kendoWindow");
+          roleWin.refresh('sys_user_role.html?userId=' + userId + '&userName=' + userName);
+          if(parent.autoResizeIframe){
+              parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function(){
+                  roleWin.center().open();
+              });
+          }else {
+              roleWin.center().open();
+          }
+      }
+
+      function editPassWord(userId, userName) {
+          var passwordWinObj = $("#passwordWin");
+          viewModelPd.model.userId = userId;
+          viewModelPd.model.userName = userName;
+          var passwordWin = passwordWinObj.data("kendoWindow");
+          passwordWin.refresh({template: kendo.template($("#passWdTemplate").html())});
+          kendo.bind(passwordWinObj, viewModelPd);
+          $('#password').attr('type', 'text');
+          $('#passwordAgain').attr('type', 'text');
+          passwordWin.center().open();
+          $('#password').on('focus', function () {
+              $(this).attr('type', 'password');
+          });
+          $('#passwordAgain').on('focus', function () {
+              $(this).attr('type', 'password');
+          });
+      }
+      function editResourceItem(userId,userName){
+          var itemWin = $("#itemWin").kendoWindow({
+              width: 800,
+              height: 700,
+              resizable: false,
+              title: '<@spring.message "function.accessset"/>',
+              visible: false,
+              iframe: true,
+              modal: true,
+              scrollable:false,
+              content: 'sys_user_function.html?userId=' + userId
+          }).data("kendoWindow");
+          if (parent.autoResizeIframe) {
+              parent.autoResizeIframe('${RequestParameters.functionCode!}', 800, function () {
+                  itemWin.center().open();
+              })
+          }else {
+              itemWin.center().open();
+          }
+
+      }
+
+      $(document).ready(function () {
+          window.container = $("#passwordWin");
+          container.kendoValidator({
+              invalidMessageType: "tooltip",
+              messages: {
+                  required: '<@spring.message "jrap.validation.required"/>',
+                  passwordMatch: '<@spring.message "error.user.two_password_not_match"/>'
+              },
+              rules: {
+                  passwordMatch: function (input) {
+                      if (input.is("[name=passwordAgain]") && input.val() != "") {
+                          var pawd1 = $("#password");
+                          return pawd1.val() == input.val();
+                      }
+                      return true;
+                  }
+              }
+          });
+
+          window.dataSource = Jrap.createGridDataSource({
+              url:'${base.contextPath}/sys/user/',
+              model: {
+                  id: "userName",
+                  fields: {
+                      //status: {defaultValue:userStatusData[0].value},
+                      status: {defaultValue: "ACTV"},
+                      userName: {validation: {required: true}},
+                      email: {type: "email", validation: {required: true}},
+                      phone: {validation: {number: true, required: true}},
+                      startActiveDate: {type: 'date'},
+                      endActiveDate: {type: 'date', defaultValue: null}
+                  },
+                  editable: function (col) {
+                      if (col == "employeeName" && !this['employeeNameEdit']) {
+                          return false;
+                      }
+                      if (col == "employeeName" && this['employeeNameEdit']) {
+                          this['employeeNameEdit'] = false;
+                          return true;
+                      }
+                      if (col == "userName" && this.userId) {
+                          return false;
+                      }
+                      return true;
+                  }
+              }
+          });
+
+               window.grid =  $("#grid").kendoGrid({
+                   dataSource: dataSource,
+                   navigatable: false,
+                   dataBound: function () {
+                       if (parent.autoResizeIframe) {
+                           parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                       }
+                   },
+                   resizable: true,
+                   scrollable: true,
+                   toolbar:null,
+                   selectable: 'multiple, rowbox',
+                   editable: true,
+                   sortable: true,
+                   pageable: {
+                       pageSizes: [5, 10, 20, 50],
+                       refresh: true,
+                       buttonCount: 5
+                   },
+                    columns: [
+                        {
+                            title:'<@spring.message "user.allocationrole"/>',
+                            width : 90,
+                            headerAttributes: {
+                                style  : "text-align: center"
+                            },
+                            attributes: {style: "text-align:center"},
+                            template : function (rowdata) {
+                                if (!!rowdata.userId) {
+                                    return '<a href="#" onclick="choiceRole(' + rowdata.userId + ',\''+rowdata.userName+'\')"><@spring.message "user.allocationrole"/></a>'
+                                } else return ''
+                            },
+                            sortable: false
+                        },
+                        { title:'<@spring.message "user.updatepassword"/>',
+                            attributes: {style: "text-align:center"},
+                            width : 90,
+                            headerAttributes: {
+                                style  : "text-align: center"
+                            },
+                            template : function (rowdata) {
+                                if (!!rowdata.userId) {
+                                    return '<a href="#" onclick="editPassWord(' + rowdata.userId + ',\''+rowdata.userName+'\')"><@spring.message "user.updatepassword"/></a>'
+                                } else return ''
+                            }
+
+                        },
+                        { title:'<@spring.message "function.accessset"/>',
+                            attributes: {style: "text-align:center"},
+                            width : 90,
+                            headerAttributes: {
+                                style  : "text-align: center"
+                            },
+                            template : function (rowdata) {
+                                if (!!rowdata.userId) {
+                                    return '<a href="#" onclick="editResourceItem(' + rowdata.userId + ',\''+rowdata.userName+'\')"><@spring.message "function.accessset"/></a>'
+                                } else return ''
+                            }
+
+                        },
+                        { field: "userName",
+                          title: '<@spring.message "user.username"/>',
+                          width: 100
+                        },
+                        { field: "employeeId",
+                            title: '<@spring.message "employee.employeecode"/>',
+                            width: 120 ,
+                            template: function (dataItem) {
+                                return dataItem['employeeCode'] || ''
+                            },
+                            editor: function (container, options) {
+                                $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoLov($.extend(<@lov "LOV_EMPLOYEE"/>, {
+                                    query: function (e) {
+                                        e.param['enabledFlag'] = 'Y'
+                                    },
+                                    select:function(e){
+                                        options.model.employeeNameEdit = true;
+                                        options.model.set('employeeCode', e.item.employeeCode);
+                                        options.model.set('employeeName', e.item.name);
+                                    },
+                                    change:function(e){
+                                        var employeeCode = options.model.get('employeeCode');
+                                        if(null == employeeCode || "" == employeeCode){
+                                            options.model.employeeNameEdit = true;
+                                            options.model.set('employeeName', "");
+                                        }
+                                    },
+                                    textField: 'employeeCode',
+                                    model: options.model
+                                }));
+                            },
+                            sortable: false
+                        },
+                        {
+                            field: "employeeName",
+                            title: '<@spring.message "employee.name"/>',
+                            width: 100,
+                            sortable: false
+                        },
+                        {
+                            field: "email",
+                            title: '<@spring.message "user.email"/>',
+                            width: 180,
+                            sortable: false
+                        },
+                        {
+                            field: "phone",
+                            headerAttributes: {
+                                style: "text-align: center"
+                            },
+                            attributes: {style: "text-align:center"},
+                            title: '<@spring.message "user.phone"/>',
+                            width: 130,
+                            sortable: false
+                        },
+                        {
+                            field: "status",
+                            attributes: {style: "text-align:center"},
+                            headerAttributes: {
+                                style: "text-align: center"
+                            },
+                            title: '<@spring.message "user.status"/>',
+                            width: 80,
+                            template: function (dataItem) {
+                                var v = dataItem.status;
+                                $.each(userStatusData, function (i, n) {
+                                    if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                                        v = n.meaning;
+                                        return v;
+                                    }
+                                });
+                                return v;
+                            },
+                            editor: function (container, options) {
+                                $('<input name="' + options.field + '"/>')
+                                    .appendTo(container)
+                                    .kendoDropDownList({
+                                        dataTextField: "meaning",
+                                        dataValueField: "value",
+                                        dataSource: userStatusData
+                                    });
+                            },
+                            sortable: false
+                        },
+                        {
+                            field: "startActiveDate",
+                            headerAttributes: {
+                                style: "text-align: center"
+                            },
+                            attributes: {style: "text-align:center"},
+                            title: '<@spring.message "user.startActiveDate"/>',
+                            width: 120,
+                            format: "{0:yyyy-MM-dd}",
+                            editor: function (container, options) {
+                                var end = options.model.endActiveDate;
+                                var opts = {
+                                    format: "yyyy-MM-dd"
+                                };
+                                if (end) {
+                                    opts.max = end;
+                                }
+                                $('<input name="' + options.field + '"/>')
+                                    .appendTo(container)
+                                    .kendoDatePicker(opts);
+                            },
+                            sortable: false
+                        },
+                        { field: "endActiveDate",
+                          title: '<@spring.message "user.endActiveDate"/>',
+                          width: 120,
+                            headerAttributes: {
+                                style  : "text-align: center"
+                            },
+                          attributes: {style: "text-align:center"},
+                          format: "{0:yyyy-MM-dd}",
+                          editor: function(container, options){
+                       	      var start = options.model.startActiveDate;
+                       	      var opts={
+                             	  format:"yyyy-MM-dd"
+                               };
+                       	      //设置min属性 限制最小的可选日期
+                         	  if(start){
+                         		  opts.min=start;
+                         	  }
+                              $('<input name="' + options.field + '"/>')
+                              .appendTo(container)
+                              .kendoDatePicker(opts);
+                        },
+                            sortable: false},
+                        { field: "description",
+                            title: '<@spring.message "jrap.description"/>',
+                            width: 180,
+                        sortable: false
+                        }
+                    ]
+                }).data("kendoGrid");
+
+                $("#grid").on("change", "input.chkbx", function(e) {
+                    var target = $(e.target), grid = $("#grid").data("kendoGrid"),
+                        dataItem = grid.dataItem(target.closest("tr"));
+                    dataItem.set(target.data('field'), this.checked ? 'Y' : 'N');
+                });
+
+                $("#roleWin").kendoWindow({
+                      width: "900px",
+                      height:"500px",
+                      title: '<@spring.message "user.allocationrole"/>',
+                      modal:true,
+                      resizable: false,
+                      visible:false,
+                      iframe:true
+                });
+            });
+
+        </script>
+</body>
+</html>

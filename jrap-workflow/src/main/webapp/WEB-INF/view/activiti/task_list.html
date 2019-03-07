@@ -1,0 +1,434 @@
+<#include "../include/header.html">
+<body>
+<style>
+    span[class='k-window-title'] {
+        user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+</style>
+<script type="text/javascript">
+
+    function doQuery() {
+        $('#taskListGrid').data('kendoGrid').dataSource.page(1);
+    }
+
+    viewModel = kendo.observable({
+        model: {},
+        queryGrid: doQuery,
+        resetForm: function (e) {
+            var formData = viewModel.model.toJSON();
+            for (var k in formData) {
+                viewModel.model.set(k, null);
+            }
+        }
+    });
+
+
+</script>
+<div id="page-content">
+    <div class="panel" style="padding: 0px;border:none;box-shadow: none;">
+        <form class="form-horizontal" id="myForm">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">流程 ID</label>
+                            <div class="col-sm-9">
+                                <input type="text" style="width: 100%"
+                                       data-bind="value:model.processInstanceId" class="k-textbox">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">流程名称</label>
+                            <div class="col-sm-9">
+                                <input type="text" style="width: 100%" data-bind="value:model.processDefinitionNameLike" class="k-textbox">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">申请人</label>
+                            <div class="col-sm-9">
+                                <input type="text" style="width: 100%"
+                                       data-bind="value:model.startUserName" class="k-textbox">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">处理人</label>
+                            <div class="col-sm-9">
+                                <input type="text" style="width: 100%"
+                                       data-bind="value:model.candidateOrAssigned" class="k-textbox">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">创建时间</label>
+                            <div class="col-sm-4" style="padding-right: 0;">
+                                <input style="width: 100%" data-role="datepicker" data-bind="value:model.createdAfter" class="k-datepicker">
+                            </div>
+                            <div class="col-sm-1" style="padding-left: 0;padding-right: 0;text-align:center"><label class="control-label">-</label></div>
+                            <div class="col-sm-4" style="padding-left: 0;">
+                                <input type="text" style="width: 100%" data-role="datepicker"
+                                       data-bind="value:model.createdBefore" class="k-datepicker">
+                            </div>
+                        </div>
+                    </div>
+                    <!--     <div class="col-sm-4">
+                                    <span class="btn btn-primary" data-bind="click:queryGrid"
+                      type="submit">
+                    <i class="fa fa-search" style="margin-right:3px;"></i>
+                                    <@spring.message "jrap.query"/></span>
+                        <span class="btn btn-default" type="button" data-bind="click:resetForm">
+                    <i class="fa fa-eraser" style="margin-right:3px;"></i>
+                                    <@spring.message "jrap.reset"/></span>
+                    </div> -->
+
+                    <div class="col-sm-4">
+                     <span class="btn btn-default pull-right"  type="button" data-bind="click:resetForm">
+                        <i class="fa fa-eraser" style="margin-right:3px;"></i>
+                    <@spring.message "jrap.reset"/></span>
+                        <span class="btn btn-primary pull-right" data-bind="click:queryGrid"
+                              type="submit">
+                        <i class="fa fa-search" style="margin-right:3px;"></i>
+                    <@spring.message "jrap.query"/></span>
+                    </div>
+
+
+                </div>
+
+        </div>
+      
+
+
+        </form>
+    </div>
+    <div style="clear:both">
+        <div id="taskListGrid"></div>
+    </div>
+</div>
+<div id="taskDetailWin"></div>
+<div id="runtimeWin"></div>
+
+    <script type="text/javascript">
+
+        var prioritySource = new kendo.data.DataSource({
+            data: [
+                {priority: "高", maximumPriority: 100},
+                {priority: "中", maximumPriority: 66},
+                {priority: "低", maximumPriority: 33}
+            ]
+        });
+
+
+        function openDetailWin(taskId, uid) {
+            var rec = dataSource.getByUid(uid);
+            if (window.top.openTab) {
+                window.top.openTab('PROCESS_TASK_' + taskId, rec.processName || '待办审批', '${base.contextPath}/wfl/activiti/admin/task_detail.html?taskId=' + taskId + '&processInstanceId=' + rec.processInstanceId, true);
+            } else {
+                window.open('${base.contextPath}/wfl/activiti/admin/task_detail.html?taskId=' + taskId + '&processInstanceId=' + rec.processInstanceId);
+            }
+        }
+
+        function openRuntimeWin(uid) {
+            var rec = dataSource.getByUid(uid);
+            $("#runtimeWin").kendoWindow({
+                title: "流程运行状态",
+                height: "500px",
+                width: "90%",
+                content: "${base.contextPath}/activiti/process_instance.html?processInstanceId=" + rec.processInstanceId,
+                iframe: true,
+                modal: true,
+                visible:false,
+                resizable:false
+            });
+            if(parent.autoResizeIframe){
+                parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function(){
+                    var win = $("#runtimeWin").data("kendoWindow");
+                    win.center().open();
+                })
+            }else {
+                var win = $("#runtimeWin").data("kendoWindow");
+                win.center().open();
+            }
+
+        }
+
+
+        viewModel = kendo.observable({
+            model: {},
+            prioritySource2: prioritySource,
+            queryGrid: function (e) {
+                $('#taskListGrid').data('kendoGrid').dataSource.page(1);
+            },
+            resetForm: function (e) {
+                var formData = viewModel.model.toJSON();
+                for (var k in formData) {
+                    viewModel.model.set(k, null);
+                }
+            }
+        });
+        kendo.bind($('#page-content'), viewModel);
+        var crudServiceBaseUrl = "${base.contextPath}/wfl/taskList";
+        dataSource = new kendo.data.DataSource(
+                {
+                    transport: {
+                        read: {
+                            url: '${base.contextPath}/wfl/query/tasks/admin',
+                            type: "POST",
+                            contentType: "application/json",
+                            dataType: "json"
+                        },
+                        destroy: {
+                            url: crudServiceBaseUrl + "/remove",
+                            contentType: "application/json",
+                            type: "POST"
+                        },
+                        parameterMap: function (options, type) {
+                            if (type === "read") {
+                                var map = viewModel.model.toJSON();
+                                map.start = (options.page - 1) * options.pageSize;
+                                map.size = options.pageSize;
+                                if (options.sort && options.sort.length > 0) {
+                                    map.sort = options.sort[0].field;
+                                    map.order = options.sort[0].dir;
+                                }else {
+                                    map.sort =  'priority';
+                                    map.order = 'desc';
+                                }
+                                for (var k in map) {
+                                    if (map[k] === '' || map[k] === null || map[k] === undefined)
+                                        delete map[k]
+                                }
+                                if(map.createdBefore){
+                                    map.createdBefore.setHours(23);
+                                    map.createdBefore.setMinutes(59);
+                                    map.createdBefore.setSeconds(59);
+                                }
+                                if(map.priority){
+                                    map.maximumPriority = map.priority.maximumPriority;
+                                    map.minimumPriority = map.priority.minimumPriority;
+                                    delete map.priority;
+                                }
+                                return kendo.stringify(map);
+                            }
+                        }
+                    },
+                    batch: true,
+                    serverPaging: true,
+                    serverSorting: true,
+                    sort: {field: 'priority', dir: 'desc'},
+                    pageSize: 10,
+                    schema: {
+                        data: 'data',
+                        total: 'total',
+                        model: {
+                            id: "id",
+                            fields: {}
+                        }
+                    }
+                });
+
+        var grid = $("#taskListGrid").kendoGrid({
+            dataSource: dataSource,
+            navigatable: false,
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            dataBound:function(){
+                if(parent.autoResizeIframe){
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                }
+            },
+            pageable: {
+                pageSizes: [5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            columns: [                  {
+                field: "processInstanceId",
+                title: '流程 ID',
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {
+                    style: "text-align: center"
+                },
+            },{
+                field: "id",
+                title: '操作',
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {
+                    style: "text-align: center"
+                },
+                width: 60,
+                template: function (dataItem) {
+                    return Jrap.createAnchor("办理", openDetailWin, dataItem.id, dataItem.uid);
+                },
+                sortable: false
+            },
+                {
+                    field: "processName",
+                    title: '流程名称',
+                    width: 120,
+                    sortable: false
+                },
+                {
+                    field: "description",
+                    title: '描述',
+                    width: 180,
+                    /*template: function (dataItem) {
+                     return dataItem.description ||""; /!*+ Jrap.createAnchor("<span class='fa fa-eye' style='float:right'/>",openRuntimeWin,dataItem.uid);*!/
+                     },*/
+                    sortable: false
+                },
+                {
+                    field: "name",
+                    title: '审批环节',
+                    width: 100,
+                    sortable: false
+                    /*template: function (dataItem) {
+                        return dataItem.name ||""; /!*+ Jrap.createAnchor("<span class='fa fa-eye' style='float:right'/>", openRuntimeWin, dataItem.uid)*!/
+                    }*/
+                },
+                {
+                    field: "startUserName",
+                    title: '申请人',
+                    width: 100,
+                    sortable: false,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    attributes: {style: "text-align:center"},
+                    template: function (dataItem) {
+                        if(dataItem.startUserName){
+                            return dataItem.startUserName + " (" + dataItem.startUserId + ")";
+                        }
+                        return "";
+                    }
+                },
+
+                {
+                    field: "assigneeName",
+                    title: '当前处理人',
+                    width: 100,
+                    template: function (dataItem) {
+                        var display = '';
+                        if(dataItem.assigneeName){
+                             display = dataItem.assigneeName;
+                             if(dataItem.assignee){
+                                display = display + "("+dataItem.assignee+")";
+                             }
+                        }else if(dataItem.assignee != null){
+                            display = dataItem.assignee ;
+                        }
+                        /*if (dataItem.delegationState == "pending") {
+                            return display + '<span class="task-pending">(转交中)</span>';
+                        } else if (dataItem.delegationState == "resolved") {
+                            return display + '<span class="task-resolved">(已转交)</span>';
+                        }*/
+                       /* if (dataItem.delegationState == "pending") {
+                            return display + '<span class="task-pending">(加签)</span>';
+                        }*/
+                        return display
+                    },
+                    sortable: false
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间',
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    width: 120,
+                    template: function (dataItem) {
+                        return dataItem.createTime || ''
+                    }
+                },
+                {
+                    field: 'priority',
+                    title: '优先级',
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    width: 180,
+                    template: function (dataItem) {
+                            var timeDescr;
+                            if(dataItem.dueTime == null){
+                                if (dataItem.priority < 33) {
+                                    timeDescr = "低";
+                                } else if (dataItem.priority < 66){
+                                    timeDescr = "中";
+                                }else {
+                                    timeDescr = "高";
+                                }
+                            } else {
+                                if(dataItem.dueTime < 0 ){
+                                    timeDescr = "已超时:"
+                                } else {
+                                    timeDescr = "剩余时间:"
+                                }
+                                var dueTime = Math.abs(dataItem.dueTime);
+                                timeDescr += Jrap.getDurationTime(dueTime)
+                            }
+                        if (dataItem.priority < 33){
+                            return "<div class='priority-low'>"+timeDescr+"</div>";
+                        }
+                        if (dataItem.priority < 66){
+                            return "<div class='priority-median'>"+timeDescr+"</div>";
+                        }
+
+                        return "<div class='priority-high'>"+timeDescr+"</div>";
+                        }
+                }],
+            editable: false
+        }).data("kendoGrid");
+
+
+    </script>
+    <style type="text/css">
+        .priority-low, .priority-median, .priority-high {
+            display:inline-block;
+            width: 80%;
+            height: 80%;
+            box-shadow: 0 0 3px #947575;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+        .priority-low, .priority-median,.priority-high {
+            background: #00AA00;
+        }
+
+        .priority-median {
+            background: #FFA500;
+        }
+
+        .priority-high {
+            background: #DD0000;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<#include "../include/header.html">
+<style>
+
+</style>
+<script type="text/javascript">
+
+    var modelId = '${RequestParameters.modelId}';
+
+    var processKey = '${RequestParameters.key}';
+
+    var viewModel = kendo.observable({
+        model: {},
+        createFunction: function () {
+            $('#Grid').data('kendoGrid').addRow();
+        },
+        saveFunction: function () {
+            //$('#Grid').data('kendoGrid').saveChanges();
+            saveGrid();
+        },
+        queryResource: function (e) {
+            $('#Grid').data('kendoGrid').dataSource.page(1);
+        }
+    });
+    viewModel.model.set('processKey', processKey);
+
+    var assigneeDataSource = [
+        {name: '', expression: ''},
+        {name: "申请人", expression: "${'$'}{initiator}"},
+        {name: "申请人上级", expression: "${'$'}{empService.getDirector(initiator)}"},
+        {name: "部门领导", expression: "${'$'}{empService.getDeptDirector(initiator)}"}
+    ];
+    function saveGrid(callback) {
+        Jrap.submitForm({
+            url: _basePath + "/wfl/approve/chain/submit",
+            type: "POST",
+            formModel: headViewModel.model,
+            grid: {
+                lines: $('#Grid')
+            },
+            success: function (result) {
+                if (callback instanceof Function) {
+                    callback(result);
+                }
+            }
+        })
+    }
+
+</script>
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <button class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:createFunction">
+        <i class="fa fa-plus-square" style="margin-right:3px;"></i>
+        <@spring.message "jrap.new"/></button>
+        <button class="btn btn-success k-grid-save-changes" data-bind="click:saveFunction" style="float:left;margin-right:5px;">
+        <i class="fa fa-save" style="margin-right:3px;"></i>
+        <@spring.message "jrap.save"/></button>
+        <button onclick="deleteData()" class="btn btn-danger" style="float:left;margin-right:5px;">
+        <i class="fa fa-trash-o" style="margin-right:3px;"></i>
+        <@spring.message "jrap.delete"/></button>
+      <!--  <button onclick="cancelChanges()" class="btn btn-default" style="float:left;margin-right:5px;">
+        <i class="fa fa-undo" style="margin-right:3px;"></i>
+        <@spring.message "jrap.cancel"/></button>-->
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+
+    <div id="noneUtIndicator" style="display: none;font-size: 180%; color: #dc5b31; float: left">没有可用的人工任务节点!</div>
+
+    <div id="tabstrip" style="margin-top:40px">
+        <ul id="nodeListUl" style="border-bottom: solid 1px lightgray"></ul>
+    </div>
+
+    <div style="clear:both;margin-top:20px;">
+        <div id="Grid"></div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    var header = {};
+
+    var headViewModel = kendo.observable({
+        model: {}
+    });
+
+
+    var BaseUrl = _basePath;
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/wfl/approve/chain/line/queryByHeader",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/wfl/approve/chain/line/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/wfl/approve/chain/line/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/wfl/approve/chain/line/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type);
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "approveChainLineId",
+                fields: {
+                    name: {validation: {required: true}},
+                    sequence: {type: 'number', defaultValue: 10},
+                    breakOnSkip: {type: "boolean", defaultValue: 'N', checkedValue: 'Y', uncheckedValue: "N"},
+                    enableFlag: {type: "boolean", defaultValue: 'Y', checkedValue: 'Y', uncheckedValue: "N"}
+                }
+            }
+        }
+    });
+
+
+    $("#Grid").kendoGrid({
+        dataSource: dataSource,
+        height: '100%',
+        resizable: true,
+        rownumber: true,
+        scrollable: true,
+        navigatable: true,
+        selectable: 'multiple, rowbox',
+        pageable: false,
+        columns: [
+            {
+                field: "name",
+                title: '名称',
+                width: 120
+            }/*,
+            {
+                field: "approveType",
+                title: '审批类型',
+                width: 120
+            }*/,
+            {
+                field: "assignee",
+                title: '审批人',
+                width: 80,
+                template: function (dataItem) {
+                    var ret = dataItem['assignee'] || '';
+                    $.each(assigneeDataSource, function (i, v) {
+                        if (v.expression === dataItem['assignee']) {
+                            ret = v.name;
+                            return false;
+                        }
+                    });
+                    return ret;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoComboBox({
+                                dataTextField: "name",
+                                dataValueField: "expression",
+                                valuePrimitive: true,
+                                clearNoData: false,
+                                dataSource: assigneeDataSource
+                            });
+                }
+            },
+
+            {
+                field: "assignGroup",
+                title: '审批岗位',
+                width: 120,
+                template: function (dataItem) {
+                    return dataItem['assignGroupName'] || dataItem['assignGroup'] || ''
+                }
+                ,
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "WFL_POSITION_LOV"/>, {
+                                textField: 'assignGroupName',
+                                model: options.model
+                            }));
+                }
+            },
+            {
+                field: "formKey",
+                title: '表单',
+                width: 120
+            },
+            {
+                field: "sequence",
+                title: '顺序号',
+                width: 60,
+                headerAttributes: {
+                    style: "text-align:center"
+                }
+                ,
+                attributes: {
+                    style: "text-align:right"
+                }
+            }
+            ,
+            {
+                field: "skipExpression",
+                title: '跳过条件',
+                width: 120
+            }
+            ,
+            {
+                field: "breakOnSkip",
+                title: '跳过时终止',
+                width: 80,
+                headerAttributes: {
+                    style: "text-align:center"
+                }
+                ,
+                attributes: {
+                    style: "text-align:center"
+                }
+            }
+            ,
+            {
+                field: "enableFlag",
+                title: '启用',
+                width: 60,
+                headerAttributes: {
+                    style: "text-align:center"
+                }
+                ,
+                attributes: {
+                    style: "text-align:center"
+                }
+            },
+            {
+                field: "description",
+                title: '描述',
+                width: 120
+            }
+        ],
+        editable: {createAt: "bottom"}
+    });
+
+
+    function loadDataForTab(nodeId) {
+        $.ajax({
+            url: _basePath + '/wfl/approve/chain/header/query?processKey=' + processKey + "&usertaskId=" + nodeId,
+            success: function (args) {
+                header = args.rows[0] || {};
+                $.each(headViewModel.model.toJSON(), function (i, v) {
+                    delete headViewModel.model[i];
+                });
+                headViewModel.model.set('processKey', processKey);
+                headViewModel.model.set('usertaskId', nodeId);
+                headViewModel.model.set('enableFlag', 'Y');
+                $.extend(headViewModel.model, header);
+                dataSource.options.schema.model.fields.approveChainId = {
+                    defaultValue: header.approveChainId,
+                    type: 'number'
+                };
+                viewModel.model.set('usertaskId', nodeId);
+                dataSource.read()
+            }
+        });
+    }
+
+
+    function onTabSelect(e) {
+        var nodeId = $(e.item).attr('node-id');
+        if (dataSource.hasChanges()) {
+            kendo.ui.showConfirmDialog({
+                message: "数据有更改, 是否保存?",
+                ok: $l('jrap.save')
+            }).done(function (e) {
+                if (e.button == "OK") {
+                    saveGrid(function () {
+                        loadDataForTab(nodeId);
+                    });
+                } else {
+                    loadDataForTab(nodeId);
+                }
+            });
+        } else {
+            loadDataForTab(nodeId);
+        }
+
+    }
+
+
+    $.ajax({
+        url: _basePath + '/wfl/repository/model/node?latest=true&size=99999&modelId=' + modelId,
+        success: function (args) {
+            var ul = $('#nodeListUl');
+            var f = true;
+            $.each(args.rows, function (i, v) {
+                var li = $("<li></li>");
+                li.html("<i class='fa fa-group' style='margin-right:3px;'></i><span>" + v.name + "</span>");
+                li.attr("node-id", v.nodeId);
+                li.appendTo(ul);
+                ul.kendoTabStrip({
+                    select: onTabSelect
+                }).data('kendoTabStrip').select(0);
+            });
+            Jrap.autoResizeGrid("#Grid");
+            if (!args.rows || !args.rows.length) {
+                $("#noneUtIndicator").show();
+                $(".btn").attr("disabled", "disabled")
+            }
+        }
+    });
+
+
+    //$('#nodeListUl').data('kendoTabStrip').select(0);
+
+    function deleteData() {
+
+        Jrap.deleteGridSelection({
+            grid: $('#Grid')
+        });
+
+    }
+
+    function cancelChanges() {
+        $('#Grid').data('kendoGrid').cancelChanges();
+    }
+
+
+</script>
+</body>
+</html>

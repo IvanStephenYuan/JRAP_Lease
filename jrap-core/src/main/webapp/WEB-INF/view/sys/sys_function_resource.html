@@ -1,0 +1,144 @@
+<#-- 
+ * description: 功能分配编辑界面
+ * version: 3.0
+ * author:hailin.xu@jingrui.com
+ * --> 
+<#include "../include/header.html">
+<body>
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel('#grid');
+</script>
+<div id="content-container">
+    <div id="page-content">
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+            <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"><@spring.message "jrap.new"/></span>
+            <span  onclick="deleteData()" class="btn btn-danger" style="float:left;margin-right:5px;"><@spring.message "jrap.delete"/></span>
+            <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+        </div>
+        <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+        <div style="clear: both">
+            <div id="grid" ></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: '${base.contextPath}/sys/function/fetchResource?pagesize=0&functionId=' + ${RequestParameters.functionId},
+                type: "POST",
+                dataType: "json"
+            },
+            create: {
+                url: '${base.contextPath}/sys/function/updateFunctionResource',
+                contentType: "application/json",
+                type: "POST"
+            },
+            parameterMap: function (options, type) {
+                var requestData = {functionId:${RequestParameters.functionId}};
+                if (type !== "read" && options.models) {
+                    var datas = options.models;
+                    if (type == 'create') {
+                        requestData.resources = [];
+                        $.each(datas, function (i, v) {
+                            requestData.resources.push({
+                                __status: "add",
+                                url: v.url,
+                                resourceId: v.resourceId,
+                                name: v.name,
+                                description: v.description
+                            })
+                        })
+                    }
+
+                }
+                return kendo.stringify(requestData);
+            }
+        },
+        batch: true,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "resourceId",
+                fields: {
+                    url: {type: "string"},
+                    name: {type: "string"},
+                    type: {type: "string"}
+                }
+            }
+        }
+    });
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        navigatable: true,
+        resizable: true,
+        scrollable: true,
+        editable: false,
+        height: 340,
+        selectable: 'multiple,rowbox',
+        columns: [{
+                field: "url",
+                title: '<@spring.message "resource.url"/>',
+                width: 270
+            }, {
+                field: "name",
+                title: '<@spring.message "resource.name"/>',
+                width: 140
+            }, {
+                field: "description",
+                title: '<@spring.message "resource.description"/>',
+                width: 100
+            }
+        ]
+    }).data("kendoGrid");
+
+    function deleteData() {
+        var requestData = {functionId:${RequestParameters.functionId}};
+        //拿到选中的项
+        var checked = grid.selectedDataItems();
+        if (!checked.length) {
+            return;
+        }
+        requestData.resources = [];
+        $.each(checked, function (i, v) {
+            requestData.resources.push({
+                __status: "delete",
+                resourceId: v.resourceId
+            })
+        });
+
+        Jrap.request({
+            type: 'POST',
+            url: "${base.contextPath}/sys/function/updateFunctionResource",
+            data: kendo.stringify(requestData),
+            success: function (data) {
+                $("#grid").data('kendoGrid').dataSource.read(1);
+            }
+        });
+
+    }
+
+
+    $(".k-grid-add").click(function () {
+        var selectFunction = window.parent.$("#selectFunction").kendoWindow({
+            actions: ["Close"],
+            width: 700,
+            height: 520,
+            title: '<@spring.message "function.resourcechoose"/>',
+            visible: false,
+            iframe: true,
+            modal: true,
+            content: 'sys_function_addresource.html?functionId=' + ${RequestParameters.functionId},
+            close: function (e) {
+                window.parent.$("#dialog").data("kendoWindow").open();
+            }
+        }).data("kendoWindow");
+        selectFunction.center().open();
+    });
+</script>
+
+</body>
+</html>

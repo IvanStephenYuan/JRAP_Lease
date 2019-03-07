@@ -1,0 +1,24 @@
+<div ng-controller="ApproveStrategyInstanceCtrl">
+     <!-- <input id="approveStrategy" style="width: 100%;"/>
+    <script>
+        var categories = jQuery("#approveStrategy").kendoComboBox({
+            dataTextField: "description",
+            dataValueField: "code",
+            dataSource: {
+                transport: {
+                    read:{
+                        url:_basePath +'/wfl/approve/strategy/queryAll',
+                        type : "POST",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    data: 'rows'
+                }
+            }
+        }).data("kendoComboBox");
+    </script> -->
+     <select ng-model="property.value" ng-change="valueChanged()"  ng-options="item.description as item.description for item in approveStrategyData">
+       <option value="">请选择</option>
+     </select>
+</div>

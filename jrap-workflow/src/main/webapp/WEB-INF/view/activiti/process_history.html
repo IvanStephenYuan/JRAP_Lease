@@ -1,0 +1,569 @@
+<#include "../include/header.html">
+<body>
+<style>
+    span[class='k-window-title'] {
+        user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+    .action_ok {
+        color: #5fb760;
+    }
+
+    .action_dangerous {
+        color: #eeac5f;
+    }
+
+    .font_weight {
+        font-weight:bold;
+    }
+</style>
+<div id="content-container">
+    <div id="page-content">
+        <div class="panel" style="padding: 0px;border:none;box-shadow: none;">
+            <form class="form-horizontal" id="myForm">
+                <div class="panel-body">
+                        <!--<div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">参与类型</label>
+                                <div class="col-sm-8">
+                                    <input id="queryType" style="width: 100%">
+                                </div>
+                                <script>
+                                    $("#queryType").kendoDropDownList({
+                                        dataSource: [
+                                            {text: "我发起的", value: "create"},
+                                            {text: "我参与的(包含发起)", value: "involve"},
+                                            {text:"我的抄送",value:"carbonCopy"}
+                                        ],
+                                        index:1,
+                                        change: function (e) {
+                                            var v = this.value();
+                                            if(v == 'create'){
+                                                viewModel.model.set("startedBy", '${Session.employeeCode!""}');
+                                                viewModel.model.set("involvedUser", null);
+                                                viewModel.model.set("carbonCopyUser",null);
+                                            } else if(v == 'involve'){
+                                                viewModel.model.set("startedBy", null);
+                                                viewModel.model.set("carbonCopyUser",null);
+                                                viewModel.model.set("involvedUser", '${Session.employeeCode!""}');
+                                            } else if(v == 'carbonCopy'){
+                                                viewModel.model.set("startedBy", null);
+                                                viewModel.model.set("involvedUser", null);
+                                                viewModel.model.set("carbonCopyUser",'${Session.employeeCode!""}');
+                                            }
+                                        },
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        valuePrimitive: true
+                                    });
+                                </script>
+                            </div>
+                        </div>-->
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">流程 ID</label>
+                                <div class="col-sm-9">
+                                    <input id="queryID" class="k-textbox" data-bind="value:model.processInstanceId"
+                                           style="width: 100%">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">流程名称</label>
+                                <div class="col-sm-9">
+                                    <input type="text" style="width: 100%" data-bind="value:model.processDefinitionNameLike" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+                    <#if !startedBy!false >
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">申请人</label>
+                                <div class="col-sm-9">
+                                    <input  type="text" style="width: 100%" data-bind="value:model.startUserName" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+                    </#if>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">创建日期</label>
+                            <div class="col-sm-4" style="padding-right: 0;">
+                                <input style="width: 100%" data-role="datepicker" data-bind="value:model.startedAfter" class="k-datepicker">
+                            </div>
+                            <div class="col-sm-1" style="padding-left: 0;padding-right: 0;text-align:center"><label class="control-label">-</label></div>
+                            <div class="col-sm-4" style="padding-left: 0;">
+                                <input type="text" style="width: 100%" data-role="datepicker"
+                                       data-bind="value:model.startedBefore" class="k-datepicker">
+                            </div>
+                        </div>
+                    </div>
+                   <!-- <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">结束日期</label>
+                            <div class="col-sm-4" style="padding-right: 0;">
+                                <input style="width: 100%" data-role="datepicker" data-bind="value:model.finishedAfter" class="k-datepicker">
+                            </div>
+                            <div class="col-sm-1" style="padding-left: 0;padding-right: 0;text-align:center"><label class="control-label">-</label></div>
+                            <div class="col-sm-4" style="padding-left: 0;">
+                                <input type="text" style="width: 100%" data-role="datepicker"
+                                       data-bind="value:model.finishedBefore" class="k-datepicker">
+                            </div>
+                        </div>
+                    </div>-->
+                    <#if !carbonCopy!false >
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">流程状态</label>
+                                <div class="col-sm-9">
+                                    <input id="finished" style="width: 100%">
+                                </div>
+                                <script>
+                                    $("#finished").kendoDropDownList({
+                                        dataSource: [
+                                            {text: "所有状态", code: "all"},
+                                            {text: "已结束", code: "end"},
+                                            {text: "运行中", code: "running"},
+                                            {text: "挂起中", code: "suspended"}],
+                                        change: function (e) {
+                                            var v = this.value();
+                                            viewModel.model.set("suspended", null);
+                                            viewModel.model.set("finished", null);
+                                            if(v == 'end' || v == 'running'){
+                                                viewModel.model.set("finished", v == 'end');
+                                            } else if(v == 'suspended'){
+                                                viewModel.model.set("finished", v == 'end');
+                                                viewModel.model.set("suspended", true);
+                                            }
+                                        },
+                                        dataTextField: "text",
+                                        dataValueField: "code",
+                                        valuePrimitive: true
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </#if>
+
+                    <#if carbonCopy!false >
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">读取状态</label>
+                                <div class="col-sm-9">
+                                    <input id="read" style="width: 100%">
+                                </div>
+                                <script>
+                                    $("#read").kendoDropDownList({
+                                        dataSource: [
+                                            {text:"全部",code: null},
+                                            {text: "已读", code: "Y"},
+                                            {text: "未读", code: "N"},
+                                        ],
+                                        change: function (e) {
+                                            var v = this.value();
+                                            viewModel.model.set("readFlag", v);
+                                        },
+                                        dataTextField: "text",
+                                        dataValueField: "code",
+                                        valuePrimitive: true
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </#if>
+
+                    <div class="row">
+                        <div class="pull-right" style="margin-right:15px">
+                            <span class="btn btn-primary" data-bind="click:queryGrid" type="submit">
+                                <i class="fa fa-search" style="margin-right:3px;"></i><@spring.message "jrap.query"/></span>
+                            <span class="btn btn-default" type="button" data-bind="click:resetForm">
+                                <i class="fa fa-eraser" style="margin-right:3px;"></i>
+                            <@spring.message "jrap.reset"/></span>
+                        </div>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+
+
+        <div style="clear:both;">
+            <div id="processHistoryGrid" style="clear: both" class="table"></div>
+        </div>
+
+    </div>
+</div>
+
+<div id="taskHisWin"></div>
+
+<div id="formKeyWin" style="display: none"></div>
+
+<script type="text/javascript">
+
+
+    function openDetailWin(id, uid) {
+        var row = dataSource.getByUid(uid);
+        if (!row)return;
+        if (window.top.openTab) {
+            window.top.openTab('PROCESS_INSTANCE_' + id, row.processName || '待办审批', '${base.contextPath}/activiti/process_instance_detail.html?processInstanceId=' + id, true);
+        } else {
+            window.open('${base.contextPath}/activiti/process_instance_detail.html?processInstanceId=' + id);
+        }
+    <#if carbonCopy!false >
+        $.ajax({
+            url: "${base.contextPath}/wfl/instance/carbon-copy-read",
+            type: 'POST',
+            contentType: 'application/json',
+            data: kendo.stringify(row),
+            success: function (data) {
+
+            }
+        })
+        row.set("readFlag","Y");
+        </#if>
+    }
+
+    function openTaskHistory(id, uid) {
+        var row = dataSource.getByUid(uid);
+        if (!row)return;
+        var win = $('#taskHisWin').kendoWindow({
+            iframe: true,
+            draggable: false,
+            content: 'process_history_detail.html?processInstanceId=' + id,
+            modal: true
+        }).data('kendoWindow');
+        win.title('审批历史-' + row.processName + "[" + id + "]");
+        win.maximize().open();
+    }
+
+    function openForm(id, uid,procFormKey) {
+        var row = dataSource.getByUid(uid);
+        if (!row)return;
+        var win = $('#formKeyWin').kendoWindow({
+            iframe: true,
+            draggable: false,
+            content: '${base.contextPath}/'+procFormKey+'?processInstanceId=' + id,
+            modal: true
+        }).data('kendoWindow');
+        win.title('全局表单-' + row.processName + "[" + id + "]");
+        win.maximize().open();
+    }
+
+    function openReCall(id, uid) {
+        kendo.ui.showConfirmDialog({
+            title: '提示',
+            message: '是否撤回流程',
+            width: 300,
+            buttons: [{
+                text: "确认",
+                type: 'success',
+                click: function (e) {
+                    $.ajax({
+                        type: "POST",
+                        url: "${base.contextPath}/wfl/runtime/prc/back/" + id,
+                        success: function (data) {
+                            if(data.success ==false ){
+                                Jrap.resolveError(data);
+                            }
+                            $("#processHistoryGrid").data("kendoGrid").dataSource.read();
+                        }
+                    });
+                    e.dialog.destroy();
+                    e.deferred.resolve({
+                        button: "BUTTON1"
+                    });
+                }
+            }, {
+                text: "取消",
+                type: 'cancel',
+                click: function (e) {
+                    e.dialog.destroy();
+                    e.deferred.resolve({
+                        button: "BUTTON2"
+                    });
+                }
+            }]
+        });
+    }
+
+
+    viewModel = kendo.observable({
+        model: {
+        },
+        queryGrid: function (e) {
+            $('#processHistoryGrid').data('kendoGrid').dataSource.page(1);
+        },
+        resetForm: function (e) {
+            var formData = viewModel.model.toJSON();
+            for (var k in formData) {
+                viewModel.model.set(k, null);
+            }
+        }
+    });
+
+    var datasourceUrl ='${base.contextPath}/wfl/query/process-instances/my';
+     <#if carbonCopy!false >
+        datasourceUrl = datasourceUrl + "?carbonCopy=true";
+     <#elseif startedBy!false >
+        datasourceUrl = datasourceUrl + "?startedBy=true";
+     <#else>
+        datasourceUrl = datasourceUrl +"?involved=true";
+     </#if>
+
+    kendo.bind($('#page-content'), viewModel);
+    dataSource = new kendo.data.DataSource(
+            {
+                transport: {
+                    read: {
+                        url:datasourceUrl,
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: "json"
+                    },
+                    parameterMap: function (options, type) {
+                        if (type === "read") {
+                            var map = viewModel.model.toJSON();
+                            map.start = (options.page - 1) * options.pageSize;
+                            map.size = options.pageSize;
+                            if (options.sort && options.sort.length > 0) {
+                                map.sort = options.sort[0].field;
+                                map.order = options.sort[0].dir;
+                            }else{
+                                map.sort = "startTime";
+                                map.order = "desc";
+                            <#if carbonCopy!false >
+                                map.sort = "readFlag";
+                                map.order = "asc";
+                            </#if>
+                            }
+                            for (var k in map) {
+                                if (map[k] === '' || map[k] === null || map[k] === undefined)
+                                    delete map[k]
+                            }
+                            if(map.startedBefore){
+                                map.startedBefore.setHours(23);
+                                map.startedBefore.setMinutes(59);
+                                map.startedBefore.setSeconds(59);
+                            }
+                           /* for (var k in map) {
+                                if (map[k] instanceof Date) {
+                                    map[k] = kendo.toString(map[k], "yyyy-MM-ddTHH:mm:ss'GMT'z")
+                                }
+                            }*/
+                            return kendo.stringify(map);
+                        }
+                    }
+                },
+                batch: true,
+                serverPaging: true,
+                serverSorting: true,
+                pageSize: 20,
+                schema: {
+                    data: 'data',
+                    total: 'total',
+                    model: {
+                        id: "id",
+                        fields: {}
+                    }
+                }
+            });
+    //$(document).ready(function(){
+        var grid = $("#processHistoryGrid").kendoGrid({
+            dataSource: dataSource,
+            navigatable: false,
+            dataBound:function(){
+                if(parent.autoResizeIframe){
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                }
+            },
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            pageable: {
+                pageSizes: [5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "processInstanceId",
+                    title: '流程 ID',
+                    sortable: false,
+                    width: 60,
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center;",
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    template: function (dataItem) {
+                        return dataItem.id;
+                    }
+                },{
+                    title: '流程状态',
+                    width: 70,
+                    attributes: {
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    template: function (dataItem) {
+                        if (null != dataItem.endTime) {
+                            return "<span style='color:#5d6d7c;'>已结束</span>"
+                        } else {
+                            if (dataItem.suspended) {
+                                return "<span style='color:goldenrod;'>挂起中</span>"
+                            } else {
+                                return "<span style='color:green;'>运行中</span>"
+                            }
+
+                        }
+
+                    }
+                }, {
+                    title: '操作',
+                    width: 80,
+                    headerAttributes: {
+                        style: "text-align: center"
+                    },
+                    attributes: {
+                        style: "text-align: center;",
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    template: function (dataItem) {
+                        var html =  Jrap.createAnchor("查看", openDetailWin, dataItem.id, dataItem.uid);
+                        <#if carbonCopy!false >
+                            return html;
+                        </#if>
+                        if (dataItem.recall == true) {
+                            html += '<span style="margin-left:10px;"/>' + Jrap.createAnchor($l('撤回'), openReCall, dataItem.id, dataItem.uid);
+                        }
+                        return html
+                    },
+                    sortable: false
+                },
+                {
+                    field: "processName",
+                    title: '流程名称',
+                    sortable: false,
+                    width: 100,
+                    attributes: {
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                /* template: function (dataItem) {
+                     var result = dataItem.processName;
+                     if(dataItem.readFlag == 'N') {
+                         result = '<strong>' + result + '</strong>';
+                     }
+                     return result;
+                 }*/
+                },
+                {
+                    field: "description",
+                    title: '流程描述',
+                    width: 160,
+                    sortable: false
+                },
+                {
+                    field: "taskName",
+                    title: '当前节点',
+                    sortable: false,
+                    width: 100,
+                    attributes: {
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    template: function (dataItem) {
+                        if(dataItem.endTime!=null || null==dataItem.taskName){
+                            return " ";
+                        }
+                        return dataItem.taskName;
+                    }
+
+                },
+                {
+                    field: "startUserName",
+                    title: '申请人',
+                    sortable: false,
+                    attributes: {
+                        style: "text-align: center;",
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    template: function (dataItem) {
+                        if (dataItem.startUserName) {
+                            return dataItem.startUserName + " (" + dataItem.startUserId + ")";
+                        }
+                        return "";
+                    },
+                    width: 100
+                },
+                {
+                    field: "currentApprover",
+                    title: '当前处理人',
+                    sortable: false,
+                    width: 100,
+                    attributes: {
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    template: function (dataItem) {
+                        var display = dataItem.currentApprover || '';
+
+                        return display
+                    },
+                    sortable: false
+                },
+                {
+                    field: 'startTime',
+                    title: '创建时间',
+                    width: 140,
+                    attributes: {
+                        style: "text-align: center;",
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    }
+                }, {
+                    field: 'endTime',
+                    title: '结束时间',
+                    attributes: {
+                        style: "text-align: center;",
+                        "class":"#= readFlag =='N'?'font_weight':''#"
+                    },
+                    width: 140,
+                    headerAttributes: {
+                        "class": "table-header-cell",
+                        style: "text-align: center"
+                    },
+                    template: function (dataItem) {
+                        return dataItem.endTime || ''
+                    }
+                }],
+            editable: false
+        }).data("kendoGrid");
+
+
+
+
+
+</script>
+<style type="text/css">
+
+    .priority-median {
+        background-color: yellowgreen;
+    }
+
+    .priority-high {
+        background-color: orangered;
+    }
+</style>
+</body>
+</html>

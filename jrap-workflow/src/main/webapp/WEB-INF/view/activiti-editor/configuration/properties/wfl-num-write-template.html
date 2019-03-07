@@ -1,0 +1,7 @@
+<div ng-controller="WfiNumPropertyCtrl">
+    <input type="number" ng-model="property.value"
+           auto-focus
+           ng-blur="inputBlurred()"
+           style="width:100px"
+           ng-keypress="enterPressed($event)"/>
+</div>

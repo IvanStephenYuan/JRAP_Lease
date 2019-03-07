@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title><@spring.message "attachcategory.showfile"/></title>
+    </head>
+
+    <#include "../include/header.html">
+    <body>
+        <div style="width:800px;margin:10px;">
+            ${attachmentProvider.getAttachListHtml("CAR_ID","1",base.locale, base.contextPath)}
+        </div>
+        <div style="width:800px;margin:10px;">
+            ${attachmentProvider.getAttachHtml("CUSTOMER_ID","1",base.locale, base.contextPath,false,false)}
+        </div>
+        <div class="form-group">
+            <label class="col-xs-4 control-label"><@spring.message "customer.idpicture"/></label>
+            <div class="col-xs-8">
+                <input name="idcardPictureFront" id="idcardPictureFrontId" style="width: 100%;" type="file"/>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#idcardPictureFrontId").kendoUpload({
+                    async: {
+                        saveUrl: "${base.contextPath}/sys/attach/upload?${_csrf.parameterName}=${_csrf.token}",
+                        autoUpload: true
+                    },
+                    upload: function (e) {
+                        e.data = {
+                            sourceType: 'CUSTOMER_ID',
+                            sourceKey: $('#customerId')
+                        }
+                    },
+                    success: function(e) {
+                        if(e.response.success=== true){
+                            debugger;
+                            var fileType = e;
+                        }
+                        kendo.ui.showInfoDialog({
+                            message  : e.response.message
+                        })
+                    },
+                    showFileList: false
+                });
+            });
+        </script>
+    </body>
+</html>

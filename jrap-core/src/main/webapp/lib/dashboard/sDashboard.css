@@ -1,0 +1,117 @@
+/*dashboard css*/
+.sDashboard {
+	list-style-type: none;
+	margin: 0;
+	padding-left: 0px;
+	padding-top: 10px;
+	width: 100%;
+	height: 100%;
+	margin-left:-10px;
+}
+
+.sDashboard>li {
+	padding: 10px; 
+	border: 1px solid #e7ecf1;
+	float: left;
+	width: 33%;
+}
+
+/*dashboard widget css*/
+.sDashboardWidget {
+    background-color: #fff;
+    padding:0px 15px 15px 15px;
+    min-height:300px;
+}
+
+/*dashboard widget header css*/
+.sDashboardWidgetHeader {
+	padding:0px 2px 0px 15px;
+	line-height:45px;
+	height:45px;
+	cursor: move;
+	font-size:16px;
+	border: 0;
+	border-bottom: 1px solid #eef1f5;
+	color: #000;
+}
+.sDashboardWidgetContainerMaximized .sDashboardWidgetHeader {
+    cursor:default;
+}
+/*dashboard widget content css*/
+.sDashboardWidgetContent {
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.sDashboardWidgetContentMaximized {
+	height: 423px;
+}
+.sDashboardWidgetContainerMaximized .k-i-close{
+	display:none;
+}
+.sDashboardWidgetContainerMaximized {
+	z-index: 9999;
+	position: fixed;
+	width: 800px;
+	height: 450px;
+	left: 50%;
+	top: 50%;
+	margin-top: -225px;
+	margin-left: -400px;
+}
+/*jquery sortable placeholder styles */
+.ui-sortable-placeholder {
+	border: 1px dotted black;
+	visibility: visible !important;
+	/*height: 225px !important;
+	 width: 375px !important; */
+}
+.ui-sortable-placeholder * {
+	visibility: hidden;
+}
+
+li.ui-sortable-placeholder {
+	background-color: #FCEFA1;
+}
+
+/*icons*/
+.sDashboard-icon {
+    margin-top:13px;
+	float: right;
+	
+}
+.sDashboard-loading {
+    background: url('loading.gif') no-repeat;
+    margin:100px auto;
+    width:100px;
+    height:30px;
+}
+
+.sDashboard-icon:hover {
+	cursor: pointer;
+}
+
+/*clear fix*/
+
+.sDashboard-clearfix:before, .sDashboard-clearfix:after {
+	content: "";
+	display: table;
+}
+.sDashboard-clearfix:after {
+	clear: both;
+}
+.sDashboard-clearfix {
+	zoom: 1; /* For IE 6/7 (trigger hasLayout) */
+}
+
+/*overlay*/
+.sDashboard-overlay {
+	opacity: 0.5;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #000;
+	width: 100%;
+	height:100% !important;
+	z-index: 9998;/*z-index one less than window maximized css*/
+}

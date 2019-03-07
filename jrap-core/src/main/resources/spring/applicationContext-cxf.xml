@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright ZheJiang JingRui Co.,Ltd.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+
+
+    <import resource="classpath*:**/cxf-beans-*.xml"/>
+
+    <!--ws的调用记录feature-->
+    <bean id = "jrapInvokeFeature" class="com.jingrui.jrap.intergration.ws.feature.JrapInvokeFeature"></bean>
+
+    <cxf:bus>
+        <cxf:features>
+            <ref bean="jrapInvokeFeature"></ref>
+        </cxf:features>
+    </cxf:bus>
+
+</beans>

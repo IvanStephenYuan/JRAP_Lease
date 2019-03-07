@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.task.mapper.TaskAssignMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.task.dto.TaskAssign">
+        <result column="TASK_ASSIGN_ID" property="taskAssignId" jdbcType="DECIMAL" />
+        <result column="TASK_ID" property="taskId" jdbcType="DECIMAL" />
+        <result column="ASSIGN_ID" property="assignId" jdbcType="DECIMAL" />
+        <result column="ASSIGN_TYPE" property="assignType" jdbcType="VARCHAR" />
+        <result column="START_DATE" property="startDate" jdbcType="DATE" />
+        <result column="END_DATE" property="endDate" jdbcType="DATE" />
+
+        <association property="role" javaType="com.jingrui.jrap.account.dto.Role"
+                     resultMap="com.jingrui.jrap.account.mapper.RoleMapper.BaseResultMap" />
+
+    </resultMap>
+
+    <select id="query" parameterType="com.jingrui.jrap.task.dto.TaskAssign" resultMap="BaseResultMap">
+        SELECT
+            A.TASK_ASSIGN_ID,
+            A.TASK_ID,
+            A.ASSIGN_ID,
+            A.ASSIGN_TYPE,
+            A.START_DATE,
+            A.END_DATE,
+            R.ROLE_ID,
+            R.ROLE_CODE,
+            TL.ROLE_NAME,
+            TL.ROLE_DESCRIPTION,
+            R.ENABLE_FLAG,
+            R.END_ACTIVE_DATE
+        FROM
+            SYS_TASK_ASSIGN A,
+            SYS_ROLE_B R
+        LEFT OUTER JOIN SYS_ROLE_TL TL ON (
+            R.ROLE_ID = TL.ROLE_ID
+            AND TL.LANG = #{request.locale,jdbcType=VARCHAR,javaType=java.lang.String}
+        )
+        WHERE
+            A.ASSIGN_ID = R.ROLE_ID
+        AND R.ENABLE_FLAG = 'Y'
+        AND A.TASK_ID = #{taskId}
+        ORDER BY
+	        R.ROLE_CODE ASC
+    </select>
+
+
+    <select id="queryUnbound" parameterType="java.util.List" resultMap="com.jingrui.jrap.account.mapper.RoleMapper.BaseResultMapExt">
+        SELECT
+            R.ROLE_ID,
+            R.ROLE_CODE,
+            TL.ROLE_NAME,
+            TL.ROLE_DESCRIPTION,
+            R.ENABLE_FLAG,
+            R.END_ACTIVE_DATE
+        FROM
+            SYS_ROLE_B R
+        LEFT OUTER JOIN SYS_ROLE_TL TL ON (
+            R.ROLE_ID = TL.ROLE_ID
+            AND TL.LANG = #{request.locale,jdbcType=VARCHAR,javaType=java.lang.String}
+        )
+        WHERE	R.ENABLE_FLAG = 'Y'
+            AND (R.END_ACTIVE_DATE IS NULL OR R.END_ACTIVE_DATE >= #{currentDate} )
+            AND (R.START_ACTIVE_DATE IS NULL OR #{currentDate} >= R.start_active_date )
+            <if test="idList != null and idList.size > 0">
+                AND R.ROLE_ID NOT IN
+                <foreach collection="idList" index="index" item="item" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+        ORDER BY
+            R.ROLE_CODE ASC
+    </select>
+
+    <!-- 查询该用户下权限下的任务Id -->
+    <select id="queryTaskId" resultType="java.lang.Long">
+        SELECT DISTINCT ASSIGN.TASK_ID
+        FROM SYS_TASK_ASSIGN ASSIGN
+        <if test="isAdmin != true ">
+            WHERE (
+                (ASSIGN.START_DATE IS NULL OR #{currentDate} >= ASSIGN.START_DATE)
+                AND (ASSIGN.END_DATE IS NULL OR ASSIGN.END_DATE >= #{currentDate})
+            )
+            AND ASSIGN.ASSIGN_ID IN
+            <foreach collection="array" index="index" item="item" open="(" separator="," close=")" >
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <delete id="deleteByTaskId">
+        DELETE FROM SYS_TASK_ASSIGN
+        WHERE  TASK_ID = #{taskId}
+    </delete>
+
+</mapper>

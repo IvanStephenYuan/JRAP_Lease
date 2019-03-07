@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-core-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-crm" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-crm-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-gateway" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-gateway-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-interface" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-interface-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-job" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-job-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-mail" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-mail-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-oauth2" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-oauth2-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-pom" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-report" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-report-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-task" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-task-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-workflow" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-workflow-db" charset="UTF-8" />
+  </component>
+</project>

@@ -1,0 +1,205 @@
+<#include "../include/header.html">
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+    var itemType = '${RequestParameters.itemType!}';
+    var resourceItemId =  ${RequestParameters.resourceItemId};
+</script>
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+    var BaseUrl = _basePath+"/sys/resourceItemElement",
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/query?resourceItemId="+resourceItemId,
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        autoBind:false,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "elementId",
+                fields: {
+                    type:{validation: {required: true}},
+                    property:{editable:false,validation: {required: true}},
+                    propertyValue:{validation: {required: true}},
+                    resourceItemId: {defaultValue:resourceItemId}
+                },
+                editable: function (col) {
+                    if (col == "property" && !this['propertyEdit']) {
+                        return false;
+                    }
+                    if (col == "property" && this['propertyEdit']) {
+                        this['propertyEdit'] = false;
+                        return true;
+                    }
+                    return true;
+                }
+            }
+        }
+    });
+    var formTypeData = [
+        {meaning: "<@spring.message 'resourceitemelement.button'/>", value: "form-buttons"},
+        {meaning: "<@spring.message 'resourceitemelement.field'/>", value: "form-field"}];
+    var gridTypeData = [
+        {meaning: "<@spring.message 'resourceitemelement.gridbutton'/>", value: "grid-buttons"},
+        {meaning: "<@spring.message 'resourceitemelement.columnbutton'/>", value: "column-buttons"},
+        {meaning: "<@spring.message 'resourceitemelement.column'/>", value: "column"}];
+
+    var buttonTypeData = [
+        {meaning: "<@spring.message 'resourceitemelement.button'/>", value: "buttons"}];
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        editable: true,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        columns: [{
+                field: "type",
+                title: '<@spring.message "resourceitemelement.type"/>',
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.type ? dataItem.type : "";
+                    if("grid"==itemType){
+                        $.each(gridTypeData, function (i, n) {
+                            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                                v = n.meaning;
+                                return v;
+                            }
+                        });
+                        return v;
+                    }else if("form"==itemType){
+                        $.each(formTypeData, function (i, n) {
+                            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                                v = n.meaning;
+                                return v;
+                            }
+                        });
+                        return v;
+                    }else if("buttons"==itemType){
+                        $.each(buttonTypeData, function (i, n) {
+                            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                                v = n.meaning;
+                                return v;
+                            }
+                        });
+                    }
+                    return v;
+                },
+                editor: function (container, options) {
+                    if("grid"==itemType){
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDropDownList({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: gridTypeData,
+                                change:function () {
+                                    options.model.propertyEdit = true;
+                                    if( 'grid-buttons' == this.value()){
+                                        options.model.set("property","id");
+                                    }else if('column-buttons' == this.value()){
+                                        options.model.set("property","className");
+                                    }else if('column' == this.value()){
+                                        options.model.set("property","name");
+                                    }
+                                },
+                                model: options.model
+                            });
+                    }else if("form"==itemType){
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDropDownList({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: formTypeData,
+                                change:function () {
+                                    options.model.propertyEdit = true;
+                                    options.model.set("property","id");
+                                },
+                            });
+                    }else if("buttons"==itemType){
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDropDownList({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: buttonTypeData,
+                                change:function () {
+                                    options.model.propertyEdit = true;
+                                    options.model.set("property","id");
+                                },
+                            });
+                    }
+                }
+            },{
+                field: "property",
+                title: '<@spring.message "resourceitemelement.property"/>',
+                width: 80,
+            },  {
+                field: "propertyValue",
+                title: '<@spring.message "resourceitemelement.propertyvalue"/>',
+                width: 120
+            }, {
+                field: "name",
+                title: '<@spring.message "resourceitemelement.name"/>',
+                width: 120
+            }
+        ]
+    });
+    Jrap.autoResizeGrid("#grid");
+
+</script>
+</body>
+</html>

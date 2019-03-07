@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="jrap-core:war">
+    <output-path>$PROJECT_DIR$/jrap-core/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>jrap-core</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="jrap-core.war">
+      <element id="artifact" artifact-name="jrap-core:war exploded" />
+    </root>
+  </artifact>
+</component>

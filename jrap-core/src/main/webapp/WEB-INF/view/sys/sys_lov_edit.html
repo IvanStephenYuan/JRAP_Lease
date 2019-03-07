@@ -1,0 +1,889 @@
+<#-- 
+ * description: LOV编辑界面
+ * version: 3.0
+ * author:hailin.xu@jingrui.com
+ * author:zhizheng.yang@jingrui.com
+ * -->
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/common/code?yesno=SYS.YES_NO&lovTypes=SYS.LOV_EDITOR_TYPE&alignType=SYS.ALIGN_TYPE"
+        type="text/javascript"></script>
+<script type="text/javascript">
+
+    var lovId =${RequestParameters.lovId!0};
+
+    $.each(lovTypes, function (i, n) {
+        n.value = n.value.toLowerCase();
+    });
+
+    $.each(alignType, function (i, n) {
+        n.value = n.value.toLowerCase();
+    });
+
+    var crudServiceBaseUrl = '${base.contextPath}/sys/lovitem';
+    var viewModel2 = kendo.observable({
+        selected: {},
+        create:function (e) {
+            $("#grid").data('kendoGrid').addRow();
+        },
+        remove:function(e){
+            Jrap.deleteGridSelection({
+                grid: $("#grid")
+            });
+        },
+        source: lovTypes,
+        dataDsType: [
+            {value: 'url', text: '<@spring.message "lovitem.ds_type.url"/>'},
+            {value: 'code', text: '<@spring.message "lovitem.ds_type.code"/>'}
+        ],
+        onConditionFieldTypeSelect: function (e) {
+            var item = e.item;
+            var text = item.text();
+            //获取到下拉框选中内容 根据选中内容判断是否显示
+            if (text === "下拉框" || text === "Select") {
+                $("#url").css("display", "none");
+                $("#conditionFieldSelectTftextField").css("display", "none");
+                $("#conditionFieldSelectVfvalueField").css("display", "none");
+                $("#selectCode").css("display", "none");
+                $("#dsType").css("display", "block");
+                viewModel2.selected.set('conditionFieldSelectCode', '');
+                viewModel2.selected.set('conditionFieldSelectUrl', '');
+                viewModel2.selected.set('conditionFieldSelectTf', '');
+                viewModel2.selected.set('conditionFieldSelectVf', '');
+
+            }
+            else {
+                $("#url").css("display", "none");
+                $("#conditionFieldSelectTftextField").css("display", "none");
+                $("#conditionFieldSelectVfvalueField").css("display", "none");
+                $("#selectCode").css("display", "none");
+                $("#dsType").css("display", "none");
+                viewModel2.selected.set('conditionFieldSelectCode', '');
+                viewModel2.selected.set('conditionFieldSelectUrl', '');
+                viewModel2.selected.set('conditionFieldSelectTf', '');
+                viewModel2.selected.set('conditionFieldSelectVf', '');
+                viewModel2.selected.set('comboboxType', '');
+            }
+        },
+        oncomboboxTypeSelect: function (e) {
+            var item = e.item;
+            var text = item.text();
+            //获取到下拉框选中内容 根据选中内容判断是否显示
+            if (text === "URL") {
+                $("#selectCode").css("display", "none");
+                viewModel2.selected.set('conditionFieldSelectCode', '');
+                $("#url").css("display", "block");
+                $("#conditionFieldSelectTftextField").css("display", "block");
+                $("#conditionFieldSelectVfvalueField").css("display", "block");
+            }
+            else if (text === "快速编码" || text === "Sys Code") {
+                $("#url").css("display", "none");
+                $("#conditionFieldSelectTftextField").css("display", "none");
+                $("#conditionFieldSelectVfvalueField").css("display", "none");
+                $("#selectCode").css("display", "block");
+                viewModel2.selected.set('conditionFieldSelectUrl', '');
+                viewModel2.selected.set('conditionFieldSelectTf', '');
+                viewModel2.selected.set('conditionFieldSelectVf', '');
+
+            }
+            else {
+                $("#url").css("display", "none");
+                $("#conditionFieldSelectTftextField").css("display", "none");
+                $("#conditionFieldSelectVfvalueField").css("display", "none");
+                $("#selectCode").css("display", "none");
+                viewModel2.selected.set('conditionFieldSelectCode', '');
+                viewModel2.selected.set('conditionFieldSelectUrl', '');
+                viewModel2.selected.set('conditionFieldSelectTf', '');
+                viewModel2.selected.set('conditionFieldSelectVf', '');
+            }
+        },
+        dataSource: new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl + "/query"
+                },
+                destroy: {
+                    url: crudServiceBaseUrl + "/remove",
+                    contentType: "application/json",
+                    type: "POST"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = Jrap.prepareSubmitParameter(options, type);
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        var p = Jrap.prepareQueryParameter(viewModel.model.toJSON(), options);
+                        p.lovId = lovId;
+                        return p;
+                    }
+                }
+            },
+            requestEnd: function (e) {
+                var response = e.response;
+                if (!response){
+                    return;
+                }
+            },
+            batch: true,
+            serverPaging: false,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "lovItemId", 
+                    fields: {
+                        display: {type: "string", validation: {required: true}},
+                        gridFieldName: {type: "string", validation: {required: true}},
+                        gridFieldWidth: {type: "number", defaultValue: 200},
+                        gridField: {
+                            type: 'boolean',
+                            defaultValue:'N',
+                            checkedValue:'Y',
+                            uncheckedValue:'N'},
+                        gridFieldAlign: {defaultValue:alignType[0].meaning},
+                        conditionField: {
+                            type: 'boolean',
+                            checkedValue:'Y',
+                            uncheckedValue:'N'},
+                        gridFieldSequence: {type: "number"},
+                        conditionFieldType: {type: "string"},
+                        comboboxType: {type: "string"},
+                        conditionFieldWidth: {type: "number", defaultValue: 200},
+                        conditionFieldSequence: {type: "number", defaultValue: 1},
+                        conditionFieldName: {type: "string"},
+                        conditionFieldSelectVf: {type: "string"},
+                        conditionFieldSelectUrl: {type: "string"},
+                        conditionFieldSelectCode: {type: "string"},
+                        conditionFieldSelectTf: {type: "string"},
+                        conditionFieldTextfield: {type: "string"},
+                        conditionFieldLovCode: {type: "string"},
+                        isAutocomplete: {type: "checkbox"},
+                        autocompleteField: {type: "checkbox"}
+                    }
+                }
+            }
+        })
+    });
+
+    var viewModel = kendo.observable({
+        model: {},
+        isEnabled:<#if RequestParameters.lovId ??> false <#else> true </#if>
+    });
+</script>
+
+<!-- 编辑界面 -->
+<form id="queryEdit" class="modal-content form-horizontal" role="form" autocomplete="off" style="display:none">
+    <div class="col-xs-offset-1" style="margin-top:10px">
+    
+                <div class="form-group ">
+                    <label class="col-xs-3 control-label"><@spring.message "lovitem.field_type"/></label>
+                    <div class="col-xs-5">
+                        <input  id="conditionFieldType" data-role="combobox" data-value-primitive="true" style="width: 100%" data-text-field="meaning" data-value-field="value"
+                               data-bind="source:source,value:selected.conditionFieldType,events:{select:onConditionFieldTypeSelect}"/>
+                        <script>kendo.bind($('#conditionFieldType'), viewModel2);</script>
+                    </div>
+                </div>
+                    <div class="form-group">
+                    <label class="col-xs-3 control-label"><@spring.message "lovitem.conditionfieldlabelwidth"/></label>
+                    <div class="col-xs-5">
+                        <input type="number" id="conditionFieldLabelWidth" style="width: 100%;text-align:right" data-bind="value:selected.conditionFieldLabelWidth"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldLabelWidth'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-3 control-label"><@spring.message "lovitem.conditionfieldwidth"/></label>
+                    <div class="col-xs-5">
+                        <input type="number" id="conditionFieldWidth" style="width: 100%;text-align:right" data-bind="value:selected.conditionFieldWidth"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldWidth'), viewModel2);</script>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-xs-3 control-label"><@spring.message "lovitem.conditionfieldsequence"/></label>
+                    <div class="col-xs-5">
+                        <input type="number" id="conditionFieldSequence" style="width: 100%;text-align:right" data-bind="value:selected.conditionFieldSequence"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldSequence'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-3 control-label"><@spring.message "lovitem.conditionfieldname"/></label>
+                    <div class="col-xs-5">
+                        <input type="text" id="conditionFieldName" style="width: 100%" data-bind="value:selected.conditionFieldName"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldName'), viewModel2);</script>
+                    </div>
+                </div>
+                
+                
+                <div class="form-group" id="dsType" style="display:none">
+                    <label class="col-xs-3 control-label"> <@spring.message "lovitem.ds_type"/></label>
+                    <div class="col-xs-5">
+                        <input id="comboboxType" data-role="combobox" data-value-primitive="true" style="width: 100%" data-text-field="text" data-value-field="value"
+                               data-bind="source:dataDsType,value:selected.comboboxType,events:{select:oncomboboxTypeSelect}"/>
+                        <script>kendo.bind($('#comboboxType'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group" id="url" style="display:none">
+                    <label class="col-xs-3 control-label"><@spring.message "Url"/></label>
+                    <div class="col-xs-5">
+                        <input type="text" id="conditionFieldSelectUrl" style="width: 100%" data-bind="value:selected.conditionFieldSelectUrl"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldSelectUrl'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group" id="conditionFieldSelectVfvalueField" style="display:none">
+                    <label class="col-xs-3 control-label"><@spring.message "valueField"/></label>
+                    <div class="col-xs-5">
+                        <input type="text" id="conditionFieldSelectVf" style="width: 100%" data-bind="value:selected.conditionFieldSelectVf"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldSelectVf'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group" id="conditionFieldSelectTftextField" style="display:none">
+                    <label class="col-xs-3 control-label"><@spring.message "textField"/></label>
+                    <div class="col-xs-5">
+                        <input type="text" id="conditionFieldSelectTf" style="width: 100%" data-bind="value:selected.conditionFieldSelectTf"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldSelectTf'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group" id="selectCode" style="display:none">
+                    <label class="col-xs-3 control-label"> <@spring.message "lovitem.conditionfieldselectcode"/></label>
+                    <div class="col-xs-5">
+                        <input type="text" id="conditionFieldSelectCode" style="width: 100%" data-bind="value:selected.conditionFieldSelectCode"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldSelectCode'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group" style="display:none">
+                    <label class="col-xs-3 control-label"><@spring.message "textField"/></label>
+                    <div class="col-xs-5">
+                        <input type="text" id="conditionFieldTextfield" style="width: 100%" data-bind="value:selected.conditionFieldTextfield"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldTextfield'), viewModel2);</script>
+                    </div>
+                </div>
+                <div class="form-group" style="display:none">
+                    <label class="col-xs-3 control-label"><@spring.message "lovitem.conditionfieldlovcode"/> </label>
+                    <div class="col-xs-5">
+                        <input type="text" id="conditionFieldLovCode" style="width: 100%" data-bind="value:selected.conditionFieldLovCode"
+                               class="k-textbox">
+                        <script>kendo.bind($('#conditionFieldLovCode'), viewModel2);</script>
+                    </div>
+                </div>
+    </div>
+    <div class="modal-footer">
+        <span class="btn btn-primary btn-sm" onclick="hideForm()"><@spring.message "jrap.ok"/></span>
+    </div>
+</form>
+<div id="dialog"></div>
+<div id="content-container">
+    <div id="page-content">
+            <form class="form-horizontal" >
+
+                <input type="hidden" name="lovItems" id="lovItems" value=""/>
+                <input type="hidden" name="lovId"/>
+                <div class="panel-body">
+                    <div id="lovForm">
+                   <div class="col-sm-4">
+                  <div class="row">
+                     <div class="form-group required-input">
+                         <label class="col-sm-3 control-label"><@spring.message "lov.code"/></label>
+                              <div class="col-sm-9">
+                                <input name="code" id="code" data-label='<@spring.message "lov.code"/>' data-role="maskedtextbox" type="text" style="width: 100%" data-bind="enabled:isEnabled,value:model.code"
+                                       class="k-textbox" required>
+                                <script>kendo.bind($('#code'), viewModel);</script>
+                              </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                      <div class="form-group">
+                           <label class="col-sm-3 control-label"><@spring.message "lov.description"/></label>
+                               <div class="col-sm-9">
+                                   <input id="description" data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.description"
+                                          class="k-textbox">
+                                   <script>kendo.bind($('#description'), viewModel);</script>
+                               </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                        <div class="form-group">
+                              <label class="col-sm-3 control-label"><@spring.message "lov.title"/></label>
+                              <div class="col-sm-9">
+                                   <input id="title" data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.title"
+                                          class="k-textbox">
+                                   <script>kendo.bind($('#title'), viewModel);</script>
+                              </div>
+                        </div>
+                  </div>
+                   
+                  <div class="row">
+                      <div class="form-group">
+                          <label class="col-sm-3 control-label"><@spring.message "lov.placeholder"/></label>
+                          <div class="col-sm-9">
+                              <input id="placeholder" data-role="maskedtextbox" type="text" style="width: 100%;" data-bind="value:model.placeholder">
+                              <script>kendo.bind($('#placeholder'), viewModel);</script>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="form-group">
+
+                          <label class="col-sm-3 control-label"><@spring.message "lov.editable"/></label>
+                          <div class="col-sm-3"  style="margin-top: 5px;">
+                              <input id="editableFlag" type="checkbox"  data-bind="value:model.editableFlag">
+                              <script>
+                                  $('#editableFlag').kendoCheckbox({
+                                      checkedValue:'Y',
+                                      unCheckedValue:'N'
+                                  });
+                                  kendo.bind($('#editableFlag'), viewModel);
+                              </script>
+                          </div>
+                          <label class="col-sm-4 control-label"><@spring.message "lov.isTree"/></label>
+                          <div class="col-sm-2"  style="margin-top: 5px;">
+                              <input id="treeFlag" type="checkbox"  data-bind="value:model.treeFlag">
+                              <script>
+                                  $('#treeFlag').kendoCheckbox({
+                                      checkedValue:'Y',
+                                      unCheckedValue:'N',
+                                      change:function(e){
+                                          if(e.values == 'Y'){
+                                              isTree(true)
+                                          }else isTree(false)
+                                      }
+                                  });
+                                  kendo.bind($('#treeFlag'), viewModel);
+                              </script>
+                          </div>
+                      </div>
+                  </div>
+                       <div class="row">
+                           <div class="form-group" style="display: none">
+                               <label class="col-sm-3 control-label">IDField</label>
+                               <div class="col-sm-9">
+                                   <input id="idField" name="idField" data-label='IDField' data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.idField"
+                                          class="k-textbox">
+                                   <script>kendo.bind($('#idField'), viewModel);</script>
+                               </div>
+
+                           </div>
+
+                       </div>
+                  
+                  
+                  </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><@spring.message "lov.valuefield"/></label>
+                            <div class="col-sm-8">
+                                <input id="valueField" name="valueField" data-label='<@spring.message "lov.valuefield"/>' data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.valueField"
+                                       class="k-textbox" required>
+                                <script>kendo.bind($('#valueField'), viewModel);</script>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><@spring.message "lov.textfield"/></label>
+                            <div class="col-sm-8">
+                                <input id="textField" name="textField" data-label='<@spring.message "lov.textfield"/>' data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.textField"
+                                       class="k-textbox" required>
+                                <script>kendo.bind($('#textField'), viewModel);</script>
+                            </div>
+
+                        </div>
+
+
+                      <div class="form-group">
+                          <label class="col-sm-4 control-label"><@spring.message "lov.height"/></label>
+                          <div class="col-sm-8">
+                              <input id="height" data-role="numerictextbox" type="number" data-format="n0" value="400" style="width: 100%" data-bind="value:model.height">
+                              <script>kendo.bind($('#height'), viewModel);</script>
+                          </div>
+                       </div>
+                      <div class="form-group">
+                          <label class="col-sm-4 control-label"><@spring.message "lov.width"/></label>
+                          <div class="col-sm-8">
+                              <input id="width" data-role="numerictextbox" data-format="n0" type="number" value="500" style="width: 100%" data-bind="value:model.width">
+                              <script>kendo.bind($('#width'), viewModel);</script>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-sm-4 control-label"><@spring.message "lov.querycolumns"/></label>
+                          <div class="col-sm-8">
+                              <input title='<@spring.message "lov.tip.querycolumnstip"/>' id="queryColumns" data-role="numerictextbox" data-format="n0" type="number" style="width: 100%" max="4" min="1" data-bind="value:model.queryColumns">
+                              <script>kendo.bind($('#queryColumns'), viewModel);</script>
+                          </div>
+                     </div>
+
+                        <div class="form-group" style="display: none">
+                            <label class="col-sm-4 control-label">ParentIDField</label>
+                            <div class="col-sm-8">
+                                <input id="parentIDField" name="parentIDField" data-label='ParentIDField' data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.parentIdField"
+                                       class="k-textbox" >
+                                <script>kendo.bind($('#parentIDField'), viewModel);</script>
+                            </div>
+                        </div>
+
+                  </div>
+                   <div class="col-sm-4">
+                      <div class="row">
+                          <div class="form-group">
+                              <label class="col-sm-3 control-label"><@spring.message "lov.pagesize"/></label>
+                              <div class="col-sm-9">
+                                  <input id="lovPageSize" style="width: 100%;" value="10" type="checkbox"  data-bind="value:model.lovPageSize">
+                                  <script>
+                                      var lovPageSize =  $('#lovPageSize').kendoDropDownList({
+                                          dataSource: ["5","10","20","50","ALL"],
+                                          value:"10",
+                                      }).data("kendoDropDownList");
+                                      kendo.bind($('#lovPageSize'), viewModel);
+                                  </script>
+                              </div>
+                          </div>
+                      </div>
+
+                   <div class="row">
+                     <div class="form-group">
+                          <label class="col-sm-3 control-label"><@spring.message "lov.sqltype"/></label>
+                          <div class="col-sm-9">
+                           <input id="sqlType" style="width: 100%;">
+                           </div>
+                       </div>
+                     </div>
+                     <div id="sqlIdDiv" class="row">
+                            <div class="form-group required-input">
+                                <label class="col-sm-3 control-label"><@spring.message "lov.sqlid"/></label>
+                                <div class="col-sm-9">
+                                    <input name="sqlId" id="sqlId" data-label='<@spring.message "lov.sqlid"/>' data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.sqlId"
+                                           class="k-textbox" required>
+                                    <script>kendo.bind($('#sqlId'), viewModel);</script>
+                                </div>
+                            </div>
+                    </div>
+                    <div id="customUrlDiv" class="row" style="display:none">
+                        <div class="form-group required-input">
+                           <label class="col-sm-3 control-label"><@spring.message "lovitem.ds_type.url"/></label>
+                           <div class="col-sm-9">
+                                <input name="customUrl" id="customUrl" data-role="maskedtextbox" type="text" style="width: 100%" data-bind="value:model.customUrl"
+                                       class="k-textbox">
+                                <script>kendo.bind($('#customUrl'), viewModel);</script>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="customSqlDiv" class="row" style="display:none">
+                         <div class="form-group required-input">
+                            <label class="col-sm-3 control-label"><@spring.message "lov.customsql"/></label>
+                              <div class="col-sm-9">
+                                  <textarea name="customSql" id="customSql" type="text" style="width: 100%; cursor:text; color:#333;" data-bind="value:model.customSql"
+                                            class="k-textbox" rows="6" cols=""></textarea>
+                                  <script>kendo.bind($('#customSql'), viewModel);</script>
+                              </div>
+                          </div>
+                     </div>
+                </div>
+                   </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label"><@spring.message "lov.linenumberinformation"/></label>
+                            <div class="col-sm-11" style="padding-left:18px;">
+                                <div class="pull-left" id="toolbar-btn" style="padding-bottom:15px;">
+                                    <span class="btn btn-primary k-grid-add" data-hotkey="hotkey_create" style="float: left; margin-right: 5px;" data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+                                    <!--<span class="btn btn-success k-grid-save-changes" style="float: left; margin-right: 5px;" ><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>-->
+                                    <span class="btn btn-danger"  style="float: left;margin-right: 5px;" data-hotkey="hotkey_delete" data-bind="click:remove"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+                                </div>
+                                <div style="clear:both;">
+                                    <div id="grid" ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                </div>
+                <script>
+                    kendo.bind($('#toolbar-btn'), viewModel2);
+                </script>
+            </form>
+    </div>
+</div>
+<div class="text-right k-window-toolbar" id="gridToolbar" style="padding-right:34px;">
+    <span class="btn btn-primary" style="margin-right: 10px" data-hotkey="hotkey_save" onclick="saveLov()"> <@spring.message "jrap.save"/></span>
+    <span class="btn btn-default"  onclick="closeLovWindow()" data-hotkey="hotkey_cancel" type="button"  ><@spring.message "jrap.cancel"/></span>
+</div>
+<script type="text/javascript">
+
+    var validator = $("#lovForm").kendoValidator({
+        invalidMessageType : "tooltip"
+    }).data("kendoValidator");
+
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: viewModel2.dataSource,
+        navigatable: false,
+        height:330,
+        resizable: true,
+        scrollable: true,
+        selectable: 'multiple, rowbox',
+        columns: [
+            {
+                field: "display",
+                title: '<@spring.message "lovitem.display"/>',
+                width: 210
+            },
+            {
+                field: "gridFieldName",
+                title: '<@spring.message "lovitem.name"/>',
+                width: 100
+            },
+            {
+                field: "gridFieldWidth",
+                title: '<@spring.message "lovitem.gridfieldwidth"/>',
+                width: 70,
+                attributes: {style: "text-align:right"}
+            },
+            {
+                field:"gridField",
+                width: 60,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                title: '<@spring.message "lovitem.gridcolumn"/>',
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>').appendTo(container)
+                            .kendoCheckbox({
+                                checkedValue: 'Y',
+                                uncheckedValue: 'N'
+                                    });
+                }
+            },
+            {
+                field: "gridFieldAlign",
+                title: '<@spring.message "lovitem.gridcolumnalign"/>',
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.gridFieldAlign;
+                    $.each(alignType, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return false;
+                        }
+                    });
+                    return v || '';
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>').appendTo(container)
+                            .kendoDropDownList(
+                                    {
+                                        value:0,
+                                        dataTextField: "meaning",
+                                        dataValueField: "value",
+                                        valuePrimitive: true,
+                                        dataSource: alignType
+                                    });
+                }
+            },
+            {
+                field:"conditionField",
+                width: 80,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                title: '<@spring.message "lovitem.conditionfield"/>',
+                editor: function (container, options) {
+                     $('<input name="' + options.field + '"/>').appendTo(container)
+                             .kendoCheckbox({
+                                 checkedValue: 'Y',
+                                 uncheckedValue: 'N',
+                                 change:function(e){
+                                    $("#grid").data("kendoGrid").refresh();
+                                 }
+                           });
+                 } 
+            },
+            {
+                field: "gridFieldSequence",
+                title: '<@spring.message "lovitem.gridfieldsequence"/>',
+                width: 60,
+                attributes: {style: "text-align:right"}
+            },
+            {
+                // field           : "type",
+                title: '<@spring.message "lovitem.type"/>',
+                width: 80,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (rowdata) {
+                    if (rowdata.conditionField == 'Y') {
+                        return '<a href="javascript:void(0)" id="lovItemType"   onclick="openEditor(this)"><@spring.message "lovitem.type"/></a>'
+                    }
+                    return '';
+                }
+                
+            }
+        ],
+        editable: true,
+       /* dataBound: function (e) {
+            var row = this.tbody.find(">tr[data-uid=" + viewModel2.selected.uid + "]");
+            if (row) {
+                this.select(row);
+            }
+        },
+        locate: function (e) {
+            var model = this.dataItem(e.element);
+            viewModel2.set("selected", model);
+        }*/
+    }).data("kendoGrid");
+
+
+    var edit;
+    function openEditor(ele) {
+
+        if(grid.dataItem($(ele).closest("tr"))){
+            viewModel2.set("selected",grid.dataItem($(ele).closest("tr")))
+        }
+
+        edit = $("#queryEdit").kendoWindow({
+            width: 400,
+            resizable:false,
+            title: '<@spring.message "lovitem.type"/>',
+            modal: true,
+            open: function () {
+                //打开时对其做处理
+                if (viewModel2.selected.conditionFieldType == "select") {
+                    $("#dsType").css("display", "block");
+                    if (!viewModel2.selected.comboboxType) {
+                        if (viewModel2.selected.conditionFieldSelectCode) {
+                            viewModel2.selected.set('comboboxType', "code")
+                        } else if (viewModel2.selected.conditionFieldSelectUrl
+                                || viewModel2.selected.conditionFieldSelectVf
+                                || viewModel2.selected.conditionFieldSelectTf) {
+                            viewModel2.selected.set('comboboxType', "url")
+                        }
+                    }
+
+                    // if(viewModel2.selected.comboboxType){
+                    if (viewModel2.selected.comboboxType == "url") {
+                        $("#selectCode").css("display", "none");
+                        viewModel2.selected.set('conditionFieldSelectCode', '');
+                        $("#url").css("display", "block");
+                        $("#conditionFieldSelectTftextField").css("display", "block");
+                        $("#conditionFieldSelectVfvalueField").css("display", "block")
+                    } else if (viewModel2.selected.comboboxType == "code") {
+                        $("#url").css("display", "none");
+                        viewModel2.selected.set('conditionFieldSelectUrl', '');
+                        $("#conditionFieldSelectTftextField").css("display", "none");
+                        viewModel2.selected.set('conditionFieldSelectTf', '');
+                        $("#conditionFieldSelectVfvalueField").css("display", "none");
+                        viewModel2.selected.set('conditionFieldSelectVf', '');
+                        $("#selectCode").css("display", "block")
+                    }else {
+                        $("#selectCode").css("display", "none");
+                        $("#url").css("display", "none");
+                        $("#conditionFieldSelectTftextField").css("display", "none");
+                        $("#conditionFieldSelectVfvalueField").css("display", "none")
+                    }
+                } else {
+                    $("#url").css("display", "none");
+                    $("#conditionFieldSelectTftextField").css("display", "none");
+                    $("#conditionFieldSelectVfvalueField").css("display", "none");
+                    $("#selectCode").css("display", "none");
+                    $("#dsType").css("display", "none");
+                    viewModel2.selected.set('conditionFieldSelectCode', '');
+                    viewModel2.selected.set('conditionFieldSelectUrl', '');
+                    viewModel2.selected.set('conditionFieldSelectTf', '');
+                    viewModel2.selected.set('conditionFieldSelectVf', '')
+                }
+            }
+        }).data("kendoWindow");
+        edit.center().open();
+
+    }
+
+    function hideForm() {
+        edit.close();
+    }
+
+    var getSqlTypeSelect = function(dSqlType){
+        if(dSqlType == 1){
+            $("#customSql").attr("required",true);
+            viewModel.model.set("sqlId","");
+            viewModel.model.set("customUrl","");
+            $("#sqlIdDiv").css('display','none');
+            $("#customSqlDiv").css('display','block');
+            $("#sqlId").attr("required",false);
+        }else if(dSqlType == 2){
+            $("#customUrlDiv").attr("required",true);
+            viewModel.model.set("sqlId","");
+            viewModel.model.set("customSql","");
+            $("#sqlIdDiv").css('display','none');
+            $("#customUrlDiv").css('display','block');
+            $("#sqlId").attr("required",false);
+            
+        }
+        $("#sqlType").kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        dataSource: {
+            data:[{ text: "<@spring.message 'lov.sqlId'/>", value: "<@spring.message 'lov.sqlId'/>" }, 
+                  { text: "<@spring.message 'lov.customsql'/>", value: "<@spring.message 'lov.customsql'/>" },
+                  { text: "<@spring.message 'lovitem.ds_type.url'/>",value:"<@spring.message 'lovitem.ds_type.url'/>"}]
+        },
+        animation: false,
+        index:dSqlType,
+        change: function(e) {
+            var value = this.value();
+            if(value=="<@spring.message 'lov.customsql'/>"){
+                $("#sqlIdDiv").css('display','none');
+                $("#customSqlDiv").css('display','block');
+                $("#customUrlDiv").css('display','none');
+                $("#customSql").attr("required",true);
+                $("#sqlId").attr("required",false);
+                $("#customUrl").attr("required",false);
+               }else if(value=="<@spring.message 'lov.sqlId'/>"){
+                   $("#sqlIdDiv").css('display','block');
+                   $("#customSqlDiv").css('display','none');
+                   $("#customUrlDiv").css('display','none');
+                   $("#sqlId").attr("required",true);
+                   $("#customSql").attr("required",false);
+                   $("#customUrl").attr("required",false);
+               }else{
+                   $("#sqlIdDiv").css('display','none');
+                   $("#customSqlDiv").css('display','none');
+                   $("#customUrlDiv").css('display','block');
+                   $("#sqlId").attr("required",false);
+                   $("#customSql").attr("required",false);
+                   $("#customUrl").attr("required",true);
+               }
+          }
+    });
+    },
+   isTree = function (tree) {
+            if(tree){
+                $("#parentIDField").attr("required",true);
+                $("#parentIDField").closest('.form-group').css('display','block');
+                $("#idField").attr("required",true);
+                $("#idField").closest('.form-group').css('display','block');
+                lovPageSize.enable(false);
+
+            }else{
+                $("#parentIDField").attr("required",false);
+                $("#parentIDField").closest('.form-group').css('display','none');
+                $("#idField").attr("required",false);
+                $("#idField").closest('.form-group').css('display','none');
+                lovPageSize.enable(true);
+            }
+        }
+    
+    <#if RequestParameters.lovId??>
+        $.ajax({
+            url: '${base.contextPath}/sys/lov/load?lovId=${RequestParameters.lovId!0}',
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                var defaultSqlType = 0;
+                for (var k in a0) {
+                    if(k=='sqlId'){
+                        if(a0[k]){
+                            defaultSqlType = 0;
+                        }
+                    }
+                    if(k=='customSql'){
+                        if(a0[k]){
+                            defaultSqlType = 1;
+                        }
+                    }
+                    if(k=='customUrl'){
+                        if(a0[k]){
+                            defaultSqlType = 2;
+                        }
+                    }
+                    if(k=='treeFlag' && a0[k] == 'Y'){
+                        isTree(true)
+                    }
+
+                    if (k == 'delayLoad' || k == 'needQueryParam') {
+                        var elementId = k;
+                        viewModel.model.set(k, a0[k] == 'Y');
+                        if(viewModel.model.get(k)){
+                            $("#"+k).attr("checked",true);
+                        }
+                    }
+                    else
+                        viewModel.model.set(k, a0[k]);
+                }
+                getSqlTypeSelect(defaultSqlType);
+            },
+            error: function () {
+
+            }
+        });
+    <#else>
+        var defaultSqlType = 0;
+        getSqlTypeSelect(defaultSqlType);
+    </#if>
+
+    function closeLovWindow(){
+        window.parent.$('#dialogEdit').data("kendoWindow").close();
+    }
+    function saveLov() {
+        if(validator.validate()){
+            var sqlType = $("#sqlType").val();
+            var sql = "";
+            if(sqlType=="<@spring.message 'lov.sqlId'/>"){
+                sql = $("#sqlId").val();
+                viewModel.model.set("customSql","");
+                viewModel.model.set("customUrl","");
+            }else if(sqlType=="<@spring.message 'lov.customsql'/>"){
+                sql = $("#customSql").val();
+                viewModel.model.set("sqlId","");
+                viewModel.model.set("customUrl","");
+            }else{
+                sql = $("#customUrl").val();
+                viewModel.model.set("sqlId","");
+                viewModel.model.set("customSql","");
+            }
+
+            if(viewModel.model.treeFlag == 'N'){
+                viewModel.model.set('idField',"");
+                viewModel.model.set('parentIdField',"");
+            }
+
+            viewModel.model.delayLoad = viewModel.model.delayLoad === true ? 'Y' : 'N';
+            viewModel.model.needQueryParam = viewModel.model.needQueryParam === true ? 'Y' : 'N';
+            viewModel.model.canPopup = 'Y';
+            Jrap.submitForm({
+                url: '${base.contextPath}/sys/lov/submit',
+                formModel: viewModel.model,
+                grid: {
+                    lovItems: $('#grid')
+                },
+                success: function (result) {
+                    window.parent.viewModel.refresh();
+                    closeLovWindow();
+//                    if (!lovId) {
+//                        lovId = viewModel.model.lovId
+//                    }
+                }
+            });
+        }
+
+        
+    }
+    
+    
+</script>
+</body>
+</html>

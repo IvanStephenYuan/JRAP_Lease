@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.activiti.mapper.ApproveChainHeaderMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.activiti.dto.ApproveChainHeader">
+        <result column="APPROVE_CHAIN_ID" property="approveChainId" jdbcType="DECIMAL" />
+        <result column="PROCESS_KEY" property="processKey" jdbcType="VARCHAR" />
+        <result column="USERTASK_ID" property="usertaskId" jdbcType="VARCHAR" />
+        <result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="selectByUserTask" resultMap="BaseResultMap">
+        SELECT * FROM WFL_APPROVE_CHAIN_HEADER
+        WHERE PROCESS_KEY = #{processKey}
+          AND USERTASK_ID = #{usertaskId}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,304 @@
+<#include "../include/header.html">
+<body>
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid",{
+        remove: function () {
+            var grid = $("#grid").data("kendoGrid");
+            var checked = grid.selectedDataItems();
+
+            if (grid.selectedDataItems().length) {
+                kendo.ui.showConfirmDialog({
+                    title: $l('jrap.tip.info'),
+                    message: $l('jrap.tip.delete_confirm')
+                }).done(function (event) {
+                    if (event.button == 'OK') {
+                        var destroyed = [];
+                        $.each(checked, function (i, v) {
+                            grid.dataSource.remove(v)
+                        })
+                        grid.dataSource.sync('destroy').then(function(){
+                            $("#grid").data('kendoGrid').dataSource.read();
+                        });
+                    }
+                });
+
+            }
+        },
+        exportExcelFunction: function (e) {
+            var exportConfig = {};
+            var columns = [];
+            var index = 0;
+            for (var i = 0; i < grid.columns.length; i++) {
+                if (grid.columns[i].field != null) {
+                    var columnInfo = {};
+                    columnInfo["name"] = grid.columns[i].field;
+                    columnInfo["title"] = grid.columns[i].title;
+                    columnInfo["width"] = grid.columns[i].width;
+                    var align = $('tbody').find('tr')[0].getElementsByTagName('td')[i].style.textAlign;
+                    if (align != null || align != '') {
+                        columnInfo["align"] = align;
+                    }
+                    if (dataSource.options.schema.model.fields[grid.columns[i].field] != null) {
+                        columnInfo["type"] = dataSource.options.schema.model.fields[grid.columns[i].field].type;
+                    }
+                    columns[index] = columnInfo;
+                    index++;
+                }
+            }
+            exportConfig["columnsInfo"] = columns;
+
+            exportConfig["param"] = Jrap.prepareQueryParameter(viewModel.model.toJSON());
+            exportConfig["fileName"] = "function";
+            var $inputImg = $('<input>').attr({name: "config", value: kendo.stringify(exportConfig)});
+            var $inputToken=$('<input>').attr({name:"${_csrf.parameterName}",value:"${_csrf.token}",type:"hidden"});
+            //   var $inputSubmitBtn=$('<input>').attr({type:"submit",value:"submit"});
+            var $form = $("<form>");
+            $form.attr({
+                target: '_self',
+                method: 'post',
+                action: '${base.contextPath}/sys/function/export'
+            }).append($inputImg);
+            $form.append($inputToken);
+            //   $form.append($inputSubmitBtn);
+            $form.id='smbForm';
+            $("#batchDiv").empty().append($form);
+            $($form).submit();
+            $("#batchDiv").empty();
+        }
+    })
+</script>
+<div id="batchDiv" style="display: none"></div>
+<div id="dialog"></div>
+<div id="selectFunction"></div>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" data-hotkey="hotkey_create"
+              style="float:left;margin-right:5px;"
+              data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes"
+              data-hotkey="hotkey_save"
+              style="float:left;margin-right:5px;"
+              data-bind="click:save"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+        <span  class="btn btn-danger" data-bind="click:remove"
+               data-hotkey="hotkey_delete"
+              style="float:left;margin-right:5px;"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+      <!--  <span class="btn btn-primary" style="float:left;margin-right:5px;"
+              data-bind="click:exportExcelFunction"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+   -->
+        <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+
+    <div id="queryPanel" class="pull-right" style="margin-right:5px;padding-bottom:10px;">
+        <div class="k-query-simple" id="query-form">
+            <input data-role="maskedtextbox" placeholder='<@spring.message "function.functioncode"/>' type="text" style="width:120px;margin-right:5px;" data-bind="value:model.functionCode" class="k-textbox"/>
+            <input data-role="maskedtextbox" placeholder='<@spring.message "function.functionname"/>' type="text" style="width: 120px;margin-right:5px;" data-bind="value:model.functionName" class="k-textbox">
+            <input type="text" id="parentFunctionId" placeholder='<@spring.message "function.parentfunctionid"/>' style="width:120px;" data-bind="value:model.parentFunctionId">
+            <script>
+                $("#parentFunctionId").kendoLov(<@lov "LOV_PARENTFUNCTION"/>)
+            </script>
+        </div>
+        <script>kendo.bind($('#query-form'), viewModel);</script>
+        <div class="k-query-detail" id="query-form2">
+            <div class="rows" style="margin-top:5px">
+                <input data-role="maskedtextbox" placeholder='<@spring.message "function.modulecode"/>' type="text"
+                       style="width: 150px;margin-right:5px;" data-bind="value:model.moduleCode" class="k-textbox">
+                <input type="text" id="resourceId" placeholder='<@spring.message "function.mainpage"/>'
+                       style="width:150px;" data-bind="value:model.resourceId">
+                <script>
+                    $("#resourceId").kendoLov(<@lov "LOV_RESOURCE"/>)
+                </script>
+            </div>
+
+
+        </div>
+        <script>kendo.bind($('#query-form2'), viewModel);</script>
+    </div>
+    <script>
+        $('#queryPanel').kendoQueryPanel({
+            queryFunction: function () {
+                viewModel.query();
+            },
+            resetFunction: function () {
+                viewModel.reset();
+            }
+        })
+    </script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    Jrap.initEnterQuery("#query-form",viewModel.query);
+    function editFunctionResources(id) {
+        var dialog = $("#dialog").kendoWindow({
+            actions: ["Close"],
+            width: 800,
+            height: 450,
+            title: '<@spring.message "function.resourceallocation"/>',
+            visible: false,
+            iframe: true,
+            modal: true,
+            content: 'sys_function_resource.html?functionId=' + id
+        }).data("kendoWindow");
+        dialog.center().open();
+    };
+
+    var dataSource = Jrap.createGridDataSource({
+        url:'${base.contextPath}/sys/function/',
+        model: {
+            id: "functionId",
+            fields: {
+                moduleCode: {type: "string", validation: {required: true}},
+                functionCode: {type: "string", validation: {required: true}},
+                functionName: {type: "string",validation: {required: true}},
+                functionIcon: {type: "string"},
+                functionSequence: {type: "int", defaultValue: 10},
+                functionDescription: {type: "string"},
+                parentFunctionId: {type: "int"},
+                resourceId: {type: "int"}
+            },
+            editable:function (col) {
+                if (col == 'functionCode' && this.functionId) {
+                    return false;
+                }
+                return true;
+            }
+        }
+    });
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        navigatable: true,
+        dataBound: function(){
+            if(parent.autoResizeIframe){
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        autoResize:false,
+        scrollable: true,
+        selectable: 'multiple, rowbox',
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        sortable: true,
+        editable: true,
+        columns: [
+            {
+                field: "functionCode",
+                title: '<@spring.message "function.functioncode"/>',
+                width: 180
+            },
+            {
+                field: "moduleCode",
+                title: '<@spring.message "function.modulecode"/>',
+                width: 100
+            },
+            {
+                field: "functionName",
+                title: '<@spring.message "function.functionname"/>',
+                width: 120,
+                sortable: false,
+                editor: function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoTLEdit({
+                                idField: 'functionId',
+                                field: 'functionName',
+                                dto: "com.jingrui.jrap.function.dto.Function",
+                                model: options.model
+                            });
+                }
+            },
+            {
+                field: "functionIcon", title: '<@spring.message "function.functionicon"/>',
+                sortable: false,
+                width: 150,
+                template: function (item) {
+                    return Jrap.escapeHtml((item.functionIcon || '')) + "<i class='" + item.functionIcon + "' style='width:16px;float:right'></i>"
+                }
+            },
+            {
+                field: "functionSequence",
+                title: '<@spring.message "function.functionsequence"/>',
+                width: 80,
+                format: "{0}",
+                attributes: {
+                    style: "text-align:right"
+                }
+
+            },
+            {
+                field: "functionDescription",
+                title: '<@spring.message "function.functiondescription"/>',
+                sortable: false,
+                width: 140,
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoTLEdit({
+                                idField: 'functionId',
+                                field: 'functionDescription',
+                                dto: "com.jingrui.jrap.function.dto.Function",
+                                model: options.model
+                            });
+                }
+            },
+            {
+                field: "parentFunctionId",
+                title: '<@spring.message "function.parentfunctionid"/>',
+                sortable: false,
+                width: 120,
+                template: function (dataItem) {
+                    return dataItem['parentFunctionName'] || ''
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_PARENTFUNCTION"/>, {
+                                textField: 'parentFunctionName',
+                                model: options.model
+                            }));
+                }
+            },
+            {
+                field: "resourceId",
+                title: '<@spring.message "function.mainpage"/>', width: 120,
+                sortable: false,
+                template: function (dataItem) {
+                    return dataItem['resourceName'] || ''
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_RESOURCE"/>, {
+                                textField: 'resourceName',
+                                model: options.model
+                            }));
+                }
+            },
+            {
+                title: '<@spring.message "function.functionresource"/>',
+                width: 80,
+                headerAttributes: {
+                    style  : "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (rowdata) {
+                    if (!!rowdata.functionId) {
+                        return Jrap.createAnchor('<@spring.message "jrap.edit"/>',editFunctionResources,rowdata.functionId);
+                    }
+                    return '';
+                }
+            }
+        ]
+    }).data("kendoGrid");
+
+</script>
+
+</body>
+</html>

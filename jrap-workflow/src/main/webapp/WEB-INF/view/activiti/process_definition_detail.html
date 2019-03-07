@@ -1,0 +1,125 @@
+<#include "../include/header.html">
+<body>
+<style type="text/css">
+    form header {
+        font-size: 1.2em;
+        border-bottom: dashed 1px lightgrey;
+        padding-left: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    label.td-value {
+        color: #000;
+    }
+
+
+</style>
+<div id="content-container">
+    <div id="page-content" style="margin-bottom:50px;">
+        <div class="panel" style="padding: 0px;border: none;box-shadow: none;">
+            <form class="form-horizontal" id="task-info-form">
+                <header class="unselectable">流程信息</header>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">名称</label>
+                            <div class="col-sm-2">
+                                <label id="pdi-name" class="td-value control-label"></label>
+                            </div>
+                            <label class="col-sm-1 control-label">类别</label>
+                            <div class="col-sm-2">
+                                <label id="pdi-category" class="td-value control-label"></label>
+                            </div>
+                            <label class="col-sm-1 control-label">标识</label>
+                            <div class="col-sm-2">
+                                <label id="pdi-key" class="td-value control-label"></label>
+                            </div>
+                            <label class="col-sm-1 control-label">版本</label>
+                            <div class="col-sm-2">
+                                <label id="pdi-version" class="td-value control-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">描述</label>
+                            <div class="col-sm-4">
+                                <label id="pdi-description" class="td-value control-label"></label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <header class="unselectable">部署信息</header>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">名称</label>
+                            <div class="col-sm-2">
+                                <label id="di-name" class="td-value control-label"></label>
+                            </div>
+                            <label class="col-sm-1 control-label">标识</label>
+                            <div class="col-sm-2">
+                                <label id="di-category" class="td-value control-label"></label>
+                            </div>
+
+                            <label class="col-sm-1 control-label">发布时间</label>
+                            <div class="col-sm-3">
+                                <label id="di-deploymentTime" class="td-value control-label"></label>
+                            </div>
+                            <#--<label class="col-sm-1 control-label">ID</label>-->
+                            <#--<div class="col-sm-1">-->
+                                <#--<label id="di-id" class="td-value control-label"></label>-->
+                            <#--</div>-->
+                        </div>
+                    </div>
+                </div>
+                <header class="unselectable">预览图</header>
+                <div class="panel-body">
+                    <img src="${base.contextPath}/wfl/repository/process-definitions/${RequestParameters.processDefinitionId}/image"/>
+                </div>
+
+            </form>
+        </div>
+
+
+    </div>
+
+
+    <script type="text/javascript">
+
+        var processDefinitionId = '${RequestParameters.processDefinitionId!0}';
+        $.ajax({
+            url: "${base.contextPath}/wfl/repository/process-definitions/" + processDefinitionId,
+            success: function (args) {
+                $.each(args, function (i, r) {
+                    $('#pdi-' + i).text(r || '');
+                });
+                loadDeploymentInfo(args.deploymentId);
+            }
+        });
+
+        function loadDeploymentInfo(id) {
+            $.ajax({
+                url: "${base.contextPath}/wfl/repository/deployments/" + id,
+                success: function (args) {
+                    args.deploymentTime = args.deploymentTime
+                    $.each(args, function (i, r) {
+                        $('#di-' + i).text(r || '');
+                    });
+                }
+            });
+        }
+
+
+    </script>
+    <style type="text/css">
+
+
+    </style>
+</body>
+</html>

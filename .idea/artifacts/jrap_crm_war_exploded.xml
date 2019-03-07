@@ -1,0 +1,28 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="jrap-crm:war exploded">
+    <output-path>$PROJECT_DIR$/jrap-crm/target/jrap-crm</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>true</exploded>
+        <module>jrap-crm</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="jrap-crm" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: org.json:json:20170516" />
+          <element id="library" level="project" name="Maven: com.baidu.aip:java-sdk:4.10.0" />
+          <element id="library" level="project" name="Maven: log4j:log4j:1.2.17" />
+        </element>
+      </element>
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/jrap-crm/target/jrap-crm/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="javaee-facet-resources" facet="jrap-crm/web/Web" />
+    </root>
+  </artifact>
+</component>

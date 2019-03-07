@@ -1,0 +1,119 @@
+<#include "../include/header.html">
+    <script type="text/javascript">
+        var viewModel = Jrap.createGridViewModel("#grid",{
+            model: {"ruleId":"${RequestParameters.ruleId}",
+                "ruleCode":"${RequestParameters.ruleCode}",
+                "permissionField":"${RequestParameters.permissionField}"},});
+
+        var isedit=false;
+
+        $.ajax({
+            url    : '${base.contextPath}/sys/data/permission/rule/detail/query?ruleId=${RequestParameters.ruleId}',
+            success: function (args) {
+                if(args.rows.length!=0){
+                    isedit=true;
+                    var a0 = args.rows[0] || {};
+                    for (var k in a0) {
+                        viewModel.model.set(k, a0[k]);
+                    }
+                }
+            }
+        });
+    </script>
+    <body>
+    <div id="page-content">
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+            <span class="btn btn-success k-grid-save-changes" id="saveDetail" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+            <span class="btn btn-default k-grid-save-changes" id="assignDetail" style="float:left;margin-right:5px;"><@spring.message "datapermission.assign"/></span>
+            <span class="btn btn-danger" id="deleteDetail" style="float:left;"><@spring.message "jrap.delete"/></span>
+        </div>
+        <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+        <div class="pull-right" id="query-form" style="padding-bottom:10px;"></div>
+
+
+        <div style="clear:both">
+                <label>1. 动态SQL为一个字段的条件查询，可嵌套SQL.</label></br>
+                <label>2. 支持动态参数${'#'}{}（参数必须在IRequest中）.</label></br>
+                <label>示例：columnA in (select AcolumnB from tableA where AcolumnC = ${'#'}{varA})</label></br>
+            <textarea  id="permissionFieldSqlValue" data-bind="value:model.permissionFieldSqlValue" required
+                      name="permissionFieldSqlValue"  style="width:100%;height: 420px;"></textarea>
+            </div>
+            <script>kendo.bind($('#permissionFieldSqlValue'), viewModel);</script>
+        </div>
+
+            <div id="assginAuthorityWin"></div>
+    </div>
+
+    <script type="text/javascript">
+
+        var validator = $("#page-content").kendoValidator({
+            valid: function (e) {
+            },
+            invalidMessageType: "tooltip"
+        }).data("kendoValidator");
+
+
+        $("#saveDetail").click(function () {
+            if (validator.validate() && viewModel.model.permissionFieldSqlValue!="") {
+                viewModel.model.__status = isedit==true ? 'update' : 'add';
+                Jrap.submitForm({
+                    url: '${base.contextPath}/sys/data/permission/rule/detail/submit',
+                    formModel: viewModel.model,
+//                    success: function (data) {
+//                        window.parent.$("#editSqlWin").data("kendoWindow").close();
+//                    }
+                });
+            }
+        });
+
+        $("#assignDetail").click(function () {
+            if(!viewModel.model.detailId || viewModel.model.permissionFieldSqlValue==""){
+                kendo.ui.showInfoDialog({
+                    title: $l('jrap.warning'),
+                    message: "请先保存！"
+                });
+                return
+            }
+
+            $("#assginAuthorityWin").kendoWindow({
+                actions: ["Close"],
+                title: $l('分配权限'),
+                draggable: true,
+                height: "500px",
+                width: "90%",
+                content: '${base.contextPath}/permission/data_permission_rule_assign.html?detailId='+viewModel.model.detailId+"&ruleCode=${RequestParameters.ruleCode}&ruleId=${RequestParameters.ruleId}",
+                iframe: true,
+                modal: true,
+                resizable: false
+            });
+            var win = $("#assginAuthorityWin").data("kendoWindow");
+            win.center().open();
+            //e.preventDefault();
+        });
+
+        $("#deleteDetail").click(function () {
+            if(!viewModel.model.detailId){
+                return
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '${base.contextPath}/sys/data/permission/rule/detail/remove',
+                dataType: "json",
+                contentType: "application/json",
+                data: kendo.stringify([viewModel.model]),
+                success: function (data) {
+                    if(data.success) {
+                        parent.$("#editSqlWin").data("kendoWindow").close();
+                    }else{
+                        Jrap.resolveError(data)
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+    </body>
+    </html>

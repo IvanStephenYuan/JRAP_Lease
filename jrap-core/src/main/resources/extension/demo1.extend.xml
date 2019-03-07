@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright ZheJiang JingRui Co.,Ltd.
+  -->
+<extension-register>
+    <extension target="com.jingrui.jrap.testext.dto.UserDemo" extension="com.jingrui.jrap.testext.dto.UserDemoExt">
+
+    </extension>
+</extension-register>

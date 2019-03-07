@@ -1,0 +1,156 @@
+<#include "include/header.html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<script>   viewModel = kendo.observable({
+    isEnabled: true,
+    data: {
+        //userName:'Admin',
+        //userId: 3,
+        //id:101,
+        //name: '功能管理'
+        flozen:'Y'
+    },
+    validateForm: function () {
+        alert(validator.validate());
+        //this.data.set('userId', null)
+        //this.set('data',{})
+    },
+    comboboxSource: [{
+        text: "Cotton",
+        value: "1"
+    }, {
+        text: "Polyester",
+        value: "2"
+    }, {
+        text: "Cotton/Polyester",
+        value: "3"
+    }, {
+        text: "Rib Knit",
+        value: "4"
+    }],
+    showInfo: function () {
+        kendo.ui.showInfoDialog({
+            message: '您的订单已经提交!'
+        }).done(function (e) {
+            centered.show('你点击了 ' + e.button)
+        })
+    },
+    showError: function () {
+        kendo.ui.showErrorDialog({
+            message: '错误信息!'
+        }).done(function (e) {
+            centered.show('你点击了 ' + e.button)
+        })
+    },
+    showWarning: function () {
+        kendo.ui.showWarningDialog({
+            message: '警告信息!'
+        }).done(function (e) {
+            centered.show('你点击了 ' + e.button)
+        })
+    },
+    showConfirm: function () {
+        kendo.ui.showConfirmDialog({
+            title: '提示',
+            message: '确认删除么?'
+        }).done(function (e) {
+            centered.show('你点击了 ' + e.button)
+        })
+    },
+    showCustom: function () {
+        kendo.ui.showDialog({
+            title: '自定义窗口',
+            width: 400,
+            message: $('#modal-body').html(),
+            buttons: [{
+                text: "按钮1",
+                type: 'primary',
+                click: function (e) {
+                    e.dialog.destroy();
+                    e.deferred.resolve({
+                        button: "BUTTON1"
+                    });
+                }
+            }, {
+                text: "按钮2",
+                type: 'success',
+                click: function (e) {
+                    e.dialog.destroy();
+                    e.deferred.resolve({
+                        button: "BUTTON2"
+                    });
+                }
+            }, {
+                text: "按钮3",
+                type: 'danger',
+                click: function (e) {
+                    e.dialog.destroy();
+                    e.deferred.resolve({
+                        button: "BUTTON2"
+                    });
+                }
+            }]
+        }).done(function (e) {
+            centered.show('你点击了 ' + e.button)
+        })
+    },
+    showWindow: function () {
+        if ($('#win').data('kendoWindow')) {
+            $('#win').data('kendoWindow').open()
+        } else {
+            $('#win').kendoWindow({
+                width: 600,
+                height: 500,
+                modal: true,
+                title: "Rams's Ten Principles of Good Design",
+                content: "combobox.html"
+            }).data('kendoWindow').center();
+        }
+
+    },
+    openTab: function () {
+        var tab = $('#tabstrip').data('kendoTabStrip');
+        tab.append({
+            tabid: 'Item-' + (++tabCounter),
+            text: 'Item ' + (++tabCounter) + ' <span class="k-icon k-i-close"></span>',
+            encoded: false,
+            content: '<p>Appended item " + tabCounter + " content</p>'
+        });
+        tab.select(tab.tabGroup.children().length - 1)
+    }
+
+});</script>
+</head>
+
+<body>
+<div class="form-group">
+    <label class="col-sm-2 control-label">Lov:</label>
+    <div class="col-sm-4">
+        <input id="lov" name="lov" required placeholder="lov" data-label="角色" data-bind="enabled: isEnabled, value:data.userId,text:data.userName" style="width: 100%"/>
+        <span class="k-invalid-msg" data-for="lov"></span>
+    </div>
+    <script>
+        $("#lov").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_EMPLOYEE")}, {
+            query: function (e) {
+                e.param['current_time'] = new Date();
+                e.param['userId'] = viewModel.data.userId;
+            },
+            select: function (e) {
+                //viewModel.data.set('productId', '1')
+                //viewModel.data.set('userId', e.item.roleCode)
+
+            },
+            change:function(e){
+                //validator.validateInput($("#combobox"));
+                //validator.validateInput($("#maskedtextbox"));
+            }
+        }))
+        kendo.bind($('#lov'), viewModel);
+    </script>
+
+</div>
+</body>
+</html>

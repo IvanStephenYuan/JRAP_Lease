@@ -1,0 +1,26 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="jrap-gateway:war exploded">
+    <output-path>$PROJECT_DIR$/jrap-gateway/target/jrap-gateway</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>true</exploded>
+        <module>jrap-gateway</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="jrap-gateway" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: wsdl4j:wsdl4j:1.6.2" />
+        </element>
+      </element>
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/jrap-gateway/target/jrap-gateway/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="javaee-facet-resources" facet="jrap-gateway/web/Web" />
+    </root>
+  </artifact>
+</component>

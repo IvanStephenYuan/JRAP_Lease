@@ -1,0 +1,57 @@
+<script type="text/javascript">
+    $.ajax({
+        url: '${base.contextPath}/sys/shortcut/query',
+        success: function (args) {
+
+            var shortcut = $("#shortcut");
+
+            if (args.total == 0) {
+                shortcut.append("<div style='text-align: center;padding-top: 35px'><h3><@spring.message 'shortcut.notaddshortcut'/></h3></div>")
+                var img = "<div style='text-align:center;padding-top: 35px'><img src='${base.contextPath}/resources/images/shortcut/shortcut2.png'></div>";
+                shortcut.append(img);
+            } else {
+            for (var i = 0; i < args.total; i++) {
+                var div = $("<div style='margin-top: 15px;text-align:center'  id=\'" + args.rows[i].shortcutId + "\' class='col-xs-2'><div class='form-group'></div></div> ");
+
+                var a1 = $("<a  href='javascript:;' onclick='directurl(\"" + args.rows[i].functionCode + "\",\"" + args.rows[i].functionName + "\",\"" + args.rows[i].url + "\")'></a>");
+
+                var i1 = $("<i style='font-size: 40px' class='" + args.rows[i].functionIcon + "'></i>");
+
+                var a2 = $("<a href='javascript:;' onclick='deleteshortcut(" + args.rows[i].shortcutId + ")'></a>");
+
+                var i2 = $("<i style='font-size: 15px;color: #e7505a' class='fa fa-close'></i>");
+
+                shortcut.append(div);
+                div.append(a1);
+                a1.append(i1);
+                a1.append("<br />" + args.rows[i].functionName);
+                div.append(a2);
+                a2.append(i2);
+
+            }
+        }
+        }
+    });
+
+    function directurl(code, name, url) {
+        $("#long").trigger("click");
+        openTab(code, name, url);
+
+    }
+
+    function deleteshortcut(shortcutId) {
+        $.ajax({
+            url: '${base.contextPath}/sys/shortcut/remove?shortcutId=' + shortcutId,
+            success: function (args) {
+                $("#" + shortcutId + "").remove();
+            }
+        });
+    }
+</script>
+
+<!--<div class="portlet-body">-->
+<div class="scroller" style="height: 550px;" data-always-visible="1" data-rail-visible="0">
+    <div class="form-horizontal" id="shortcut">
+    </div>
+</div>
+<!--</div>-->

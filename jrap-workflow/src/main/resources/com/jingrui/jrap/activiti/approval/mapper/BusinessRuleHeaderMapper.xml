@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.activiti.approval.mapper.BusinessRuleHeaderMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.activiti.approval.dto.BusinessRuleHeader">
+        <result column="BUSINESS_RULE_ID" property="businessRuleId" jdbcType="BIGINT" />
+        <result column="CODE" property="code" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="WFL_TYPE" property="wflType" jdbcType="VARCHAR" />
+        <result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />
+        <result column="START_ACTIVE_DATE" property="startActiveDate" javaType="DATE" />
+        <result column="END_ACTIVE_DATE" property="endActiveDate" javaType="DATE" />
+    </resultMap>
+
+    <select id="selectByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT * FROM WFL_BUSINESS_RULE_HEADER
+        WHERE CODE  = #{code}
+        AND ENABLE_FLAG = 'Y'
+    </select>
+
+</mapper>

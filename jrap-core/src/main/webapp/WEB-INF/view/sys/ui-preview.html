@@ -1,0 +1,60 @@
+<#include "../include/header.html">
+<body>
+
+    <div style="height: 99%;">
+        <iframe class="form-horizontal" id="content" frameborder="0" width="100%" height="100%" scrolling="no"></iframe>
+    </div>
+</body>
+<script>
+    function initForm(){
+        var generatorComponent =['dropdownlist','checkbox','radio','numerictextbox','datepicker','datetimepicker','timepicker','maskedtextbox','lov','combobox','tledit'];
+        $.each(generatorComponent,function(i,roleName){
+            var content = $("#content").contents();
+            if(roleName == "tledit"){
+                content.find('[data-role="tledit"]').each(function () {
+                    var idField = $(this).attr("data-id-field")
+                        ,field = $(this).attr("data-field")
+                        ,dto = $(this).attr("data-dto")
+                        ,model = $(this).attr("data-model");
+                    if(model){
+                        model = eval(model)
+                    }
+                    if($(this).data("kendoTLEdit")){
+                        $(this).data("kendoTLEdit").setOptions({model:model})
+                    }else {
+                        $(this).kendoTLEdit({
+                            idField: idField || "",
+                            field: field || "",
+                            dto: dto || "",
+                            model: model || ""
+                        })
+                    }
+                })
+            }else {
+                content.find('[data-role="'+roleName+'"]').each(function () {
+                    kendo.init($(this));
+                });
+            }
+
+        });
+    }
+
+    var getData =  setInterval(function(){
+        var isSubmiting = window.opener.isSubmiting
+            ,sch = window.location.search.substr(1).split("&&"),code;
+        for(var i = 0;i<sch.length;i++){
+            if(sch[i].split("=")[0] == "code"){
+                code = sch[i].split("=")[1]
+            }
+        }
+        if(!isSubmiting){
+            window.clearInterval(getData);
+            var a =  $("#content").attr("src","${base.contextPath}/form/"+code);
+            $("#content").load(function () {
+                initForm();
+                $("#content").parent().height($("#content").contents().height());
+            })
+        }
+    }, 1000);
+</script>
+</html>

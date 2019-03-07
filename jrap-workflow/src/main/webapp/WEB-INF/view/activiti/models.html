@@ -1,0 +1,512 @@
+<#include "../include/header.html">
+<body>
+<style>
+    span[class^="l-icon-"] {
+        width: 20px;
+        height: 16px;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    <#list ["edit","trash","download","right","loading","edit_user"] as i>
+    .l-icon-${i} {
+        background: url('${base.contextPath}/resources/images/svg/${i}.svg') no-repeat center;
+    }
+    </#list>
+
+    .-grayed- {
+        -webkit-filter: grayscale(1); /* Webkit */
+        filter: gray; /* IE6-9 */
+        filter: grayscale(1); /* W3C */
+    }
+</style>
+<script>
+    viewModel = kendo.observable({
+        model: {},
+        queryGrid: function (e) {
+            $('#modelsGrid').data('kendoGrid').dataSource.page(1);
+        },
+        resetForm: function (e) {
+            var formData = viewModel.model.toJSON();
+            for (var k in formData) {
+                viewModel.model.set(k, null);
+            }
+        },
+        newModel: function () {
+            var newModelWin = $('#newModelWin').kendoWindow({
+                title: '新建模型',
+                width: 600,
+                height: 300,
+                modal: true,
+                close: CloseViewModelNew
+            }).data('kendoWindow');
+            newModelWin.center().open();
+        },
+        importModel: function (id) {
+            var importWin = $("#importWin").kendoWindow({
+                title: '导入模型',
+                width: 600,
+                height: 300,
+                modal: true,
+                close: function () {
+                    $('#modelsGrid').data('kendoGrid').dataSource.page(1);
+                }
+            }).data("kendoWindow");
+            importWin.center().open();
+
+        }
+    });
+</script>
+<div id="content-container">
+    <div id="page-content">
+
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+            <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:newModel">
+                <i class="fa fa-plus-square" style="margin-right:3px;"></i>
+            <@spring.message "jrap.new"/></span>
+            <span class="btn btn-info" style="float:left;" data-bind="click:importModel">
+                <i class="fa fa-upload" style="margin-right:3px;"></i>
+            <@spring.message "sysfile.upload"/>
+            </span>
+        </div>
+        <script>kendo.bind($('#toolbar-btn'), viewModel)</script>
+
+        <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input placeholder="名称" type="text" style="float:left;width:200px;margin-right:5px;" data-bind="value:model.nameLike" class="k-textbox">
+            <span class="btn btn-primary" style="float:left;width:90px" data-bind="click: queryGrid" type="submit">
+                <i class="fa fa-search" style="margin-right:3px;"></i>
+            <@spring.message "jrap.query"/></span>
+            <div style="clear:both"></div>
+        </div>
+        <script>
+            kendo.bind($('#query-form'), viewModel);
+            $('#query-form input').keydown(function (e) {
+                if (e.keyCode == 13) {
+                    e.target.blur();
+                    viewModel.queryGrid(e);
+                }
+            });
+        </script>
+
+        <div style="clear: both">
+            <div id="modelsGrid" style="clear: both"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    viewModelNew = kendo.observable({
+        model: {
+            category: 'demo'
+        },
+        createNewModel: function () {
+            if (validator.validate()) {
+                var param = viewModelNew.model.toJSON();
+                param.version = 1;
+                param.metaInfo = kendo.stringify({
+                    name: param.name,
+                    version: param.version,
+                    description: param.description
+                });
+                $.ajax({
+                    url: '${base.contextPath}/wfl/repository/models',
+                    method: 'post',
+                    dataType: "json",
+                    contentType: 'application/json',
+                    data: kendo.stringify(param),
+                    success: function (args) {
+                        if (args.success === false) {
+                            kendo.ui.showErrorDialog({
+                                title: $l('jrap.tip.failure'),
+                                message: args.message
+                            });
+                            return;
+                        }
+                        $('#newModelWin').data('kendoWindow').close();
+                        kendo.ui.showInfoDialog({
+                            title: $l('jrap.tip.info'),
+                            message: '创建成功'
+                        }).done(function () {
+                            viewModel.queryGrid();
+                        });
+                    }
+                });
+                CloseViewModelNew();
+            }
+        }
+    });
+    function CloseViewModelNew(){
+        var formData = viewModelNew.model.toJSON();
+        for (var k in formData) {
+            viewModelNew.model.set(k, null);
+        }
+        validator.cancelValidator();
+    }
+</script>
+
+
+<div id="newModelWin" style="display: none;">
+    <div class="panel" style="padding: 0px;">
+        <form class="form-horizontal" id="myForm">
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><@spring.message 'profile.profilename'/></label>
+                            <div class="col-sm-9">
+                                <input id="m-name2" name="m-name2" type="text" style="width: 100%"
+                                       data-bind="value:model.name" class="k-textbox"
+                                       required data-label="<@spring.message 'profile.profilename'/>">
+                                <script>kendo.bind($('#m-name2'), viewModelNew)</script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><@spring.message 'activiti.uniqueidentification'/></label>
+                            <div class="col-sm-9">
+                                <input id="m-key2" name="m-key2" type="text" style="width: 100%"
+                                       data-bind="value:model.key" class="k-textbox"
+                                       required data-label="<@spring.message 'activiti.uniqueidentification'/>">
+                                <script>kendo.bind($('#m-key2'), viewModelNew)</script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><@spring.message 'activiti.category'/></label>
+                            <div class="col-sm-9">
+                                <input id="m-category2" name="m-category2" type="text" style="width: 100%"
+                                       data-bind="value:model.category" class="k-textbox"
+                                       required data-label="<@spring.message 'activiti.category'/>">
+                                <script>kendo.bind($('#m-category2'), viewModelNew)</script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"><@spring.message 'jrap.description'/></label>
+                            <div class="col-sm-9">
+                                <input id="m-description2" name="m-description2" type="text" style="width: 100%"
+                                       data-bind="value:model.description" class="k-textbox">
+                                <script>kendo.bind($('#m-description2'), viewModelNew)</script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-footer text-center">
+                    <span id="btn-create" class="btn btn-success" data-bind="click:createNewModel"
+                          type="submit">
+                    <i class="fa fa-save" style="margin-right:3px;"></i>
+                    <@spring.message "jrap.save"/></span>
+                <script>
+                    kendo.bind($('#btn-create'), viewModelNew)
+                </script>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    var validator = $("#myForm").kendoValidator({
+        invalidMessageType : "tooltip"
+    }).data("kendoValidator");
+    // a callback function
+    function onImportComplete(success, msg) {
+        if (success === true) {
+            kendo.ui.showInfoDialog({
+                title: $l('jrap.tip.info'),
+                message: '导入成功'
+            }).done(function () {
+                $('#importWin').data('kendoWindow').close()
+            });
+        } else {
+            kendo.ui.showErrorDialog({
+                title: $l('jrap.error'),
+                message:msg
+            });
+        }
+    }
+</script>
+
+<div id="importWin" style="display: none;">
+    <div class="panel" style="border:none;box-shadow: none;">
+        <form id="importForm" class="form-horizontal" enctype="multipart/form-data" target="_importTarget" method="POST"
+              action="${base.contextPath}/wfl/repository/model/import?${_csrf.parameterName}=${_csrf.token}">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">BPMN 定义文件</label>
+                        <div class="col-sm-8">
+                            <input id="file" name="file" type="file" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">名称</label>
+                        <div class="col-sm-8">
+                            <input name="name" type="text" placeholder="留空默认" style="width: 100%"
+                                   class="k-textbox">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">标识</label>
+                        <div class="col-sm-8">
+                            <input name="key" type="text" placeholder="留空默认" style="width: 100%"
+                                   class="k-textbox">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">分类</label>
+                        <div class="col-sm-8">
+                            <input name="category" type="text" value="default" style="width: 100%"
+                                   class="k-textbox">
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center" style="margin-top: 20px;">
+                    <button id="btn-upload" class="btn btn-primary"
+                            type="submit">
+                        <i class="fa fa-upload" style="margin-right:3px;"></i>
+                    <@spring.message "sysfile.upload"/></button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <iframe id="_importTarget" name="_importTarget" src="about:blank" style="position:absolute;left:-10000px;top:-10000px;width:1px;height:1px;display:none"></iframe>
+</div>
+
+<div id="approveChainWin"></div>
+
+
+<script type="text/javascript">
+
+
+    function editModel(id) {
+        var url = '${base.contextPath}/modeler_new.html?modelId=' + id;
+        window.open(url);
+    }
+    
+    function deployModel(id, uid) {
+        var url = '${base.contextPath}/wfl/repository/model/' + id + '/deploy';
+
+        var spanRight = $("tr[data-uid='" + uid + "'] span.l-icon-right");
+        if (spanRight.length == 0)
+            return;
+        spanRight.removeClass('l-icon-right');
+        spanRight.addClass('l-icon-loading');
+        $.ajax({
+            url: url,
+            success: function (args) {
+                if (args.success === true) {
+                    kendo.ui.showInfoDialog({
+                        title: $l('jrap.tip.info'),
+                        message: '发布成功!'
+                    });
+                    var item = grid.dataItem(spanRight.closest('tr'));
+                    $.each(args.rows[0], function (k, v) {
+                        item.set(k, v);
+                    });
+                } else {
+                    kendo.ui.showErrorDialog({
+                        title: $l('jrap.error'),
+                        message: args.message
+                    });
+                }
+            },
+            complete: function () {
+                spanRight.removeClass('l-icon-loading');
+                spanRight.addClass('l-icon-right');
+            }
+        });
+    }
+
+    function deleteModel(uid) {
+        var row = dataSource.getByUid(uid);
+        if (!row) {
+            return;
+        }
+        kendo.ui.showConfirmDialog({
+                    title: $l('jrap.tip.info'),
+                    message: $l('jrap.tip.delete_confirm')
+                }
+        ).done(function (e) {
+            if (e.button == 'OK') {
+                dataSource.options.transport.destroy.url = '${base.contextPath}/repository/models/' + row.id;
+                dataSource.remove(row);
+                dataSource.sync();
+            }
+        });
+
+    }
+
+    function exportModel(id) {
+        if (!id)return;
+        var form = document.createElement("form");
+        form.target = "_export_win";
+        form.method = "post";
+        form.action = '${base.contextPath}/wfl/repository/model/' + id + '/export?type=bpmn20&${_csrf.parameterName}=${_csrf.token}';
+        document.body.appendChild(form);
+        form.submit();
+        $(form).remove();
+    }
+
+    function editApproveChain(modelId, key) {
+        var win = $('#approveChainWin').kendoWindow({
+            title: "编辑审批链",
+            height: 500,
+            width: "90%",
+            iframe: true,
+            modal: true,
+            content: 'approve_chain.html?modelId=' + modelId + "&key=" + key,
+            visible:false,
+            resizable:false
+        }).data('kendoWindow');
+        if(parent.autoResizeIframe){
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function(){
+                var win = $("#approveChainWin").data("kendoWindow");
+                win.center().open();
+            })
+        }else {
+            var win = $("#approveChainWin").data("kendoWindow");
+            win.center().open();
+        }
+    }
+
+
+    dataSource = new kendo.data.DataSource(
+            {
+                transport: {
+                    read: {
+                        url: '${base.contextPath}/wfl/repository/models',
+                        type: "GET",
+                        dataType: "json"
+                    },
+                    destroy: {
+                        url: "/remove",//dynamic
+                        type: "delete"
+                    },
+                    parameterMap: function (options, type) {
+                        if (type === "read") {
+                            var map = viewModel.model.toJSON();
+                            map.start = (options.page - 1) * options.pageSize;
+                            map.size = options.pageSize;
+                            if (options.sort && options.sort.length > 0) {
+                                map.sort = options.sort[0].field;
+                                map.order = options.sort[0].dir;
+                            }
+                            for (var k in map) {
+                                if (map[k] === '' || map[k] === null || map[k] === undefined)
+                                    delete map[k]
+                            }
+                            return map;
+                        }
+                    }
+                },
+                batch: true,
+                serverPaging: true,
+                serverSorting: true,
+                pageSize: 20,
+                schema: {
+                    data: 'data',
+                    total: 'total',
+                    model: {
+                        id: "id",
+                        fields: {}
+                    }
+                }
+            });
+
+    var grid = $('#modelsGrid').kendoGrid({
+        dataSource: dataSource,
+        navigatable: false,
+        dataBound:function(){
+            if(parent.autoResizeIframe){
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        scrollable: true,
+        sortable: true,
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                title: '操作',
+                width: 120,
+                template: function (item) {
+                    var div = "<div style='text-align:center;'>";
+                    div += Jrap.createAnchor('<span class="l-icon-edit" title="<@spring.message "jrap.edit"/>"/>', editModel, item.id);
+                    div += Jrap.createAnchor('<span class="l-icon-edit_user" title="编辑审批链"', editApproveChain, item.id, item.key);
+                    div += Jrap.createAnchor('<span class="l-icon-trash" title="<@spring.message "jrap.delete"/>"/>', deleteModel, item.uid);
+                    div += Jrap.createAnchor('<span class="l-icon-download" title="导出"/>', exportModel, item.id);
+                    if (item.deploymentId) {
+                        div += Jrap.createAnchor('<span class="l-icon-right -grayed-" title="不需要发布" />', deployModel, item.id, item.uid);
+                    } else {
+                        div += Jrap.createAnchor('<span class="l-icon-right" title="需要发布新版本!" />', deployModel, item.id, item.uid);
+                    }
+                    div += "</div>";
+                    return div;
+                },
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                sortable: false
+            },
+            {
+                field: "key",
+                title: '流程编码',
+                width: 150
+            },
+            {
+                field: "name",
+                title: '流程名称',
+                width: 250,
+                sortable: false,
+            },
+            {
+                field: 'createTime',
+                title: '创建时间',
+                width: 160,
+                headerAttributes :{style: "text-align:center"},
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    return dataItem.createTime;
+                }
+            },
+            {
+                field: 'lastUpdateTime',
+                title: '修改时间',
+                width: 160,
+                headerAttributes :{style: "text-align:center"},
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    return dataItem.lastUpdateTime
+                }
+            }],
+        editable: false
+    }).data('kendoGrid');
+
+</script>
+<iframe id="_export_win" name="_export_win" style="position:absolute;left:-10000px;top:-10000px;width:1px;height:1px;display:none"></iframe>
+</body>
+</html>

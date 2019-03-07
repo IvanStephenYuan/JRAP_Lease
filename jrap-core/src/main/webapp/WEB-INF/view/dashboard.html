@@ -1,0 +1,113 @@
+<#include "./include/header.html">
+<body>
+    <link href="${base.contextPath}/lib/dashboard/sDashboard.css" rel="stylesheet"/>
+    <script src="${base.contextPath}/lib/jquery-ui/jquery-ui.js" type="text/javascript"></script>
+    <script src="${base.contextPath}/lib/dashboard/jquery-sDashboard.js" type="text/javascript"></script>
+    <style>
+        html,body {
+            background-color:#e9ecf3;
+        }
+        #addDashboard {
+            position:absolute;
+            right: 5px;
+            top: 20px;
+            font-size: 26px;
+            cursor:pointer;
+        }
+    </style>
+    <span class="fa fa-cog" title="<@spring.message 'userdashboard.adddashboard'/>" id="addDashboard"></span>
+    
+    <ul id="myDashboard"></ul>
+    <div id="dashboardWin"></div>
+    <script type="text/javascript">
+    var dashboardWin;
+    $('#addDashboard').on('click',function(){
+        if(dashboardWin){
+            var formData = dashBoardViewModel.model.toJSON();
+            for (var k in formData) {
+                dashBoardViewModel.model.set(k, null);
+            }
+            dashboardWin.open()
+        }else{
+            dashboardWin = $('#dashboardWin').kendoWindow({
+                width: 500,
+                height:400,
+                modal:true,
+                title: "DashBoard",
+                content: "${base.contextPath}/dashboard/dashboard_list.html"
+            }).data('kendoWindow');
+            dashboardWin.center();
+        }
+    })
+    
+    
+    
+    function addDashboard(item){
+        dashboardWin.close();
+        var dbs = $("#myDashboard").data('sDashboard').options.dashboardData, exists = false;
+        $.each(dbs,function(i,r){
+            if(r.widgetId == item.dashboardCode) {
+                exists = true;
+                return false;
+            }
+        })
+        if(!exists)
+        $.ajax({
+            url: '${base.contextPath}/dashboard/add',
+            type: 'POST',
+            contentType: 'application/json',
+            data: kendo.stringify(item)
+        }).done(function(e){
+            if(e.success){
+                var ud = e.rows[0]
+                $("#myDashboard").sDashboard("addWidget", {
+                    userDashboardId : ud.dashboardId,
+                    widgetTitle : item.title,
+                    widgetId : item.dashboardCode,
+                    enableRefresh: true,
+                    widgetUrl:item.url
+                });
+            }
+        })
+    }
+    
+    var widgetDefinitions =[
+    <#list dashboards as dashboard>
+        { 
+            userDashboardId : ${dashboard.userDashboardId},
+            widgetTitle : '${dashboard.dashboardTitle}',
+            widgetId: "${dashboard.dashboardCode}",
+            enableRefresh: true,
+            widgetUrl:"${dashboard.dashboardUrl}"
+        }<#if dashboard_has_next>,</#if>
+    </#list>
+    ]
+    $("#myDashboard").sDashboard({
+        dashboardData : widgetDefinitions
+    }).bind('sdashboardstatechanged',function(e,opt){
+        var dbs = $("#myDashboard").data('sDashboard').options.dashboardData;
+        switch(opt.triggerAction) {
+            case 'orderChanged':
+                $.each(dbs,function(i,d){
+                    d.dashboardSequence = ++i;
+                })
+                $.ajax({
+                    url: '${base.contextPath}/dashboard/update',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: kendo.stringify(dbs)
+                 })
+                break;
+            case "widgetRemoved" :
+                $.ajax({
+                    url: '${base.contextPath}/dashboard/remove',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: kendo.stringify(opt.affectedWidget)
+                 })
+                break;
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!--
+* description: 仪表盘配置界面
+* version: 3.0
+* author:zhizheng.yang@jingrui.com hailin.xu@jingrui.com
+-->
+<#include "../include/header.html"/>
+<body>
+	<script type="text/javascript">
+        var viewModel = Jrap.createGridViewModel("#grid");
+    </script>
+    <div id="dialog"></div>
+    <div id="selectFunction"></div>
+    <div id="page-content">
+        <div class="pull-left" id="toolbar-btn" style="padding-bottom: 10px;">
+            <span class="btn btn-primary k-grid-add" style="float: left; margin-right: 5px;" data-bind="click:create"><i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/></span>
+            <span class="btn btn-success k-grid-save-changes" style="float: left; margin-right: 5px;" data-bind="click:save"><i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.save"/></span>
+            <span class="btn btn-danger"  style="float: left;margin-right: 5px;" data-bind="click:remove"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>
+            <span class="btn btn-primary k-grid-excel" style="float:left;" data-bind="click:exportExcel"><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "jrap.exportexcel"/></span>
+        </div>
+        <script>
+            kendo.bind($('#toolbar-btn'), viewModel);
+        </script>
+        <div class="pull-right" id="query-form" style="padding-bottom: 10px;">
+            <input data-role="maskedtextbox" placeholder='<@spring.message "sys.dashboard.dashboardcode"/>' type="text" style="float: left; width: 150px; margin-right: 5px;" data-bind="value:model.dashboardCode" class="k-textbox"> 
+            <input data-role="maskedtextbox" placeholder='<@spring.message "sys.dashboard.dashboardtitle"/>' type="text" style="width: 150px; float: left; margin-right: 5px;" data-bind="value:model.title" class="k-textbox"> 
+            <span class="btn btn-primary" style="margin:0 2px;float: left; width: 70px"
+                  data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+            <span class="btn btn-default" style="margin:0 2px;float: left; width: 70px" data-bind="click:reset" type="button"><@spring.message "jrap.reset"/></span>
+
+            <div style="clear: both"></div>
+        </div>
+        <script>
+            kendo.bind($('#query-form'), viewModel);
+        </script>
+        <div style="clear: both">
+            <div id="grid"></div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        Jrap.initEnterQuery("#query-form", viewModel.query);
+        var editDashBoardResources = function (id) {
+            var dialog = $("#dialog").kendoWindow({
+                actions: ["Close"],
+                width: 650,
+                height: 450,
+                title: '<@spring.message "function.resourceallocation"/>',
+                visible: false,
+                iframe: true,
+                modal: true,
+                content: 'sys_function_resource.html?dashboardId=' + id
+            }).data("kendoWindow");
+            dialog.center().open();
+        };
+
+        var dataSource = Jrap.createGridDataSource({
+            url:'${base.contextPath}/sys/dashboard/',
+            model: {
+                id: "dashboardId",
+                fields: {
+                    dashboardCode: {
+                        type: "string",
+                        validation:{required:true}
+                    },
+                    title: {
+                        type: "string",
+                        validation:{required:true}
+                    },
+                    description: {
+                        type: "string"
+                    },
+                    resourceId: {
+                        type: "int",
+                        validation:{required:true}
+                    },
+                    enabledFlag:{
+                        defaultValue: 'Y',type:'String' ,checkedValue:'Y',uncheckedValue:'N'
+                    }
+                },
+                editable: function (col) {
+                    if (col == "dashboardCode" && this.dashboardId) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        });
+
+        var grid = $("#grid").kendoGrid({
+            dataSource: dataSource,
+            navigatable: false,
+            dataBound: function () {
+                if (parent.autoResizeIframe) {
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                }
+            },
+            resizable: true,
+            scrollable: true,
+            selectable: 'multiple, rowbox',
+            pageable: {
+                pageSizes: [5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            sortable: true,
+            editable: true,
+            columns: [
+                {
+                    field: "dashboardCode",
+                    title: '<@spring.message "sys.dashboard.dashboardcode"/>',
+                    width: 180
+                },
+                {
+                    field: "title",
+                    title: '<@spring.message "sys.dashboard.dashboardtitle"/>',
+                    width: 180,
+                    editor: function (container, options) {
+                        $(
+                            '<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoTLEdit(
+                                {
+                                    idField: 'dashboardId',
+                                    field: 'title',
+                                    dto: "com.jingrui.jrap.system.dto.DashBoard",
+                                    model: options.model
+                                });
+                    }
+                },
+                {
+                    field: "description",
+                    title: '<@spring.message "sys.dashboard.dashboarddescription"/>',
+                    width: 150,
+                    editor: function (container, options) {
+                        $(
+                            '<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoTLEdit(
+                                {
+                                    idField: 'dashboardId',
+                                    field: 'description',
+                                    dto: "com.jingrui.jrap.system.dto.DashBoard",
+                                    model: options.model
+                                });
+                    }
+                },
+                {
+                    field: "resourceId",
+                    title: '<@spring.message "sys.dashboard.dashboardmainpage"/>',
+                    width: 120,
+                    sortable: false,
+                    template: function (dataItem) {
+                        return dataItem['resourceName']
+                            || ''
+                    },
+                    editor: function (container, options) {
+                        $('<input  required  name="' + options.field + '"/>')
+                            .appendTo(container).kendoLov($.extend(<@lov "LOV_RESOURCE"/>,
+                            {
+                                textField: 'resourceName',
+                                model: options.model
+                            }
+                        ));
+                    }
+                },
+                {
+                    field: "enabledFlag",
+                    title: '<@spring.message "interface.enableflag"/>',
+                    attributes: {style: "text-align:center"},
+                    width: 50,
+                },]
+        }).data("kendoGrid");
+    </script>
+
+</body>
+</html>

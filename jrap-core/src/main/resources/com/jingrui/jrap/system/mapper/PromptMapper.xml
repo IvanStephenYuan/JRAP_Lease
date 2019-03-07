@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.system.mapper.PromptMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.system.dto.Prompt" extends="com.jingrui.jrap.mapper.StdMapper.STD">
+        <id column="PROMPT_ID" property="promptId" jdbcType="DECIMAL"/>
+        <result column="PROMPT_CODE" property="promptCode" jdbcType="VARCHAR"/>
+        <result column="LANG" property="lang" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    PROMPT_ID, PROMPT_CODE, LANG, DESCRIPTION
+  </sql>
+
+
+    <select id="selectForCache" resultMap="BaseResultMap">
+        SELECT PROMPT_ID, PROMPT_CODE,LANG,DESCRIPTION FROM SYS_PROMPTS
+    </select>
+
+</mapper>
