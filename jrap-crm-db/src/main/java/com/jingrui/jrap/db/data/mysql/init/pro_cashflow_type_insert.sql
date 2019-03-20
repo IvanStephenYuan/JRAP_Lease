@@ -1,7 +1,7 @@
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
-values('0',		'租赁物价款',		'OUTFLOW',		'Y', 			 , 	'N',		'租赁物价款', 	'Y');
+values('0',		'租赁物价款',		'OUTFLOW',		'Y', 			null, 'N',		'租赁物价款', 	'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
-values('1',		'租金',					'INFLOW',			'Y',		990, 	'Y',		'租金',					'Y');
+values('1',		'租金',					'INFLOW',			'Y',		  990, 	'Y',		'租金',					'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
 values('10',		'首付款',				'INFLOW',			'Y',		100, 	'N', 		'首付款',				'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
@@ -33,19 +33,19 @@ values('33',		'抵押费',				'INFLOW',			'Y',		200, 'N',			'抵押费',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
 values('51',		'保证金',				'INFLOW',			'Y',		200, 'N',			'保证金',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
-values('52',		'保证金退还',		'OUTFLOW',		'Y',  		 ,	'N', 		'保证金退还',		'Y');
+values('52',		'保证金退还',		'OUTFLOW',		'Y',  	null,	'N', 		'保证金退还',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
 values('53',		'违章押金',			'INFLOW',			'Y',		200,	'N',		'违章押金',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
-values('54',		'违章押金退还',	'OUTFLOW',		'Y',			 ,  'N', 		'违章押金退还',		'Y');
+values('54',		'违章押金退还',	'OUTFLOW',		'Y',		null,  'N', 		'违章押金退还',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
 values('55',		'保险押金',			'INFLOW',			'Y',		200, 'N',			'保险押金',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
-values('56',		'保险押金退还',	'OUTFLOW',		'Y',			 , 'N',  		'保险押金退还',		'Y');
+values('56',		'保险押金退还',	'OUTFLOW',		'Y',		null, 'N',  		'保险押金退还',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
 values('57',		'行驶证押金',		'INFLOW',			'Y',		200, 'N',			'行驶证押金',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
-values('58',		'行驶证押金退还','OUTFLOW',		'Y', 			 , 'N', 		'行驶证押金退还',		'Y');
+values('58',		'行驶证押金退还','OUTFLOW',		'Y', 		null, 'N', 		'行驶证押金退还',		'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
 values('80',		'逾期费',				'INFLOW',			'Y',	 1000, 'N',			'罚息费',			'Y');
 insert into pro_cashflow_type(cf_type, description, cf_direction, sys_flag, write_off_order, calc_penalty, billing_desc, enabled_flag)
