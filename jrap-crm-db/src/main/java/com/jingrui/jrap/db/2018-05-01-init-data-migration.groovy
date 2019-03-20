@@ -21,4 +21,13 @@ databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
             param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/crm-init-data.xlsx"))
         }
     }
+
+    changeSet(author: "ivan", id: "201903012-data-cashflow-type") {
+        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_cashflow_type_insert.sql"), encoding: "UTF-8")
+    }
+
+    changeSet(author: "ivan", id: "201903012-data-business-type") {
+        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_business_type.sql"), encoding: "UTF-8")
+    }
+
 }
