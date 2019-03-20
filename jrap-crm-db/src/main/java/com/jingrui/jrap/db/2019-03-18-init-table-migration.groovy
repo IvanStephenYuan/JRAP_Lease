@@ -69,8 +69,8 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    }
    column(name:"DESCRIPTION",type:"varchar(200)",remarks:"描述")
    column(name:"CATEGORY",type:"varchar(60)",remarks:"种类")
-   column(name:"TYPE",type:"varchar(60)",remarks:"类型")
-   column(name:"USEAGE",type:"varchar(60)",remarks:"用途")
+   column(name:"DEAL_TYPE",type:"varchar(60)",remarks:"经营类型")
+   column(name:"DEAL_USAGE",type:"varchar(60)",remarks:"经营用途")
    column(name:"CYCLE",type:"varchar(60)",remarks:"周期")
    column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
    column(name:"REMARK",type:"clob",remarks:"备注说明")
