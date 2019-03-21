@@ -84,7 +84,7 @@ public class CustomerController extends BaseController {
                     List<SysFile> frontFiles = sysFileService.selectFilesByTypeAndKey(requestCtx, "CUSTOMER_FID", customerId);
                     List<SysFile> backFiles = sysFileService.selectFilesByTypeAndKey(requestCtx, "CUSTOMER_BID", customerId);
 
-                    if (!frontFiles.isEmpty()) {
+                    if (frontFiles != null && !frontFiles.isEmpty()) {
                         for (SysFile sysFile : frontFiles) {
                             try {
                                 CustomerID customerID = customerOcrService.readCustomerPicture(sysFile.getFilePath(), "front");
@@ -114,7 +114,7 @@ public class CustomerController extends BaseController {
                         frontFiles.clear();
                     }
 
-                    if (!backFiles.isEmpty()) {
+                    if (backFiles != null && !backFiles.isEmpty()) {
                         for (SysFile sysFile : backFiles) {
                             try {
                                 CustomerID customerID = customerOcrService.readCustomerPicture(sysFile.getFilePath(), "back");
@@ -139,7 +139,7 @@ public class CustomerController extends BaseController {
                     //获取身份证正面的附件地址
                     List<SysFile> sysFiles = sysFileService.selectFilesByTypeAndKey(requestCtx, "CUSTOMER_LID", customerId);
 
-                    if (!sysFiles.isEmpty()) {
+                    if (sysFiles != null && !sysFiles.isEmpty()) {
                         for (SysFile sysFile : sysFiles) {
                             try {
                                 CustomerLicense customerLicense = customerOcrService.readDrivingLicense(sysFile.getFilePath());

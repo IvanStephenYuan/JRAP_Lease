@@ -59,7 +59,7 @@
         <result column="SPOUSE_DRIVER_LICENSE" property="spouseDriverLicense" jdbcType="VARCHAR" />
         <result column="SPOUSE_HOME_ADDRESS" property="spouseHomeAddress" jdbcType="VARCHAR" />
         <result column="SPOUSE_UNIT_ADDRESS" property="spouseUnitAddress" jdbcType="VARCHAR" />
-        <result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
     </resultMap>
 
 

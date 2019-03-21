@@ -80,7 +80,7 @@ public class Customer extends BaseDTO {
     public static final String FIELD_SPOUSE_DRIVER_LICENSE = "spouseDriverLicense";
     public static final String FIELD_SPOUSE_HOME_ADDRESS = "spouseHomeAddress";
     public static final String FIELD_SPOUSE_UNIT_ADDRESS = "spouseUnitAddress";
-    public static final String FIELD_ENABLE_FLAG = "enableFlag";
+    public static final String FIELD_ENABLE_FLAG = "enabledFlag";
 
     @Id
     @GeneratedValue
@@ -248,7 +248,7 @@ public class Customer extends BaseDTO {
 
     @NotEmpty
     @Length(max = 1)
-    private String enableFlag; //是否启用
+    private String enabledFlag; //是否启用
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
@@ -698,12 +698,12 @@ public class Customer extends BaseDTO {
         return spouseUnitAddress;
     }
 
-    public void setEnableFlag(String enableFlag) {
-        this.enableFlag = enableFlag;
+    public void setEnabledFlag(String enabledFlag) {
+        this.enabledFlag = enabledFlag;
     }
 
-    public String getEnableFlag() {
-        return enableFlag;
+    public String getEnabledFlag() {
+        return enabledFlag;
     }
 
 }

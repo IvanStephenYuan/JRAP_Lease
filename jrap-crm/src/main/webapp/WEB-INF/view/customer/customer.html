@@ -224,15 +224,15 @@
                 width: 200
             },
             {
-                field: "enableFlag",
-                title: '<@spring.message "customer.enableflag"/>',
+                field: "enabledFlag",
+                title: '<@spring.message "customer.enabledflag"/>',
                 width: 60,
                 headerAttributes: {
                     style: "text-align: center"
                 },
                 attributes: {style: "text-align:center"},
                 template: function (rowdata) {
-                    return rowdata.enableFlag == 'Y' ? '<@spring.message "jrap.yes"/>' :　'<@spring.message "jrap.no"/>';
+                    return rowdata.enabledFlag == 'Y' ? '<@spring.message "jrap.yes"/>' :　'<@spring.message "jrap.no"/>';
                 }
             }
         ],

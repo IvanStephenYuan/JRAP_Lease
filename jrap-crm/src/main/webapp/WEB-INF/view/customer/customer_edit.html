@@ -32,7 +32,7 @@
         model: {
             isEnabled: <#if RequestParameters.customerId ??>false<#else>true</#if>,
             idType: "ID",
-            enableFlag: "Y"
+            enabledFlag: "Y"
         },
         categoryId : "-1",
         sourceType : "CUSTOMER_ID"
@@ -432,13 +432,13 @@
 
                         <div class="col-xs-3">
                             <div class="form-group">
-                                <label class="col-xs-3 control-label"><@spring.message "customer.enableFlag"/>:</label>
+                                <label class="col-xs-3 control-label"><@spring.message "customer.enabledFlag"/>:</label>
                                 <div class="col-xs-6" style="text-align: left">
-                                    <input id="enableFlag" type="checkbox" class="k-checkbox" style="margin-top:5px" data-bind="value:model.enableFlag" >
+                                    <input id="enabledFlag" type="checkbox" class="k-checkbox" style="margin-top:5px" data-bind="value:model.enabledFlag" >
                                 </div>
                                 <script>
-                                    kendo.bind($('#enableFlag'), newViewModel);
-                                    $("#enableFlag").kendoCheckbox({
+                                    kendo.bind($('#enabledFlag'), newViewModel);
+                                    $("#enabledFlag").kendoCheckbox({
                                         checkedValue: 'Y',
                                         uncheckedValue: 'N'
                                     });
@@ -523,7 +523,6 @@
                         },
                         success: function(e) {
                             if(e.response.success=== true){
-                                debugger;
                                 var fileType = e;
                             }
                             kendo.ui.showInfoDialog({
