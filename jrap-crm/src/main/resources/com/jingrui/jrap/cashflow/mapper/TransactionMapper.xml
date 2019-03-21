@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.cashflow.mapper.TransactionMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.cashflow.dto.Transaction">
+        <result column="TRANSACTION_ID" property="transactionId" jdbcType="DECIMAL" />
+        <result column="TRANSACTION_NUM" property="transactionNum" jdbcType="DECIMAL" />
+        <result column="TRANSACTION_CATEGORY" property="transactionCategory" jdbcType="VARCHAR" />
+        <result column="TRANSACTION_TYPE" property="transactionType" jdbcType="VARCHAR" />
+        <result column="TRANSACTION_DATE" property="transactionDate" jdbcType="DATE" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="TRANSACTION_AMOUNT" property="transactionAmount" jdbcType="DECIMAL" />
+        <result column="CASHFLOW_AMOUNT" property="cashflowAmount" jdbcType="DECIMAL" />
+        <result column="INTERNAL_PERIOD_NUM" property="internalPeriodNum" jdbcType="DECIMAL" />
+        <result column="PERIOD_NAME" property="periodName" jdbcType="VARCHAR" />
+        <result column="BANK_ACCOUNT_ID" property="bankAccountId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL" />
+        <result column="OPT_ACCOUNT_ID" property="optAccountId" jdbcType="DECIMAL" />
+        <result column="OPT_ACCOUNT_NUM" property="optAccountNum" jdbcType="VARCHAR" />
+        <result column="OPT_ACCOUNT_NAME" property="optAccountName" jdbcType="VARCHAR" />
+        <result column="OPT_BANK_NAME" property="optBankName" jdbcType="VARCHAR" />
+        <result column="BANK_SLIP_NUM" property="bankSlipNum" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="POSTED_FLAG" property="postedFlag" jdbcType="VARCHAR" />
+        <result column="WRITEOFF_FLAG" property="writeoffFlag" jdbcType="VARCHAR" />
+        <result column="WRITEOFF_AMOUNT" property="writeoffAmount" jdbcType="DECIMAL" />
+        <result column="FULL_WRITEOFF_DATE" property="fullWriteoffDate" jdbcType="DATE" />
+        <result column="REVERSED_FLAG" property="reversedFlag" jdbcType="VARCHAR" />
+        <result column="REVERSED_DATE" property="reversedDate" jdbcType="DATE" />
+        <result column="REVERSED_TRANS_ID" property="reversedTransId" jdbcType="DECIMAL" />
+        <result column="RETURNED_FLAG" property="returnedFlag" jdbcType="VARCHAR" />
+        <result column="RETURNED_AMOUNT" property="returnedAmount" jdbcType="DECIMAL" />
+        <result column="RETURNED_DATE" property="returnedDate" jdbcType="DATE" />
+        <result column="RETURNED_TRANS_ID" property="returnedTransId" jdbcType="DECIMAL" />
+        <result column="SOURCE_TYPE" property="sourceType" jdbcType="VARCHAR" />
+        <result column="SOURCE_ID" property="sourceId" jdbcType="DECIMAL" />
+        <result column="SOURCE_LINE_ID" property="sourceLineId" jdbcType="DECIMAL" />
+        <result column="JE_METHOD" property="jeMethod" jdbcType="VARCHAR" />
+        <result column="JE_FLAG" property="jeFlag" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

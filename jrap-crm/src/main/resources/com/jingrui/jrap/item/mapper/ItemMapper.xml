@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.item.mapper.ItemMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.Item">
+        <result column="ITEM_ID" property="itemId" jdbcType="DECIMAL" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="LINE_ID" property="lineId" jdbcType="DECIMAL" />
+        <result column="MODEL" property="model" jdbcType="VARCHAR" />
+        <result column="OUTSIDE_COLOR" property="outsideColor" jdbcType="VARCHAR" />
+        <result column="INSIDE_COLOR" property="insideColor" jdbcType="VARCHAR" />
+        <result column="VIN" property="vin" jdbcType="VARCHAR" />
+        <result column="ENGINE_NUMBER" property="engineNumber" jdbcType="VARCHAR" />
+        <result column="LICENSE" property="license" jdbcType="VARCHAR" />
+        <result column="MILEAGE" property="mileage" jdbcType="VARCHAR" />
+        <result column="KEY" property="key" jdbcType="VARCHAR" />
+        <result column="GUIDE_PRICE" property="guidePrice" jdbcType="DECIMAL" />
+        <result column="INVOICE_PRICE" property="invoicePrice" jdbcType="DECIMAL" />
+        <result column="CAR_TYPE" property="carType" jdbcType="VARCHAR" />
+        <result column="LOAN_TYPE" property="loanType" jdbcType="VARCHAR" />
+        <result column="LOAN_REMARK" property="loanRemark" jdbcType="VARCHAR" />
+        <result column="RELEASE_DATE" property="releaseDate" jdbcType="DATE" />
+        <result column="ANNUAL_DATE" property="annualDate" jdbcType="DATE" />
+        <result column="INSURANCE" property="insurance" jdbcType="DATE" />
+        <result column="DRIVING_DATE" property="drivingDate" jdbcType="DATE" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

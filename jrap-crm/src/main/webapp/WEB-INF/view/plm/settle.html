@@ -1,0 +1,269 @@
+<#include "../include/header.html">
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Settle.settleCode"/>'
+                   data-bind="value:model.settleCode" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Settle.documentType"/>'
+                   data-bind="value:model.documentType" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Settle.settleType"/>'
+                   data-bind="value:model.settleType" class="k-textbox">
+        <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+    var BaseUrl = _basePath;
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/plm/settle/query",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/plm/settle/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/plm/settle/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/plm/settle/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "settleId",
+                fields: {}
+            }
+        }
+    });
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "settleId",
+                title: '<@spring.message "settle.settleid"/>',
+                width: 120
+            },
+                    {
+                field: "settleCode",
+                title: '<@spring.message "settle.settlecode"/>',
+                width: 120
+            },
+                    {
+                field: "documentCategory",
+                title: '<@spring.message "settle.documentcategory"/>',
+                width: 120
+            },
+                    {
+                field: "documentType",
+                title: '<@spring.message "settle.documenttype"/>',
+                width: 120
+            },
+                    {
+                field: "companyId",
+                title: '<@spring.message "settle.companyid"/>',
+                width: 120
+            },
+                    {
+                field: "orderId",
+                title: '<@spring.message "settle.orderid"/>',
+                width: 120
+            },
+                    {
+                field: "settleType",
+                title: '<@spring.message "settle.settletype"/>',
+                width: 120
+            },
+                    {
+                field: "status",
+                title: '<@spring.message "settle.status"/>',
+                width: 120
+            },
+                    {
+                field: "settleDate",
+                title: '<@spring.message "settle.settledate"/>',
+                width: 120
+            },
+                    {
+                field: "lastPaydueDate",
+                title: '<@spring.message "settle.lastpayduedate"/>',
+                width: 120
+            },
+                    {
+                field: "lastPaydueTimes",
+                title: '<@spring.message "settle.lastpayduetimes"/>',
+                width: 120
+            },
+                    {
+                field: "unduePrincipal",
+                title: '<@spring.message "settle.undueprincipal"/>',
+                width: 120
+            },
+                    {
+                field: "undueInterest",
+                title: '<@spring.message "settle.undueinterest"/>',
+                width: 120
+            },
+                    {
+                field: "undueServiceFee",
+                title: '<@spring.message "settle.undueservicefee"/>',
+                width: 120
+            },
+                    {
+                field: "undueParkingFee",
+                title: '<@spring.message "settle.undueparkingfee"/>',
+                width: 120
+            },
+                    {
+                field: "undueGpsFee",
+                title: '<@spring.message "settle.unduegpsfee"/>',
+                width: 120
+            },
+                    {
+                field: "undueDeposit",
+                title: '<@spring.message "settle.unduedeposit"/>',
+                width: 120
+            },
+                    {
+                field: "undueReceive",
+                title: '<@spring.message "settle.unduereceive"/>',
+                width: 120
+            },
+                    {
+                field: "residualValue",
+                title: '<@spring.message "settle.residualvalue"/>',
+                width: 120
+            },
+                    {
+                field: "overdueFee",
+                title: '<@spring.message "settle.overduefee"/>',
+                width: 120
+            },
+                    {
+                field: "penalty",
+                title: '<@spring.message "settle.penalty"/>',
+                width: 120
+            },
+                    {
+                field: "chargeFee",
+                title: '<@spring.message "settle.chargefee"/>',
+                width: 120
+            },
+                    {
+                field: "deductFee",
+                title: '<@spring.message "settle.deductfee"/>',
+                width: 120
+            },
+                    {
+                field: "settleAmount",
+                title: '<@spring.message "settle.settleamount"/>',
+                width: 120
+            },
+                    {
+                field: "cashflowId",
+                title: '<@spring.message "settle.cashflowid"/>',
+                width: 120
+            },
+                    {
+                field: "description",
+                title: '<@spring.message "settle.description"/>',
+                width: 120
+            },
+                    {
+                field: "submitDate",
+                title: '<@spring.message "settle.submitdate"/>',
+                width: 120
+            },
+                    {
+                field: "approvedDate",
+                title: '<@spring.message "settle.approveddate"/>',
+                width: 120
+            },
+                    {
+                field: "finishDate",
+                title: '<@spring.message "settle.finishdate"/>',
+                width: 120
+            },
+                    {
+                field: "printFlag",
+                title: '<@spring.message "settle.printflag"/>',
+                width: 120
+            },
+                    {
+                field: "printDate",
+                title: '<@spring.message "settle.printdate"/>',
+                width: 120
+            },
+                    {
+                field: "remark",
+                title: '<@spring.message "settle.remark"/>',
+                width: 120
+            },
+                    {
+                field: "programApplicationId",
+                title: '<@spring.message "settle.programapplicationid"/>',
+                width: 120
+            },
+                    {
+                field: "programUpdateDate",
+                title: '<@spring.message "settle.programupdatedate"/>',
+                width: 120
+            },
+        ],
+        editable: true
+    });
+
+</script>
+</body>
+</html>

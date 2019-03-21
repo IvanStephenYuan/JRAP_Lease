@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.product.mapper.ProductLineMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.product.dto.ProductLine">
+        <result column="LINE_CODE" property="lineCode" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

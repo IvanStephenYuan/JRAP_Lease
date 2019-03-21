@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.product.mapper.ProductConfigMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.product.dto.ProductConfig">
+        <result column="CONFIG_ID" property="configId" jdbcType="DECIMAL" />
+        <result column="PRODUCT_CODE" property="productCode" jdbcType="VARCHAR" />
+        <result column="CONFIG_TYPE" property="configType" jdbcType="VARCHAR" />
+        <result column="COLUMN_NAME" property="columnName" jdbcType="VARCHAR" />
+        <result column="COLUMN_CODE" property="columnCode" jdbcType="VARCHAR" />
+        <result column="CF_TYPE" property="cfType" jdbcType="VARCHAR" />
+        <result column="DATA_TYPE" property="dataType" jdbcType="VARCHAR" />
+        <result column="SYSTEM_FLAG" property="systemFlag" jdbcType="VARCHAR" />
+        <result column="DISPLAY_FLAG" property="displayFlag" jdbcType="VARCHAR" />
+        <result column="DISPLAY_ORDER" property="displayOrder" jdbcType="DECIMAL" />
+        <result column="PROMPT" property="prompt" jdbcType="VARCHAR" />
+        <result column="REQUIRE_FLAG" property="requireFlag" jdbcType="VARCHAR" />
+        <result column="READONLY_FLAG" property="readonlyFlag" jdbcType="VARCHAR" />
+        <result column="PRECISION" property="precision" jdbcType="DECIMAL" />
+        <result column="DEFAULT_VALUE" property="defaultValue" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.cashflow.mapper.PaymentMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.cashflow.dto.Payment">
+        <result column="PAYMENT_ID" property="paymentId" jdbcType="DECIMAL" />
+        <result column="PAYMENT_CODE" property="paymentCode" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+        <result column="AMOUNT_PAID" property="amountPaid" jdbcType="DECIMAL" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="REQUEST_DATE" property="requestDate" jdbcType="DATE" />
+        <result column="PAYMENT_DATE" property="paymentDate" jdbcType="DATE" />
+        <result column="LAST_PAY_DATE" property="lastPayDate" jdbcType="DATE" />
+        <result column="TRANSACTION_CATEGORY" property="transactionCategory" jdbcType="VARCHAR" />
+        <result column="PAYMENT_METHOD" property="paymentMethod" jdbcType="VARCHAR" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL" />
+        <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE" />
+        <result column="CLOSED_DATE" property="closedDate" jdbcType="DATE" />
+        <result column="PRINT_FLAG" property="printFlag" jdbcType="VARCHAR" />
+        <result column="PRINT_DATE" property="printDate" jdbcType="DATE" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

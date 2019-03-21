@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.plm.mapper.DisposeMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.plm.dto.Dispose">
+        <result column="DISPOSE_ID" property="disposeId" jdbcType="DECIMAL" />
+        <result column="DISPOSE_CODE" property="disposeCode" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="DISPOSE_DATE" property="disposeDate" jdbcType="DATE" />
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+        <result column="UNDUE_PRINCIPAL" property="unduePrincipal" jdbcType="DECIMAL" />
+        <result column="UNDUE_INTEREST" property="undueInterest" jdbcType="DECIMAL" />
+        <result column="UNDUE_SERVICE_FEE" property="undueServiceFee" jdbcType="DECIMAL" />
+        <result column="UNDUE_PARKING_FEE" property="undueParkingFee" jdbcType="DECIMAL" />
+        <result column="UNDUE_GPS_FEE" property="undueGpsFee" jdbcType="DECIMAL" />
+        <result column="UNDUE_DEPOSIT" property="undueDeposit" jdbcType="DECIMAL" />
+        <result column="UNDUE_RECEIVE" property="undueReceive" jdbcType="DECIMAL" />
+        <result column="DEBT_AMOUNT" property="debtAmount" jdbcType="DECIMAL" />
+        <result column="DEBT_RATE" property="debtRate" jdbcType="DECIMAL" />
+        <result column="CASHFLOW_ID" property="cashflowId" jdbcType="DECIMAL" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="SUBMIT_DATE" property="submitDate" jdbcType="DATE" />
+        <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE" />
+        <result column="FINISHED_DATE" property="finishedDate" jdbcType="DATE" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

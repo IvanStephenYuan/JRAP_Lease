@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.product.mapper.ProductMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.product.dto.Product">
+        <result column="PRODUCT_CODE" property="productCode" jdbcType="VARCHAR" />
+        <result column="PRODUCT_NAME" property="productName" jdbcType="VARCHAR" />
+        <result column="PRODUCT_TYPE" property="productType" jdbcType="VARCHAR" />
+        <result column="PRODUCT_CLASS" property="productClass" jdbcType="VARCHAR" />
+        <result column="DECRIPTION" property="decription" jdbcType="VARCHAR" />
+        <result column="BUSINESS_TYPE" property="businessType" jdbcType="VARCHAR" />
+        <result column="LINE_CODE" property="lineCode" jdbcType="VARCHAR" />
+        <result column="MODEL_ID" property="modelId" jdbcType="DECIMAL" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="CALCULATE" property="calculate" jdbcType="VARCHAR" />
+        <result column="RATE_TYPE" property="rateType" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="START_DATE" property="startDate" jdbcType="DATE" />
+        <result column="END_DATE" property="endDate" jdbcType="DATE" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

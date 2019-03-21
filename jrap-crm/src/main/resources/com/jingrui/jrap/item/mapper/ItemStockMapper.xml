@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.item.mapper.ItemStockMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.ItemStock">
+        <result column="STOCK_ID" property="stockId" jdbcType="DECIMAL" />
+        <result column="ITEM_ID" property="itemId" jdbcType="DECIMAL" />
+        <result column="STOCK_TYPE" property="stockType" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="STOCK_DATE" property="stockDate" jdbcType="DATE" />
+        <result column="STOCKMAN" property="stockman" jdbcType="VARCHAR" />
+        <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

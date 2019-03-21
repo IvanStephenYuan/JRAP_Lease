@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.product.mapper.CashflowTypeMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.product.dto.CashflowType">
+        <result column="CF_TYPE" property="cfType" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="CF_DIRECTION" property="cfDirection" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="SYS_FLAG" property="sysFlag" jdbcType="VARCHAR" />
+        <result column="WRITE_OFF_ORDER" property="writeOffOrder" jdbcType="DECIMAL" />
+        <result column="CALC_PENALTY" property="calcPenalty" jdbcType="VARCHAR" />
+        <result column="BILLING_DESC" property="billingDesc" jdbcType="VARCHAR" />
+        <result column="VAT_RATE" property="vatRate" jdbcType="DECIMAL" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

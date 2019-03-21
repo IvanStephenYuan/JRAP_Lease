@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.finance.mapper.BankMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.finance.dto.Bank">
+        <result column="BANK_ID" property="bankId" jdbcType="DECIMAL" />
+        <result column="BANK_CODE" property="bankCode" jdbcType="VARCHAR" />
+        <result column="SHORT_NAME" property="shortName" jdbcType="VARCHAR" />
+        <result column="FULL_NAME" property="fullName" jdbcType="VARCHAR" />
+        <result column="PAY_BANK_NUMBER" property="payBankNumber" jdbcType="VARCHAR" />
+        <result column="PROVINCE" property="province" jdbcType="VARCHAR" />
+        <result column="CITY" property="city" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

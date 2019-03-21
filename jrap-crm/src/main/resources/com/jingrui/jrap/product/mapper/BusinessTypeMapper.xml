@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.product.mapper.BusinessTypeMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.product.dto.BusinessType">
+        <result column="BUSINESS_TYPE" property="businessType" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="CATEGORY" property="category" jdbcType="VARCHAR" />
+        <result column="DEAL_TYPE" property="dealType" jdbcType="VARCHAR" />
+        <result column="DEAL_USAGE" property="dealUsage" jdbcType="VARCHAR" />
+        <result column="CYCLE" property="cycle" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

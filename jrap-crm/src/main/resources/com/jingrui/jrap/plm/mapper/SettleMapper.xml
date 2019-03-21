@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.plm.mapper.SettleMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.plm.dto.Settle">
+        <result column="SETTLE_ID" property="settleId" jdbcType="DECIMAL" />
+        <result column="SETTLE_CODE" property="settleCode" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="SETTLE_TYPE" property="settleType" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="SETTLE_DATE" property="settleDate" jdbcType="DATE" />
+        <result column="LAST_PAYDUE_DATE" property="lastPaydueDate" jdbcType="DATE" />
+        <result column="LAST_PAYDUE_TIMES" property="lastPaydueTimes" jdbcType="DECIMAL" />
+        <result column="UNDUE_PRINCIPAL" property="unduePrincipal" jdbcType="DECIMAL" />
+        <result column="UNDUE_INTEREST" property="undueInterest" jdbcType="DECIMAL" />
+        <result column="UNDUE_SERVICE_FEE" property="undueServiceFee" jdbcType="DECIMAL" />
+        <result column="UNDUE_PARKING_FEE" property="undueParkingFee" jdbcType="DECIMAL" />
+        <result column="UNDUE_GPS_FEE" property="undueGpsFee" jdbcType="DECIMAL" />
+        <result column="UNDUE_DEPOSIT" property="undueDeposit" jdbcType="DECIMAL" />
+        <result column="UNDUE_RECEIVE" property="undueReceive" jdbcType="DECIMAL" />
+        <result column="RESIDUAL_VALUE" property="residualValue" jdbcType="DECIMAL" />
+        <result column="OVERDUE_FEE" property="overdueFee" jdbcType="DECIMAL" />
+        <result column="PENALTY" property="penalty" jdbcType="DECIMAL" />
+        <result column="CHARGE_FEE" property="chargeFee" jdbcType="DECIMAL" />
+        <result column="DEDUCT_FEE" property="deductFee" jdbcType="DECIMAL" />
+        <result column="SETTLE_AMOUNT" property="settleAmount" jdbcType="DECIMAL" />
+        <result column="CASHFLOW_ID" property="cashflowId" jdbcType="DECIMAL" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="SUBMIT_DATE" property="submitDate" jdbcType="DATE" />
+        <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE" />
+        <result column="FINISH_DATE" property="finishDate" jdbcType="DATE" />
+        <result column="PRINT_FLAG" property="printFlag" jdbcType="VARCHAR" />
+        <result column="PRINT_DATE" property="printDate" jdbcType="DATE" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

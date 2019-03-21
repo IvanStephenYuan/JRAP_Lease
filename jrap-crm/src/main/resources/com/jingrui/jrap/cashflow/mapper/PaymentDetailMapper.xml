@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.cashflow.mapper.PaymentDetailMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.cashflow.dto.PaymentDetail">
+        <result column="DETAIL_ID" property="detailId" jdbcType="DECIMAL" />
+        <result column="PAYMENT_ID" property="paymentId" jdbcType="DECIMAL" />
+        <result column="PAYMENT_TYPE" property="paymentType" jdbcType="VARCHAR" />
+        <result column="PAYMENT_STATUS" property="paymentStatus" jdbcType="VARCHAR" />
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+        <result column="AMOUNT_PAID" property="amountPaid" jdbcType="DECIMAL" />
+        <result column="PAYMENT_DATE" property="paymentDate" jdbcType="DATE" />
+        <result column="COMPLETED_DATE" property="completedDate" jdbcType="DATE" />
+        <result column="PAYMENT_METHOD" property="paymentMethod" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="BANK_ACCOUNT_ID" property="bankAccountId" jdbcType="DECIMAL" />
+        <result column="OPT_ACCOUNT_ID" property="optAccountId" jdbcType="DECIMAL" />
+        <result column="OPT_ACCOUNT_NUM" property="optAccountNum" jdbcType="VARCHAR" />
+        <result column="OPT_ACCOUNT_NAME" property="optAccountName" jdbcType="VARCHAR" />
+        <result column="OPT_BANK_NAME" property="optBankName" jdbcType="VARCHAR" />
+        <result column="SOURCE_TYPE" property="sourceType" jdbcType="VARCHAR" />
+        <result column="SOURCE_ID" property="sourceId" jdbcType="DECIMAL" />
+        <result column="SOURCE_LINE_ID" property="sourceLineId" jdbcType="DECIMAL" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

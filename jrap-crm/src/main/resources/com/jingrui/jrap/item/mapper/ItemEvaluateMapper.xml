@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.item.mapper.ItemEvaluateMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.ItemEvaluate">
+        <result column="EVALUATE_ID" property="evaluateId" jdbcType="DECIMAL" />
+        <result column="ITEM_ID" property="itemId" jdbcType="DECIMAL" />
+        <result column="EVALUATE_TYPE" property="evaluateType" jdbcType="VARCHAR" />
+        <result column="EVALUATION_DATE" property="evaluationDate" jdbcType="DATE" />
+        <result column="EVALUATOR" property="evaluator" jdbcType="VARCHAR" />
+        <result column="OUTSIDE_SCORE" property="outsideScore" jdbcType="DECIMAL" />
+        <result column="INSIDE_SCORE" property="insideScore" jdbcType="DECIMAL" />
+        <result column="SKELETON_SCORE" property="skeletonScore" jdbcType="DECIMAL" />
+        <result column="CONFIG_SCORE" property="configScore" jdbcType="DECIMAL" />
+        <result column="COMPOSITE_SCORE" property="compositeScore" jdbcType="DECIMAL" />
+        <result column="EVALUATE_PRICE" property="evaluatePrice" jdbcType="DECIMAL" />
+        <result column="TRADE_PRICE" property="tradePrice" jdbcType="DECIMAL" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

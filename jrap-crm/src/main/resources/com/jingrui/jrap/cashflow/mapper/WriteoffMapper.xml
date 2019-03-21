@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.cashflow.mapper.WriteoffMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.cashflow.dto.Writeoff">
+        <result column="WRITEOFF_ID" property="writeoffId" jdbcType="DECIMAL" />
+        <result column="WRITEOFF_TYPE" property="writeoffType" jdbcType="VARCHAR" />
+        <result column="WRITEOFF_DATE" property="writeoffDate" jdbcType="DATE" />
+        <result column="INTERNAL_PERIOD_NUM" property="internalPeriodNum" jdbcType="DECIMAL" />
+        <result column="PERIOD_NAME" property="periodName" jdbcType="VARCHAR" />
+        <result column="TRANSACTION_ID" property="transactionId" jdbcType="DECIMAL" />
+        <result column="BILL_AMOUNT" property="billAmount" jdbcType="DECIMAL" />
+        <result column="REVERSED_FLAG" property="reversedFlag" jdbcType="VARCHAR" />
+        <result column="REVERSED_WRITEOFF_ID" property="reversedWriteoffId" jdbcType="DECIMAL" />
+        <result column="REVERSED_DATE" property="reversedDate" jdbcType="DATE" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="CASHFLOW_ID" property="cashflowId" jdbcType="DECIMAL" />
+        <result column="TIMES" property="times" jdbcType="DECIMAL" />
+        <result column="CF_TYPE" property="cfType" jdbcType="VARCHAR" />
+        <result column="WRITEOFF_AMOUNT" property="writeoffAmount" jdbcType="DECIMAL" />
+        <result column="WRITEOFF_PRINCIPAL" property="writeoffPrincipal" jdbcType="DECIMAL" />
+        <result column="WRITEOFF_INTEREST" property="writeoffInterest" jdbcType="DECIMAL" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="SOURCE_TYPE" property="sourceType" jdbcType="VARCHAR" />
+        <result column="SOURCE_ID" property="sourceId" jdbcType="DECIMAL" />
+        <result column="SOURCE_LINE_ID" property="sourceLineId" jdbcType="DECIMAL" />
+        <result column="JE_MOTHED" property="jeMothed" jdbcType="VARCHAR" />
+        <result column="JE_FLAG" property="jeFlag" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

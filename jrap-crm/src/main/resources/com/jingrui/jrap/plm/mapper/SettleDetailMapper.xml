@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.plm.mapper.SettleDetailMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.plm.dto.SettleDetail">
+        <result column="DETAIL_ID" property="detailId" jdbcType="DECIMAL" />
+        <result column="SETTLE_ID" property="settleId" jdbcType="DECIMAL" />
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+        <result column="CF_TYPE" property="cfType" jdbcType="VARCHAR" />
+        <result column="DIRECTION" property="direction" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

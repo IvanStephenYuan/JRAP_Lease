@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.order.mapper.CashflowMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.order.dto.Cashflow">
+        <result column="CASHFLOW_ID" property="cashflowId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="CF_TYPE" property="cfType" jdbcType="VARCHAR" />
+        <result column="CF_DIRECTION" property="cfDirection" jdbcType="VARCHAR" />
+        <result column="CF_STATUS" property="cfStatus" jdbcType="VARCHAR" />
+        <result column="TIMES" property="times" jdbcType="DECIMAL" />
+        <result column="CALC_DATE" property="calcDate" jdbcType="DATE" />
+        <result column="DUE_DATE" property="dueDate" jdbcType="DATE" />
+        <result column="DUE_AMOUNT" property="dueAmount" jdbcType="DECIMAL" />
+        <result column="NET_DUE_AMOUNT" property="netDueAmount" jdbcType="DECIMAL" />
+        <result column="VAT_DUE_AMOUNT" property="vatDueAmount" jdbcType="DECIMAL" />
+        <result column="PRINCIPAL" property="principal" jdbcType="DECIMAL" />
+        <result column="NET_PRINCIPAL" property="netPrincipal" jdbcType="DECIMAL" />
+        <result column="VAT_PRINCIPAL" property="vatPrincipal" jdbcType="DECIMAL" />
+        <result column="INTEREST" property="interest" jdbcType="DECIMAL" />
+        <result column="NET_INTEREST" property="netInterest" jdbcType="DECIMAL" />
+        <result column="VAT_INTEREST" property="vatInterest" jdbcType="DECIMAL" />
+        <result column="PRINCIPAL_IMPLICIT_RATE" property="principalImplicitRate" jdbcType="DECIMAL" />
+        <result column="NET_PRINCIPAL_IMPLICIT" property="netPrincipalImplicit" jdbcType="DECIMAL" />
+        <result column="VAT_PRINCIPAL_IMPLICIT" property="vatPrincipalImplicit" jdbcType="DECIMAL" />
+        <result column="INTEREST_IMPLICIT_RATE" property="interestImplicitRate" jdbcType="DECIMAL" />
+        <result column="NET_INTEREST_IMPLICIT" property="netInterestImplicit" jdbcType="DECIMAL" />
+        <result column="VAT_INTEREST_IMPLICIT" property="vatInterestImplicit" jdbcType="DECIMAL" />
+        <result column="OUTSTANDING_RENTAL" property="outstandingRental" jdbcType="DECIMAL" />
+        <result column="OUTSTANDING_PRINCIPAL" property="outstandingPrincipal" jdbcType="DECIMAL" />
+        <result column="OUTSTANDING_INTEREST" property="outstandingInterest" jdbcType="DECIMAL" />
+        <result column="INTEREST_PERIOD_DAYS" property="interestPeriodDays" jdbcType="DECIMAL" />
+        <result column="SOURCE_TYPE" property="sourceType" jdbcType="VARCHAR" />
+        <result column="SOURCE_ID" property="sourceId" jdbcType="DECIMAL" />
+        <result column="COLOUR_SCHEME" property="colourScheme" jdbcType="VARCHAR" />
+        <result column="CALC_LINE_ID" property="calcLineId" jdbcType="DECIMAL" />
+        <result column="OVERDUE_STATUS" property="overdueStatus" jdbcType="VARCHAR" />
+        <result column="OVERDUE_DATE" property="overdueDate" jdbcType="DATE" />
+        <result column="OVERDUE_MAX_DAYS" property="overdueMaxDays" jdbcType="DECIMAL" />
+        <result column="OVERDUE_AMOUNT" property="overdueAmount" jdbcType="DECIMAL" />
+        <result column="OVERDUE_PRINCIPAL" property="overduePrincipal" jdbcType="DECIMAL" />
+        <result column="OVERDUE_INTEREST" property="overdueInterest" jdbcType="DECIMAL" />
+        <result column="RECEIVED_AMOUNT" property="receivedAmount" jdbcType="DECIMAL" />
+        <result column="RECEIVED_PRINCIPAL" property="receivedPrincipal" jdbcType="DECIMAL" />
+        <result column="RECEIVED_INTEREST" property="receivedInterest" jdbcType="DECIMAL" />
+        <result column="WRITEOFF_FLAG" property="writeoffFlag" jdbcType="VARCHAR" />
+        <result column="LAST_RECEIVED_DATE" property="lastReceivedDate" jdbcType="DATE" />
+        <result column="FULL_WRITEOFF_DATE" property="fullWriteoffDate" jdbcType="DATE" />
+        <result column="PENALTY_PROCESS_STATUS" property="penaltyProcessStatus" jdbcType="VARCHAR" />
+        <result column="BILLING_STATUS" property="billingStatus" jdbcType="VARCHAR" />
+        <result column="BILLING_AMOUNT" property="billingAmount" jdbcType="DECIMAL" />
+        <result column="BILLING_PRINCIPAL" property="billingPrincipal" jdbcType="DECIMAL" />
+        <result column="BILLING_INTEREST" property="billingInterest" jdbcType="DECIMAL" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

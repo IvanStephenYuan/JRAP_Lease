@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.plm.mapper.RetrieveMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.plm.dto.Retrieve">
+        <result column="RETRIEVE_ID" property="retrieveId" jdbcType="DECIMAL" />
+        <result column="RETRIEVE_CODE" property="retrieveCode" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="RETRIEVE_DATE" property="retrieveDate" jdbcType="DATE" />
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+        <result column="CHARGE_FEE" property="chargeFee" jdbcType="DECIMAL" />
+        <result column="OIL_FEE" property="oilFee" jdbcType="DECIMAL" />
+        <result column="DEPOSIT" property="deposit" jdbcType="DECIMAL" />
+        <result column="CASHFLOW_ID" property="cashflowId" jdbcType="DECIMAL" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="SUBMIT_DATE" property="submitDate" jdbcType="DATE" />
+        <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE" />
+        <result column="RECEIVE_DATE" property="receiveDate" jdbcType="DATE" />
+        <result column="RELEASE_DATE" property="releaseDate" jdbcType="DATE" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

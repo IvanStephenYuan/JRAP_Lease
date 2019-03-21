@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.customer.mapper.CustomerEvaluateMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.customer.dto.CustomerEvaluate">
+        <result column="EVALUATE_ID" property="evaluateId" jdbcType="DECIMAL" />
+        <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL" />
+        <result column="EVALUATE_TYPE" property="evaluateType" jdbcType="VARCHAR" />
+        <result column="EVALUATOR" property="evaluator" jdbcType="VARCHAR" />
+        <result column="COMPOSITE_SCORE" property="compositeScore" jdbcType="DECIMAL" />
+        <result column="EVALUATE_DATE" property="evaluateDate" jdbcType="DATE" />
+        <result column="INDATE_DATE" property="indateDate" jdbcType="DATE" />
+        <result column="BRIEF" property="brief" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

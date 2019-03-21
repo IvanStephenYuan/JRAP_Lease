@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.order.mapper.OrderCycleMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.order.dto.OrderCycle">
+        <result column="CYCLE_ID" property="cycleId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="STATUS_DATE" property="statusDate" jdbcType="DATE" />
+        <result column="CHANGER" property="changer" jdbcType="DECIMAL" />
+        <result column="PARENT_CYCLE_ID" property="parentCycleId" jdbcType="DECIMAL" />
+        <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

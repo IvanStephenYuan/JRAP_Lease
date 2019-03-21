@@ -1,0 +1,231 @@
+<#include "../include/header.html">
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+<body>
+<div id="page-content">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Writeoff.writeoffType"/>'
+                   data-bind="value:model.writeoffType" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Writeoff.periodName"/>'
+                   data-bind="value:model.periodName" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Writeoff.cfType"/>'
+                   data-bind="value:model.cfType" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Writeoff.sourceType"/>'
+                   data-bind="value:model.sourceType" class="k-textbox">
+        <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+    var BaseUrl = _basePath;
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/csh/writeoff/query",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/csh/writeoff/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/csh/writeoff/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/csh/writeoff/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "writeoffId",
+                fields: {}
+            }
+        }
+    });
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "writeoffId",
+                title: '<@spring.message "writeoff.writeoffid"/>',
+                width: 120
+            },
+                    {
+                field: "writeoffType",
+                title: '<@spring.message "writeoff.writeofftype"/>',
+                width: 120
+            },
+                    {
+                field: "writeoffDate",
+                title: '<@spring.message "writeoff.writeoffdate"/>',
+                width: 120
+            },
+                    {
+                field: "internalPeriodNum",
+                title: '<@spring.message "writeoff.internalperiodnum"/>',
+                width: 120
+            },
+                    {
+                field: "periodName",
+                title: '<@spring.message "writeoff.periodname"/>',
+                width: 120
+            },
+                    {
+                field: "transactionId",
+                title: '<@spring.message "writeoff.transactionid"/>',
+                width: 120
+            },
+                    {
+                field: "billAmount",
+                title: '<@spring.message "writeoff.billamount"/>',
+                width: 120
+            },
+                    {
+                field: "reversedFlag",
+                title: '<@spring.message "writeoff.reversedflag"/>',
+                width: 120
+            },
+                    {
+                field: "reversedWriteoffId",
+                title: '<@spring.message "writeoff.reversedwriteoffid"/>',
+                width: 120
+            },
+                    {
+                field: "reversedDate",
+                title: '<@spring.message "writeoff.reverseddate"/>',
+                width: 120
+            },
+                    {
+                field: "orderId",
+                title: '<@spring.message "writeoff.orderid"/>',
+                width: 120
+            },
+                    {
+                field: "cashflowId",
+                title: '<@spring.message "writeoff.cashflowid"/>',
+                width: 120
+            },
+                    {
+                field: "times",
+                title: '<@spring.message "writeoff.times"/>',
+                width: 120
+            },
+                    {
+                field: "cfType",
+                title: '<@spring.message "writeoff.cftype"/>',
+                width: 120
+            },
+                    {
+                field: "writeoffAmount",
+                title: '<@spring.message "writeoff.writeoffamount"/>',
+                width: 120
+            },
+                    {
+                field: "writeoffPrincipal",
+                title: '<@spring.message "writeoff.writeoffprincipal"/>',
+                width: 120
+            },
+                    {
+                field: "writeoffInterest",
+                title: '<@spring.message "writeoff.writeoffinterest"/>',
+                width: 120
+            },
+                    {
+                field: "description",
+                title: '<@spring.message "writeoff.description"/>',
+                width: 120
+            },
+                    {
+                field: "sourceType",
+                title: '<@spring.message "writeoff.sourcetype"/>',
+                width: 120
+            },
+                    {
+                field: "sourceId",
+                title: '<@spring.message "writeoff.sourceid"/>',
+                width: 120
+            },
+                    {
+                field: "sourceLineId",
+                title: '<@spring.message "writeoff.sourcelineid"/>',
+                width: 120
+            },
+                    {
+                field: "jeMothed",
+                title: '<@spring.message "writeoff.jemothed"/>',
+                width: 120
+            },
+                    {
+                field: "jeFlag",
+                title: '<@spring.message "writeoff.jeflag"/>',
+                width: 120
+            },
+                    {
+                field: "remark",
+                title: '<@spring.message "writeoff.remark"/>',
+                width: 120
+            },
+                    {
+                field: "programApplicationId",
+                title: '<@spring.message "writeoff.programapplicationid"/>',
+                width: 120
+            },
+                    {
+                field: "programUpdateDate",
+                title: '<@spring.message "writeoff.programupdatedate"/>',
+                width: 120
+            },
+        ],
+        editable: true
+    });
+
+</script>
+</body>
+</html>
