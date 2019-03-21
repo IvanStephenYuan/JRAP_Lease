@@ -221,13 +221,13 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
 
 
 
- changeSet(author:"Admin", id: "2019-03-18_PRO_PRODUCT_CONFIG_HD"){
+ changeSet(author:"Admin", id: "2019-03-18_PRO_PRODUCT_CONFIG"){
   if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
-   createSequence(sequenceName:'PRO_PRODUCT_CONFIG_HD_S', startValue:"10001")
+   createSequence(sequenceName:'PRO_PRODUCT_CONFIG_S', startValue:"10001")
   }
-  createTable(tableName:"PRO_PRODUCT_CONFIG_HD"){
+  createTable(tableName:"PRO_PRODUCT_CONFIG"){
    column(name:"CONFIG_ID",type:"bigint",autoIncrement:"true",startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
-    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_PRODUCT_CONFIG_HD_PK")
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_PRODUCT_CONFIG_PK")
    }
    column(name:"PRODUCT_CODE",type:"varchar(100)",remarks:"产品表Code")
    column(name:"CONFIG_TYPE",type:"varchar(1)",remarks:"字段类型")
@@ -275,10 +275,10 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"ATTRIBUTE14",type:"varchar(150)")
    column(name:"ATTRIBUTE15",type:"varchar(150)")
   }
-  createIndex(tableName:"PRO_PRODUCT_CONFIG_HD",indexName:"PRO_PRODUCT_CONFIG_HD_N1"){
+  createIndex(tableName:"PRO_PRODUCT_CONFIG",indexName:"PRO_PRODUCT_CONFIG_N1"){
    column(name: "PRODUCT_CODE")
   }
-  createIndex(tableName:"PRO_PRODUCT_CONFIG_HD",indexName:"PRO_PRODUCT_CONFIG_HD_N2"){
+  createIndex(tableName:"PRO_PRODUCT_CONFIG",indexName:"PRO_PRODUCT_CONFIG_N2"){
    column(name: "COLUMN_CODE")
   }
 
