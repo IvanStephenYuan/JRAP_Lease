@@ -7,16 +7,20 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Account.accountName"/>'
-                   data-bind="value:model.accountName" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Account.accountType"/>'
-                   data-bind="value:model.accountType" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Account.ownerType"/>'
-                   data-bind="value:model.ownerType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "account.accountname"/>'
+               data-bind="value:model.accountName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "account.accountnumber"/>'
+               data-bind="value:model.accountNumber" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "account.ownertype"/>'
+               data-bind="value:model.ownerType" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -91,70 +95,50 @@
         },
         columns: [
             {
-                field: "accountId",
-                title: '<@spring.message "account.accountid"/>',
-                width: 120
-            },
-                    {
-                field: "accountNumber",
-                title: '<@spring.message "account.accountnumber"/>',
-                width: 120
-            },
-                    {
-                field: "accountName",
-                title: '<@spring.message "account.accountname"/>',
-                width: 120
-            },
-                    {
-                field: "accountType",
-                title: '<@spring.message "account.accounttype"/>',
-                width: 120
-            },
-                    {
-                field: "accountClass",
-                title: '<@spring.message "account.accountclass"/>',
-                width: 120
-            },
-                    {
-                field: "accountUsage",
-                title: '<@spring.message "account.accountusage"/>',
-                width: 120
-            },
-                    {
-                field: "bankId",
-                title: '<@spring.message "account.bankid"/>',
-                width: 120
-            },
-                    {
-                field: "ownerType",
-                title: '<@spring.message "account.ownertype"/>',
-                width: 120
-            },
-                    {
                 field: "ownerId",
                 title: '<@spring.message "account.ownerid"/>',
                 width: 120
             },
-                    {
+            {
+                field: "ownerType",
+                title: '<@spring.message "account.ownertype"/>',
+                width: 120
+            },
+            {
+                field: "accountNumber",
+                title: '<@spring.message "account.accountnumber"/>',
+                width: 120
+            },
+            {
+                field: "accountName",
+                title: '<@spring.message "account.accountname"/>',
+                width: 120
+            },
+            {
+                field: "bankId",
+                title: '<@spring.message "account.bankid"/>',
+                width: 120
+            },
+            {
+                field: "accountType",
+                title: '<@spring.message "account.accounttype"/>',
+                width: 120
+            },
+            {
+                field: "accountClass",
+                title: '<@spring.message "account.accountclass"/>',
+                width: 120
+            },
+            {
+                field: "accountUsage",
+                title: '<@spring.message "account.accountusage"/>',
+                width: 120
+            },
+            {
                 field: "enabledFlag",
-                title: '<@spring.message "account.enabledflag"/>',
+                title: '<@spring.message "jrap.enableflag"/>',
                 width: 120
-            },
-                    {
-                field: "remark",
-                title: '<@spring.message "account.remark"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "account.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "account.programupdatedate"/>',
-                width: 120
-            },
+            }
         ],
         editable: true
     });

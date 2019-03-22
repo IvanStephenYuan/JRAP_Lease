@@ -7,16 +7,20 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Bank.bankCode"/>'
-                   data-bind="value:model.bankCode" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Bank.shortName"/>'
-                   data-bind="value:model.shortName" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Bank.fullName"/>'
-                   data-bind="value:model.fullName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "bank.bankcode"/>'
+               data-bind="value:model.bankCode" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "bank.shortname"/>'
+               data-bind="value:model.shortName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "bank.fullname"/>'
+               data-bind="value:model.fullName" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -91,60 +95,40 @@
         },
         columns: [
             {
-                field: "bankId",
-                title: '<@spring.message "bank.bankid"/>',
-                width: 120
-            },
-                    {
                 field: "bankCode",
                 title: '<@spring.message "bank.bankcode"/>',
                 width: 120
             },
-                    {
+            {
                 field: "shortName",
                 title: '<@spring.message "bank.shortname"/>',
                 width: 120
             },
-                    {
+            {
                 field: "fullName",
                 title: '<@spring.message "bank.fullname"/>',
                 width: 120
             },
-                    {
+            {
                 field: "payBankNumber",
                 title: '<@spring.message "bank.paybanknumber"/>',
                 width: 120
             },
-                    {
+            {
                 field: "province",
                 title: '<@spring.message "bank.province"/>',
                 width: 120
             },
-                    {
+            {
                 field: "city",
                 title: '<@spring.message "bank.city"/>',
                 width: 120
             },
-                    {
-                field: "remark",
-                title: '<@spring.message "bank.remark"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "enabledFlag",
-                title: '<@spring.message "bank.enabledflag"/>',
+                title: '<@spring.message "jrap.enableflag"/>',
                 width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "bank.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "bank.programupdatedate"/>',
-                width: 120
-            },
+            }
         ],
         editable: true
     });
