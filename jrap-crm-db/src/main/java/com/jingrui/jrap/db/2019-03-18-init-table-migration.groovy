@@ -446,13 +446,13 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
 
  }
 
- changeSet(author:"Admin", id: "2019-03-18_PRO_DOCUMENT_GATEGORY"){
+ changeSet(author:"Admin", id: "2019-03-18_PRO_DOCUMENT_GATECORY"){
   if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
-   createSequence(sequenceName:'PRO_DOCUMENT_GATEGORY_S', startValue:"10001")
+   createSequence(sequenceName:'PRO_DOCUMENT_CATEGORY_S', startValue:"10001")
   }
-  createTable(tableName:"PRO_DOCUMENT_GATEGORY"){
-   column(name:"DOCUMENT_GATEGORY",type:"varchar(60)",remarks:"主键，供其他表做外键"){
-    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_DOCUMENT_GATEGORY_PK")
+  createTable(tableName:"PRO_DOCUMENT_CATEGORY"){
+   column(name:"DOCUMENT_CATEGORY",type:"varchar(60)",remarks:"主键，供其他表做外键"){
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_DOCUMENT_CATEGORY_PK")
    }
    column(name:"DECRIPTION",type:"varchar(200)",remarks:"描述")
    column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
@@ -486,7 +486,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"ATTRIBUTE14",type:"varchar(150)")
    column(name:"ATTRIBUTE15",type:"varchar(150)")
   }
-  addUniqueConstraint(columnNames:"DOCUMENT_GATEGORY",tableName:"PRO_DOCUMENT_GATEGORY",constraintName: "PRO_DOCUMENT_GATEGORY_U1")
+  addUniqueConstraint(columnNames:"DOCUMENT_CATEGORY",tableName:"PRO_DOCUMENT_CATEGORY",constraintName: "PRO_DOCUMENT_CATEGORY_U1")
  }
 
  changeSet(author:"Admin", id: "2019-03-18_PRO_DOCUMENT_TYPE"){
