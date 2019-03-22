@@ -446,7 +446,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
 
  }
 
- changeSet(author:"Admin", id: "2019-03-18_PRO_DOCUMENT_GATECORY"){
+ changeSet(author:"Admin", id: "2019-03-18_PRO_DOCUMENT_CATEGORY"){
   if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
    createSequence(sequenceName:'PRO_DOCUMENT_CATEGORY_S', startValue:"10001")
   }
