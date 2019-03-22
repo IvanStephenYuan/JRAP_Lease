@@ -61,6 +61,4 @@
         <result column="SPOUSE_UNIT_ADDRESS" property="spouseUnitAddress" jdbcType="VARCHAR" />
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
     </resultMap>
-
-
 </mapper>

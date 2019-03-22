@@ -11,6 +11,10 @@
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "itemmodel.brand"/>'
+               data-bind="value:model.brand" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "itemmodel.model"/>'
+               data-bind="value:model.model" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -85,16 +89,6 @@
         },
         columns: [
             {
-                field: "modelId",
-                title: '<@spring.message "itemmodel.modelid"/>',
-                width: 120
-            },
-                    {
-                field: "companyId",
-                title: '<@spring.message "itemmodel.companyid"/>',
-                width: 120
-            },
-                    {
                 field: "brand",
                 title: '<@spring.message "itemmodel.brand"/>',
                 width: 120
@@ -126,24 +120,9 @@
             },
                     {
                 field: "enabledFlag",
-                title: '<@spring.message "itemmodel.enabledflag"/>',
+                title: '<@spring.message "jrap.enableflag"/>',
                 width: 120
-            },
-                    {
-                field: "remark",
-                title: '<@spring.message "itemmodel.remark"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "itemmodel.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "itemmodel.programupdatedate"/>',
-                width: 120
-            },
+            }
         ],
         editable: true
     });

@@ -7,22 +7,29 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Product.productCode"/>'
-                   data-bind="value:model.productCode" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Product.productName"/>'
-                   data-bind="value:model.productName" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Product.productType"/>'
-                   data-bind="value:model.productType" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Product.businessType"/>'
-                   data-bind="value:model.businessType" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Product.lineCode"/>'
-                   data-bind="value:model.lineCode" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Product.rateType"/>'
-                   data-bind="value:model.rateType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "product.productcode"/>'
+               data-bind="value:model.productCode" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "product.productname"/>'
+               data-bind="value:model.productName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "product.producttype"/>'
+               data-bind="value:model.productType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "business.businesstype"/>'
+               data-bind="value:model.businessType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "productline.linecode"/>'
+               data-bind="value:model.lineCode" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "product.ratetype"/>'
+               data-bind="value:model.rateType" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -101,86 +108,66 @@
                 title: '<@spring.message "product.productcode"/>',
                 width: 120
             },
-                    {
+            {
                 field: "productName",
                 title: '<@spring.message "product.productname"/>',
                 width: 120
             },
-                    {
+            {
                 field: "productType",
                 title: '<@spring.message "product.producttype"/>',
                 width: 120
             },
-                    {
+            {
                 field: "productClass",
                 title: '<@spring.message "product.productclass"/>',
                 width: 120
             },
-                    {
+            {
                 field: "decription",
                 title: '<@spring.message "product.decription"/>',
                 width: 120
             },
-                    {
+            {
                 field: "businessType",
-                title: '<@spring.message "product.businesstype"/>',
+                title: '<@spring.message "businesstype.businesstype"/>',
                 width: 120
             },
-                    {
+            {
                 field: "lineCode",
-                title: '<@spring.message "product.linecode"/>',
+                title: '<@spring.message "productline.linecode"/>',
                 width: 120
             },
-                    {
+            {
                 field: "modelId",
-                title: '<@spring.message "product.modelid"/>',
+                title: '<@spring.message "itemmodel.model"/>',
                 width: 120
             },
-                    {
-                field: "companyId",
-                title: '<@spring.message "product.companyid"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "calculate",
                 title: '<@spring.message "product.calculate"/>',
                 width: 120
             },
-                    {
+            {
                 field: "rateType",
                 title: '<@spring.message "product.ratetype"/>',
                 width: 120
             },
-                    {
+            {
                 field: "enabledFlag",
-                title: '<@spring.message "product.enabledflag"/>',
+                title: '<@spring.message "jrap.enableflag"/>',
                 width: 120
             },
-                    {
+            {
                 field: "startDate",
                 title: '<@spring.message "product.startdate"/>',
                 width: 120
             },
-                    {
+            {
                 field: "endDate",
                 title: '<@spring.message "product.enddate"/>',
                 width: 120
-            },
-                    {
-                field: "remark",
-                title: '<@spring.message "product.remark"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "product.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "product.programupdatedate"/>',
-                width: 120
-            },
+            }
         ],
         editable: true
     });

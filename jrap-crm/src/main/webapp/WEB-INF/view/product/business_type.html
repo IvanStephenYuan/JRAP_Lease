@@ -3,18 +3,25 @@
     var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <body>
+<script src="${base.contextPath}/common/code?businessCategoryData=BUSINESS.CATEGORY" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?businessTypeData=BUSINESS.TYPE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?businessCycleData=BUSINESS.CYCLE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?businessUseageData=BUSINESS.USEAGE" type="text/javascript"></script>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "BusinessType.businessType"/>'
-                   data-bind="value:model.businessType" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "BusinessType.dealType"/>'
-                   data-bind="value:model.dealType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "businesstype.businesstype"/>'
+               data-bind="value:model.businessType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "businesstype.description"/>'
+               data-bind="value:model.description" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -66,7 +73,21 @@
             total: 'total',
             model: {
                 id: "businessType",
-                fields: {}
+                fields: {
+                    businessType: {validation: {required: true}, type: "string"},
+                    description: {validation: {required: true}, type: "string"},
+                    category:{defaultValue:businessCategoryData[0].value},
+                    dealType:{defaultValue:businessTypeData[0].value},
+                    dealUsage:{defaultValue:businessUseageData[0].value},
+                    cycle:{defaultValue:businessCycleData[0].value},
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                },
+                editable: function (col) {
+                    if (col == 'businessType' && this.businessType) {
+                        return false;
+                    }
+                    return true;
+                }
             }
         }
     });
@@ -91,57 +112,126 @@
             {
                 field: "businessType",
                 title: '<@spring.message "businesstype.businesstype"/>',
-                width: 120
+                width: 60
             },
-                    {
+            {
                 field: "description",
                 title: '<@spring.message "businesstype.description"/>',
                 width: 120
             },
-                    {
+            {
                 field: "category",
                 title: '<@spring.message "businesstype.category"/>',
-                width: 120
+                width: 60,
+                template: function (dataItem) {
+                    var v = dataItem.category ? dataItem.category : "";
+                    $.each(businessCategoryData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: businessCategoryData
+                        });
+                }
             },
-                    {
+            {
                 field: "dealType",
-                title: '<@spring.message "businesstype.dealtype"/>',
-                width: 120
+                title: '<@spring.message "businesstype.dealType"/>',
+                width: 60,
+                template: function (dataItem) {
+                    var v = dataItem.dealType ? dataItem.dealType : "";
+                    $.each(businessTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: businessTypeData
+                        });
+                }
             },
-                    {
+            {
                 field: "dealUsage",
-                title: '<@spring.message "businesstype.dealusage"/>',
-                width: 120
+                title: '<@spring.message "businesstype.dealUsage"/>',
+                width: 60,
+                template: function (dataItem) {
+                    var v = dataItem.dealUsage ? dataItem.dealUsage : "";
+                    $.each(businessUseageData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: businessUseageData
+                        });
+                }
             },
-                    {
+            {
                 field: "cycle",
                 title: '<@spring.message "businesstype.cycle"/>',
-                width: 120
+                width: 60,
+                template: function (dataItem) {
+                    var v = dataItem.cycle ? dataItem.cycle : "";
+                    $.each(businessCycleData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: businessCycleData
+                        });
+                }
             },
-                    {
+            {
                 field: "enabledFlag",
-                title: '<@spring.message "businesstype.enabledflag"/>',
-                width: 120
-            },
-                    {
-                field: "remark",
-                title: '<@spring.message "businesstype.remark"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "businesstype.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "businesstype.programupdatedate"/>',
-                width: 120
-            },
+                title: '<@spring.message "jrap.enableflag"/>',
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
+            }
         ],
         editable: true
     });
-
 </script>
 </body>
 </html>

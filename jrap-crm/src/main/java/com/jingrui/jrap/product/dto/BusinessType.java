@@ -4,7 +4,10 @@ package com.jingrui.jrap.product.dto;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
+import com.jingrui.jrap.mybatis.common.query.Where;
 import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import com.jingrui.jrap.system.dto.BaseDTO;
 import java.util.Date;
@@ -20,13 +23,12 @@ public class BusinessType extends BaseDTO {
      public static final String FIELD_DEAL_USAGE = "dealUsage";
      public static final String FIELD_CYCLE = "cycle";
      public static final String FIELD_ENABLED_FLAG = "enabledFlag";
-     public static final String FIELD_REMARK = "remark";
-     public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
-     public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
-
+     @Id
      @NotEmpty
      @Length(max = 60)
+     @OrderBy("ASC")
+     @Where
      private String businessType; //主键，供其他表做外键
 
      @Length(max = 200)
@@ -46,13 +48,6 @@ public class BusinessType extends BaseDTO {
 
      @Length(max = 1)
      private String enabledFlag; //启用标识
-
-     @Length(max = 2147483647)
-     private String remark; //备注说明
-
-     private Long programApplicationId;
-
-     private Date programUpdateDate;
 
 
      public void setBusinessType(String businessType){
@@ -109,30 +104,6 @@ public class BusinessType extends BaseDTO {
 
      public String getEnabledFlag(){
          return enabledFlag;
-     }
-
-     public void setRemark(String remark){
-         this.remark = remark;
-     }
-
-     public String getRemark(){
-         return remark;
-     }
-
-     public void setProgramApplicationId(Long programApplicationId){
-         this.programApplicationId = programApplicationId;
-     }
-
-     public Long getProgramApplicationId(){
-         return programApplicationId;
-     }
-
-     public void setProgramUpdateDate(Date programUpdateDate){
-         this.programUpdateDate = programUpdateDate;
-     }
-
-     public Date getProgramUpdateDate(){
-         return programUpdateDate;
      }
 
      }

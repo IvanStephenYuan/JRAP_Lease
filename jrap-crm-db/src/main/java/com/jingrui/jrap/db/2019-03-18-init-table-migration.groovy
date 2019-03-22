@@ -10,7 +10,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   }
   createTable(tableName:"PRO_CASHFLOW_TYPE"){
    column(name:"CF_TYPE",type:"varchar(60)",remarks:"主键，供其他表做外键"){
-    constraints(nullable:"false")
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_CASHFLOW_TYPE_PK")
    }
    column(name:"DESCRIPTION",type:"varchar(100)",remarks:"描述")
    column(name:"CF_DIRECTION",type:"varchar(60)",remarks:"现金流方向")
@@ -65,7 +65,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   }
   createTable(tableName:"PRO_BUSINESS_TYPE"){
    column(name:"BUSINESS_TYPE",type:"varchar(60)",remarks:"主键，供其他表做外键"){
-    constraints(nullable:"false")
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_BUSINESS_TYPE_PK")
    }
    column(name:"DESCRIPTION",type:"varchar(200)",remarks:"描述")
    column(name:"CATEGORY",type:"varchar(60)",remarks:"种类")
@@ -114,7 +114,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   }
   createTable(tableName:"PRO_PRODUCT_LINE"){
    column(name:"LINE_CODE",type:"varchar(60)",remarks:"主键，供其他表做外键"){
-    constraints(nullable:"false")
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_PRODUCT_LINE_PK")
    }
    column(name:"DESCRIPTION",type:"varchar(200)",remarks:"描述")
    column(name:"COMPANY_ID",type:"bigint",remarks:"公司FND_COMPANY_B.COMPANY_ID")
@@ -161,7 +161,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   }
   createTable(tableName:"PRO_PRODUCT"){
    column(name:"PRODUCT_CODE",type:"varchar(60)",remarks:"产品编码"){
-    constraints(nullable:"false")
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_PRODUCT_PK")
    }
    column(name:"PRODUCT_NAME",type:"varchar(200)",remarks:"产品名称")
    column(name:"PRODUCT_TYPE",type:"varchar(60)",remarks:"产品类型")
@@ -446,7 +446,48 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
 
  }
 
-
+ changeSet(author:"Admin", id: "2019-03-18_PRO_DOCUMENT_GATEGORY"){
+  if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
+   createSequence(sequenceName:'PRO_DOCUMENT_GATEGORY_S', startValue:"10001")
+  }
+  createTable(tableName:"PRO_DOCUMENT_GATEGORY"){
+   column(name:"DOCUMENT_GATEGORY",type:"varchar(60)",remarks:"主键，供其他表做外键"){
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_DOCUMENT_GATEGORY_PK")
+   }
+   column(name:"DECRIPTION",type:"varchar(200)",remarks:"描述")
+   column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
+   column(name:"REMARK",type:"clob",remarks:"备注说明")
+   column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
+    constraints(nullable:"false")
+   }
+   column(name:"CREATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"CREATION_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+   column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+   column(name:"PROGRAM_ID",type:"bigint")
+   column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+   column(name:"REQUEST_ID",type:"bigint")
+   column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
+   column(name:"ATTRIBUTE1",type:"varchar(150)")
+   column(name:"ATTRIBUTE2",type:"varchar(150)")
+   column(name:"ATTRIBUTE3",type:"varchar(150)")
+   column(name:"ATTRIBUTE4",type:"varchar(150)")
+   column(name:"ATTRIBUTE5",type:"varchar(150)")
+   column(name:"ATTRIBUTE6",type:"varchar(150)")
+   column(name:"ATTRIBUTE7",type:"varchar(150)")
+   column(name:"ATTRIBUTE8",type:"varchar(150)")
+   column(name:"ATTRIBUTE9",type:"varchar(150)")
+   column(name:"ATTRIBUTE10",type:"varchar(150)")
+   column(name:"ATTRIBUTE11",type:"varchar(150)")
+   column(name:"ATTRIBUTE12",type:"varchar(150)")
+   column(name:"ATTRIBUTE13",type:"varchar(150)")
+   column(name:"ATTRIBUTE14",type:"varchar(150)")
+   column(name:"ATTRIBUTE15",type:"varchar(150)")
+  }
+  addUniqueConstraint(columnNames:"DOCUMENT_GATEGORY",tableName:"PRO_DOCUMENT_GATEGORY",constraintName: "PRO_DOCUMENT_GATEGORY_U1")
+ }
 
  changeSet(author:"Admin", id: "2019-03-18_PRO_DOCUMENT_TYPE"){
   if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
@@ -454,7 +495,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   }
   createTable(tableName:"PRO_DOCUMENT_TYPE"){
    column(name:"DOCUMENT_TYPE",type:"varchar(60)",remarks:"主键，供其他表做外键"){
-    constraints(nullable:"false")
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_DOCUMENT_TYPE_PK")
    }
    column(name:"DECRIPTION",type:"varchar(200)",remarks:"描述")
    column(name:"DOCUMENT_CATEGORY",type:"varchar(60)",remarks:"单据类别")

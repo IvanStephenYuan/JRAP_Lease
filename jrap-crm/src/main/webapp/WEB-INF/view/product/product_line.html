@@ -7,12 +7,17 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "ProductLine.lineCode"/>'
-                   data-bind="value:model.lineCode" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "productLine.linecode"/>'
+               data-bind="value:model.lineCode" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "productLine.description"/>'
+               data-bind="value:model.description" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -91,36 +96,16 @@
                 title: '<@spring.message "productline.linecode"/>',
                 width: 120
             },
-                    {
+            {
                 field: "description",
                 title: '<@spring.message "productline.description"/>',
                 width: 120
             },
-                    {
-                field: "companyId",
-                title: '<@spring.message "productline.companyid"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "productline.enabledflag"/>',
                 width: 120
-            },
-                    {
-                field: "remark",
-                title: '<@spring.message "productline.remark"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "productline.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "productline.programupdatedate"/>',
-                width: 120
-            },
+            }
         ],
         editable: true
     });

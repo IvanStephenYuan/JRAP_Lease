@@ -4,7 +4,10 @@ package com.jingrui.jrap.product.dto;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
+import com.jingrui.jrap.mybatis.common.query.Where;
 import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import com.jingrui.jrap.system.dto.BaseDTO;
 import java.util.Date;
@@ -30,6 +33,8 @@ public class CashflowType extends BaseDTO {
 
      @NotEmpty
      @Length(max = 60)
+     @OrderBy("ASC")
+     @Where
      private String cfType; //主键，供其他表做外键
 
      @Length(max = 100)

@@ -3,16 +3,23 @@
     var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <body>
+<script src="${base.contextPath}/common/code?cashflowDirectionData=CASHFLOW.DIRECTION" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?sysYesNoData=SYS.YES_NO	" type="text/javascript"></script>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "CashflowType.cfType"/>'
-                   data-bind="value:model.cfType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "cashflowType.cftype"/>'
+               data-bind="value:model.cfType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "cashflowType.description"/>'
+               data-bind="value:model.description" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -64,7 +71,10 @@
             total: 'total',
             model: {
                 id: "cfType",
-                fields: {}
+                fields: {
+                    sysFlag:{defaultValue:sysYesNoData[0].value, readOnly:true},
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                }
             }
         }
     });
@@ -89,68 +99,113 @@
             {
                 field: "cfType",
                 title: '<@spring.message "cashflowtype.cftype"/>',
-                width: 120
+                width: 80
             },
-                    {
+            {
                 field: "description",
                 title: '<@spring.message "cashflowtype.description"/>',
                 width: 120
             },
-                    {
+            {
                 field: "cfDirection",
                 title: '<@spring.message "cashflowtype.cfdirection"/>',
-                width: 120
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.cfDirection ? dataItem.cfDirection : "";
+                    $.each(cashflowDirectionData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: cashflowDirectionData
+                        });
+                }
             },
-                    {
-                field: "companyId",
-                title: '<@spring.message "cashflowtype.companyid"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "sysFlag",
                 title: '<@spring.message "cashflowtype.sysflag"/>',
-                width: 120
+                width: 60,
+                template: function (dataItem) {
+                    var v = dataItem.sysFlag ? dataItem.sysFlag : "";
+                    $.each(sysYesNoData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: sysYesNoData
+                        });
+                }
             },
-                    {
+            {
                 field: "writeOffOrder",
                 title: '<@spring.message "cashflowtype.writeofforder"/>',
-                width: 120
+                width: 60
             },
-                    {
+            {
                 field: "calcPenalty",
-                title: '<@spring.message "cashflowtype.calcpenalty"/>',
-                width: 120
+                title: '<@spring.message "cashflowtype.calcPenalty"/>',
+                width: 60,
+                template: function (dataItem) {
+                    var v = dataItem.calcPenalty ? dataItem.calcPenalty : "";
+                    $.each(sysYesNoData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: sysYesNoData
+                        });
+                }
             },
-                    {
+            {
                 field: "billingDesc",
                 title: '<@spring.message "cashflowtype.billingdesc"/>',
                 width: 120
             },
-                    {
+            {
                 field: "vatRate",
                 title: '<@spring.message "cashflowtype.vatrate"/>',
-                width: 120
+                width: 80
             },
-                    {
+            {
                 field: "enabledFlag",
-                title: '<@spring.message "cashflowtype.enabledflag"/>',
-                width: 120
-            },
-                    {
-                field: "remark",
-                title: '<@spring.message "cashflowtype.remark"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "cashflowtype.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "cashflowtype.programupdatedate"/>',
-                width: 120
-            },
+                title: '<@spring.message "jrap.enableflag"/>',
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
+            }
         ],
         editable: true
     });
