@@ -15,6 +15,25 @@
         <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
-
-
+    <select id="selectBank" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.finance.dto.Bank">
+        SELECT
+        b.bank_id,
+        b.full_name,
+        b.pay_bank_number,
+        b.province,
+        b.city
+        FROM afd_bank b
+        <where>
+            <if test="bankId !=null ">
+                AND b.bank_id =  #{bankId}
+            </if>
+            <if test="payBankNumber !=null ">
+                AND b.pay_bank_number LIKE CONCAT('%', CONCAT(#{payBankNumber,jdbcType=VARCHAR}, '%'))
+            </if>
+            <if test="fullName != null">
+                AND b.full_name LIKE CONCAT('%', CONCAT(#{fullName,jdbcType=VARCHAR}, '%'))
+            </if>
+        </where>
+        ORDER BY b.bank_id ASC
+    </select>
 </mapper>

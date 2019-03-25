@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import com.jingrui.jrap.system.dto.BaseDTO;
 import java.util.Date;
 @ExtensionAttribute(disable=true)
-@Table(name = "pro_document_gategory")
+@Table(name = "pro_document_category")
 public class DocumentCategory extends BaseDTO {
 
      public static final String FIELD_DOCUMENT_GATEGORY = "documentCategory";

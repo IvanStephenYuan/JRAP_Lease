@@ -8,9 +8,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
+import com.jingrui.jrap.mybatis.common.query.JoinColumn;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.jingrui.jrap.system.dto.BaseDTO;
 
@@ -63,7 +65,6 @@ public class Bank extends BaseDTO {
 
     @Length(max = 1)
     private String enabledFlag; //启用标识
-
 
     public void setBankId(Long bankId) {
         this.bankId = bankId;

@@ -72,7 +72,11 @@
             total: 'total',
             model: {
                 id: "bankId",
-                fields: {}
+                fields: {
+                    bankCode: {validation: {required: true}, type: "string"},
+                    fullName: {validation: {required: true}, type: "string"},
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
@@ -97,37 +101,42 @@
             {
                 field: "bankCode",
                 title: '<@spring.message "bank.bankcode"/>',
-                width: 120
+                width: 60
             },
             {
                 field: "shortName",
                 title: '<@spring.message "bank.shortname"/>',
-                width: 120
+                width: 150
             },
             {
                 field: "fullName",
                 title: '<@spring.message "bank.fullname"/>',
-                width: 120
+                width: 200
             },
             {
                 field: "payBankNumber",
                 title: '<@spring.message "bank.paybanknumber"/>',
-                width: 120
+                width: 100
             },
             {
                 field: "province",
                 title: '<@spring.message "bank.province"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "city",
                 title: '<@spring.message "bank.city"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
-                width: 120
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             }
         ],
         editable: true

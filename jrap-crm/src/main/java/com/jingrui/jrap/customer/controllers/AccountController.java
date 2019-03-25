@@ -1,5 +1,10 @@
 package com.jingrui.jrap.customer.controllers;
 
+import com.jingrui.jrap.finance.dto.Bank;
+import com.jingrui.jrap.hr.dto.Position;
+import com.jingrui.jrap.mybatis.common.Criteria;
+import com.jingrui.jrap.mybatis.common.query.Comparison;
+import com.jingrui.jrap.mybatis.common.query.WhereField;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
 import com.jingrui.jrap.core.IRequest;
@@ -27,7 +32,10 @@ import java.util.List;
     public ResponseData query(Account dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
-        return new ResponseData(service.select(requestContext,dto,page,pageSize));
+        //return new ResponseData(service.select(requestContext,dto,page,pageSize));
+        Criteria criteria = new Criteria(dto);
+        criteria.where(new WhereField(Bank.FIELD_BANK_ID));
+        return new ResponseData(service.selectOptions(requestContext,dto, criteria, page, pageSize));
     }
 
     @RequestMapping(value = "/afd/account/submit")

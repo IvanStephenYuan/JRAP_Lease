@@ -834,7 +834,9 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   createIndex(tableName:"AFD_ACCOUNT",indexName:"AFD_ACCOUNT_N3"){
    column(name: "ENABLED_FLAG")
   }
-
+  createIndex(tableName:"AFD_ACCOUNT",indexName:"AFD_ACCOUNT_N4"){
+   column(name: "BANK_ID")
+  }
  }
 
 

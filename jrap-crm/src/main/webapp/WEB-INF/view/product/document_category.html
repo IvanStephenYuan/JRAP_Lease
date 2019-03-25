@@ -30,22 +30,22 @@
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: BaseUrl + "/pro/document/gategory/query",
+                url: BaseUrl + "/pro/document/category/query",
                 type: "POST",
                 dataType: "json"
             },
             update: {
-                url: BaseUrl + "/pro/document/gategory/submit",
+                url: BaseUrl + "/pro/document/category/submit",
                 type: "POST",
                 contentType: "application/json"
             },
             destroy: {
-                url: BaseUrl + "/pro/document/gategory/remove",
+                url: BaseUrl + "/pro/document/category/remove",
                 type: "POST",
                 contentType: "application/json"
             },
             create: {
-                url: BaseUrl + "/pro/document/gategory/submit",
+                url: BaseUrl + "/pro/document/category/submit",
                 type: "POST",
                 contentType: "application/json"
             },
