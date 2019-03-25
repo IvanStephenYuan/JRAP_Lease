@@ -106,12 +106,62 @@
             {
                 field: "ownerType",
                 title: '<@spring.message "account.ownertype"/>',
-                width: 80
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.ownerType ? dataItem.ownerType : "";
+                    $.each(accountOwnertypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: accountOwnertypeData
+                        });
+                }
             },
             {
                 field: "ownerId",
                 title: '<@spring.message "account.ownerid"/>',
-                width: 80
+                width: 100,
+                template : function (dataItem) {
+                    return dataItem['ownerName'] || '';
+                },
+                editor  : function (container, options) {
+                    debugger;
+                    var ownerType = viewModel.model.ownerType;
+                    if(ownerType == "CUSTOMER"){
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_CUSTOMER"/>, {
+                            query: function (e) {
+                                e.param['enabledFlag'] = 'Y';
+                            },
+                            textField: 'ownerName',
+                            valueField:'ownerId',
+                            model: options.model
+                        }));
+                    }else if (ownerType == "COMPANY"){
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_CUSTOMER"/>, {
+                            query: function (e) {
+                                e.param['enabledFlag'] = 'Y';
+                            },
+                            textField: 'ownerName',
+                            valueField:'ownerId',
+                            model: options.model
+                        }));
+                    }
+                }
             },
             {
                 field: "accountNumber",

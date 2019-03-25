@@ -52,16 +52,20 @@ public class Account extends BaseDTO {
     private String accountName; //账户
 
     @Length(max = 60)
+    @Where
     private String accountType; //账户类型
 
     @Length(max = 60)
+    @Where
     private String accountClass; //账户属性
 
     @Length(max = 60)
+    @Where
     private String accountUsage; //账户用途
 
     @JoinTable(name = "bankJoin", target = Bank.class, type = JoinType.LEFT, on = {@JoinOn(joinField = Bank.FIELD_BANK_ID)})
     @OrderBy
+    @Where
     private Long bankId; //银行表ID
 
     @Transient
@@ -71,10 +75,15 @@ public class Account extends BaseDTO {
 
     @NotEmpty
     @Length(max = 50)
+    @Where
     private String ownerType; //所有者类型
 
     @NotNull
+    @Where
     private Long ownerId; //所有者ID
+
+    @Transient
+    private String ownerName;
 
     @Length(max = 1)
     private String enabledFlag; //启用标识
@@ -159,6 +168,14 @@ public class Account extends BaseDTO {
         return ownerId;
     }
 
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
     public void setEnabledFlag(String enabledFlag) {
         this.enabledFlag = enabledFlag;
     }
@@ -166,5 +183,4 @@ public class Account extends BaseDTO {
     public String getEnabledFlag() {
         return enabledFlag;
     }
-
 }

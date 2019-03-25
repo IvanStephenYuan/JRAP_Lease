@@ -3,62 +3,107 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jingrui.jrap.customer.mapper.CustomerMapper">
     <resultMap id="BaseResultMap" type="com.jingrui.jrap.customer.dto.Customer">
-        <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL" />
-        <result column="CUSTOMER_CODE" property="customerCode" jdbcType="VARCHAR" />
-        <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR" />
-        <result column="CUSTOMER_CLASS" property="customerClass" jdbcType="VARCHAR" />
-        <result column="CUSTOMER_CATEGORY" property="customerCategory" jdbcType="VARCHAR" />
-        <result column="CUSTOMER_TYPE" property="customerType" jdbcType="VARCHAR" />
-        <result column="CUSTOMER_SOURCE" property="customerSource" jdbcType="VARCHAR" />
-        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
-        <result column="ORGANIZATION_ID" property="organizationId" jdbcType="DECIMAL" />
-        <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL" />
-        <result column="ID_TYPE" property="idType" jdbcType="VARCHAR" />
-        <result column="ID_NO" property="idNo" jdbcType="VARCHAR" />
-        <result column="ID_END_DATE" property="idEndDate" jdbcType="DATE" />
-        <result column="SEX" property="sex" jdbcType="VARCHAR" />
-        <result column="AGE" property="age" jdbcType="DECIMAL" />
-        <result column="DRIVER_LICENSE" property="driverLicense" jdbcType="VARCHAR" />
-        <result column="LEASE_PURPOSE" property="leasePurpose" jdbcType="VARCHAR" />
-        <result column="TELPHONE" property="telphone" jdbcType="VARCHAR" />
-        <result column="CELLPHONE" property="cellphone" jdbcType="VARCHAR" />
-        <result column="TELPHONE02" property="telphone02" jdbcType="VARCHAR" />
-        <result column="TELPHONE03" property="telphone03" jdbcType="VARCHAR" />
-        <result column="EMAIL" property="email" jdbcType="VARCHAR" />
-        <result column="QQ" property="qq" jdbcType="VARCHAR" />
-        <result column="WEIXIN" property="weixin" jdbcType="VARCHAR" />
-        <result column="LOCAL_FAMILY_REGISTER" property="localFamilyRegister" jdbcType="VARCHAR" />
-        <result column="LOCAL_SOCIAL_SECURITY" property="localSocialSecurity" jdbcType="VARCHAR" />
-        <result column="LOCAL_HOUSE_PROPERTY" property="localHouseProperty" jdbcType="VARCHAR" />
-        <result column="RESIDE_CONDITION" property="resideCondition" jdbcType="VARCHAR" />
-        <result column="RESIDE_PERIODS" property="residePeriods" jdbcType="VARCHAR" />
-        <result column="EDUCATIONAL_BACKGROUND" property="educationalBackground" jdbcType="VARCHAR" />
-        <result column="MARITAL_STATUS" property="maritalStatus" jdbcType="VARCHAR" />
-        <result column="FERTILITY_STATUS" property="fertilityStatus" jdbcType="VARCHAR" />
-        <result column="DEBT_FLAG" property="debtFlag" jdbcType="VARCHAR" />
-        <result column="MORTGAGE" property="mortgage" jdbcType="DECIMAL" />
-        <result column="ANNUAL_INCOME" property="annualIncome" jdbcType="DECIMAL" />
-        <result column="EXPENSE" property="expense" jdbcType="DECIMAL" />
-        <result column="QUALIFIED_SCORE" property="qualifiedScore" jdbcType="DECIMAL" />
-        <result column="HOME_ADDRESS" property="homeAddress" jdbcType="VARCHAR" />
-        <result column="HOME_ZIP" property="homeZip" jdbcType="VARCHAR" />
-        <result column="RESIDE_ADDRESS" property="resideAddress" jdbcType="VARCHAR" />
-        <result column="RESIDE_ZIP" property="resideZip" jdbcType="VARCHAR" />
-        <result column="INDUSTRY" property="industry" jdbcType="VARCHAR" />
-        <result column="POSITION" property="position" jdbcType="VARCHAR" />
-        <result column="UNIT_NAME" property="unitName" jdbcType="VARCHAR" />
-        <result column="UNIT_ADDRESS" property="unitAddress" jdbcType="VARCHAR" />
-        <result column="UNIT_ZIP" property="unitZip" jdbcType="VARCHAR" />
-        <result column="CONTACT_ADDRESS" property="contactAddress" jdbcType="VARCHAR" />
-        <result column="SPOUSE_TYPE" property="spouseType" jdbcType="VARCHAR" />
-        <result column="SPOUSE_NAME" property="spouseName" jdbcType="VARCHAR" />
-        <result column="SPOUSE_ID_TYPE" property="spouseIdType" jdbcType="VARCHAR" />
-        <result column="SPOUSE_ID_NO" property="spouseIdNo" jdbcType="VARCHAR" />
-        <result column="SPOUSE_TELPHONE" property="spouseTelphone" jdbcType="VARCHAR" />
-        <result column="SPOUSE_CELLPHONE" property="spouseCellphone" jdbcType="VARCHAR" />
-        <result column="SPOUSE_DRIVER_LICENSE" property="spouseDriverLicense" jdbcType="VARCHAR" />
-        <result column="SPOUSE_HOME_ADDRESS" property="spouseHomeAddress" jdbcType="VARCHAR" />
-        <result column="SPOUSE_UNIT_ADDRESS" property="spouseUnitAddress" jdbcType="VARCHAR" />
-        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL"/>
+        <result column="CUSTOMER_CODE" property="customerCode" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_CLASS" property="customerClass" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_CATEGORY" property="customerCategory" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_TYPE" property="customerType" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_SOURCE" property="customerSource" jdbcType="VARCHAR"/>
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL"/>
+        <result column="ORGANIZATION_ID" property="organizationId" jdbcType="DECIMAL"/>
+        <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL"/>
+        <result column="ID_TYPE" property="idType" jdbcType="VARCHAR"/>
+        <result column="ID_NO" property="idNo" jdbcType="VARCHAR"/>
+        <result column="ID_END_DATE" property="idEndDate" jdbcType="DATE"/>
+        <result column="SEX" property="sex" jdbcType="VARCHAR"/>
+        <result column="AGE" property="age" jdbcType="DECIMAL"/>
+        <result column="DRIVER_LICENSE" property="driverLicense" jdbcType="VARCHAR"/>
+        <result column="LEASE_PURPOSE" property="leasePurpose" jdbcType="VARCHAR"/>
+        <result column="TELPHONE" property="telphone" jdbcType="VARCHAR"/>
+        <result column="CELLPHONE" property="cellphone" jdbcType="VARCHAR"/>
+        <result column="TELPHONE02" property="telphone02" jdbcType="VARCHAR"/>
+        <result column="TELPHONE03" property="telphone03" jdbcType="VARCHAR"/>
+        <result column="EMAIL" property="email" jdbcType="VARCHAR"/>
+        <result column="QQ" property="qq" jdbcType="VARCHAR"/>
+        <result column="WEIXIN" property="weixin" jdbcType="VARCHAR"/>
+        <result column="LOCAL_FAMILY_REGISTER" property="localFamilyRegister" jdbcType="VARCHAR"/>
+        <result column="LOCAL_SOCIAL_SECURITY" property="localSocialSecurity" jdbcType="VARCHAR"/>
+        <result column="LOCAL_HOUSE_PROPERTY" property="localHouseProperty" jdbcType="VARCHAR"/>
+        <result column="RESIDE_CONDITION" property="resideCondition" jdbcType="VARCHAR"/>
+        <result column="RESIDE_PERIODS" property="residePeriods" jdbcType="VARCHAR"/>
+        <result column="EDUCATIONAL_BACKGROUND" property="educationalBackground" jdbcType="VARCHAR"/>
+        <result column="MARITAL_STATUS" property="maritalStatus" jdbcType="VARCHAR"/>
+        <result column="FERTILITY_STATUS" property="fertilityStatus" jdbcType="VARCHAR"/>
+        <result column="DEBT_FLAG" property="debtFlag" jdbcType="VARCHAR"/>
+        <result column="MORTGAGE" property="mortgage" jdbcType="DECIMAL"/>
+        <result column="ANNUAL_INCOME" property="annualIncome" jdbcType="DECIMAL"/>
+        <result column="EXPENSE" property="expense" jdbcType="DECIMAL"/>
+        <result column="QUALIFIED_SCORE" property="qualifiedScore" jdbcType="DECIMAL"/>
+        <result column="HOME_ADDRESS" property="homeAddress" jdbcType="VARCHAR"/>
+        <result column="HOME_ZIP" property="homeZip" jdbcType="VARCHAR"/>
+        <result column="RESIDE_ADDRESS" property="resideAddress" jdbcType="VARCHAR"/>
+        <result column="RESIDE_ZIP" property="resideZip" jdbcType="VARCHAR"/>
+        <result column="INDUSTRY" property="industry" jdbcType="VARCHAR"/>
+        <result column="POSITION" property="position" jdbcType="VARCHAR"/>
+        <result column="UNIT_NAME" property="unitName" jdbcType="VARCHAR"/>
+        <result column="UNIT_ADDRESS" property="unitAddress" jdbcType="VARCHAR"/>
+        <result column="UNIT_ZIP" property="unitZip" jdbcType="VARCHAR"/>
+        <result column="CONTACT_ADDRESS" property="contactAddress" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_TYPE" property="spouseType" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_NAME" property="spouseName" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_ID_TYPE" property="spouseIdType" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_ID_NO" property="spouseIdNo" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_TELPHONE" property="spouseTelphone" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_CELLPHONE" property="spouseCellphone" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_DRIVER_LICENSE" property="spouseDriverLicense" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_HOME_ADDRESS" property="spouseHomeAddress" jdbcType="VARCHAR"/>
+        <result column="SPOUSE_UNIT_ADDRESS" property="spouseUnitAddress" jdbcType="VARCHAR"/>
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR"/>
     </resultMap>
+    <select id="selectCustomer" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.customer.dto.Customer">
+             select c.customer_id,
+                    c.customer_code,
+                    c.customer_name,
+                    c.customer_category,
+                    c.customer_class,
+                    c.customer_type,
+                    c.company_id,
+                    c.organization_id,
+                    c.employee_id,
+                    c.id_type,
+                    c.id_no,
+                    c.customer_source,
+                    c.cellphone,
+                    c.telphone,
+                    c.enabled_flag
+              from afd_customer c
+            <where>
+                <if test="customerId !=null ">
+                    AND c.customer_id =  #{customerId}
+                </if>
+                <if test="customerName !=null ">
+                    AND c.customer_name LIKE CONCAT('%', CONCAT(#{customerName,jdbcType=VARCHAR}, '%'))
+                </if>
+                <if test="idNo != null">
+                    AND c.id_no LIKE CONCAT('%', CONCAT(#{idNo,jdbcType=VARCHAR}, '%'))
+                </if>
+                <if test="companyId !=null ">
+                    AND c.company_id = #{companyId}
+                </if>
+                <if test="organizationId !=null ">
+                    AND c.organization_id = #{organizationId}
+                </if>
+                <if test="customerCategory !=null ">
+                    AND c.customer_category = #{customerCategory,jdbcType=VARCHAR}
+                </if>
+                <if test="customerType !=null ">
+                    AND c.customer_type = #{customerType,jdbcType=VARCHAR}
+                </if>
+                <if test="enabledFlag !=null ">
+                    AND c.enabled_flag = #{enabledFlag,jdbcType=VARCHAR}
+                </if>
+            </where>
+            ORDER BY c.customer_id ASC
+    </select>
 </mapper>

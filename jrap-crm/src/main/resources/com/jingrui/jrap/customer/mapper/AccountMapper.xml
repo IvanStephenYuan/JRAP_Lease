@@ -12,6 +12,60 @@
         <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
         <result column="owner_type" property="ownerType" jdbcType="VARCHAR" />
         <result column="owner_id" property="ownerId" jdbcType="DECIMAL" />
+        <result column="owner_name" property="ownerName" jdbcType="VARCHAR"/>
         <result column="enabled_flag" property="enabledFlag" jdbcType="VARCHAR" />
     </resultMap>
+    <select id="selectAccount" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.customer.dto.Account">
+        select a.account_id,
+               a.account_number,
+               a.account_name,
+               a.account_type,
+               a.account_class,
+               a.account_usage,
+               a.bank_id,
+               b.full_name as bank_name,
+               a.owner_type,
+               a.owner_id,
+               (case when a.owner_type = 'CUSTOMER' then c.customer_name
+                     when a.owner_type = 'VENDER' then c.customer_name
+                     when a.owner_type = 'COMPANY' then f.COMPANY_FULL_NAME
+                     when a.owner_type = 'EMPLOYEE' then e.NAME
+                     else '' end) as owner_name,
+              a.enabled_flag
+          from afd_account a
+          left outer join afd_bank b on (
+             b.bank_id = a.bank_id
+          )
+          left outer join afd_customer c on(
+             a.owner_id = c.customer_id
+          )
+          left outer join fnd_company_b f on (
+             a.owner_id = f.company_id
+          )
+          left outer join hr_employee e on (
+             a.owner_id = e.employee_id
+          )
+      <where>
+          <if test="accountName !=null ">
+              AND a.account_name LIKE CONCAT('%', CONCAT(#{accountName,jdbcType=VARCHAR}, '%'))
+          </if>
+          <if test="accountNumber !=null ">
+              AND a.account_number = #{accountNumber,jdbcType=VARCHAR}
+          </if>
+          <if test="bankId !=null ">
+              AND a.bank_id = #{bankId}
+          </if>
+          <if test="ownerType !=null ">
+              AND a.owner_type = #{ownerType,jdbcType=VARCHAR}
+          </if>
+          <if test="ownerId !=null">
+              AND ((a.owner_type IN ('CUSTOMER', 'VENDER') and exists(select 1 from afd_customer c where c.customer_id = a.owner_id) and a.owner_id = #{ownerId})) or
+              (a.owner_type = 'COMPANY' and exists(select 1 from fnd_company_b c where c.COMPANY_ID = a.owner_id) and a.owner_id = #{ownerId}) or
+              (a.owner_type = 'EMPLOYEE' and exists(select 1 from hr_employee c where c.EMPLOYEE_ID = a.owner_id) and a.owner_id = #{ownerId}))
+          </if>
+          <if test="enabledFlag !=null ">
+              AND a.enabled_flag =  #{enabledFlag,jdbcType=VARCHAR}
+          </if>
+      </where>
+    </select>
 </mapper>

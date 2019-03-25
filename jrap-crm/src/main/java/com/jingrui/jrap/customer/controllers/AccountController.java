@@ -33,9 +33,11 @@ import java.util.List;
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
         //return new ResponseData(service.select(requestContext,dto,page,pageSize));
-        Criteria criteria = new Criteria(dto);
-        criteria.where(new WhereField(Bank.FIELD_BANK_ID));
-        return new ResponseData(service.selectOptions(requestContext,dto, criteria, page, pageSize));
+        //Criteria criteria = new Criteria(dto);
+        //criteria.where(new WhereField(Bank.FIELD_BANK_ID));
+        //return new ResponseData(service.selectOptions(requestContext,dto, criteria, page, pageSize));
+
+        return new ResponseData(service.selectAccount(requestContext,dto,page,pageSize));
     }
 
     @RequestMapping(value = "/afd/account/submit")
