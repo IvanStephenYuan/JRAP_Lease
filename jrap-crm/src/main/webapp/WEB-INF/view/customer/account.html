@@ -124,7 +124,15 @@
                             dataTextField: "meaning",
                             dataValueField: "value",
                             valuePrimitive: true,
-                            dataSource: accountOwnertypeData
+                            dataSource: accountOwnertypeData,
+                            change: function(e){
+                                debugger;
+                                var v = this.value();
+                                if (v != undefined  || v != ""){
+                                    options.model.set('ownerId', "");
+                                    options.model.set('ownerName', "");
+                                }
+                            }
                         });
                 }
             },
@@ -136,9 +144,8 @@
                     return dataItem['ownerName'] || '';
                 },
                 editor  : function (container, options) {
-                    debugger;
-                    var ownerType = viewModel.model.ownerType;
-                    if(ownerType == "CUSTOMER"){
+                    var ownerType = options.model.ownerType;
+                    if(ownerType == "CUSTOMER" || ownerType == "VENDER"){
                         $('<input required name="' + options.field + '"/>')
                             .appendTo(container)
                             .kendoLov($.extend(<@lov "LOV_CUSTOMER"/>, {
@@ -152,7 +159,18 @@
                     }else if (ownerType == "COMPANY"){
                         $('<input required name="' + options.field + '"/>')
                             .appendTo(container)
-                            .kendoLov($.extend(<@lov "LOV_CUSTOMER"/>, {
+                            .kendoLov($.extend(<@lov "LOV_COMPANY"/>, {
+                            query: function (e) {
+                                e.param['enabledFlag'] = 'Y';
+                            },
+                            textField: 'ownerName',
+                            valueField:'ownerId',
+                            model: options.model
+                        }));
+                    }else if (ownerType == "EMPLOYEE"){
+                        $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(<@lov "LOV_EMPLOYEE"/>, {
                             query: function (e) {
                                 e.param['enabledFlag'] = 'Y';
                             },
@@ -191,6 +209,9 @@
                             valueField:'bankId',
                             model: options.model
                     }));
+                },
+                change : function(){
+
                 }
             },
             {
