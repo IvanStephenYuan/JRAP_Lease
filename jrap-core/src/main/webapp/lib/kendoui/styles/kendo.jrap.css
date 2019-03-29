@@ -5615,3 +5615,7 @@ input.k-invalid, textarea.k-invalid, .k-state-invalid .k-input, .k-state-invalid
 .k-grid-content-expander {
     display:none !important;
 }
+
+.col-xs-12, .col-xs-4, .col-xs-8{
+    box-sizing:border-box;
+}
