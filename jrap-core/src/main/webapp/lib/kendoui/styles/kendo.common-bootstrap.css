@@ -1695,8 +1695,8 @@ html .k-error-colored {
 .k-animation-container *:after,
 .k-block .k-header,
 .k-list-container {
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 .k-button,
 .k-textbox,
@@ -2633,8 +2633,8 @@ ul.k-menu-vertical > .k-item {
   border-width: 0 1px 0 0;
   vertical-align: top;
   zoom: 1;
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 .k-context-menu.k-menu-vertical > .k-item > .k-link,
 .k-menu .k-menu-group .k-item > .k-link {
@@ -6942,8 +6942,8 @@ div.k-slider {
 }
 .k-scheduler .k-scheduler-table td,
 .k-scheduler .k-scheduler-table th {
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 .k-scheduler-monthview .k-hidden,
 .k-scheduler-monthview .k-hidden > div {
@@ -8236,8 +8236,8 @@ html .k-upload {
 .k-upload-selected {
   min-width: 7.167em;
   margin: 0.25em 0 0;
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 .k-upload-selected,
 .k-upload-cancel {
@@ -8878,8 +8878,8 @@ div.k-navigator .k-navigator-w {
 }
 /* IE8- */
 .k-diagram img {
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 /* TreeMap start */
 .k-treemap {
@@ -12086,8 +12086,8 @@ input.k-textbox {
 .k-checkbox-label:after,
 .k-radio-label:before,
 .k-radio-label:after {
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 .k-spreadsheet-window .k-page-orientation {
   top: 24%;
