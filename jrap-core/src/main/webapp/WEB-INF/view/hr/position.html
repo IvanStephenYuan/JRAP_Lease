@@ -131,10 +131,10 @@
                 field: "parentPositionId",
                 title: '<@spring.message "position.parentpositionname"/>',
                 width: 140,
-                template        : function (dataItem) {
+                template: function (dataItem) {
                 	 return dataItem['parentPositionName'] || '';
                 },
-                editor          : function (container, options) { 
+                editor: function (container, options) {
                     $('<input name="' + options.field + '"/>')
                             .appendTo(container)
                             .kendoLov($.extend(<@lov "LOV_POSITION"/>, {
