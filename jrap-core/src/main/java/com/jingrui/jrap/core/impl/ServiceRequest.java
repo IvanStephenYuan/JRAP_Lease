@@ -39,6 +39,7 @@ public class ServiceRequest implements IRequest {
     private Long companyId = -1L;
     private String locale = Locale.getDefault().toString();
     private String employeeCode;
+    private Long employeeId;
     private String userName;
 
     @JsonIgnore
@@ -73,6 +74,16 @@ public class ServiceRequest implements IRequest {
     @Override
     public void setEmployeeCode(String employeeCode) {
         this.employeeCode = employeeCode;
+    }
+
+    @Override
+    public Long getEmployeeId(){
+        return employeeId;
+    }
+
+    @Override
+    public void setEmployeeId(Long employeeId){
+        this.employeeId = employeeId;
     }
 
     @Override

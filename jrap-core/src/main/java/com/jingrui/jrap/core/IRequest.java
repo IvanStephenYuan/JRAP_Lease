@@ -1,5 +1,12 @@
 /*
- * #{copyright}#
+ * *
+ *  @file com.maddyhome.idea.copyright.pattern.JavaCopyrightVariablesProvider$1@6d6af9a4$
+ *  @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+ *  @brief JingRui Application Platform
+ *  @author $name$
+ *  @email yulong.yuan@jr-info.cn
+ *  @date $date$
+ * /
  */
 
 package com.jingrui.jrap.core;
@@ -24,6 +31,7 @@ public interface IRequest extends Serializable {
     String FIELD_LOCALE = "locale";
     String FIELD_ROLE_ID = "roleId";
     String FIELD_LOGIN_ID="loginId";
+    String EMPLOYEE_ID = "employeeId";
 
     String FIELD_ALL_ROLE_ID = "roleIds";
 
@@ -144,4 +152,16 @@ public interface IRequest extends Serializable {
      *            角色 id
      */
     void setRoleId(Long roleId);
+
+    /**
+     * 获取员工ID
+     * @return
+     */
+    Long getEmployeeId();
+
+    /**
+     * 设置员工ID
+     * @param employeeId
+     */
+    void setEmployeeId(Long employeeId);
 }

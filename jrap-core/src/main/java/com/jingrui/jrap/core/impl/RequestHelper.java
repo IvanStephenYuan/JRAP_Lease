@@ -17,6 +17,7 @@ import com.jingrui.jrap.core.BaseConstants;
 import com.jingrui.jrap.core.IRequest;
 import com.jingrui.jrap.core.IRequestListener;
 import com.jingrui.jrap.fnd.dto.Company;
+import com.jingrui.jrap.hr.dto.Employee;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -113,11 +114,19 @@ public final class RequestHelper {
             if (session.getAttribute(Company.FIELD_COMPANY_ID) != null) {
                 requestContext.setCompanyId((Long) session.getAttribute(Company.FIELD_COMPANY_ID));
             }
+            if (session.getAttribute(Employee.FIELD_EMPLOYEE_ID) != null) {
+                requestContext.setEmployeeId((Long) session.getAttribute(Employee.FIELD_EMPLOYEE_ID));
+            }
+
             Object roleIds = session.getAttribute(IRequest.FIELD_ALL_ROLE_ID);
             if (roleIds instanceof Long[]) {
                 requestContext.setAllRoleId((Long[]) roleIds);
             }
-            requestContext.setEmployeeCode((String) session.getAttribute(IRequest.EMP_CODE));
+
+            if(session.getAttribute(Employee.FIELD_EMPLOYEE_CODE) != null){
+                requestContext.setEmployeeCode((String)session.getAttribute(Employee.FIELD_EMPLOYEE_CODE));
+            }
+
             //Locale locale = RequestContextUtils.getLocale(httpServletRequest);
             Locale locale = getLocale(httpServletRequest);
             if (locale != null) {
@@ -145,9 +154,15 @@ public final class RequestHelper {
                     if (extensions.get(Company.FIELD_COMPANY_ID) != null) {
                         requestContext.setCompanyId(Long.valueOf(extensions.get(Company.FIELD_COMPANY_ID).toString()));
                     }
+
                     if (extensions.get(IRequest.EMP_CODE) != null) {
                         requestContext.setEmployeeCode(extensions.get(IRequest.EMP_CODE).toString());
                     }
+
+                    if (extensions.get(IRequest.EMPLOYEE_ID) != null) {
+                        requestContext.setEmployeeId(Long.valueOf(extensions.get(IRequest.EMPLOYEE_ID).toString()));
+                    }
+
                     if (extensions.get(BaseConstants.PREFERENCE_LOCALE) != null) {
                         requestContext.setLocale(extensions.get(BaseConstants.PREFERENCE_LOCALE).toString());
                     } else {

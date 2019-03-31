@@ -86,6 +86,7 @@ public class DefaultAuthenticationSuccessListener implements IAuthenticationSucc
         Locale locale = RequestContextUtils.getLocale(request);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userService.convertToUser(userDetails);
+
         HttpSession session = request.getSession(true);
         processRepeatLogin(user, session);
         session.setAttribute(User.FIELD_USER_ID, user.getUserId());

@@ -132,6 +132,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements IUserServi
         if (user == null || org.apache.commons.lang3.StringUtils.isAnyBlank(user.getUserName(), user.getPassword())) {
             throw new UserException(UserException.ERROR_USER_PASSWORD, UserException.ERROR_USER_PASSWORD, null);
         }
+
         User user1 = userMapper.selectByUserName(user.getUserName());
         if (user1 == null) {
             throw new UserException(UserException.ERROR_USER_PASSWORD, UserException.ERROR_USER_PASSWORD, null);

@@ -69,6 +69,8 @@ public class CustomerController extends BaseController {
             String idNo = record.getIdNo();
             Long customerId = record.getCustomerId();
             Long companyId = record.getCompanyId();
+            Long employeeId = record.getEmployeeId();
+            String customerSource = record.getCustomerSource();
 
             if (customerCode == null || "".equalsIgnoreCase(customerCode)) {
                 try {
@@ -82,6 +84,16 @@ public class CustomerController extends BaseController {
             //设置默认商户
             if(companyId == null){
                 record.setCompanyId(requestCtx.getCompanyId());
+            }
+
+            //设置默认业务员
+            if(employeeId == null){
+                record.setEmployeeId(requestCtx.getEmployeeId());
+            }
+
+            //设置客户来源
+            if(customerSource == null){
+                record.setCustomerSource("MANUAL");
             }
 
             if ("ID".equalsIgnoreCase(idType)) {
