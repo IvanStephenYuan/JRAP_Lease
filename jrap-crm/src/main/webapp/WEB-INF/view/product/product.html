@@ -3,12 +3,13 @@
     var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <body>
+<script src="${base.contextPath}/common/code?productClassData=PRODUCT.CLASS" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?productTypeData=PRODUCT.TYPE" type="text/javascript"></script>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span data-bind="click:remove" class="btn btn-danger"
-              style="float:left;"><@spring.message "jrap.delete"/></span>
+        <!--<span data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>-->
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
@@ -22,7 +23,7 @@
                placeholder='<@spring.message "product.producttype"/>'
                data-bind="value:model.productType" class="k-textbox">
         <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
-               placeholder='<@spring.message "business.businesstype"/>'
+               placeholder='<@spring.message "businesstype.businesstype"/>'
                data-bind="value:model.businessType" class="k-textbox">
         <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
                placeholder='<@spring.message "productline.linecode"/>'
@@ -81,7 +82,9 @@
             total: 'total',
             model: {
                 id: "productCode",
-                fields: {}
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
@@ -106,67 +109,112 @@
             {
                 field: "productCode",
                 title: '<@spring.message "product.productcode"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "productName",
                 title: '<@spring.message "product.productname"/>',
-                width: 120
+                width: 150
             },
             {
                 field: "productType",
                 title: '<@spring.message "product.producttype"/>',
-                width: 120
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.productType ? dataItem.productType : "";
+                    $.each(productTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: productTypeData
+                        });
+                }
             },
             {
                 field: "productClass",
                 title: '<@spring.message "product.productclass"/>',
-                width: 120
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.productClass ? dataItem.productClass : "";
+                    $.each(productClassData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: productClassData
+                        });
+                }
             },
             {
                 field: "decription",
                 title: '<@spring.message "product.decription"/>',
-                width: 120
+                width: 150
             },
             {
                 field: "businessType",
                 title: '<@spring.message "businesstype.businesstype"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "lineCode",
                 title: '<@spring.message "productline.linecode"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "modelId",
                 title: '<@spring.message "itemmodel.model"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "calculate",
                 title: '<@spring.message "product.calculate"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "rateType",
                 title: '<@spring.message "product.ratetype"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
-                width: 120
+                width: 80,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "startDate",
                 title: '<@spring.message "product.startdate"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "endDate",
                 title: '<@spring.message "product.enddate"/>',
-                width: 120
+                width: 80
             }
         ],
         editable: true

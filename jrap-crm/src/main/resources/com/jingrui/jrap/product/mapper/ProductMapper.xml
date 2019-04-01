@@ -17,10 +17,5 @@
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
         <result column="START_DATE" property="startDate" jdbcType="DATE" />
         <result column="END_DATE" property="endDate" jdbcType="DATE" />
-        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
-        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
-        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
-
-
 </mapper>

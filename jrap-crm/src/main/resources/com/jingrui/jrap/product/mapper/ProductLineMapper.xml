@@ -8,6 +8,4 @@
         <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
     </resultMap>
-
-
 </mapper>

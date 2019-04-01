@@ -27,6 +27,8 @@ import java.util.List;
     public ResponseData query(ItemModel dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
+        //设置查询条件
+        dto.setCompanyId(requestContext.getCompanyId());
         return new ResponseData(service.select(requestContext,dto,page,pageSize));
     }
 
@@ -40,6 +42,16 @@ import java.util.List;
         return responseData;
         }
         IRequest requestCtx = createRequestContext(request);
+
+        //设置默认值
+        for(ItemModel record : dto){
+            Long companyId = record.getCompanyId();
+            //设置默认商户
+            if(companyId == null){
+                record.setCompanyId(requestCtx.getCompanyId());
+            }
+        }
+
         return new ResponseData(service.batchUpdate(requestCtx, dto));
     }
 

@@ -31,15 +31,12 @@ public class ItemModel extends BaseDTO {
     public static final String FIELD_AREA = "area";
     public static final String FIELD_LOCATION = "location";
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
-    public static final String FIELD_REMARK = "remark";
-    public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
-    public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
-
 
     @Id
     @GeneratedValue
     private Long modelId;
 
+    @Where
     private Long companyId; //公司ID
 
     @OrderBy("ASC")

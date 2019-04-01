@@ -8,8 +8,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
+import com.jingrui.jrap.mybatis.common.query.Where;
 import org.hibernate.validator.constraints.Length;
 
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import com.jingrui.jrap.system.dto.BaseDTO;
@@ -21,7 +23,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 @ExtensionAttribute(disable = true)
 @Table(name = "pro_product")
 public class Product extends BaseDTO {
-
     public static final String FIELD_PRODUCT_CODE = "productCode";
     public static final String FIELD_PRODUCT_NAME = "productName";
     public static final String FIELD_PRODUCT_TYPE = "productType";
@@ -36,35 +37,41 @@ public class Product extends BaseDTO {
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
     public static final String FIELD_START_DATE = "startDate";
     public static final String FIELD_END_DATE = "endDate";
-    public static final String FIELD_REMARK = "remark";
-    public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
-    public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
-
+    @Id
     @NotEmpty
     @Length(max = 60)
+    @OrderBy("ASC")
+    @Where
     private String productCode; //产品编码
 
     @Length(max = 200)
+    @Where
     private String productName; //产品名称
 
     @Length(max = 60)
+    @Where
     private String productType; //产品类型
 
     @Length(max = 60)
+    @Where
     private String productClass; //产品属性
 
     @Length(max = 200)
     private String decription; //产品描述
 
     @Length(max = 60)
+    @Where
     private String businessType; //业务类型
 
     @Length(max = 60)
+    @Where
     private String lineCode; //产品线
 
+    @Where
     private Long modelId; //租赁物模型ID
 
+    @Where
     private Long companyId; //公司FND_COMPANY_B.COMPANY_ID
 
     @Length(max = 60)

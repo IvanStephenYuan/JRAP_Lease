@@ -19,7 +19,6 @@ import java.util.Date;
 @ExtensionAttribute(disable = true)
 @Table(name = "pro_product_config")
 public class ProductConfig extends BaseDTO {
-
     public static final String FIELD_CONFIG_ID = "configId";
     public static final String FIELD_PRODUCT_CODE = "productCode";
     public static final String FIELD_CONFIG_TYPE = "configType";
