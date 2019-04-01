@@ -5,6 +5,8 @@
 <body>
 <script src="${base.contextPath}/common/code?productClassData=PRODUCT.CLASS" type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?productTypeData=PRODUCT.TYPE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?productCalculateData=PRODUCT.CALCULATE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?productRateTypeData=PRODUCT.RATETYPE" type="text/javascript"></script>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
@@ -28,9 +30,6 @@
         <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
                placeholder='<@spring.message "productline.linecode"/>'
                data-bind="value:model.lineCode" class="k-textbox">
-        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
-               placeholder='<@spring.message "product.ratetype"/>'
-               data-bind="value:model.rateType" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -83,10 +82,46 @@
             model: {
                 id: "productCode",
                 fields: {
-                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    startDate: {type: "date"},
+                    endDate: {type: 'date', defaultValue: null}
+                },
+                editable: function (col) {
+                    if (col == 'productCode' && this.productCode) {
+                        return false;
+                    }
+                    return true;
                 }
             }
         }
+    });
+
+    var businessTypeData = [];
+    var productLineData = [];
+    $(document).ready(function() {
+        //业务类型
+        $.ajax({
+            url: _basePath + '/pro/business/type/query',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                businessTypeData = data.rows;
+            }
+        });
+
+        //产品线
+        $.ajax({
+            url: _basePath + '/pro/product/line/query',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                productLineData = data.rows;
+            }
+        });
     });
 
     $("#grid").kendoGrid({
@@ -174,27 +209,122 @@
             {
                 field: "businessType",
                 title: '<@spring.message "businesstype.businesstype"/>',
-                width: 80
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.businessType ? dataItem.businessType : "";
+                    $.each(businessTypeData, function (i, n) {
+                        if ((n.businessType || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.description;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "description",
+                            dataValueField: "businessType",
+                            valuePrimitive: true,
+                            dataSource: businessTypeData
+                        });
+                }
             },
             {
                 field: "lineCode",
                 title: '<@spring.message "productline.linecode"/>',
-                width: 80
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.lineCode ? dataItem.lineCode : "";
+                    $.each(productLineData, function (i, n) {
+                        if ((n.lineCode || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.description;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "description",
+                            dataValueField: "lineCode",
+                            valuePrimitive: true,
+                            dataSource: productLineData
+                        });
+                }
             },
             {
                 field: "modelId",
                 title: '<@spring.message "itemmodel.model"/>',
-                width: 80
+                width: 200,
+                template : function (dataItem) {
+                    return dataItem['model'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_ITEM_MODEL"/>, {
+                        query: function (e) {
+                            e.param['enabledFlag'] = 'Y';
+                        },
+                        textField: 'model',
+                        valueField:'modelId',
+                        model: options.model
+                    }));
+                }
             },
             {
                 field: "calculate",
                 title: '<@spring.message "product.calculate"/>',
-                width: 80
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.calculate ? dataItem.calculate : "";
+                    $.each(productCalculateData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: productCalculateData
+                        });
+                }
             },
             {
                 field: "rateType",
                 title: '<@spring.message "product.ratetype"/>',
-                width: 80
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.rateType ? dataItem.rateType : "";
+                    $.each(productRateTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: productRateTypeData
+                        });
+                }
             },
             {
                 field: "enabledFlag",
@@ -209,12 +339,45 @@
             {
                 field: "startDate",
                 title: '<@spring.message "product.startdate"/>',
-                width: 80
+                width: 100,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                format: "{0:yyyy-MM-dd}",
+                editor: function (container, options) {
+                    var end = options.model.startDate;
+                    var opts = {
+                        format: "yyyy-MM-dd"
+                    };
+                    if (end) {
+                        opts.max = end;
+                    }
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDatePicker(opts);
+                },
+                sortable: false
             },
             {
                 field: "endDate",
                 title: '<@spring.message "product.enddate"/>',
-                width: 80
+                width: 100,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                format: "{0:yyyy-MM-dd}",
+                editor: function (container, options) {
+                    var opts = {
+                        format: "yyyy-MM-dd"
+                    };
+
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDatePicker(opts);
+                },
+                sortable: false
             }
         ],
         editable: true

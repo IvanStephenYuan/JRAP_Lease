@@ -11,6 +11,7 @@
         <result column="BUSINESS_TYPE" property="businessType" jdbcType="VARCHAR" />
         <result column="LINE_CODE" property="lineCode" jdbcType="VARCHAR" />
         <result column="MODEL_ID" property="modelId" jdbcType="DECIMAL" />
+        <result column="MODEL" property="model" jdbcType="VARCHAR" />
         <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
         <result column="CALCULATE" property="calculate" jdbcType="VARCHAR" />
         <result column="RATE_TYPE" property="rateType" jdbcType="VARCHAR" />
