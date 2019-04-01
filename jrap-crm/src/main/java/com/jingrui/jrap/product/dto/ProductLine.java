@@ -28,9 +28,6 @@ public class ProductLine extends BaseDTO {
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_COMPANY_ID = "companyId";
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
-    public static final String FIELD_REMARK = "remark";
-    public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
-    public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
 
     @Id
@@ -43,6 +40,7 @@ public class ProductLine extends BaseDTO {
     @Length(max = 200)
     private String description; //描述
 
+    @Where
     private Long companyId; //公司FND_COMPANY_B.COMPANY_ID
 
     @Length(max = 1)
@@ -79,5 +77,4 @@ public class ProductLine extends BaseDTO {
     public String getEnabledFlag() {
         return enabledFlag;
     }
-
 }

@@ -7,13 +7,16 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "itemmodel.brand"/>'
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "itemmodel.brand"/>'
                data-bind="value:model.brand" class="k-textbox">
-        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "itemmodel.model"/>'
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "itemmodel.model"/>'
                data-bind="value:model.model" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
@@ -66,7 +69,9 @@
             total: 'total',
             model: {
                 id: "modelId",
-                fields: {}
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
@@ -91,37 +96,42 @@
             {
                 field: "brand",
                 title: '<@spring.message "itemmodel.brand"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "series",
                 title: '<@spring.message "itemmodel.series"/>',
                 width: 120
             },
-                    {
+            {
                 field: "model",
                 title: '<@spring.message "itemmodel.model"/>',
-                width: 120
+                width: 250
             },
-                    {
+            {
                 field: "color",
                 title: '<@spring.message "itemmodel.color"/>',
-                width: 120
+                width: 60
             },
-                    {
+            {
                 field: "area",
                 title: '<@spring.message "itemmodel.area"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "location",
                 title: '<@spring.message "itemmodel.location"/>',
-                width: 120
+                width: 150
             },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
-                width: 120
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             }
         ],
         editable: true
