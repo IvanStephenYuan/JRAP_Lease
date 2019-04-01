@@ -7,16 +7,20 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "documenttype.documenttype"/>'
-                   data-bind="value:model.documentType" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "documenttype.decription"/>'
-                   data-bind="value:model.decription" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "documenttype.documentcategory"/>'
-                   data-bind="value:model.documentCategory" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "documenttype.documenttype"/>'
+               data-bind="value:model.documentType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "documenttype.description"/>'
+               data-bind="value:model.description" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "documenttype.documentcategory"/>'
+               data-bind="value:model.documentCategory" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -68,9 +72,72 @@
             total: 'total',
             model: {
                 id: "documentType",
-                fields: {}
+                fields: {
+                    documentType: {validation: {required: true}, type: "string"},
+                    documentCategory: {validation: {required: true}, type: "string"},
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                },
+                editable: function (col) {
+                    if (col == 'documentType' && this.documentType) {
+                        return false;
+                    }else if(col == 'documentCategory' && this.documentType){
+
+                    }
+                    return true;
+                }
             }
         }
+    });
+
+    var documentCategoryData = [];
+    var businessTypeData = [];
+    var codeRuleData = [];
+    var workflowData = [];
+
+    $(document).ready(function() {
+        $.ajax({
+            url: _basePath + '/pro/document/category/query',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                documentCategoryData = data.rows;
+            }
+        });
+
+        $.ajax({
+            url: _basePath + '/pro/business/type/query',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                businessTypeData = data.rows;
+            }
+        });
+
+        $.ajax({
+            url: _basePath + '/sys/code/rules/header/query',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                codeRuleData = data.rows;
+            }
+        });
+
+        $.ajax({
+            url: _basePath + '/wfl/repository/models',
+            dataType: "json",
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                workflowData = data.data;
+            }
+        });
     });
 
     $("#grid").kendoGrid({
@@ -93,37 +160,122 @@
             {
                 field: "documentType",
                 title: '<@spring.message "documenttype.documenttype"/>',
+                width: 100
+            },
+            {
+                field: "description",
+                title: '<@spring.message "documenttype.description"/>',
                 width: 120
             },
-                    {
-                field: "decription",
-                title: '<@spring.message "documenttype.decription"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "documentCategory",
                 title: '<@spring.message "documenttype.documentcategory"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.documentCategory ? dataItem.documentCategory : "";
+                    $.each(documentCategoryData, function (i, n) {
+                        if ((n.documentCategory || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.description;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "description",
+                            dataValueField: "documentCategory",
+                            valuePrimitive: true,
+                            dataSource: documentCategoryData
+                        });
+                }
             },
-                    {
+            {
                 field: "businessType",
                 title: '<@spring.message "documenttype.businesstype"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.businessType ? dataItem.businessType : "";
+                    $.each(businessTypeData, function (i, n) {
+                        if ((n.businessType || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.description;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "description",
+                            dataValueField: "businessType",
+                            valuePrimitive: true,
+                            dataSource: businessTypeData
+                        });
+                }
             },
-                    {
+            {
                 field: "codingRule",
                 title: '<@spring.message "documenttype.codingrule"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.codingRule ? dataItem.codingRule : "";
+                    $.each(codeRuleData, function (i, n) {
+                        if ((n.ruleCode || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.ruleName;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "ruleName",
+                            dataValueField: "ruleCode",
+                            valuePrimitive: true,
+                            dataSource: codeRuleData
+                        });
+                }
             },
-                    {
+            {
                 field: "workflowCode",
                 title: '<@spring.message "documenttype.workflowcode"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.workflowCode ? dataItem.workflowCode : "";
+                    $.each(workflowData, function (i, n) {
+                        if ((n.key || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.name;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "name",
+                            dataValueField: "key",
+                            valuePrimitive: true,
+                            dataSource: workflowData
+                        });
+                }
             },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
-                width: 120
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             }
         ],
         editable: true

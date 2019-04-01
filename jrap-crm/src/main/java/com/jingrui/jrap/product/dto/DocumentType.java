@@ -25,16 +25,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class DocumentType extends BaseDTO {
 
     public static final String FIELD_DOCUMENT_TYPE = "documentType";
-    public static final String FIELD_DECRIPTION = "decription";
+    public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_DOCUMENT_CATEGORY = "documentCategory";
     public static final String FIELD_BUSINESS_TYPE = "businessType";
     public static final String FIELD_CODING_RULE = "codingRule";
     public static final String FIELD_WORKFLOW_CODE = "workflowCode";
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
-    public static final String FIELD_REMARK = "remark";
-    public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
-    public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
-
 
     @Id
     @NotEmpty
@@ -44,12 +40,13 @@ public class DocumentType extends BaseDTO {
     private String documentType; //主键，供其他表做外键
 
     @Length(max = 200)
-    private String decription; //描述
+    private String description; //描述
 
     @Length(max = 60)
     private String documentCategory; //单据类别
 
     @Length(max = 60)
+    @Where
     private String businessType; //业务类型
 
     @Length(max = 60)
@@ -69,12 +66,12 @@ public class DocumentType extends BaseDTO {
         return documentType;
     }
 
-    public void setDecription(String decription) {
-        this.decription = decription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getDecription() {
-        return decription;
+    public String getDescription() {
+        return description;
     }
 
     public void setDocumentCategory(String documentCategory) {

@@ -454,7 +454,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"DOCUMENT_CATEGORY",type:"varchar(60)",remarks:"主键，供其他表做外键"){
     constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_DOCUMENT_CATEGORY_PK")
    }
-   column(name:"DECRIPTION",type:"varchar(200)",remarks:"描述")
+   column(name:"DESCRIPTION",type:"varchar(200)",remarks:"描述")
    column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
    column(name:"REMARK",type:"clob",remarks:"备注说明")
    column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
@@ -497,7 +497,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"DOCUMENT_TYPE",type:"varchar(60)",remarks:"主键，供其他表做外键"){
     constraints(nullable:"false",primaryKey: "true",primaryKeyName: "PRO_DOCUMENT_TYPE_PK")
    }
-   column(name:"DECRIPTION",type:"varchar(200)",remarks:"描述")
+   column(name:"DESCRIPTION",type:"varchar(200)",remarks:"描述")
    column(name:"DOCUMENT_CATEGORY",type:"varchar(60)",remarks:"单据类别")
    column(name:"BUSINESS_TYPE",type:"varchar(60)",remarks:"业务类型")
    column(name:"CODING_RULE",type:"varchar(60)",remarks:"编码规则")

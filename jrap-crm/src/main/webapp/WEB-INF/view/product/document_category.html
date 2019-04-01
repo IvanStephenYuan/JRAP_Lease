@@ -70,6 +70,12 @@
                     documentCategory: {validation: {required: true}, type: "string"},
                     decription: {validation: {required: true}, type: "string"},
                     enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                },
+                editable: function (col) {
+                    if (col == 'documentCategory' && this.documentCategory) {
+                        return false;
+                    }
+                    return true;
                 }
             }
         }
@@ -98,8 +104,8 @@
                 width: 80
             },
             {
-                field: "decription",
-                title: '<@spring.message "documenttype.decription"/>',
+                field: "description",
+                title: '<@spring.message "documenttype.description"/>',
                 width: 120
             },
             {

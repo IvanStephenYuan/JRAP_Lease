@@ -4,7 +4,7 @@
 <mapper namespace="com.jingrui.jrap.product.mapper.DocumentCategoryMapper">
     <resultMap id="BaseResultMap" type="com.jingrui.jrap.product.dto.DocumentCategory">
         <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
-        <result column="DECRIPTION" property="decription" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
     </resultMap>
 </mapper>

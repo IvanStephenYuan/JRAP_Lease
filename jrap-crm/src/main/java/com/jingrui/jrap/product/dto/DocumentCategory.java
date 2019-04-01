@@ -24,7 +24,7 @@ import java.util.Date;
 public class DocumentCategory extends BaseDTO {
 
     public static final String FIELD_DOCUMENT_CATEGORY = "documentCategory";
-    public static final String FIELD_DECRIPTION = "decription";
+    public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
 
     @Id
@@ -35,7 +35,7 @@ public class DocumentCategory extends BaseDTO {
     private String documentCategory;
 
     @Length(max = 200)
-    private String decription; //描述
+    private String description; //描述
 
     @Length(max = 1)
     private String enabledFlag; //启用标识
@@ -48,12 +48,12 @@ public class DocumentCategory extends BaseDTO {
         return documentCategory;
     }
 
-    public void setDecription(String decription) {
-        this.decription = decription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getDecription() {
-        return decription;
+    public String getDescription() {
+        return description;
     }
 
     public void setEnabledFlag(String enabledFlag) {

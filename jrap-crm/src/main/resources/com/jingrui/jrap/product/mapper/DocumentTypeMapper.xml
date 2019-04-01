@@ -4,16 +4,11 @@
 <mapper namespace="com.jingrui.jrap.product.mapper.DocumentTypeMapper">
     <resultMap id="BaseResultMap" type="com.jingrui.jrap.product.dto.DocumentType">
         <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
-        <result column="DECRIPTION" property="decription" jdbcType="VARCHAR" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
         <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
         <result column="BUSINESS_TYPE" property="businessType" jdbcType="VARCHAR" />
         <result column="CODING_RULE" property="codingRule" jdbcType="VARCHAR" />
         <result column="WORKFLOW_CODE" property="workflowCode" jdbcType="VARCHAR" />
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
-        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
-        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
-        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
-
-
 </mapper>
