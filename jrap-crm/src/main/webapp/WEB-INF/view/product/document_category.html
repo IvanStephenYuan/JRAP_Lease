@@ -65,8 +65,12 @@
             data: 'rows',
             total: 'total',
             model: {
-                id: "documentGategory",
-                fields: {}
+                id: "documentCategory",
+                fields: {
+                    documentCategory: {validation: {required: true}, type: "string"},
+                    decription: {validation: {required: true}, type: "string"},
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
@@ -89,9 +93,9 @@
         },
         columns: [
             {
-                field: "documentGategory",
+                field: "documentCategory",
                 title: '<@spring.message "documenttype.documentcategory"/>',
-                width: 120
+                width: 80
             },
             {
                 field: "decription",
@@ -101,7 +105,12 @@
             {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
-                width: 120
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             }
         ],
         editable: true

@@ -54,6 +54,13 @@ public class CustomerController extends BaseController {
     public ResponseData query(Customer dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
                               @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
+        //设置默认商户
+        dto.setCompanyId(requestContext.getCompanyId());
+        //如果employeeId不为空，设置employee
+        if(requestContext.getEmployeeId() != null){
+            dto.setEmployeeId(requestContext.getEmployeeId());
+        }
+
         return new ResponseData(service.select(requestContext, dto, page, pageSize));
     }
 

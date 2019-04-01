@@ -108,10 +108,12 @@ public class Customer extends BaseDTO {
     @Length(max = 30)
     private String customerSource; //客户来源
 
+    @Where
     private Long companyId; //所属公司ID
 
     private Long organizationId; //所属机构ID
 
+    @Where
     private Long employeeId; //所属员工ID
 
     @Length(max = 30)
