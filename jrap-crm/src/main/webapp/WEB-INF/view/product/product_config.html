@@ -5,109 +5,159 @@
 *
 -->
 <#include "../include/header.html">
+<script type="text/javascript">
+    var headViewModel = Jrap.createGridViewModel("#headerGrid");
+    var lineViewModel = Jrap.createGridViewModel("#linerGrid");
+</script>
 <body>
-<div id="page-content">
-    <div>
-        <div class="text-left"
-             style="bottom: 10px; position: relative; padding-right: 24px;  float: left; padding-top:10px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
-            <span class="btn btn-success k-grid-save-changes" onclick="saveChange()" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
-            <span class="btn btn-default" onclick="closeChange()" style="margin-right: 25px;"><@spring.message "jrap.back"/></span>
-        </div>
-        <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input data-role="maskedtextbox" placeholder='<@spring.message "product.positioncode"/>' type="text" style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.positionCode" class="k-textbox tiny-query-input">
-            <input data-role="maskedtextbox" placeholder='<@spring.message "product.name"/>' type="text" style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.name"
-                   class="k-textbox tiny-query-input">
-            <span class="btn btn-primary" data-bind="click:query" style="float:left;margin-right:5px;" type="submit"><@spring.message "jrap.query"/></span>
-            <span class="btn btn-default" type="button" data-bind="click:reset"> <@spring.message "jrap.reset"/></span>
-            <div style="clear:both"></div>
-        </div>
-        <script>kendo.bind($('#query-form'), viewModel);</script>
-
-        <div id="tabstrip">
-            <ul>
-                <li class="k-state-active">
-                    头信息
-                </li>
-                <li>
-                    行信息
-                </li>
-            </ul>
-            <div>
-                <div id="headerGrid"></div>
+<div>
+    <div id="page-content">
+        <form id="mainform" class="form-horizontal">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+                        <span class="btn btn-success k-grid-save-changes" onclick="saveChange()" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+                        <span class="btn btn-default" onclick="closeChange()" style="margin-right: 25px;"><@spring.message "jrap.back"/></span>
+                    </div>
+                    <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+                        <input data-role="maskedtextbox" placeholder='<@spring.message "product.columncode"/>' type="text"
+                               style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.columnCode"
+                               class="k-textbox tiny-query-input">
+                        <input data-role="maskedtextbox" placeholder='<@spring.message "product.columnname"/>' type="text"
+                               style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.columnName"
+                               class="k-textbox tiny-query-input">
+                        <span class="btn btn-primary" data-bind="click:query" style="float:left;margin-right:5px;"
+                              type="submit"><@spring.message "jrap.query"/></span>
+                        <span class="btn btn-default" type="button"
+                              data-bind="click:reset"> <@spring.message "jrap.reset"/></span>
+                        <div style="clear:both"></div>
+                    </div>
+                    <script>
+                        kendo.bind($('#query-form'), headViewModel);
+                    </script>
+                </div>
             </div>
-            <div>
-                <div id="linerGrid"></div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="tabstrip" style="">
+                        <ul>
+                            <li class="k-state-active">
+                                头信息
+                            </li>
+                            <li>
+                                行信息
+                            </li>
+                        </ul>
+                        <div>
+                            <div id="headerGrid" style="clear:both"></div>
+                        </div>
+                        <div>
+                            <div id="linerGrid" style="clear:both"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
-    <script>
-        var tabstrip = $("#tabstrip").kendoTabStrip({
-            height: '100%',
-            animation: false
-        }).data("kendoTabStrip");
-        tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            var item = $(e.target).closest(".k-item");
-            var index = item.index(),
-                prev = item.next().length == 1 ? item.next() : item.prev();
-            tabstrip.remove(item.index());
-            tabstrip.select(prev)
-        });
-    </script>
 </div>
 <script>
-    var gridDataSource = new kendo.data.DataSource({
+    Jrap.initEnterQuery('#query-form', headViewModel.query);
+    var BaseUrl = _basePath;
+
+    var headDataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: '${base.contextPath}/sys/attach/file/query',
-                type: "post",
+                url: BaseUrl + "/pro/product/config/query",
+                type: "POST",
                 dataType: "json"
             },
+            update: {
+                url: BaseUrl + "/pro/product/config/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
             destroy: {
-                url: '${base.contextPath}/sys/attach/file/remove',
-                contentType: "application/json",
-                type: "POST"
+                url: BaseUrl + "/pro/product/config/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/pro/product/config/submit",
+                type: "POST",
+                contentType: "application/json"
             },
             parameterMap: function (options, type) {
                 if (type !== "read" && options.models) {
-                    return kendo.stringify(options.models);
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
                 } else if (type === "read") {
-                    var map = {};
-                    if (options) {
-                        map.page = options.page;
-                        map.pagesize = options.pageSize;
-                        if (options.sort && options.sort.length > 0) {
-                            map.sortname = options.sort[0].field;
-                            map.sortorder = options.sort[0].dir;
-                        }
-                    }
-                    map.categoryId = newViewModel.get("categoryId");
-                    if (newViewModel.model.get("customerId") != null) {
-                        map.sourceKey = newViewModel.model.get("customerId");
-                    } else {
-                        map.sourceKey = -1;
-                    }
-
-                    return map;
+                    return Jrap.prepareQueryParameter(headViewModel.model.toJSON(), options)
                 }
             }
         },
         batch: true,
         serverPaging: true,
-        serverSorting: true,
-        pageSize: 20,
+        pageSize: 10,
         schema: {
-            model: {
-                id: 'fileId'
-            },
             data: 'rows',
-            total: 'total'
+            total: 'total',
+            model: {
+                id: "configId",
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
+            }
         }
     });
 
-    var grid = $("#sysfile_grid").kendoGrid({
-        dataSource: gridDataSource,
+    var lineDataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/pro/product/config/query",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/pro/product/config/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/pro/product/config/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/pro/product/config/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(lineViewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "configId",
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
+            }
+        }
+    });
+
+    var grid = $("#headerGrid").kendoGrid({
+        dataSource: headDataSource,
         navigatable: true,
         dataBound: function () {
             if (parent.autoResizeIframe) {
@@ -125,24 +175,150 @@
             buttonCount: 5
         },
         columns: [
-            {field: "fileName", title: '<@spring.message "sysfile.filename"/>', width: 160},
-            {field: "fileSize", title: '<@spring.message "sysfile.filesize"/>', width: 60},
-            {field: "uploadDate", title: '<@spring.message "sysfile.uploaddate"/>', width: 80},
-            {field: "fileType", title: '<@spring.message "sysfile.filetype"/>', width: 80},
             {
-                template: function (e) {
-                    return '<a target="_blank" href="${base.contextPath}/sys/attach/file/download?fileId=' + e.fileId + '&token=' + e._token + '"><@spring.message "jrap.download"/></a>';
-                }, width: 30
+                field: "columnCode",
+                title: '<@spring.message "product.columncode"/>',
+                width: 80
             },
+            {
+                field: "columnName",
+                title: '<@spring.message "product.columnname"/>',
+                width: 100
+            },
+            {
+                field: "dataType",
+                title: '<@spring.message "product.datatype"/>',
+                width: 80
+            },
+            {
+                field: "cfType",
+                title: '<@spring.message "cashflowtype.cftype"/>',
+                width: 80
+            },
+            {
+                field: "systemFlag",
+                title: '<@spring.message "product.systemflag"/>',
+                width: 80
+            },
+            {
+                field: "requireFlag",
+                title: '<@spring.message "product.requireflag"/>',
+                width: 80
+            },
+            {
+                field: "readonlyFlag",
+                title: '<@spring.message "product.readonlyflag"/>',
+                width: 80
+            },
+            {
+                field: "precision",
+                title: '<@spring.message "product.precision"/>',
+                width: 80
+            },
+            {
+                field: "defaultValue",
+                title: '<@spring.message "product.defaultvalue"/>',
+                width: 80
+            },
+            {
+                field: "displayFlag",
+                title: '<@spring.message "product.displayFlag"/>',
+                width: 80
+            },
+            {
+                field: "displayOrder",
+                title: '<@spring.message "product.displayorder"/>',
+                width: 80
+            },
+            {
+                field: "enabledFlag",
+                title: '<@spring.message "jrap.enableflag"/>',
+                width: 80
+            }
         ]
     }).data("kendoGrid");
 
-
-    var validator = $("#page-content").kendoValidator({
-        valid: function (e) {
+    var grid = $("#linerGrid").kendoGrid({
+        dataSource: lineDataSource,
+        navigatable: true,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
         },
-        invalidMessageType: "tooltip"
-    }).data("kendoValidator");
+        resizable: true,
+        sortable: true,
+        scrollable: true,
+        editable: false,
+        selectable: 'multiple, rowbox',
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "columnCode",
+                title: '<@spring.message "product.columncode"/>',
+                width: 80
+            },
+            {
+                field: "columnName",
+                title: '<@spring.message "product.columnname"/>',
+                width: 100
+            },
+            {
+                field: "dataType",
+                title: '<@spring.message "product.datatype"/>',
+                width: 80
+            },
+            {
+                field: "cfType",
+                title: '<@spring.message "cashflowtype.cftype"/>',
+                width: 80
+            },
+            {
+                field: "systemFlag",
+                title: '<@spring.message "product.systemflag"/>',
+                width: 80
+            },
+            {
+                field: "requireFlag",
+                title: '<@spring.message "product.requireflag"/>',
+                width: 80
+            },
+            {
+                field: "readonlyFlag",
+                title: '<@spring.message "product.readonlyflag"/>',
+                width: 80
+            },
+            {
+                field: "precision",
+                title: '<@spring.message "product.precision"/>',
+                width: 80
+            },
+            {
+                field: "defaultValue",
+                title: '<@spring.message "product.defaultvalue"/>',
+                width: 80
+            },
+            {
+                field: "displayFlag",
+                title: '<@spring.message "product.displayFlag"/>',
+                width: 80
+            },
+            {
+                field: "displayOrder",
+                title: '<@spring.message "product.displayorder"/>',
+                width: 80
+            },
+            {
+                field: "enabledFlag",
+                title: '<@spring.message "jrap.enableflag"/>',
+                width: 80
+            }
+        ]
+    }).data("kendoGrid");
 
     $("#closeWin").click(function () {
         window.parent.$("#editorDialog").data("kendoWindow").close();
@@ -151,14 +327,27 @@
     $("#saveGrid").click(function () {
         if (validator.validate()) {
             Jrap.submitForm({
-                url: '${base.contextPath}/afd/customer/submit',
+                url: '${base.contextPath}/pro/product/config/submit',
                 formModel: newViewModel.model,
                 success: function (data) {
-                    window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
-                    window.parent.$("#newWin").data("kendoWindow").close();
+                    window.parent.$('#headerGrid').data('kendoGrid').dataSource.page(1);
                 }
             });
         }
+    });
+
+    var tabstrip = $("#tabstrip").kendoTabStrip({
+        tabPosition: "top",
+        height: '80%'
+    }).data("kendoTabStrip");
+    tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var item = $(e.target).closest(".k-item");
+        var index = item.index(),
+            prev = item.next().length == 1 ? item.next() : item.prev();
+        tabstrip.remove(item.index());
+        tabstrip.select(prev)
     });
 </script>
 </body>
