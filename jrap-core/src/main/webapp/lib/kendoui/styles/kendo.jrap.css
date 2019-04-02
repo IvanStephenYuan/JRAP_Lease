@@ -5616,6 +5616,6 @@ input.k-invalid, textarea.k-invalid, .k-state-invalid .k-input, .k-state-invalid
     display:none !important;
 }
 
-.col-xs-12, .col-xs-4, .col-xs-8 .col-xs-2, .col-xs-10{
+.col-xs-12, .col-xs-4, .col-xs-8, .col-xs-2, .col-xs-10{
     box-sizing:border-box;
 }
