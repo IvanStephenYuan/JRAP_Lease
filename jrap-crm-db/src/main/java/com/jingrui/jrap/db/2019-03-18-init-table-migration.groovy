@@ -173,6 +173,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"COMPANY_ID",type:"bigint",remarks:"公司FND_COMPANY_B.COMPANY_ID")
    column(name:"CALCULATE",type:"varchar(60)",remarks:"计算器")
    column(name:"RATE_TYPE",type:"varchar(60)",remarks:"利率类型")
+   column(name:"VERSION",type:"int", defaultValue:"1", remarks:"版本号")
    column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
    column(name:"START_DATE",type:"datetime",remarks:"有效期从")
    column(name:"END_DATE",type:"datetime",remarks:"有效期至")

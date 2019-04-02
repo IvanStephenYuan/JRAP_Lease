@@ -37,6 +37,7 @@ public class Product extends BaseDTO {
     public static final String FIELD_COMPANY_ID = "companyId";
     public static final String FIELD_CALCULATE = "calculate";
     public static final String FIELD_RATE_TYPE = "rateType";
+    public static final String FIELD_VERSION = "version";
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
     public static final String FIELD_START_DATE = "startDate";
     public static final String FIELD_END_DATE = "endDate";
@@ -76,7 +77,7 @@ public class Product extends BaseDTO {
     private Long modelId; //租赁物模型ID
 
     @Transient
-    @JoinColumn(joinName = "itemModelJoin",field = ItemModel.FIELD_MODEL)
+    @JoinColumn(joinName = "itemModelJoin", field = ItemModel.FIELD_MODEL)
     private String model;
 
     @Where
@@ -87,6 +88,9 @@ public class Product extends BaseDTO {
 
     @Length(max = 60)
     private String rateType; //利率类型
+
+    @Where
+    private int version; //版本
 
     @Length(max = 1)
     private String enabledFlag; //启用标识
@@ -189,6 +193,14 @@ public class Product extends BaseDTO {
 
     public String getRateType() {
         return rateType;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public void setEnabledFlag(String enabledFlag) {

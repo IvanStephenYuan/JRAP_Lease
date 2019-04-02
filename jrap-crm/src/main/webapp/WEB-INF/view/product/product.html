@@ -82,15 +82,16 @@
             model: {
                 id: "productCode",
                 fields: {
+                    productCode:{editable: false},
+                    rateType:{defaultValue: 'FIXED'},
+                    version:{defaultValue: 1, type:"number", validation: {
+                        required: true,
+                            min: 1
+                        },
+                    },
                     enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
-                    startDate: {type: "date"},
+                    startDate: {type: 'date'},
                     endDate: {type: 'date', defaultValue: null}
-                },
-                editable: function (col) {
-                    if (col == 'productCode' && this.productCode) {
-                        return false;
-                    }
-                    return true;
                 }
             }
         }
@@ -144,7 +145,7 @@
             {
                 field: "productCode",
                 title: '<@spring.message "product.productcode"/>',
-                width: 80
+                width: 120
             },
             {
                 field: "productName",
@@ -223,7 +224,7 @@
                 editor: function (container, options) {
                     $('<input name="' + options.field + '"/>')
                         .appendTo(container)
-                        .kendoDropDownList({
+                        .kendoComboBox({
                             dataTextField: "description",
                             dataValueField: "businessType",
                             valuePrimitive: true,
@@ -261,6 +262,7 @@
                 title: '<@spring.message "itemmodel.model"/>',
                 width: 200,
                 template : function (dataItem) {
+                    debugger;
                     return dataItem['model'] || '';
                 },
                 editor  : function (container, options) {
@@ -327,6 +329,15 @@
                 }
             },
             {
+                field: "version",
+                title: '<@spring.message "product.version"/>',
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
+            },
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
                 width: 80,
@@ -363,6 +374,7 @@
                 field: "endDate",
                 title: '<@spring.message "product.enddate"/>',
                 width: 100,
+                nullable:true,
                 headerAttributes: {
                     style: "text-align: center"
                 },
