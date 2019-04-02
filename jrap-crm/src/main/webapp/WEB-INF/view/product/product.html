@@ -7,6 +7,7 @@
 <script src="${base.contextPath}/common/code?productTypeData=PRODUCT.TYPE" type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?productCalculateData=PRODUCT.CALCULATE" type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?productRateTypeData=PRODUCT.RATETYPE" type="text/javascript"></script>
+<div id="editorDialog"></div>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
@@ -125,6 +126,23 @@
         });
     });
 
+    configProduct = function (productCode) {
+        var editorDialog = $("#editorDialog").kendoWindow({
+            width: "95%",
+            height: "88%",
+            title: '<@spring.message "product.editor"/>',
+            visible: false,
+            iframe: true,
+            modal: true,
+            resizable: false,
+            content: 'product_config.html?productCode=' + productCode,
+            close: function (e) {
+                $("#grid").data("kendoGrid").dataSource.page(1);
+            }
+        }).data("kendoWindow");
+        editorDialog.center().open();
+    };
+
     $("#grid").kendoGrid({
         dataSource: dataSource,
         resizable: true,
@@ -145,7 +163,17 @@
             {
                 field: "productCode",
                 title: '<@spring.message "product.productcode"/>',
-                width: 120
+                width: 120,
+                template: function (rowdata) {
+                    if (!!rowdata.productCode) {
+                        return '<a href="javascript:void(0);" onclick="configProduct(\'' + rowdata.productCode + '\')">' + rowdata.productCode + '</a>';
+                    }
+                    return '<span style="color:blue">' + rowdata.productCode + '</span>';
+                },
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
             },
             {
                 field: "productName",

@@ -1,0 +1,165 @@
+<!--
+* description: 产品编辑页面
+*author:yulong.yuan@jr-info.cn
+* version: 1.0
+*
+-->
+<#include "../include/header.html">
+<body>
+<div id="page-content">
+    <div>
+        <div class="text-left"
+             style="bottom: 10px; position: relative; padding-right: 24px;  float: left; padding-top:10px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+            <span class="btn btn-success k-grid-save-changes" onclick="saveChange()" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+            <span class="btn btn-default" onclick="closeChange()" style="margin-right: 25px;"><@spring.message "jrap.back"/></span>
+        </div>
+        <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+            <input data-role="maskedtextbox" placeholder='<@spring.message "product.positioncode"/>' type="text" style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.positionCode" class="k-textbox tiny-query-input">
+            <input data-role="maskedtextbox" placeholder='<@spring.message "product.name"/>' type="text" style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.name"
+                   class="k-textbox tiny-query-input">
+            <span class="btn btn-primary" data-bind="click:query" style="float:left;margin-right:5px;" type="submit"><@spring.message "jrap.query"/></span>
+            <span class="btn btn-default" type="button" data-bind="click:reset"> <@spring.message "jrap.reset"/></span>
+            <div style="clear:both"></div>
+        </div>
+        <script>kendo.bind($('#query-form'), viewModel);</script>
+
+        <div id="tabstrip">
+            <ul>
+                <li class="k-state-active">
+                    头信息
+                </li>
+                <li>
+                    行信息
+                </li>
+            </ul>
+            <div>
+                <div id="headerGrid"></div>
+            </div>
+            <div>
+                <div id="linerGrid"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var tabstrip = $("#tabstrip").kendoTabStrip({
+            height: '100%',
+            animation: false
+        }).data("kendoTabStrip");
+        tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var item = $(e.target).closest(".k-item");
+            var index = item.index(),
+                prev = item.next().length == 1 ? item.next() : item.prev();
+            tabstrip.remove(item.index());
+            tabstrip.select(prev)
+        });
+    </script>
+</div>
+<script>
+    var gridDataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: '${base.contextPath}/sys/attach/file/query',
+                type: "post",
+                dataType: "json"
+            },
+            destroy: {
+                url: '${base.contextPath}/sys/attach/file/remove',
+                contentType: "application/json",
+                type: "POST"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    return kendo.stringify(options.models);
+                } else if (type === "read") {
+                    var map = {};
+                    if (options) {
+                        map.page = options.page;
+                        map.pagesize = options.pageSize;
+                        if (options.sort && options.sort.length > 0) {
+                            map.sortname = options.sort[0].field;
+                            map.sortorder = options.sort[0].dir;
+                        }
+                    }
+                    map.categoryId = newViewModel.get("categoryId");
+                    if (newViewModel.model.get("customerId") != null) {
+                        map.sourceKey = newViewModel.model.get("customerId");
+                    } else {
+                        map.sourceKey = -1;
+                    }
+
+                    return map;
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        serverSorting: true,
+        pageSize: 20,
+        schema: {
+            model: {
+                id: 'fileId'
+            },
+            data: 'rows',
+            total: 'total'
+        }
+    });
+
+    var grid = $("#sysfile_grid").kendoGrid({
+        dataSource: gridDataSource,
+        navigatable: true,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        sortable: true,
+        scrollable: true,
+        editable: false,
+        selectable: 'multiple, rowbox',
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {field: "fileName", title: '<@spring.message "sysfile.filename"/>', width: 160},
+            {field: "fileSize", title: '<@spring.message "sysfile.filesize"/>', width: 60},
+            {field: "uploadDate", title: '<@spring.message "sysfile.uploaddate"/>', width: 80},
+            {field: "fileType", title: '<@spring.message "sysfile.filetype"/>', width: 80},
+            {
+                template: function (e) {
+                    return '<a target="_blank" href="${base.contextPath}/sys/attach/file/download?fileId=' + e.fileId + '&token=' + e._token + '"><@spring.message "jrap.download"/></a>';
+                }, width: 30
+            },
+        ]
+    }).data("kendoGrid");
+
+
+    var validator = $("#page-content").kendoValidator({
+        valid: function (e) {
+        },
+        invalidMessageType: "tooltip"
+    }).data("kendoValidator");
+
+    $("#closeWin").click(function () {
+        window.parent.$("#editorDialog").data("kendoWindow").close();
+    });
+
+    $("#saveGrid").click(function () {
+        if (validator.validate()) {
+            Jrap.submitForm({
+                url: '${base.contextPath}/afd/customer/submit',
+                formModel: newViewModel.model,
+                success: function (data) {
+                    window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
+                    window.parent.$("#newWin").data("kendoWindow").close();
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
