@@ -6,8 +6,9 @@
 -->
 <#include "../include/header.html">
 <script type="text/javascript">
+    var productCode = '${RequestParameters.productCode}';
+    var item = 1;
     var headViewModel = Jrap.createGridViewModel("#headerGrid");
-    var lineViewModel = Jrap.createGridViewModel("#linerGrid");
 </script>
 <body>
 <div>
@@ -16,9 +17,12 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
-                        <span class="btn btn-success k-grid-save-changes" onclick="saveChange()" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
-                        <span class="btn btn-default" onclick="closeChange()" style="margin-right: 25px;"><@spring.message "jrap.back"/></span>
+                        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" id="createRow" type="button"><@spring.message "jrap.new"/></span>
+                        <span class="btn btn-danger" style="float:left;" id="deleteRow" type="button"><@spring.message "jrap.delete"/></span>
+                        <span class="btn btn-success k-grid-save-changes" id="saveChange" type="button" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+                        <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.back"/></span>
                     </div>
+                    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
                     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
                         <input data-role="maskedtextbox" placeholder='<@spring.message "product.columncode"/>' type="text"
                                style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.columnCode"
@@ -32,19 +36,17 @@
                               data-bind="click:reset"> <@spring.message "jrap.reset"/></span>
                         <div style="clear:both"></div>
                     </div>
-                    <script>
-                        kendo.bind($('#query-form'), headViewModel);
-                    </script>
+                    <script>kendo.bind($('#query-form'), headViewModel);</script>
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <div id="tabstrip" style="">
+                    <div id="tabstrip">
                         <ul>
-                            <li class="k-state-active">
+                            <li class="k-state-active" value="1">
                                 头信息
                             </li>
-                            <li>
+                            <li value="2">
                                 行信息
                             </li>
                         </ul>
@@ -61,13 +63,12 @@
     </div>
 </div>
 <script>
-    Jrap.initEnterQuery('#query-form', headViewModel.query);
     var BaseUrl = _basePath;
-
+    Jrap.initEnterQuery('#query-form', headViewModel.query);
     var headDataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: BaseUrl + "/pro/product/config/query",
+                url: BaseUrl + "/pro/product/config/query?productCode=${RequestParameters.productCode!''}&configType=H",
                 type: "POST",
                 dataType: "json"
             },
@@ -104,6 +105,8 @@
             model: {
                 id: "configId",
                 fields: {
+                    configType:{defaultValue: 'H'},
+                    productCode:{defaultValue: productCode},
                     enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
                 }
             }
@@ -113,7 +116,7 @@
     var lineDataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: BaseUrl + "/pro/product/config/query",
+                url: BaseUrl + "/pro/product/config/query?productCode=${RequestParameters.productCode!''}&configType=L",
                 type: "POST",
                 dataType: "json"
             },
@@ -137,7 +140,7 @@
                     var datas = Jrap.prepareSubmitParameter(options, type)
                     return kendo.stringify(datas);
                 } else if (type === "read") {
-                    return Jrap.prepareQueryParameter(lineViewModel.model.toJSON(), options)
+                    return Jrap.prepareQueryParameter(headViewModel.model.toJSON(), options)
                 }
             }
         },
@@ -150,6 +153,8 @@
             model: {
                 id: "configId",
                 fields: {
+                    configType:{defaultValue: 'L'},
+                    productCode:{defaultValue: productCode},
                     enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
                 }
             }
@@ -235,7 +240,8 @@
                 title: '<@spring.message "jrap.enableflag"/>',
                 width: 80
             }
-        ]
+        ],
+        editable: true
     }).data("kendoGrid");
 
     var grid = $("#linerGrid").kendoGrid({
@@ -317,29 +323,18 @@
                 title: '<@spring.message "jrap.enableflag"/>',
                 width: 80
             }
-        ]
+        ],
+        editable: true
     }).data("kendoGrid");
-
-    $("#closeWin").click(function () {
-        window.parent.$("#editorDialog").data("kendoWindow").close();
-    });
-
-    $("#saveGrid").click(function () {
-        if (validator.validate()) {
-            Jrap.submitForm({
-                url: '${base.contextPath}/pro/product/config/submit',
-                formModel: newViewModel.model,
-                success: function (data) {
-                    window.parent.$('#headerGrid').data('kendoGrid').dataSource.page(1);
-                }
-            });
-        }
-    });
 
     var tabstrip = $("#tabstrip").kendoTabStrip({
         tabPosition: "top",
-        height: '80%'
+        height: '80%',
+        select: function(e){
+            item = e.item.value;
+        }
     }).data("kendoTabStrip");
+
     tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -347,7 +342,42 @@
         var index = item.index(),
             prev = item.next().length == 1 ? item.next() : item.prev();
         tabstrip.remove(item.index());
-        tabstrip.select(prev)
+        tabstrip.select(prev);
+    });
+
+    $("#createRow").click(function () {
+        if(item == 1){
+            $("#headerGrid").data('kendoGrid').addRow();
+        }else{
+            $("#linerGrid").data('kendoGrid').addRow();
+        }
+    });
+
+    $("#deleteRow").click(function () {
+        if(item == 1){
+            Jrap.deleteGridSelection({grid:$("#headerGrid")});
+        }else{
+            Jrap.deleteGridSelection({grid:$("#linerGrid")});
+        }
+    });
+
+    $("#closeWin").click(function () {
+        window.parent.$("#editorDialog").data("kendoWindow").close();
+    });
+
+    $("#saveChange").click(function () {
+        debugger;
+        var headValidator = $("#headerGrid").kendoValidator({
+            invalidMessageType: "tooltip"
+        }).data("kendoValidator");
+        var lineValidator = $("#linerGrid").kendoValidator({
+            invalidMessageType: "tooltip"
+        }).data("kendoValidator");
+
+        if (headValidator.validate() && lineValidator.validate()) {
+            $("#headerGrid").data("kendoGrid").saveChanges();
+            $("#linerGrid").data("kendoGrid").saveChanges();
+        }
     });
 </script>
 </body>

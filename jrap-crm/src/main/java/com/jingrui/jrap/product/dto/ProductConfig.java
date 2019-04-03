@@ -32,9 +32,9 @@ public class ProductConfig extends BaseDTO {
     public static final String FIELD_PROMPT = "prompt";
     public static final String FIELD_REQUIRE_FLAG = "requireFlag";
     public static final String FIELD_READONLY_FLAG = "readonlyFlag";
-    public static final String FIELD_PRECISION = "precision";
+    public static final String FIELD_DATA_PRECISION = "dataPrecision";
     public static final String FIELD_DEFAULT_VALUE = "defaultValue";
-    public static final String FIELD_STATUS = "status";
+    public static final String FIELD_DATA_STATUS = "dataStatus";
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
     public static final String FIELD_REMARK = "remark";
     public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
@@ -80,13 +80,13 @@ public class ProductConfig extends BaseDTO {
     @Length(max = 1)
     private String readonlyFlag; //只读标识
 
-    private Long precision; //精度
+    private Long dataPrecision; //精度
 
     @Length(max = 100)
     private String defaultValue; //默认值
 
     @Length(max = 1)
-    private String status; //状态
+    private String dataStatus; //状态
 
     @Length(max = 1)
     private String enabledFlag; //启用标识
@@ -195,12 +195,12 @@ public class ProductConfig extends BaseDTO {
         return readonlyFlag;
     }
 
-    public void setPrecision(Long precision) {
-        this.precision = precision;
+    public void setDataPrecision(Long dataPrecision) {
+        this.dataPrecision = dataPrecision;
     }
 
-    public Long getPrecision() {
-        return precision;
+    public Long getDataPrecision() {
+        return dataPrecision;
     }
 
     public void setDefaultValue(String defaultValue) {
@@ -211,12 +211,12 @@ public class ProductConfig extends BaseDTO {
         return defaultValue;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setDataStatus(String dataStatus) {
+        this.dataStatus = dataStatus;
     }
 
-    public String getStatus() {
-        return status;
+    public String getDataStatus() {
+        return dataStatus;
     }
 
     public void setEnabledFlag(String enabledFlag) {

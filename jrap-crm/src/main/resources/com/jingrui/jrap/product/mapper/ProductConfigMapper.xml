@@ -16,14 +16,12 @@
         <result column="PROMPT" property="prompt" jdbcType="VARCHAR" />
         <result column="REQUIRE_FLAG" property="requireFlag" jdbcType="VARCHAR" />
         <result column="READONLY_FLAG" property="readonlyFlag" jdbcType="VARCHAR" />
-        <result column="PRECISION" property="precision" jdbcType="DECIMAL" />
+        <result column="DATA_PRECISION" property="dataPrecision" jdbcType="DECIMAL" />
         <result column="DEFAULT_VALUE" property="defaultValue" jdbcType="VARCHAR" />
-        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="DATA_STATUS" property="dataStatus" jdbcType="VARCHAR" />
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
         <result column="REMARK" property="remark" jdbcType="VARCHAR" />
         <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
-
-
 </mapper>
