@@ -242,9 +242,9 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"PROMPT",type:"varchar(100)",remarks:"描述")
    column(name:"REQUIRE_FLAG",type:"varchar(1)",remarks:"必输标识")
    column(name:"READONLY_FLAG",type:"varchar(1)",remarks:"只读标识")
-   column(name:"PRECISION",type:"Int",remarks:"精度")
+   column(name:"DATA_PRECISION",type:"Int",remarks:"精度")
    column(name:"DEFAULT_VALUE",type:"varchar(100)",remarks:"默认值")
-   column(name:"STATUS",type:"varchar(1)",remarks:"状态")
+   column(name:"DATA_STATUS",type:"varchar(1)",remarks:"状态")
    column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
    column(name:"REMARK",type:"clob",remarks:"备注说明")
    column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
