@@ -9,5 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ProductFormulaServiceImpl extends BaseServiceImpl<ProductFormula> implements IProductFormulaService{
-
+    @Override
+    protected boolean useSelectiveUpdate() {
+        return false;
+    }
 }

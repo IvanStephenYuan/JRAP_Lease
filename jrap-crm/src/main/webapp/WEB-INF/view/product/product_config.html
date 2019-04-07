@@ -5,12 +5,32 @@
 *
 -->
 <#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/common/code?productDataTypeData=PRODUCT.DATATYPE" type="text/javascript"></script>
 <script type="text/javascript">
     var productCode = '${RequestParameters.productCode}';
     var item = 1;
     var headViewModel = Jrap.createGridViewModel("#headerGrid");
+    var lineViewModel = Jrap.createGridViewModel("#linerGrid");
+
+    var viewModel = kendo.observable({
+        model: {
+            productCode:productCode,
+            configType: 'H'
+        },
+        query: function(){
+            headDataSource.query();
+            lineDataSource.query();
+        },
+        reset:function(){
+            var formData = this.model.toJSON();
+            for (var k in formData) {
+                this.model.set(k, null);
+            }
+        }
+    });
 </script>
-<body>
+<div id="editorFormula"></div>
 <div>
     <div id="page-content">
         <form id="mainform" class="form-horizontal">
@@ -22,7 +42,6 @@
                         <span class="btn btn-success k-grid-save-changes" id="saveChange" type="button" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
                         <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.back"/></span>
                     </div>
-                    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
                     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
                         <input data-role="maskedtextbox" placeholder='<@spring.message "product.columncode"/>' type="text"
                                style="width: 150px;float:left;margin-right:5px;" data-bind="value:model.columnCode"
@@ -36,7 +55,7 @@
                               data-bind="click:reset"> <@spring.message "jrap.reset"/></span>
                         <div style="clear:both"></div>
                     </div>
-                    <script>kendo.bind($('#query-form'), headViewModel);</script>
+                    <script>kendo.bind($('#query-form'), viewModel);</script>
                 </div>
             </div>
             <div class="row">
@@ -64,11 +83,81 @@
 </div>
 <script>
     var BaseUrl = _basePath;
-    Jrap.initEnterQuery('#query-form', headViewModel.query);
+    Jrap.initEnterQuery("#query-form", viewModel.query);
+
+    var headerColumnsData = [];
+    var linerColumnsData = [];
+    var cashflowTypeData = [];
+
+    configFormula = function (configId) {
+        var editorFormula = $("#editorFormula").kendoWindow({
+            width: "700",
+            height: "300",
+            title: '<@spring.message "product.formula"/>',
+            visible: false,
+            iframe: true,
+            modal: true,
+            resizable: false,
+            content: 'product_formula.html?configId=' + configId,
+            close: function (e) {
+                if(item == 1){
+                    $("#headerGrid").data("kendoGrid").dataSource.page(1);
+                }else{
+                    $("#linerGrid").data("kendoGrid").dataSource.page(1);
+                }
+            }
+        }).data("kendoWindow");
+        editorFormula.center().open();
+    };
+
+    $(document).ready(function() {
+        //订单表字段
+        $.ajax({
+            url: _basePath + '/pro/product/getColumns',
+            data: {
+                tableName : "con_order"
+            },
+            dataType: "json",
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                headerColumnsData = data;
+            }
+        });
+
+        //现金流表字段
+        $.ajax({
+            url: _basePath + '/pro/product/getColumns',
+            data: {
+                tableName : "con_cashflow"
+            },
+            dataType: "json",
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                linerColumnsData = data;
+            }
+        });
+
+        //现金流类型
+        $.ajax({
+            url: _basePath + '/pro/cashflow/type/query',
+            dataType: "json",
+            type: "GET",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                cashflowTypeData = data.rows;
+            }
+        });
+    });
+
     var headDataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: BaseUrl + "/pro/product/config/query?productCode=${RequestParameters.productCode!''}&configType=H",
+                url: BaseUrl + "/pro/product/config/query",
                 type: "POST",
                 dataType: "json"
             },
@@ -92,7 +181,8 @@
                     var datas = Jrap.prepareSubmitParameter(options, type)
                     return kendo.stringify(datas);
                 } else if (type === "read") {
-                    return Jrap.prepareQueryParameter(headViewModel.model.toJSON(), options)
+                    viewModel.model.configType = 'H';
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
                 }
             }
         },
@@ -107,7 +197,20 @@
                 fields: {
                     configType:{defaultValue: 'H'},
                     productCode:{defaultValue: productCode},
+                    columnCode: {validation: {required: true}, type: "string"},
+                    precision: {type:"number"},
+                    displayOrder:{type:"number"},
+                    systemFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    requireFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    readonlyFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    displayFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
                     enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                },
+                editable: function (col) {
+                    if ((col == 'columnCode' || col == 'columnName') && this.configId) {
+                        return false;
+                    }
+                    return true;
                 }
             }
         }
@@ -116,7 +219,7 @@
     var lineDataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: BaseUrl + "/pro/product/config/query?productCode=${RequestParameters.productCode!''}&configType=L",
+                url: BaseUrl + "/pro/product/config/query",
                 type: "POST",
                 dataType: "json"
             },
@@ -140,7 +243,8 @@
                     var datas = Jrap.prepareSubmitParameter(options, type)
                     return kendo.stringify(datas);
                 } else if (type === "read") {
-                    return Jrap.prepareQueryParameter(headViewModel.model.toJSON(), options)
+                    viewModel.model.configType = 'L';
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
                 }
             }
         },
@@ -155,7 +259,20 @@
                 fields: {
                     configType:{defaultValue: 'L'},
                     productCode:{defaultValue: productCode},
+                    columnCode: {validation: {required: true}, type: "string"},
+                    precision: {type:"number"},
+                    displayOrder:{type:"number"},
+                    systemFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    requireFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    readonlyFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    displayFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
                     enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                },
+                editable: function (col) {
+                    if ((col == 'columnCode' || col == 'columnName') && this.configId) {
+                        return false;
+                    }
+                    return true;
                 }
             }
         }
@@ -183,62 +300,178 @@
             {
                 field: "columnCode",
                 title: '<@spring.message "product.columncode"/>',
-                width: 80
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                width: 60
             },
             {
                 field: "columnName",
                 title: '<@spring.message "product.columnname"/>',
+                width: 140,
+                template: function (dataItem) {
+                    if (!!dataItem.columnName) {
+                        return '<a href="javascript:void(0);" onclick="configFormula(' + dataItem.configId + ')">' + dataItem.columnName + '</a>';
+                    }else{
+                        return '<span style="color:blue">' + dataItem.columnName + '</span>';
+                    }
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoComboBox({
+                            dataTextField: "name",
+                            dataValueField: "name",
+                            valuePrimitive: true,
+                            filter: "contains",
+                            autoWidth: true,
+                            template: '<span>#:name # :  #:remarks #</span>',
+                            dataSource: headerColumnsData,
+                            select: function(e){
+                                var item = e.dataItem;
+                                var dataType = item.jdbcType;
+                                options.model.set("prompt", item.remarks);
+
+                                if(dataType == "DECIMAL" || dataType == "INT"){
+                                    options.model.set("dataType", "NUMBER");
+                                }else if(dataType == "VARCHAR"){
+                                    options.model.set("dataType", "STRING");
+                                }else if(dataType == "DATETIME"){
+                                    options.model.set("dataType", "DATE");
+                                }
+                            }
+                        });
+                }
+            },
+            {
+                field: "prompt",
+                title: '<@spring.message "product.prompt"/>',
                 width: 100
             },
             {
                 field: "dataType",
                 title: '<@spring.message "product.datatype"/>',
-                width: 80
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.dataType ? dataItem.dataType : "";
+                    $.each(productDataTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: productDataTypeData
+                        });
+                }
             },
             {
                 field: "cfType",
                 title: '<@spring.message "cashflowtype.cftype"/>',
-                width: 80
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.cfType ? dataItem.cfType : "";
+                    $.each(cashflowTypeData, function (i, n) {
+                        if ((n.cfType || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.description;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoComboBox({
+                            dataTextField: "description",
+                            dataValueField: "cfType",
+                            valuePrimitive: true,
+                            filter: "contains",
+                            dataSource: cashflowTypeData
+                        });
+                }
             },
             {
                 field: "systemFlag",
                 title: '<@spring.message "product.systemflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "requireFlag",
                 title: '<@spring.message "product.requireflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "readonlyFlag",
                 title: '<@spring.message "product.readonlyflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "precision",
                 title: '<@spring.message "product.precision"/>',
-                width: 80
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                width: 70
             },
             {
                 field: "defaultValue",
                 title: '<@spring.message "product.defaultvalue"/>',
-                width: 80
+                width: 70
             },
             {
                 field: "displayFlag",
                 title: '<@spring.message "product.displayFlag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "displayOrder",
                 title: '<@spring.message "product.displayorder"/>',
-                width: 80
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                width: 60
             },
             {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             }
         ],
         editable: true
@@ -266,62 +499,178 @@
             {
                 field: "columnCode",
                 title: '<@spring.message "product.columncode"/>',
-                width: 80
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                width: 60
             },
             {
                 field: "columnName",
                 title: '<@spring.message "product.columnname"/>',
+                width: 140,
+                template: function (dataItem) {
+                    if (!!dataItem.columnName) {
+                        return '<a href="javascript:void(0);" onclick="configFormula(' + dataItem.configId + ')">' + dataItem.columnName + '</a>';
+                    }else{
+                        return '<span style="color:blue">' + dataItem.columnName + '</span>';
+                    }
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoComboBox({
+                            dataTextField: "name",
+                            dataValueField: "name",
+                            valuePrimitive: true,
+                            filter: "contains",
+                            autoWidth: true,
+                            template: '<span>#:name # :  #:remarks #</span>',
+                            dataSource: linerColumnsData,
+                            select: function(e){
+                                var item = e.dataItem;
+                                var dataType = item.jdbcType;
+                                options.model.set("prompt", item.remarks);
+
+                                if(dataType == "DECIMAL" || dataType == "INT"){
+                                    options.model.set("dataType", "NUMBER");
+                                }else if(dataType == "VARCHAR"){
+                                    options.model.set("dataType", "STRING");
+                                }else if(dataType == "DATETIME"){
+                                    options.model.set("dataType", "DATE");
+                                }
+                            }
+                        });
+                }
+            },
+            {
+                field: "prompt",
+                title: '<@spring.message "product.prompt"/>',
                 width: 100
             },
             {
                 field: "dataType",
                 title: '<@spring.message "product.datatype"/>',
-                width: 80
+                width: 80,
+                template: function (dataItem) {
+                    var v = dataItem.dataType ? dataItem.dataType : "";
+                    $.each(productDataTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: productDataTypeData
+                        });
+                }
             },
             {
                 field: "cfType",
                 title: '<@spring.message "cashflowtype.cftype"/>',
-                width: 80
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.cfType ? dataItem.cfType : "";
+                    $.each(cashflowTypeData, function (i, n) {
+                        if ((n.cfType || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.description;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoComboBox({
+                            dataTextField: "description",
+                            dataValueField: "cfType",
+                            valuePrimitive: true,
+                            filter: "contains",
+                            dataSource: cashflowTypeData
+                        });
+                }
             },
             {
                 field: "systemFlag",
                 title: '<@spring.message "product.systemflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "requireFlag",
                 title: '<@spring.message "product.requireflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "readonlyFlag",
                 title: '<@spring.message "product.readonlyflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "precision",
                 title: '<@spring.message "product.precision"/>',
-                width: 80
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                width: 70
             },
             {
                 field: "defaultValue",
                 title: '<@spring.message "product.defaultvalue"/>',
-                width: 80
+                width: 70
             },
             {
                 field: "displayFlag",
                 title: '<@spring.message "product.displayFlag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "displayOrder",
                 title: '<@spring.message "product.displayorder"/>',
-                width: 80
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                width: 60
             },
             {
                 field: "enabledFlag",
                 title: '<@spring.message "jrap.enableflag"/>',
-                width: 80
+                width: 70,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             }
         ],
         editable: true

@@ -167,8 +167,9 @@
                 template: function (rowdata) {
                     if (!!rowdata.productCode) {
                         return '<a href="javascript:void(0);" onclick="configProduct(\'' + rowdata.productCode + '\')">' + rowdata.productCode + '</a>';
+                    }else{
+                        return '<span style="color:blue">' + rowdata.productCode + '</span>';
                     }
-                    return '<span style="color:blue">' + rowdata.productCode + '</span>';
                 },
                 headerAttributes: {
                     style: "text-align: center"
@@ -290,7 +291,6 @@
                 title: '<@spring.message "itemmodel.model"/>',
                 width: 200,
                 template : function (dataItem) {
-                    debugger;
                     return dataItem['model'] || '';
                 },
                 editor  : function (container, options) {

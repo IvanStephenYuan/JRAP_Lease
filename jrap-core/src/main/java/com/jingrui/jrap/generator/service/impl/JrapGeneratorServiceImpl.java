@@ -71,6 +71,7 @@ public class JrapGeneratorServiceImpl implements IJrapGeneratorService {
     }
 
     // 获取table信息
+    @Override
     public DBTable getTableInfo(String tableName) {
         Connection conn = null;
         DBTable dbTable = new DBTable();

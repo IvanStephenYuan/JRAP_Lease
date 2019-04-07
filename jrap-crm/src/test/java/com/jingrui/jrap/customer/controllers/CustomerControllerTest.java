@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jingrui.jrap.customer.controllers.CustomerController;
 import com.jingrui.jrap.customer.dto.Customer;
 import com.jingrui.jrap.customer.service.impl.CustomerServiceImpl;
+import com.jingrui.jrap.product.controllers.ProductConfigController;
+import com.jingrui.jrap.product.service.impl.ProductConfigServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +61,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:/spring/applicationContext.xml"})
+@ContextConfiguration(locations = {"classpath:/spring/applicationContext02.xml"})
 //@Transactional
 //@Rollback
 public class CustomerControllerTest {
@@ -80,6 +82,12 @@ public class CustomerControllerTest {
 
     @Mock
     private CustomerServiceImpl customerService;
+
+    @Mock
+    private ProductConfigServiceImpl productConfigService;
+
+    @InjectMocks
+    private ProductConfigController productConfigController;
 
 
     @Mock
@@ -171,5 +179,21 @@ public class CustomerControllerTest {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("success", is(true)));
+    }
+
+    @Test
+    public void testGetColumns()  throws Exception{
+        String tableName = "con_order";
+        MvcResult result = mockMvc.perform(
+                post("/pro/product/getTable")
+                        .contentType(APPLICATION_JSON_UTF8)
+                        .param("tableName", tableName))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andReturn();
+        String res = result.getResponse().getContentAsString();
+
+        System.out.println(res);
     }
 }
