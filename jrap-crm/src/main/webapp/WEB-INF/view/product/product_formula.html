@@ -24,6 +24,7 @@
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
+    var configId = '${RequestParameters.configId}';
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -51,6 +52,7 @@
                     var datas = Jrap.prepareSubmitParameter(options, type)
                     return kendo.stringify(datas);
                 } else if (type === "read") {
+                    viewModel.model.configId = configId;
                     return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
                 }
             }
@@ -64,6 +66,7 @@
             model: {
                 id: "formulaId",
                 fields: {
+                    configId: {defaultValue:configId},
                     matrixType:{defaultValue:productMatrixTypeData[0].value},
                     matrixInitial:{defaultValue:1, type: 'number'},
                     matrixInterval:{defaultValue:1, type: 'number'},
