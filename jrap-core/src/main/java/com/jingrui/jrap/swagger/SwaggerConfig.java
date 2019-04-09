@@ -14,6 +14,8 @@ package com.jingrui.jrap.swagger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;
@@ -37,8 +39,11 @@ import javax.servlet.http.HttpServletResponse;
 @EnableWebMvc
 @EnableSwagger2
 public class SwaggerConfig {
+    static final Logger logger= LoggerFactory.getLogger(SwaggerConfig.class);
+
     @Bean
     public Docket createRestApi() {
+        logger.info("开始加载Swagger2...");
         //docket.select().apis(RequestHandlerSelectors.withClassAnnotation(Api.class)).apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class)).build();
         //.apis(RequestHandlerSelectors.basePackage("**.controllers"))//对应修改成自己的包
         List<ResponseMessage> responseMessages = new ArrayList<ResponseMessage>();
@@ -53,7 +58,10 @@ public class SwaggerConfig {
                 .globalResponseMessage(RequestMethod.POST, responseMessages)
                 .globalResponseMessage(RequestMethod.DELETE, responseMessages)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.jingrui.jrap.product.controllers"))
+                //扫描指定包中的swagger注解
+                //.apis(RequestHandlerSelectors.basePackage("com.jingrui.jrap.product.controllers"))
+                //扫描所有有注解的api，用这种方式更灵活
+                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
                 .build();
     }
