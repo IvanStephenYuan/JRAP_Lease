@@ -15,7 +15,7 @@ public class Item extends BaseDTO {
 
      public static final String FIELD_ITEM_ID = "itemId";
      public static final String FIELD_COMPANY_ID = "companyId";
-     public static final String FIELD_LINE_ID = "lineId";
+     public static final String FIELD_LINE_CODE = "lineCode";
      public static final String FIELD_MODEL = "model";
      public static final String FIELD_OUTSIDE_COLOR = "outsideColor";
      public static final String FIELD_INSIDE_COLOR = "insideColor";
@@ -47,7 +47,7 @@ public class Item extends BaseDTO {
      private Long companyId; //所属公司ID
 
      @NotNull
-     private Long lineId; //产品线ID
+     private Long lineCode; //产品线ID
 
      @Length(max = 200)
      private String model; //型号
@@ -121,12 +121,12 @@ public class Item extends BaseDTO {
          return companyId;
      }
 
-     public void setLineId(Long lineId){
-         this.lineId = lineId;
+     public void setLineCode(Long lineCode){
+         this.lineCode = lineCode;
      }
 
-     public Long getLineId(){
-         return lineId;
+     public Long getLineCode(){
+         return lineCode;
      }
 
      public void setModel(String model){
