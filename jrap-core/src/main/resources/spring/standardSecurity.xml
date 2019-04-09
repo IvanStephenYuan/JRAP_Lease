@@ -11,6 +11,9 @@
     <http security="none" pattern="/timeout"/>
     <http security="none" pattern="/verifiCode"/>
     <http security="none" pattern="/swagger-ui.html"/>
+    <http security="none" pattern="/webjars/**"/>
+    <http security="none" pattern="/v2/api-docs/**"/>
+    <http security="none" pattern="/swagger-resources/**"/>
 
     <http access-decision-manager-ref="accessDecisionManager"  >
         <csrf request-matcher-ref="csrfSecurityRequestMatcher"/>
@@ -81,6 +84,10 @@
                 <beans:value>/websocket/**</beans:value>
                 <beans:value>/ureport/**</beans:value>
                 <beans:value>/kendo/export</beans:value>
+                <beans:value>/swagger-ui.html</beans:value>
+                <beans:value>/webjars/**</beans:value>
+                <beans:value>/v2/api-docs/**</beans:value>
+                <beans:value>/swagger-resources/**</beans:value>
             </beans:list>
         </beans:property>
     </beans:bean>
