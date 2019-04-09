@@ -5,6 +5,8 @@ import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import com.jingrui.jrap.fnd.dto.Company;
 import com.jingrui.jrap.fnd.service.ICompanyService;
 import com.jingrui.jrap.product.dto.ItemModel;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
@@ -28,7 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequestMapping(value = "/pro/product")
 @Controller
+@Api(value="/pro/product", tags = "产品接口")
 public class ProductController extends BaseController {
     public final static String PRODUCT_RULE_CODE = "PRODUCT";
 
@@ -41,8 +45,9 @@ public class ProductController extends BaseController {
     @Autowired
     private ISysCodeRuleProcessService codeRuleProcessService;
 
-    @RequestMapping(value = "/pro/product/query")
+    @RequestMapping(value = "/query")
     @ResponseBody
+    @ApiOperation(value="获取产品信息", notes = "通用产品接口", httpMethod = "GET", response = Product.class)
     public ResponseData query(Product dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
                               @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
@@ -53,7 +58,7 @@ public class ProductController extends BaseController {
         return new ResponseData(service.selectOptions(requestContext, dto, criteria, page, pageSize));
     }
 
-    @RequestMapping(value = "/pro/product/submit")
+    @RequestMapping(value = "/submit")
     @ResponseBody
     public ResponseData update(@RequestBody List<Product> dto, BindingResult result, HttpServletRequest request) {
         IRequest requestCtx = createRequestContext(request);
@@ -93,7 +98,7 @@ public class ProductController extends BaseController {
         return new ResponseData(service.batchUpdate(requestCtx, dto));
     }
 
-    @RequestMapping(value = "/pro/product/remove")
+    @RequestMapping(value = "/remove")
     @ResponseBody
     public ResponseData delete(HttpServletRequest request, @RequestBody List<Product> dto) {
         service.batchDelete(dto);

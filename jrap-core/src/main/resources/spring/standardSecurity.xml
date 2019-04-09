@@ -10,6 +10,7 @@
     <http security="none" pattern="/lib/**"/>
     <http security="none" pattern="/timeout"/>
     <http security="none" pattern="/verifiCode"/>
+    <http security="none" pattern="/swagger-ui.html"/>
 
     <http access-decision-manager-ref="accessDecisionManager"  >
         <csrf request-matcher-ref="csrfSecurityRequestMatcher"/>
