@@ -853,7 +853,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"COMPANY_ID",type:"bigint",remarks:"所属公司ID"){
     constraints(nullable:"false")
    }
-   column(name:"LINE_ID",type:"bigint",remarks:"产品线ID"){
+   column(name:"LINE_CODE",type:"bigint",remarks:"产品线"){
     constraints(nullable:"false")
    }
    column(name:"MODEL",type:"varchar(200)",remarks:"型号")
@@ -908,7 +908,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name: "COMPANY_ID")
   }
   createIndex(tableName:"AFD_ITEM",indexName:"AFD_ITEM_N2"){
-   column(name: "LINE_ID")
+   column(name: "LINE_CODE")
   }
   createIndex(tableName:"AFD_ITEM",indexName:"AFD_ITEM_N3"){
    column(name: "VIN")
