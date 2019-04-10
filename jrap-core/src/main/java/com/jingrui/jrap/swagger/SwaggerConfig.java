@@ -52,7 +52,7 @@ public class SwaggerConfig {
                 //限制只有在类上加@Api才添加到swagger，默认是都添加的
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
                 //限制只有在方法上加@Api才添加到swagger，默认是都添加的
-                //.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
                 .build();
     }
