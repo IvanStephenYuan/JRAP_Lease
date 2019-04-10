@@ -863,7 +863,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"ENGINE_NUMBER",type:"varchar(30)",remarks:"发动机号")
    column(name:"LICENSE",type:"varchar(50)",remarks:"车牌号")
    column(name:"MILEAGE",type:"varchar(30)",remarks:"里程数")
-   column(name:"KEY",type:"varchar(30)",remarks:"车辆钥匙")
+   column(name:"CAR_KEY",type:"varchar(30)",remarks:"车辆钥匙")
    column(name:"GUIDE_PRICE",type:"decimal",remarks:"指导价")
    column(name:"INVOICE_PRICE",type:"decimal",remarks:"发票价格")
    column(name:"CAR_TYPE",type:"varchar(30)",remarks:"车辆抵押状况")

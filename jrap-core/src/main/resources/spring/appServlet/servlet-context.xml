@@ -50,9 +50,10 @@
  	<mvc:view-controller path="/index" view-name="redirect:/" />
 
     <!-- 自动扫描swagger-->
+    <!-- 开启静态文件 默认拦截器 -->
+    <mvc:default-servlet-handler/>
     <bean id="swaggerConfig" class="com.jingrui.jrap.swagger.SwaggerConfig"/>
-    <mvc:resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
-    <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
+    <mvc:resources mapping="/swagger/**" location="/swagger/"/>
 
 	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
 	    <property name="templateLoaderPaths">

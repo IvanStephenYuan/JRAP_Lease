@@ -7,6 +7,7 @@ import com.jingrui.jrap.system.dto.ResponseData;
 import com.jingrui.jrap.item.dto.ItemEvaluate;
 import com.jingrui.jrap.item.service.IItemEvaluateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,4 +50,13 @@ import java.util.List;
         service.batchDelete(dto);
         return new ResponseData();
     }
+
+        @RequestMapping(value = "/afd/item/evaluate/selectByItemId/{itemId}")
+        @ResponseBody
+        public ResponseData selectByItemId(@PathVariable String itemId, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
+            IRequest requestContext = createRequestContext(request);
+            return new ResponseData(service.selectByItemId(Long.parseLong(itemId),requestContext,page, pageSize));
+        }
     }
+

@@ -192,6 +192,10 @@
         <url-pattern>/metrics/*</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/swagger/*</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>ureportServlet</servlet-name>

@@ -15,9 +15,9 @@
         </element>
         <element id="directory" name="lib">
           <element id="library" level="project" name="Maven: org.mybatis:mybatis:3.3.0" />
-          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.8" />
-          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.8" />
-          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.8" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.1" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.1" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.1" />
           <element id="library" level="project" name="Maven: commons-dbcp:commons-dbcp:1.4" />
           <element id="library" level="project" name="Maven: commons-pool:commons-pool:1.5.4" />
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.21" />
@@ -26,15 +26,15 @@
           <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.4" />
           <element id="library" level="project" name="Maven: xalan:xalan:2.7.2" />
           <element id="library" level="project" name="Maven: xalan:serializer:2.7.2" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-core:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-jdbc:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-tx:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-context:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-aop:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-web:4.3.11.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.3.11.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-core:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-jdbc:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-tx:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-context:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-aop:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-web:4.3.18.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.3.18.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-web:4.0.4.RELEASE" />
           <element id="library" level="project" name="Maven: aopalliance:aopalliance:1.0" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-core:4.0.4.RELEASE" />
@@ -52,7 +52,7 @@
           <element id="library" level="project" name="Maven: de.odysseus.juel:juel-api:2.2.7" />
           <element id="library" level="project" name="Maven: de.odysseus.juel:juel-impl:2.2.7" />
           <element id="library" level="project" name="Maven: de.odysseus.juel:juel-spi:2.2.7" />
-          <element id="library" level="project" name="Maven: joda-time:joda-time:2.7" />
+          <element id="library" level="project" name="Maven: joda-time:joda-time:2.10" />
           <element id="library" level="project" name="Maven: org.activiti:activiti-spring:6.0.0" />
           <element id="library" level="project" name="Maven: org.activiti:activiti-bpmn-converter:6.0.0" />
           <element id="library" level="project" name="Maven: org.activiti:activiti-bpmn-model:6.0.0" />

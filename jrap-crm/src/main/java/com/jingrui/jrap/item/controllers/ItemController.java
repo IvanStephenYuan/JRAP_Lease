@@ -27,7 +27,8 @@ import java.util.List;
     public ResponseData query(Item dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
-        return new ResponseData(service.select(requestContext,dto,page,pageSize));
+        /*return new ResponseData(service.select(requestContext,dto,page,pageSize));*/
+        return new ResponseData(service.selectAllItem(dto,requestContext,page,pageSize));
     }
 
     @RequestMapping(value = "/afd/item/submit")

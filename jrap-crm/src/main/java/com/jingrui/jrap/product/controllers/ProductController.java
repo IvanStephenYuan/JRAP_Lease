@@ -32,7 +32,7 @@ import java.util.Map;
 
 @RequestMapping(value = "/pro/product")
 @Controller
-@Api(value="/pro/product", tags = "产品接口")
+@Api(value="ProductController", tags = {"产品接口"})
 public class ProductController extends BaseController {
     public final static String PRODUCT_RULE_CODE = "PRODUCT";
 
@@ -47,7 +47,7 @@ public class ProductController extends BaseController {
 
     @RequestMapping(value = "/query")
     @ResponseBody
-    @ApiOperation(value="获取产品信息", notes = "通用产品接口", httpMethod = "GET", response = Product.class)
+    @ApiOperation(value="获取产品信息", notes = "通用产品接口", httpMethod="GET", response=Product.class)
     public ResponseData query(Product dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
                               @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
@@ -63,13 +63,13 @@ public class ProductController extends BaseController {
     public ResponseData update(@RequestBody List<Product> dto, BindingResult result, HttpServletRequest request) {
         IRequest requestCtx = createRequestContext(request);
 
-        //设置默认值
-        for(Product record : dto){
-            String productCode = record.getProductCode();
-            //设置默认商户
-            if(record.getCompanyId() == null){
-                record.setCompanyId(requestCtx.getCompanyId());
-            }
+            //设置默认值
+            for(Product record : dto){
+                String productCode = record.getProductCode();
+                //设置默认商户
+                if(record.getCompanyId() == null){
+                    record.setCompanyId(requestCtx.getCompanyId());
+                }
 
             if(productCode == null || "".equalsIgnoreCase(productCode)){
                 try {

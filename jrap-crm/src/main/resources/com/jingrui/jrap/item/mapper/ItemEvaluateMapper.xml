@@ -20,6 +20,9 @@
         <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
+    <select id="selectByItemId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select * from afd_item_evaluate ae where ae.ITEM_ID= #{itemId}
+    </select>
 
 
 </mapper>
