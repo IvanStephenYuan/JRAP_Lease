@@ -10,8 +10,8 @@
 # Run: 
 #      $ docker build -t registry.saas.hand-china.com/library/tomcat:8.5-1 . 
 
-FROM registry.saas.hand-china.com/library/tomcat:8.5-1
-RUN echo "Asia/shanghai" > /etc/timezone;
+FROM registry.saas.jingrui.com/library/tomcat:8.5-1
+RUN echo "Asia/hangzhou" > /etc/timezone;
 RUN rm -rf webapps
 COPY ROOT.war  webapps/
 RUN unzip -q webapps/ROOT.war -d webapps/ROOT
