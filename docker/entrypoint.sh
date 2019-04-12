@@ -2,11 +2,11 @@
 
 # <Resource auth="Container" 
 # driverClassName="com.mysql.jdbc.Driver" 
-# url="jdbc:mysql://localhost:3306/hap_dev" 
-# name="jdbc/hap_dev" 
+# url="jdbc:mysql://localhost:3306/jrap_dev"
+# name="jdbc/jrap_dev"
 # type="javax.sql.DataSource" 
-# username="hap_dev" 
-# password="hap_dev"/>
+# username="jrap_dev"
+# password="jrap_dev"/>
 add_mysql(){
     if [ -z ${MYSQL_HOST} ]; then
         error "MYSQL_HOST 数据库链接地址未设置！"
@@ -27,66 +27,6 @@ add_mysql(){
     xmlstarlet ed -L -i '/Context/Resource' -t attr -n "url" -v "jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT:-"3306"}/${MYSQL_DB}" conf/context.xml
     xmlstarlet ed -L -i '/Context/Resource' -t attr -n "username" -v "${MYSQL_USER}" conf/context.xml
     xmlstarlet ed -L -i '/Context/Resource' -t attr -n "password" -v "${MYSQL_PASS}" conf/context.xml
-}
-
-# <Resource auth="Container" 
-# driverClassName="oracle.jdbc.driver.OracleDriver" 
-# url="jdbc:oracle:thin:@192.168.115.136:1521:HAP" 
-# name="jdbc/hap_dev" 
-# type="javax.sql.DataSource"  
-# username="hap_dev" 
-# password="hap_dev"/>
-add_oracle(){
-    if [ -z ${ORACLE_HOST} ]; then
-        error "ORACLE_HOST 数据库链接地址未设置！"
-    fi
-    if [ -z ${ORACLE_PORT} ]; then
-        ignore "ORACLE_PORT 数据库链接地址端口号未设置，使用默认值1521。"
-    fi
-    if [ -z ${ORACLE_SID} ]; then
-        error "ORACLE_SID 数据库SID未设置！"
-    fi
-    if [ -z ${ORACLE_USER} ]; then
-        error "ORACLE_USER 数据库用户名未设置！"
-    fi
-    if [ -z ${ORACLE_PASS} ]; then
-        error "ORACLE_PASS 数据库用户密码未设置！"
-    fi
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "driverClassName" -v "oracle.jdbc.driver.OracleDriver" conf/context.xml
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "url" -v "jdbc:oracle:thin:@${ORACLE_HOST}:${ORACLE_PORT:-"1521"}:${ORACLE_SID}" conf/context.xml
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "username" -v "${ORACLE_USER}" conf/context.xml
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "password" -v "${ORACLE_PASS}" conf/context.xml
-}
-
-# <Resource auth="Container" 
-# driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver" 
-# url="jdbc:sqlserver://10.211.55.6:1433; 
-# name="jdbc/hap_dev" 
-# type="javax.sql.DataSource"  
-# DatabaseName=hap_dev"  
-# username="hap" 
-# password="handhapdev"/>
-add_sqlserver(){
-    if [ -z ${SQLSERVER_HOST} ]; then
-        error "SQLSERVER_HOST 数据库链接地址未设置！"
-    fi
-    if [ -z ${SQLSERVER_PORT} ]; then
-        ignore "SQLSERVER_PORT 数据库链接地址端口号未设置，使用默认值1433。"
-    fi
-    if [ -z ${SQLSERVER_DB} ]; then
-        error "SQLSERVER_DB 数据库名未设置！"
-    fi
-    if [ -z ${SQLSERVER_USER} ]; then
-        error "SQLSERVER_USER 数据库用户名未设置！"
-    fi
-    if [ -z ${SQLSERVER_PASS} ]; then
-        error "SQLSERVER_PASS 数据库用户密码未设置！"
-    fi
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "driverClassName" -v "com.microsoft.sqlserver.jdbc.SQLServerDriver" conf/context.xml
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "url" -v "jdbc:sqlserver://${SQLSERVER_HOST}:${SQLSERVER_PORT:-"1433"}" conf/context.xml
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "DatabaseName" -v "${SQLSERVER_DB}" conf/context.xml
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "username" -v "${SQLSERVER_USER}" conf/context.xml
-    xmlstarlet ed -L -i '/Context/Resource' -t attr -n "password" -v "${SQLSERVER_PASS}" conf/context.xml
 }
 
 # <Resources cachingAllowed="true" cacheMaxSize="100000" />
