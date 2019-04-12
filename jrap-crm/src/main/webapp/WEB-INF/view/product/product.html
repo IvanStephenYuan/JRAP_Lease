@@ -39,7 +39,7 @@
         <div id="grid"></div>
     </div>
 </div>
-
+<div id="detailsWindow"></div>
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
@@ -84,6 +84,7 @@
                 id: "productCode",
                 fields: {
                     productCode:{editable: false},
+                    assignUnit: {editable: false},
                     rateType:{defaultValue: 'FIXED'},
                     version:{defaultValue: 1, type:"number", validation: {
                         required: true,
@@ -95,6 +96,7 @@
                     endDate: {type: 'date', defaultValue: null}
                 }
             }
+
         }
     });
 
@@ -103,14 +105,14 @@
     $(document).ready(function() {
         //业务类型
         $.ajax({
-            url: _basePath + '/pro/business/type/query',
-            dataType: "json",
-            type: "POST",
-            async: false,
-            contentType: "application/json",
-            success: function (data) {
-                businessTypeData = data.rows;
-            }
+                url: _basePath + '/pro/business/type/query',
+                dataType: "json",
+                type: "POST",
+                async: false,
+                contentType: "application/json",
+                success: function (data) {
+                    businessTypeData = data.rows;
+                }
         });
 
         //产品线
@@ -159,6 +161,7 @@
             refresh: true,
             buttonCount: 5
         },
+        editable: true,
         columns: [
             {
                 field: "productCode",
@@ -418,10 +421,49 @@
                         .kendoDatePicker(opts);
                 },
                 sortable: false
-            }
+            },
+           {
+              field: "assignUnit",
+              title: "机构分配",
+              width: 80,
+              headerAttributes: {
+                  style: "text-align: center"
+              },
+              attributes: {style: "text-align:center"},
+              template: function (rowdata) {
+                if (!!rowdata.productCode) {
+                    return '<a href="javascript:void(0);" onclick="openDetailsWindow(\'' + rowdata.productCode + '\')">分配</a>';
+                }
+              }
+           },
         ],
         editable: true
     });
+
+    function openDetailsWindow(productCode) {
+      if (productCode == null || productCode == "undefined") {
+        kendo.ui.showInfoDialog({
+          title: "提示",
+          message: "请先保存数据",
+          iconClass: "fa fa-times-circle", // 提示图标
+          dialogClass: "k-dialog-error" // 图标类型
+        });
+      } else {
+        var win = $("#detailsWindow").kendoWindow({
+          width: 800,
+          height: 400,
+          actions: ["Close"],
+          title: '机构分配',
+          visible: false,
+          modal: true,
+          iframe: true,
+          content: 'unit_assign.html?productCode=' + productCode,
+          close: function (e) {
+              $("#grid").data("kendoGrid").dataSource.page(1);
+          }
+        }).data("kendoWindow");
+        win.center().open();
+      }}
 
 </script>
 </body>

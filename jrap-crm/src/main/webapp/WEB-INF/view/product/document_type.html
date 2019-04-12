@@ -158,16 +158,6 @@
         },
         columns: [
             {
-                field: "documentType",
-                title: '<@spring.message "documenttype.documenttype"/>',
-                width: 100
-            },
-            {
-                field: "description",
-                title: '<@spring.message "documenttype.description"/>',
-                width: 120
-            },
-            {
                 field: "documentCategory",
                 title: '<@spring.message "documenttype.documentcategory"/>',
                 width: 120,
@@ -193,6 +183,16 @@
                 }
             },
             {
+                field: "documentType",
+                title: '<@spring.message "documenttype.documenttype"/>',
+                width: 100
+            },
+            {
+                field: "description",
+                title: '<@spring.message "documenttype.description"/>',
+                width: 120
+            },
+            {
                 field: "businessType",
                 title: '<@spring.message "documenttype.businesstype"/>',
                 width: 120,
@@ -209,7 +209,7 @@
                 editor: function (container, options) {
                     $('<input name="' + options.field + '"/>')
                         .appendTo(container)
-                        .kendoDropDownList({
+                        .kendoComboBox({
                             dataTextField: "description",
                             dataValueField: "businessType",
                             valuePrimitive: true,

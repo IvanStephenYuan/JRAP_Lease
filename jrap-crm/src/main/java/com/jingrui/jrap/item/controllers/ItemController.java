@@ -15,39 +15,43 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.validation.BindingResult;
 import java.util.List;
 
-    @Controller
-    public class ItemController extends BaseController{
+@Controller
+public class ItemController extends BaseController {
 
-    @Autowired
-    private IItemService service;
+  @Autowired
+  private IItemService service;
 
 
-    @RequestMapping(value = "/afd/item/query")
-    @ResponseBody
-    public ResponseData query(Item dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
-        @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
-        IRequest requestContext = createRequestContext(request);
-        /*return new ResponseData(service.select(requestContext,dto,page,pageSize));*/
-        return new ResponseData(service.selectAllItem(dto,requestContext,page,pageSize));
+  @RequestMapping(value = "/afd/item/query")
+  @ResponseBody
+  public ResponseData query(Item dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
+      @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
+    IRequest requestContext = createRequestContext(request);
+    return new ResponseData(service.select(requestContext, dto, page, pageSize));
+    /*  return new ResponseData(service.selectAllItem(dto,requestContext,page,pageSize));*/
+  }
+
+  @RequestMapping(value = "/afd/item/submit")
+  @ResponseBody
+  public ResponseData update(@RequestBody List<Item> dto, BindingResult result,
+      HttpServletRequest request) {
+    getValidator().validate(dto, result);
+    if (result.hasErrors()) {
+      ResponseData responseData = new ResponseData(false);
+      responseData.setMessage(getErrorMessage(result, request));
+      return responseData;
     }
+    IRequest requestCtx = createRequestContext(request);
+    for (int i = 0; i < dto.size(); i++) {
+      dto.get(i).setCompanyId(requestCtx.getCompanyId());
+    }
+    return new ResponseData(service.batchUpdate(requestCtx, dto));
+  }
 
-    @RequestMapping(value = "/afd/item/submit")
-    @ResponseBody
-    public ResponseData update(@RequestBody List<Item> dto, BindingResult result, HttpServletRequest request){
-        getValidator().validate(dto, result);
-        if (result.hasErrors()) {
-        ResponseData responseData = new ResponseData(false);
-        responseData.setMessage(getErrorMessage(result, request));
-        return responseData;
-        }
-        IRequest requestCtx = createRequestContext(request);
-        return new ResponseData(service.batchUpdate(requestCtx, dto));
-    }
-
-    @RequestMapping(value = "/afd/item/remove")
-    @ResponseBody
-    public ResponseData delete(HttpServletRequest request,@RequestBody List<Item> dto){
-        service.batchDelete(dto);
-        return new ResponseData();
-    }
-    }
+  @RequestMapping(value = "/afd/item/remove")
+  @ResponseBody
+  public ResponseData delete(HttpServletRequest request, @RequestBody List<Item> dto) {
+    service.batchDelete(dto);
+    return new ResponseData();
+  }
+}

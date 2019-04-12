@@ -10,9 +10,14 @@
         <result column="START_DATE" property="startDate" jdbcType="DATE" />
         <result column="END_DATE" property="endDate" jdbcType="DATE" />
         <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="NAME" property="unitName" jdbcType="VARCHAR" />
         <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
+
+    <select id="selectByproductCode" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select pua.*,b.name from pro_unit_assign pua,hr_org_unit_b b where pua.UNIT_ID=b.UNIT_ID and pua.PRODUCT_CODE=#{productCode}
+    </select>
 
 
 </mapper>

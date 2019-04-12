@@ -109,7 +109,7 @@ public class Item extends BaseDTO {
 
   @Transient
   @JoinColumn(joinName = "unitJoin", field = "name")
-  private String description; //经销商名称
+  private String description; //产品线描述
 
   private Long programApplicationId;
 

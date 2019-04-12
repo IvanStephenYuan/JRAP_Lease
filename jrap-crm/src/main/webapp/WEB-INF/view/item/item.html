@@ -59,7 +59,7 @@
         if (type !== "read" && options.models) {
           var datas = Jrap.prepareSubmitParameter(options, type);
           for (var i = 0; i < datas.length; i++) {
-            datas[i]['companyId'] = -1;
+            datas[i]['companyId'] = -2;
           }
           return kendo.stringify(datas);
         } else if (type === "read") {
@@ -77,7 +77,7 @@
       model: {
         id: "itemId",
         fields: {
-          enabledFlag:{defaultValue: 'Y',type: 'boolean',checkedValue:'Y',uncheckedValue:'N'}
+          enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
         },
         editable: function (col) {
           if (col == "evaluate") {
@@ -88,6 +88,20 @@
 
       },
     }
+  });
+  var productLineData = [];
+  $(document).ready(function () {
+    //产品线
+    $.ajax({
+      url: _basePath + '/pro/product/line/query',
+      dataType: "json",
+      type: "POST",
+      async: false,
+      contentType: "application/json",
+      success: function (data) {
+        productLineData = data.rows;
+      }
+    });
   });
 
   $("#grid").kendoGrid({
@@ -106,28 +120,31 @@
       refresh: true,
       buttonCount: 5
     },
-    editable:true,
+    editable: true,
     columns: [
-   /*   {
-        field: "lineCode",
-        title: '<@spring.message "item.linecode"/>',
-        width: 120
-      },*/
       {
         field: "lineCode",
         title: '<@spring.message "item.linecode"/>',
         width: 120,
         template: function (dataItem) {
-          return dataItem['description'] || ''
+          var v = dataItem.lineCode ? dataItem.lineCode : "";
+          $.each(productLineData, function (i, n) {
+            if ((n.lineCode || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.description;
+              return v;
+            }
+          });
+          return v;
         },
         editor: function (container, options) {
-          $('<input name="lineCode"/>')
+          $('<input name="' + options.field + '"/>')
           .appendTo(container)
-          .kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_PRODUCTLINE")},
-              {
-                textField: 'description',
-                model: options.model
-              }));
+          .kendoDropDownList({
+            dataTextField: "description",
+            dataValueField: "lineCode",
+            valuePrimitive: true,
+            dataSource: productLineData
+          });
         }
       },
       {
@@ -198,55 +215,54 @@
       {
         field: "releaseDate",
         title: '<@spring.message "item.releasedate"/>',
-        format:"{0:yyyy-MM-dd hh:mm:ss}",
-        editor:function (container, options) {
+        format: "{0:yyyy-MM-dd hh:mm:ss}",
+        editor: function (container, options) {
           var input = $('<input name="' + options.field + '"/>');
           input.appendTo(container);
           input.kendoDateTimePicker({
-            format:"yyyy-MM-dd hh:mm:ss"
-          });},
+            format: "yyyy-MM-dd hh:mm:ss"
+          });
+        },
         width: 150
       },
       {
         field: "annualDate",
         title: '<@spring.message "item.annualdate"/>',
-        format:"{0:yyyy-MM-dd hh:mm:ss}",
-        editor:function (container, options) {
+        format: "{0:yyyy-MM-dd hh:mm:ss}",
+        editor: function (container, options) {
           var input = $('<input name="' + options.field + '"/>');
           input.appendTo(container);
           input.kendoDateTimePicker({
-            format:"yyyy-MM-dd hh:mm:ss"
-          });},
+            format: "yyyy-MM-dd hh:mm:ss"
+          });
+        },
         width: 150
       },
       {
         field: "insurance",
         title: '<@spring.message "item.insurance"/>',
-        format:"{0:yyyy-MM-dd hh:mm:ss}",
-        editor:function (container, options) {
+        format: "{0:yyyy-MM-dd hh:mm:ss}",
+        editor: function (container, options) {
           var input = $('<input name="' + options.field + '"/>');
           input.appendTo(container);
           input.kendoDateTimePicker({
-            format:"yyyy-MM-dd hh:mm:ss"
-          });},
+            format: "yyyy-MM-dd hh:mm:ss"
+          });
+        },
         width: 150
       },
       {
         field: "drivingDate",
         title: '<@spring.message "item.drivingdate"/>',
-        format:"{0:yyyy-MM-dd hh:mm:ss}",
-        editor:function (container, options) {
+        format: "{0:yyyy-MM-dd hh:mm:ss}",
+        editor: function (container, options) {
           var input = $('<input name="' + options.field + '"/>');
           input.appendTo(container);
           input.kendoDateTimePicker({
-            format:"yyyy-MM-dd hh:mm:ss"
-          });},
+            format: "yyyy-MM-dd hh:mm:ss"
+          });
+        },
         width: 150,
-      },
-      {
-        field: "remark",
-        title: '<@spring.message "item.remark"/>',
-        width: 120
       },
       {
         field: "evaluate",
@@ -254,7 +270,7 @@
         width: 120,
         template: function (rowdata) {
 
-            return "<a href='javascript:openDetailsWindow(" + rowdata.itemId + ")'>添加</a>";
+          return "<a href='javascript:openDetailsWindow(" + rowdata.itemId + ")'>添加</a>";
 
         }
       },
@@ -280,7 +296,7 @@
        width: 120
    },*/
     ],
-    editable:true,
+    editable: true,
 
   });
 
@@ -294,20 +310,21 @@
         dialogClass: "k-dialog-error" // 图标类型
       })
     } else {
-    var win = $("#detailsWindow").kendoWindow({
-      width: 1200,
-      height: 450,
-      actions: ["Close"],
-      title: '评估信息添加',
-      visible: false,
-      modal: true,
-      iframe: true,
-      content: 'item_evaluate.html?itemId=' + itemId,
-      close: function (e) {
-      }
-    }).data("kendoWindow");
-    win.center().open();
-  }}
+      var win = $("#detailsWindow").kendoWindow({
+        width: 1200,
+        height: 450,
+        actions: ["Close"],
+        title: '评估信息添加',
+        visible: false,
+        modal: true,
+        iframe: true,
+        content: 'item_evaluate.html?itemId=' + itemId,
+        close: function (e) {
+        }
+      }).data("kendoWindow");
+      win.center().open();
+    }
+  }
 
 </script>
 </body>

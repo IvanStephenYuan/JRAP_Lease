@@ -24,7 +24,7 @@
   dataSource = new kendo.data.DataSource({
     transport: {
       read: {
-        url: BaseUrl + "/afd/item/evaluate/selectByItemId/"+${RequestParameters.itemId!0},
+        url: BaseUrl + "/afd/item/evaluate/selectByItemId/" +${RequestParameters.itemId!0},
         /*url: BaseUrl + "/afd/item/evaluate/query",*/
         type: "POST",
         dataType: "json"
@@ -65,7 +65,7 @@
       model: {
         id: "evaluateId",
         fields: {
-          enabledFlag:{defaultValue: 'Y',type: 'boolean',checkedValue:'Y',uncheckedValue:'N'}
+          enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
         }
       }
     }
@@ -96,13 +96,14 @@
       {
         field: "evaluationDate",
         title: '<@spring.message "itemevaluate.evaluationdate"/>',
-        format:"{0:yyyy-MM-dd hh:mm:ss}",
-        editor:function (container, options) {
+        format: "{0:yyyy-MM-dd hh:mm:ss}",
+        editor: function (container, options) {
           var input = $('<input name="' + options.field + '"/>');
           input.appendTo(container);
           input.kendoDateTimePicker({
-            format:"yyyy-MM-dd hh:mm:ss"
-          });},
+            format: "yyyy-MM-dd hh:mm:ss"
+          });
+        },
         width: 120
       },
       {
@@ -146,11 +147,6 @@
         width: 120
       },
       {
-        field: "remark",
-        title: '<@spring.message "itemevaluate.remark"/>',
-        width: 120
-      },
-      {
         field: "enabledFlag",
         title: '<@spring.message "itemevaluate.enabledflag"/>',
         headerAttributes: {
@@ -160,16 +156,6 @@
         attributes: {style: "text-align:center"},
         width: 120
       },
-      /*{
-  field: "programApplicationId",
-  title: '<@spring.message "itemevaluate.programapplicationid"/>',
-  width: 120
-},
-      {
-  field: "programUpdateDate",
-  title: '<@spring.message "itemevaluate.programupdatedate"/>',
-  width: 120
-},*/
     ],
     editable: true
   });
