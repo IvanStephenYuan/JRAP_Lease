@@ -1,14 +1,14 @@
 # HOW TO BUILD THIS BASE IMAGE
-# registry.saas.hand-china.com/library/tomcat:8.5 is the same as tomcat:8.5
+# registry.saas.jingrui.com/library/tomcat:8.5 is the same as tomcat:8.5
 # -----------------------
-# FROM registry.saas.hand-china.com/library/tomcat:8.5
+# FROM registry.saas.jingrui.com/library/tomcat:8.5
 # RUN rm -rf webapps/ROOT
 # RUN apt-get update && apt-get install -y --no-install-recommends \
 # 		xmlstarlet \
 # 	&& rm -rf /var/lib/apt/lists/*
 #
 # Run: 
-#      $ docker build -t registry.saas.hand-china.com/library/tomcat:8.5-1 . 
+#      $ docker build -t registry.saas.jingrui.com/library/tomcat:8.5-1 .
 
 FROM registry.saas.jingrui.com/library/tomcat:8.5-1
 RUN echo "Asia/hangzhou" > /etc/timezone;
