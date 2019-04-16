@@ -217,7 +217,6 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   createIndex(tableName:"PRO_PRODUCT",indexName:"PRO_PRODUCT_N3"){
    column(name: "PRODUCT_CLASS")
   }
-
  }
 
 
@@ -856,6 +855,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"LINE_CODE",type:"bigint",remarks:"产品线"){
     constraints(nullable:"false")
    }
+   column(name:"ITEM_CODE",type:"varchar(200)",remarks:"租赁物编码")
    column(name:"MODEL",type:"varchar(200)",remarks:"型号")
    column(name:"OUTSIDE_COLOR",type:"varchar(60)",remarks:"车体颜色")
    column(name:"INSIDE_COLOR",type:"varchar(60)",remarks:"车内颜色")
@@ -1057,6 +1057,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"TOTAL_NUMBER",type:"Int",remarks:"商品数量")
    column(name:"TOTAL_AMOUNT",type:"decimal",remarks:"商品总额度")
    column(name:"SURPLUS_AMOUNT",type:"decimal",remarks:"剩余额度")
+   column(name:"SUBMIT_STATUS",type:"varchar(60)",remarks:"提交状态(SUBMIT_STATUS SUBMIT-提交中、PASS-审批通过、REJECT-审批拒绝)")
    column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
    column(name:"START_DATE",type:"datetime",remarks:"有效期从")
    column(name:"END_DATE",type:"datetime",remarks:"有效期至")

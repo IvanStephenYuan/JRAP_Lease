@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UnitAssignServiceImpl extends BaseServiceImpl<UnitAssign> implements IUnitAssignService{
   @Autowired
   UnitAssignMapper unitAssignMapper;
-  public List<UnitAssign> selectByproductCode(Long ProductCode,IRequest request,int page, int pageSize){
+  public List<UnitAssign> selectByproductCode(String ProductCode,IRequest request,int page, int pageSize){
     return unitAssignMapper.selectByproductCode(ProductCode);
   }
 

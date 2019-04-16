@@ -3,6 +3,7 @@
     var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="${base.contextPath}/common/code?productClassData=PRODUCT.CLASS" type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?productTypeData=PRODUCT.TYPE" type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?productCalculateData=PRODUCT.CALCULATE" type="text/javascript"></script>
@@ -12,7 +13,7 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <!--<span data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>-->
+        <span class="btn btn-success k-grid-save-changes" onclick="assignUnit()" style="float:left;margin-right:5px;"><@spring.message "机构分配"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
@@ -145,7 +146,7 @@
         editorDialog.center().open();
     };
 
-    $("#grid").kendoGrid({
+    var pgrid=$("#grid").kendoGrid({
         dataSource: dataSource,
         resizable: true,
         scrollable: true,
@@ -422,48 +423,42 @@
                 },
                 sortable: false
             },
-           {
-              field: "assignUnit",
-              title: "机构分配",
-              width: 80,
-              headerAttributes: {
-                  style: "text-align: center"
-              },
-              attributes: {style: "text-align:center"},
-              template: function (rowdata) {
-                if (!!rowdata.productCode) {
-                    return '<a href="javascript:void(0);" onclick="openDetailsWindow(\'' + rowdata.productCode + '\')">分配</a>';
-                }
-              }
-           },
         ],
         editable: true
-    });
-
-    function openDetailsWindow(productCode) {
-      if (productCode == null || productCode == "undefined") {
-        kendo.ui.showInfoDialog({
-          title: "提示",
-          message: "请先保存数据",
-          iconClass: "fa fa-times-circle", // 提示图标
-          dialogClass: "k-dialog-error" // 图标类型
+    }).data("kendoGrid");
+    function assignUnit() {
+      var checked = pgrid.selectedDataItems();
+      var mycars=new Array(checked.length)
+      if (checked.length) {
+         /* 给数组赋值*/
+        $.each(checked,function(i,v){
+          mycars[i]=v.productCode;
         });
-      } else {
         var win = $("#detailsWindow").kendoWindow({
           width: 800,
-          height: 400,
+          height: 450,
           actions: ["Close"],
           title: '机构分配',
           visible: false,
           modal: true,
           iframe: true,
-          content: 'unit_assign.html?productCode=' + productCode,
+          content: 'assign_unit.html?productCode='+mycars,
           close: function (e) {
-              $("#grid").data("kendoGrid").dataSource.page(1);
           }
         }).data("kendoWindow");
         win.center().open();
-      }}
+      }else{
+        kendo.ui.showInfoDialog({
+          title: "提示",
+          message: "请至少选择一行数据",
+          iconClass: "fa fa-times-circle", // 提示图标
+          dialogClass: "k-dialog-error" // 图标类型
+        });
+      }
+
+}
+
+
 
 </script>
 </body>

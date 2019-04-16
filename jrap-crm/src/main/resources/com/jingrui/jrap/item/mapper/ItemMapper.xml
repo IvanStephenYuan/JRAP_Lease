@@ -4,6 +4,7 @@
 <mapper namespace="com.jingrui.jrap.item.mapper.ItemMapper">
     <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.Item">
         <result column="ITEM_ID" property="itemId" jdbcType="DECIMAL" />
+        <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR" />
         <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
         <result column="LINE_CODE" property="lineCode" jdbcType="VARCHAR" />
         <result column="MODEL" property="model" jdbcType="VARCHAR" />

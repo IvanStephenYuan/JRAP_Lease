@@ -4,13 +4,17 @@
   var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <body>
+<div id="newWin" style="display: none"></div>
 <div id="page-content">
   <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
     <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"
-          data-bind="click:create"><@spring.message "jrap.new"/></span>
-    <span class="btn btn-success k-grid-save-changes" data-bind="click:save"
-          style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-    <span data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+          onclick="newData()">
+                <i class="fa fa-plus-square" style="margin-right:3px;"></i><@spring.message "jrap.new"/>
+            </span>
+    <span data-bind="click:remove" class="btn btn-danger" style="float:left;">
+                <i class="fa fa-trash-o" style="margin-right:3px;"></i>
+                <@spring.message "jrap.delete"/>
+    </span>
   </div>
   <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
   <div class="pull-right" id="query-form" style="padding-bottom:10px;">
@@ -29,7 +33,6 @@
     <div id="grid"></div>
   </div>
 </div>
-<div id="detailsWindow"></div>
 <script type="text/javascript">
   Jrap.initEnterQuery('#query-form', viewModel.query);
   var BaseUrl = _basePath;
@@ -122,6 +125,22 @@
     },
     editable: true,
     columns: [
+      {
+        title: '<@spring.message "jrap.edit"/>',
+        width: 80,
+        template: function (rowdata) {
+          if (rowdata.itemId) {
+            return Jrap.createAnchor($l('jrap.edit'), newData, rowdata.itemId);
+          }
+          return '';
+        },
+        headerAttributes: {
+          "class": "table-header-cell",
+          style: "text-align: center"
+        },
+        attributes: {style: "text-align:center"}
+
+      },
       {
         field: "lineCode",
         title: '<@spring.message "item.linecode"/>',
@@ -265,16 +284,6 @@
         width: 150,
       },
       {
-        field: "evaluate",
-        title: "评估信息添加",
-        width: 120,
-        template: function (rowdata) {
-
-          return "<a href='javascript:openDetailsWindow(" + rowdata.itemId + ")'>添加</a>";
-
-        }
-      },
-      {
         field: "enabledFlag",
         title: '<@spring.message "item.enabledflag"/>',
         headerAttributes: {
@@ -284,47 +293,33 @@
         attributes: {style: "text-align:center"},
         width: 120
       },
-
-      /*     {
-       field: "programApplicationId",
-       title: '<@spring.message "item.programapplicationid"/>',
-       width: 120
-   },
-           {
-       field: "programUpdateDate",
-       title: '<@spring.message "item.programupdatedate"/>',
-       width: 120
-   },*/
     ],
     editable: true,
 
   });
 
-  function openDetailsWindow(itemId) {
-    console.log(viewModel.model.toJSON());
-    if (itemId == null || itemId == "undefined") {
-      kendo.ui.showInfoDialog({
-        title: "提示",
-        message: "请先保存数据",
-        iconClass: "fa fa-times-circle", // 提示图标
-        dialogClass: "k-dialog-error" // 图标类型
+  function newData(itemId) {
+    var url = "${base.contextPath}/item/item_edit.html?isedit=0";
+    if (itemId) {
+      url = "${base.contextPath}/item/item_edit.html?isedit=1&itemId=" + itemId;
+    }
+    Jrap.createWindow('#newWin', {
+      width: 1000,
+      height: 400,
+      title: '租赁物编辑',
+      url: url
+    })
+    if (parent.autoResizeIframe) {
+      parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
+        var win = $("#newWin").data("kendoWindow");
+        win.center().open();
       })
     } else {
-      var win = $("#detailsWindow").kendoWindow({
-        width: 1200,
-        height: 450,
-        actions: ["Close"],
-        title: '评估信息添加',
-        visible: false,
-        modal: true,
-        iframe: true,
-        content: 'item_evaluate.html?itemId=' + itemId,
-        close: function (e) {
-        }
-      }).data("kendoWindow");
+      var win = $("#newWin").data("kendoWindow");
       win.center().open();
     }
   }
+
 
 </script>
 </body>

@@ -7,6 +7,6 @@ import com.jingrui.jrap.product.dto.UnitAssign;
 import java.util.List;
 
 public interface IUnitAssignService extends IBaseService<UnitAssign>, ProxySelf<IUnitAssignService>{
-  List<UnitAssign> selectByproductCode(Long ProductCode,IRequest request,int page, int pageSize);
+  List<UnitAssign> selectByproductCode(String ProductCode,IRequest request,int page, int pageSize);
 
 }

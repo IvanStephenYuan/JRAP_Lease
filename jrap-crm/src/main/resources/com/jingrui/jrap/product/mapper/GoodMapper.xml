@@ -10,6 +10,7 @@
         <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
         <result column="PRODUCT_CODE" property="productCode" jdbcType="VARCHAR" />
         <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="SUBMIT_STATUS" property="submitStatus" jdbcType="VARCHAR" />
         <result column="UNIT_PRICE" property="unitPrice" jdbcType="DECIMAL" />
         <result column="TOTAL_NUMBER" property="totalNumber" jdbcType="DECIMAL" />
         <result column="TOTAL_AMOUNT" property="totalAmount" jdbcType="DECIMAL" />

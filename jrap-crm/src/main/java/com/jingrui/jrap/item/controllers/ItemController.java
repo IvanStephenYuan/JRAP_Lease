@@ -1,5 +1,7 @@
 package com.jingrui.jrap.item.controllers;
 
+import com.jingrui.jrap.code.rule.exception.CodeRuleException;
+import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
 import com.jingrui.jrap.core.IRequest;
@@ -17,9 +19,12 @@ import java.util.List;
 
 @Controller
 public class ItemController extends BaseController {
+  private static final String CAR_RULE_CODE = "CAR";
 
   @Autowired
   private IItemService service;
+  @Autowired
+  private ISysCodeRuleProcessService codeRuleProcessService;
 
 
   @RequestMapping(value = "/afd/item/query")
@@ -44,6 +49,16 @@ public class ItemController extends BaseController {
     IRequest requestCtx = createRequestContext(request);
     for (int i = 0; i < dto.size(); i++) {
       dto.get(i).setCompanyId(requestCtx.getCompanyId());
+      //设置租赁物编码
+      String  itecode=dto.get(i).getItemCode();
+      if (itecode == null || "".equalsIgnoreCase(itecode)) {
+        try {
+          String carCode = codeRuleProcessService.getRuleCode(ItemController.CAR_RULE_CODE);
+          dto.get(i).setItemCode(carCode);
+        } catch (CodeRuleException e) {
+          e.printStackTrace();
+        }
+      }
     }
     return new ResponseData(service.batchUpdate(requestCtx, dto));
   }

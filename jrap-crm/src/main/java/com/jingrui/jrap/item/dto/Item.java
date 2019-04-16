@@ -44,6 +44,7 @@ public class Item extends BaseDTO {
   public static final String FIELD_DESCRIPTION = "description";
   public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
   public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
+  public static final String FIELD_ITEM_CODE = "itemCode";
 
 
   @Id
@@ -79,6 +80,8 @@ public class Item extends BaseDTO {
 
   @Length(max = 30)
   private String carKey; //车辆钥匙
+  @Length(max = 200)
+  private String itemCode; //租赁物编码
 
   private Long guidePrice; //指导价
 
@@ -153,6 +156,14 @@ public class Item extends BaseDTO {
 
   public String getModel() {
     return model;
+  }
+
+  public String getItemCode() {
+    return itemCode;
+  }
+
+  public void setItemCode(String itemCode) {
+    this.itemCode = itemCode;
   }
 
   public void setOutsideColor(String outsideColor) {

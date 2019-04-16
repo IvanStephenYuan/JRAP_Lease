@@ -8,7 +8,7 @@ import java.util.List;
 public interface UnitAssignMapper extends Mapper<UnitAssign>{
 
 
-  List<UnitAssign> selectByproductCode(Long ProductCode);
+  List<UnitAssign> selectByproductCode(String ProductCode);
 
 
 }
