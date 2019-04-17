@@ -852,10 +852,18 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"COMPANY_ID",type:"bigint",remarks:"所属公司ID"){
     constraints(nullable:"false")
    }
+   column(name:"ITEM_CODE",type:"varchar(200)",remarks:"租赁物编码"){
+    constraints(nullable:"false")
+   }
+   column(name:"DOCUMENT_CATEGORY",type:"varchar(60)",remarks:"单据类别"){
+    constraints(nullable:"false")
+   }
+   column(name:"DOCUMENT_TYPE",type:"varchar(60)",remarks:"单据类型"){
+    constraints(nullable:"false")
+   }
    column(name:"LINE_CODE",type:"bigint",remarks:"产品线"){
     constraints(nullable:"false")
    }
-   column(name:"ITEM_CODE",type:"varchar(200)",remarks:"租赁物编码")
    column(name:"MODEL",type:"varchar(200)",remarks:"型号")
    column(name:"OUTSIDE_COLOR",type:"varchar(60)",remarks:"车体颜色")
    column(name:"INSIDE_COLOR",type:"varchar(60)",remarks:"车内颜色")
@@ -905,7 +913,10 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"ATTRIBUTE15",type:"varchar(150)")
   }
   createIndex(tableName:"AFD_ITEM",indexName:"AFD_ITEM_N1"){
-   column(name: "COMPANY_ID", "ITEM_CODE")
+   column(name: "COMPANY_ID")
+   column(name: "ITEM_CODE")
+   column(name: "DOCUMENT_CATEGORY")
+   column(name: "DOCUMENT_TYPE")
   }
   createIndex(tableName:"AFD_ITEM",indexName:"AFD_ITEM_N2"){
    column(name: "LINE_CODE")

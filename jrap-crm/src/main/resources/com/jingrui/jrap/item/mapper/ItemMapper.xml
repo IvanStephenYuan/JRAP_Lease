@@ -5,6 +5,8 @@
     <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.Item">
         <result column="ITEM_ID" property="itemId" jdbcType="DECIMAL" />
         <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
+        <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
         <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
         <result column="LINE_CODE" property="lineCode" jdbcType="VARCHAR" />
         <result column="MODEL" property="model" jdbcType="VARCHAR" />
@@ -30,18 +32,4 @@
         <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
-    <select id="selectAllItem" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.item.dto.Item">
-        select ait.*,ppl.description from afd_item ait,pro_product_line ppl
-        <where>
-                ppl.LINE_CODE=ait.LINE_CODE
-        </where>
-    </select>
-
-    <!--    <if test="carType != null">
-                and ait.CAR_TYPE  like concat('%',#{carType},'%')
-            </if>
-            <if test="loanType != null">
-                and ait.LOAN_TYPE like concat('%',#{loanType},'%')
-            </if>-->
-
 </mapper>

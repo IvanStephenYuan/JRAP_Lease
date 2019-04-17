@@ -7,5 +7,5 @@ import com.jingrui.jrap.item.dto.Item;
 import java.util.List;
 
 public interface IItemService extends IBaseService<Item>, ProxySelf<IItemService>{
-  List<Item> selectAllItem(Item dto,IRequest request,int page, int pageSize);
+
 }
