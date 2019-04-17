@@ -16,6 +16,7 @@
 *
 -->
 <#include "../include/header.html">
+<script src="${base.contextPath}/common/code?evaluateTypeData=EVALUATE.TYPE" type="text/javascript"></script>
 <body>
 <script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <style type="text/css">
@@ -37,6 +38,9 @@
   .right {
     float: right;
     width: 83%;
+  }
+  .none{
+    display: none;
   }
 </style>
 <script>
@@ -374,10 +378,10 @@
       <div style="height:300px;">
         <div class="panel-body">
           <div class="row">
-            <div class="left">
+            <div class="left none">
               <div id="treeView"></div>
             </div>
-            <div class="right">
+            <div class="block">
               <div class="form-group">
                 <div id='grid-container'>
                   <div id="evaluategrid" style="clear: both"></div>
@@ -493,7 +497,27 @@
       {
         field: "evaluateType",
         title: '<@spring.message "itemevaluate.evaluatetype"/>',
-        width: 120
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.evaluateType ? dataItem.evaluateType : "";
+          $.each(evaluateTypeData, function (i, n) {
+            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.meaning;
+              return v;
+            }
+          });
+          return v;
+        },
+        editor: function (container, options) {
+          $('<input name="' + options.field + '"/>')
+          .appendTo(container)
+          .kendoDropDownList({
+            dataTextField: "meaning",
+            dataValueField: "value",
+            valuePrimitive: true,
+            dataSource: evaluateTypeData
+          });
+        }
       },
       {
         field: "evaluationDate",

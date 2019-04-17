@@ -14,6 +14,7 @@
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
         <span class="btn btn-success k-grid-save-changes" onclick="assignUnit()" style="float:left;margin-right:5px;"><@spring.message "机构分配"/></span>
+        <span class="btn btn-success k-grid-save-changes" onclick="productRelase()" style="float:left;margin-right:5px;"><@spring.message "产品发布"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
@@ -41,6 +42,7 @@
     </div>
 </div>
 <div id="detailsWindow"></div>
+<div id="productrelaseWindow"></div>
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
@@ -426,6 +428,7 @@
         ],
         editable: true
     }).data("kendoGrid");
+    //产品分配机构
     function assignUnit() {
       var checked = pgrid.selectedDataItems();
       var mycars=new Array(checked.length)
@@ -457,6 +460,49 @@
       }
 
 }
+
+    //产品发布
+    function productRelase() {
+      var checked = pgrid.selectedDataItems();
+      var goods=new Array(checked.length)
+      if (checked.length) {
+        if (checked.length>1) {
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "只能选择一行数据",
+            iconClass: "fa fa-times-circle", // 提示图标
+            dialogClass: "k-dialog-error" // 图标类型
+          });
+
+        } else{
+        /* 给数组赋值*/
+          $.each(checked, function (i, v) {
+            goods[i] = v.productCode;
+          });
+          var win = $("#productrelaseWindow").kendoWindow({
+          width: 800,
+          height: 450,
+          actions: ["Close"],
+          title: '产品发布申请',
+          visible: false,
+          modal: true,
+          iframe: true,
+          content: 'good_apply.html?Goods=' + goods,
+          close: function (e) {
+          }
+        }).data("kendoWindow");
+        win.center().open();
+      }
+      }else{
+        kendo.ui.showInfoDialog({
+          title: "提示",
+          message: "请至少选择一行数据",
+          iconClass: "fa fa-times-circle", // 提示图标
+          dialogClass: "k-dialog-error" // 图标类型
+        });
+      }
+
+    }
 
 
 

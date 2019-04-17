@@ -7,6 +7,7 @@ import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import com.jingrui.jrap.customer.dto.CustomerID;
 import com.jingrui.jrap.customer.dto.CustomerLicense;
 import com.jingrui.jrap.customer.service.ICustomerOcrService;
+import com.jingrui.jrap.product.service.IDocumentTypeService;
 import com.jingrui.jrap.system.service.ICodeService;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
@@ -49,6 +50,9 @@ public class CustomerController extends BaseController {
     @Autowired
     private ICodeService codeService;
 
+    @Autowired
+    private IDocumentTypeService documentTypeService;
+
     @RequestMapping(value = "/afd/customer/query")
     @ResponseBody
     public ResponseData query(Customer dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
@@ -81,7 +85,11 @@ public class CustomerController extends BaseController {
 
             if (customerCode == null || "".equalsIgnoreCase(customerCode)) {
                 try {
-                    customerCode = codeRuleProcessService.getRuleCode(CustomerController.CUSTOMER_RULE_CODE);
+                    String ruleCode = documentTypeService.getDocumentCodeRule(record.getCustomerCategory(), record.getCustomerType());
+                    if(ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)){
+                        ruleCode = CustomerController.CUSTOMER_RULE_CODE;
+                    }
+                    customerCode = codeRuleProcessService.getRuleCode(ruleCode);
                     record.setCustomerCode(customerCode);
                 } catch (CodeRuleException e) {
                     e.printStackTrace();

@@ -11,4 +11,24 @@
         <result column="WORKFLOW_CODE" property="workflowCode" jdbcType="VARCHAR" />
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
     </resultMap>
+
+    <select id="selectByDocumentType" resultMap="BaseResultMap">
+        select t.document_category,
+			   t.document_type,
+			   t.description,
+			   t.coding_rule,
+			   t.workflow_code,
+               t.business_type,
+			   t.enabled_flag
+          from pro_document_type t
+        <where>
+            <if test="documentCategory !=null">
+                AND t.document_category = #{documentCategory,jdbcType=VARCHAR}
+            </if>
+            <if test="documentType !=null">
+                AND t.document_type = #{documentType,jdbcType=VARCHAR}
+            </if>
+            AND t.enabled_flag = 'Y'
+        </where>
+    </select>
 </mapper>
