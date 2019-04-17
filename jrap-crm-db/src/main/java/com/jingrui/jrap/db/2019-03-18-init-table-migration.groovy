@@ -905,7 +905,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"ATTRIBUTE15",type:"varchar(150)")
   }
   createIndex(tableName:"AFD_ITEM",indexName:"AFD_ITEM_N1"){
-   column(name: "COMPANY_ID")
+   column(name: "COMPANY_ID", "ITEM_CODE")
   }
   createIndex(tableName:"AFD_ITEM",indexName:"AFD_ITEM_N2"){
    column(name: "LINE_CODE")
@@ -1057,7 +1057,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"TOTAL_NUMBER",type:"Int",remarks:"商品数量")
    column(name:"TOTAL_AMOUNT",type:"decimal",remarks:"商品总额度")
    column(name:"SURPLUS_AMOUNT",type:"decimal",remarks:"剩余额度")
-   column(name:"SUBMIT_STATUS",type:"varchar(60)",remarks:"提交状态(SUBMIT_STATUS SUBMIT-提交中、PASS-审批通过、REJECT-审批拒绝)")
+   column(name:"STATUS", type:"varchar(60)",remarks:"状态")
    column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
    column(name:"START_DATE",type:"datetime",remarks:"有效期从")
    column(name:"END_DATE",type:"datetime",remarks:"有效期至")
@@ -1105,7 +1105,9 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name: "START_DATE")
    column(name: "END_DATE")
   }
-
+  createIndex(tableName:"AFD_GOOD",indexName:"AFD_GOOD_N4"){
+   column(name: "STATUS")
+  }
  }
 
 
