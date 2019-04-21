@@ -23,12 +23,6 @@
 
         <dependency>
             <groupId>com.jingrui</groupId>
-            <artifactId>jrap-crm</artifactId>
-            <type>war</type>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jingrui</groupId>
             <artifactId>jrap-job</artifactId>
             <type>war</type>
         </dependency>
@@ -72,6 +66,12 @@
         <dependency>
             <groupId>com.jingrui</groupId>
             <artifactId>jrap-workflow</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-crm</artifactId>
             <type>war</type>
         </dependency>
 
@@ -130,10 +130,6 @@
                         </overlay>
                         <overlay>
                             <groupId>com.jingrui</groupId>
-                            <artifactId>jrap-crm</artifactId>
-                        </overlay>
-                        <overlay>
-                            <groupId>com.jingrui</groupId>
                             <artifactId>jrap-job</artifactId>
                         </overlay>
                         <overlay>
@@ -164,6 +160,10 @@
                             <groupId>com.jingrui</groupId>
                             <artifactId>jrap-workflow</artifactId>
                         </overlay>
+                        <overlay>
+                            <groupId>com.jingrui</groupId>
+                            <artifactId>jrap-crm</artifactId>
+                        </overlay>
                     </overlays>
                 </configuration>
             </plugin>
@@ -173,4 +173,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

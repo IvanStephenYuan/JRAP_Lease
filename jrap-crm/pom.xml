@@ -72,6 +72,20 @@
             <artifactId>java-sdk</artifactId>
             <version>4.10.0</version>
         </dependency>
+
+        <!--工作流-->
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-workflow</artifactId>
+            <classifier>classes</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jingrui</groupId>
+            <artifactId>jrap-workflow</artifactId>
+            <type>war</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

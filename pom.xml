@@ -22,7 +22,7 @@
         <module>jrap-interface-db</module>
         <module>jrap-task</module>
         <module>jrap-task-db</module>
-        <module>jrap-pom</module>
+        <!--<module>jrap-pom</module>-->
         <module>jrap-report</module>
         <module>jrap-report-db</module>
         <module>jrap-mail</module>
@@ -37,7 +37,7 @@
 
     <properties>
         <!--<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>-->
-        <!--<project.build.version>1.3-SNAPSHOT</project.build.version>-->
+        <project.build.version>1.3-SNAPSHOT</project.build.version>
         <project.buildDate>${maven.build.timestamp}</project.buildDate>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.security.version>4.0.4.RELEASE</spring.security.version>
@@ -59,7 +59,8 @@
         <poi.version>3.16</poi.version>
         <spring.rabbit.version>1.7.1.RELEASE</spring.rabbit.version>
         <xalan.version>2.7.2</xalan.version>
-        <joda-time.version>2.9.9</joda-time.version>
+        <joda-time.version>2.10</joda-time.version>
+        <janino.version>2.7.8</janino.version>
         <!-- sonar-analysis -->
         <sonar.exclusions>**.js</sonar.exclusions>
         <skipLiquibaseRun>true</skipLiquibaseRun>
@@ -72,45 +73,26 @@
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- core -->
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-core</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-core</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-core-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
-            </dependency>
-
-            <!-- crm -->
-            <dependency>
-                <groupId>com.jingrui</groupId>
-                <artifactId>jrap-crm</artifactId>
-                <type>war</type>
-                <version>1.3-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jingrui</groupId>
-                <artifactId>jrap-crm</artifactId>
-                <version>1.3-SNAPSHOT</version>
-                <classifier>classes</classifier>
-            </dependency>
-            <dependency>
-                <groupId>com.jingrui</groupId>
-                <artifactId>jrap-crm-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- job -->
@@ -118,95 +100,89 @@
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-job</artifactId>
                 <type>war</type>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-job</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-job-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- oauth2 -->
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-oauth2</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <type>war</type>
             </dependency>
-
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-oauth2</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
-
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-oauth2-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- gateway -->
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-gateway</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <type>war</type>
             </dependency>
-
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-gateway</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
-
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-gateway-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- interface -->
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-interface</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <type>war</type>
             </dependency>
-
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-interface</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
-
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-interface-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- task -->
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-task</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <type>war</type>
             </dependency>
 
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-task</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
 
@@ -220,19 +196,19 @@
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-report</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-report</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-report-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- mail -->
@@ -240,44 +216,64 @@
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-mail</artifactId>
                 <type>war</type>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-mail</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <classifier>classes</classifier>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-mail-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
 
             <!-- workflow -->
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-workflow</artifactId>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
                 <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>com.jingrui</groupId>
-                <artifactId>jrap-workflow-db</artifactId>
-                <version>1.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.jingrui</groupId>
                 <artifactId>jrap-workflow</artifactId>
                 <classifier>classes</classifier>
-                <version>1.3-SNAPSHOT</version>
+                <version>${project.build.version}</version>
             </dependency>
-	    
-            <!-- jrap模块依赖结束 -->
             <dependency>
-                <artifactId>joda-time</artifactId>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-workflow-db</artifactId>
+                <version>${project.build.version}</version>
+            </dependency>
+
+            <!-- crm -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-crm</artifactId>
+                <version>${project.build.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-crm</artifactId>
+                <version>${project.build.version}</version>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-crm-db</artifactId>
+                <version>${project.build.version}</version>
+            </dependency>
+            <!-- jrap模块依赖结束 -->
+
+            <!-- 时间操作组件 -->
+            <dependency>
                 <groupId>joda-time</groupId>
-                <version>2.10</version>
+                <artifactId>joda-time</artifactId>
+                <version>${joda-time.version}</version>
             </dependency>
 
             <!-- 原jrap pom 依赖开始-->
@@ -562,13 +558,6 @@
             </dependency>
             <!--end -->
 
-            <!-- 时间操作组件 -->
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${joda-time.version}</version>
-            </dependency>
-
             <!-- excel -->
             <dependency>
                 <groupId>org.apache.poi</groupId>
@@ -761,12 +750,12 @@
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>janino</artifactId>
-                <version>2.7.8</version>
+                <version>${janino.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>commons-compiler</artifactId>
-                <version>2.7.8</version>
+                <version>${janino.version}</version>
             </dependency>
 
             <dependency>
@@ -1000,6 +989,21 @@
                             <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
                         </nonFilteredFileExtensions>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <version>1.1.9</version>
+                    <executions>
+                        <execution>
+                            <id>generate-rebel-xml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
