@@ -22,44 +22,55 @@ import java.util.List;
 @Controller
 public class ItemEvaluateController extends BaseController {
 
-    @Autowired
-    private IItemEvaluateService service;
+  @Autowired
+  private IItemEvaluateService service;
 
 
-    @RequestMapping(value = "/afd/item/evaluate/query")
-    @ResponseBody
-    public ResponseData query(ItemEvaluate dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
-                              @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
-        IRequest requestContext = createRequestContext(request);
-        return new ResponseData(service.select(requestContext, dto, page, pageSize));
+  @RequestMapping(value = "/afd/item/evaluate/query")
+  @ResponseBody
+  public ResponseData query(ItemEvaluate dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
+      @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
+    IRequest requestContext = createRequestContext(request);
+    return new ResponseData(service.select(requestContext, dto, page, pageSize));
+  }
+
+  @RequestMapping(value = "/afd/item/evaluate/submit")
+  @ResponseBody
+  public ResponseData update(@RequestBody List<ItemEvaluate> dto, BindingResult result,
+      HttpServletRequest request) {
+    getValidator().validate(dto, result);
+    if (result.hasErrors()) {
+      ResponseData responseData = new ResponseData(false);
+      responseData.setMessage(getErrorMessage(result, request));
+      return responseData;
     }
-
-    @RequestMapping(value = "/afd/item/evaluate/submit")
-    @ResponseBody
-    public ResponseData update(@RequestBody List<ItemEvaluate> dto, BindingResult result, HttpServletRequest request) {
-        getValidator().validate(dto, result);
-        if (result.hasErrors()) {
-            ResponseData responseData = new ResponseData(false);
-            responseData.setMessage(getErrorMessage(result, request));
-            return responseData;
-        }
-        IRequest requestCtx = createRequestContext(request);
-        return new ResponseData(service.batchUpdate(requestCtx, dto));
+    for (ItemEvaluate itemEvaluate : dto) {
+      Long id = itemEvaluate.getEvaluateId();
+       if (id == null) {
+        itemEvaluate.set__status("add");
+      } else {
+        itemEvaluate.set__status("update");
+      }
     }
+    IRequest requestCtx = createRequestContext(request);
+    return new ResponseData(service.batchUpdate(requestCtx, dto));
+  }
 
-    @RequestMapping(value = "/afd/item/evaluate/remove")
-    @ResponseBody
-    public ResponseData delete(HttpServletRequest request, @RequestBody List<ItemEvaluate> dto) {
-        service.batchDelete(dto);
-        return new ResponseData();
-    }
+  @RequestMapping(value = "/afd/item/evaluate/remove")
+  @ResponseBody
+  public ResponseData delete(HttpServletRequest request, @RequestBody List<ItemEvaluate> dto) {
+    service.batchDelete(dto);
+    return new ResponseData();
+  }
 
-    @RequestMapping(value = "/afd/item/evaluate/selectByItemId/{itemId}")
-    @ResponseBody
-    public ResponseData selectByItemId(@PathVariable String itemId, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
-                                       @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
-        IRequest requestContext = createRequestContext(request);
-        return new ResponseData(service.selectByItemId(Long.parseLong(itemId), requestContext, page, pageSize));
-    }
+  @RequestMapping(value = "/afd/item/evaluate/selectByItemId/{itemId}")
+  @ResponseBody
+  public ResponseData selectByItemId(@PathVariable String itemId,
+      @RequestParam(defaultValue = DEFAULT_PAGE) int page,
+      @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
+    IRequest requestContext = createRequestContext(request);
+    return new ResponseData(
+        service.selectByItemId(Long.parseLong(itemId), requestContext, page, pageSize));
+  }
 }
 

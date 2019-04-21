@@ -9,6 +9,10 @@ import javax.persistence.*;
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
 import com.jingrui.jrap.mybatis.common.query.JoinTable;
 import com.jingrui.jrap.mybatis.common.query.Where;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
+import net.bytebuddy.implementation.bind.annotation.Default;
 import org.hibernate.validator.constraints.Length;
 
 import com.jingrui.jrap.mybatis.common.query.JoinColumn;
@@ -24,6 +28,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @ExtensionAttribute(disable = true)
 @Table(name = "pro_product")
+@ApiModel(value = "pro_product", description = "产品表")
 public class Product extends BaseDTO {
     public static final String FIELD_PRODUCT_CODE = "productCode";
     public static final String FIELD_PRODUCT_NAME = "productName";
@@ -47,6 +52,7 @@ public class Product extends BaseDTO {
     @Length(max = 60)
     @OrderBy("ASC")
     @Where
+    @ApiModelProperty(value = "productCode", name = "产品编码")
     private String productCode; //产品编码
 
     @Length(max = 200)

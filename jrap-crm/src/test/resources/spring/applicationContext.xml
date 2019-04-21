@@ -26,19 +26,19 @@
 
     <context:property-placeholder location="classpath:config.properties"/>
 
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <property name="url" value="jdbc:mysql://60.191.89.154:13306/jrap_dev"/>
         <property name="username" value="jrap_dev"/>
         <property name="password" value="jrap_dev"/>
-    </bean>
+    </bean>-->
 
-    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <property name="url" value="jdbc:mysql://localhost:3306/jrap_dev"/>
         <property name="username" value="jrap_dev"/>
         <property name="password" value="jrap_dev"/>
-    </bean>-->
+    </bean>
 
     <!-- config transactionManager -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

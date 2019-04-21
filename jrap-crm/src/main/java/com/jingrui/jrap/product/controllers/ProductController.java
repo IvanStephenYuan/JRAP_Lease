@@ -5,14 +5,19 @@ import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import com.jingrui.jrap.fnd.dto.Company;
 import com.jingrui.jrap.fnd.service.ICompanyService;
 import com.jingrui.jrap.product.dto.ItemModel;
+import com.jingrui.jrap.product.dto.ProductConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
 import com.jingrui.jrap.core.IRequest;
 import com.jingrui.jrap.system.dto.ResponseData;
 import com.jingrui.jrap.product.dto.Product;
+import com.jingrui.jrap.product.dto.ProductCalculateLine;
 import com.jingrui.jrap.product.service.IProductService;
 import com.jingrui.jrap.mybatis.common.Criteria;
 import com.jingrui.jrap.mybatis.common.query.WhereField;
@@ -35,6 +40,13 @@ import java.util.Map;
 @Api(value="ProductController", tags = {"产品接口"})
 public class ProductController extends BaseController {
     public final static String PRODUCT_RULE_CODE = "PRODUCT";
+    public final static String EFIXED_INSTALLMENT = "ECI"; //等额本息
+    public final static String FIXED_DPRINCIPAL = "EC"; //等额本金
+    public final static String FIXED_PRINCIPAL_INTEREST = "EPEI"; //等本等息
+    public final static String AINTEREST_PRINCIPAL = "EIAP"; //先息后本
+    public final static String DINTEREST_PRINCIPAL = "EPPI"; //阶梯降本
+
+    static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     @Autowired
     private IProductService service;
@@ -102,6 +114,46 @@ public class ProductController extends BaseController {
     @ResponseBody
     public ResponseData delete(HttpServletRequest request, @RequestBody List<Product> dto) {
         service.batchDelete(dto);
+        return new ResponseData();
+    }
+
+    @RequestMapping(value = "/calculate")
+    @ResponseBody
+    @ApiOperation(value="产品计算", notes = "产品计算器", httpMethod="POST", response=ProductCalculateLine.class)
+    public ResponseData calculate(@RequestParam() String productCode,
+                                  //@RequestBody List<ProductConfig> dto,
+                                  HttpServletRequest request){
+        IRequest requestContext = createRequestContext(request);
+        Product queryPara = new Product();
+        queryPara.setProductCode(productCode);
+        Product result = service.selectByPrimaryKey(requestContext, queryPara);
+
+        switch (result.getCalculate()){
+            //等额本息
+            case ProductController.EFIXED_INSTALLMENT : {
+                logger.info("等额本息");
+            }
+            //等额本金
+            case ProductController.FIXED_DPRINCIPAL : {
+                logger.info("等额本金");
+            }
+            //等本等息
+            case ProductController.FIXED_PRINCIPAL_INTEREST : {
+                logger.info("等本等息");
+            }
+            //先息后本
+            case ProductController.AINTEREST_PRINCIPAL : {
+                logger.info("等额本息");
+            }
+            //阶梯降本
+            case ProductController.DINTEREST_PRINCIPAL : {
+                logger.info("阶梯降本");
+            }
+            default:{
+                logger.info("等本等息");
+            }
+        }
+
         return new ResponseData();
     }
 }

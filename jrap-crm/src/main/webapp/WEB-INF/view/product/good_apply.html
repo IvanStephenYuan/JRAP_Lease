@@ -30,7 +30,8 @@
     model: {
       productCode: product,
       companyId: -1,
-      enabledFlag: "Y"
+      enabledFlag: "Y",
+      objectVersionNumber:1
     },
   });
   // 获取单据类别的数据源
@@ -68,12 +69,12 @@
 <div id="page-content">
   <div>
     <div id="tabstrip">
-      <ul>
+      <ul style="opacity: 0;">
         <li class="k-state-active">
           商品信息填写
         </li>
       </ul>
-      <div>
+      <div style="border:">
         <form class="form-horizontal" role="form" style="width: 98%;">
           <div class="col-xs-12 row">
             <div class="col-xs-4">
@@ -161,7 +162,7 @@
                        style="text-align: right"><@spring.message "good.unitprice"/></label>
                 <div class="col-xs-8">
                   <input id="unitPrice" type="text" data-bind="value:model.unitPrice"
-                         class="k-textbox" style="width: 100%;">
+                          style="width: 100%;">
                   <script>
                     $("#unitPrice").kendoNumericTextBox({
                       min: 0
@@ -191,7 +192,6 @@
                        style="text-align: right"><@spring.message "good.totalamount"/></label>
                 <div class="col-xs-8">
                   <input id="totalAmount" type="text" data-bind="value:model.totalAmount"
-                         class="k-textbox"
                          style="width: 100%;">
                   <script>
                     $("#totalAmount").kendoNumericTextBox({min: 0});
@@ -206,12 +206,39 @@
                        style="text-align: right"><@spring.message "good.surplusamount"/></label>
                 <div class="col-xs-8">
                   <input id="surplusAmount" type="text" data-bind="value:model.surplusAmount"
-                         class="k-textbox"
                          style="width: 100%;">
                   <script>
                     $("#surplusAmount").kendoNumericTextBox({min: 0});
                     kendo.bind($('#surplusAmount'), newViewModel);
                   </script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "good.startdate"/></label>
+                <div class="col-xs-8">
+                  <input id="startDate" style="width: 100%" data-bind="value:model.startDate">
+                  <script>
+                    $('#startDate').kendoDatePicker();
+                    kendo.bind($('#startDate'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-xs-12 row">
+
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "good.enddate"/></label>
+                <div class="col-xs-8">
+                  <input id="endDate" style="width: 100%" data-bind="value:model.endDate">
+                  <script>
+                    $('#endDate').kendoDatePicker();
+                    kendo.bind($('#endDate'), newViewModel);</script>
                 </div>
               </div>
             </div>
@@ -229,32 +256,6 @@
                     uncheckedValue: 'N'
                   });
                 </script>
-              </div>
-            </div>
-          </div>
-          <div class="col-xs-12 row">
-            <div class="col-xs-4">
-              <div class="form-group">
-                <label class="col-xs-4 control-label"
-                       style="text-align: right"><@spring.message "good.startdate"/></label>
-                <div class="col-xs-8">
-                  <input id="startDate" style="width: 100%" data-bind="value:model.startDate">
-                  <script>
-                    $('#startDate').kendoDatePicker();
-                    kendo.bind($('#startDate'), newViewModel);</script>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-4">
-              <div class="form-group">
-                <label class="col-xs-4 control-label"
-                       style="text-align: right"><@spring.message "good.enddate"/></label>
-                <div class="col-xs-8">
-                  <input id="endDate" style="width: 100%" data-bind="value:model.endDate">
-                  <script>
-                    $('#endDate').kendoDatePicker();
-                    kendo.bind($('#endDate'), newViewModel);</script>
-                </div>
               </div>
             </div>
           </div>
@@ -278,10 +279,10 @@
       </div>
     </div>
   </div>
-  <div class="text-right"
-       style="bottom: 10px; position: relative; padding-right: 24px;  float: left; padding-top:10px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
-    <span class="btn btn-primary" id="saveGrid" type="submit" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
-    <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
+  <div class="mask" style="width: 100%;position: absolute;top: 0;left: 0;bottom: 0;z-index: 10;background: rgba(0,0,0,.3);display: none"></div>
+  <div class="text-right" style="bottom: 10px; position: relative; padding-right: 24px;  float: left; padding-top:10px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+    <span class="btn btn-primary" onclick="submitApply()" type="button" style="margin-right: 5px;">发布</span>
+    <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;">关闭</span>
   </div>
   <script>
     var tabstrip = $("#tabstrip").kendoTabStrip({
@@ -312,18 +313,45 @@
     window.parent.$("#productrelaseWindow").data("kendoWindow").close();
   });
   /*提交申请*/
-  $("#saveGrid").click(function () {
+  function submitApply() {
+    $(".mask")[0].style.display = 'block';
     if (validator.validate()) {
-      Jrap.submitForm({
+      $.ajax({
         url: '${base.contextPath}/wfl/runtime/processInstances/good/release',
-        formModel: newViewModel.model,
-        success: function (data) {
-          window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
-          window.parent.$("#productrelaseWindow").data("kendoWindow").close();
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        data: kendo.stringify(newViewModel.model),
+        success: function (args) {
+          $(".mask")[0].style.display = 'none';
+          if (args.success === false) {
+            kendo.ui.showErrorDialog({
+              title: $l('jrap.error'),
+              message: args.message
+            });
+          } else {
+            kendo.ui.showInfoDialog({
+              title: $l('jrap.tip.info'),
+              message: $l('jrap.tip.success')
+            }).done(function (e) {
+              window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
+              window.parent.$("#productrelaseWindow").data("kendoWindow").close();
+
+            })
+          }
         }
       });
+    } else {
+      $(".mask")[0].style.display = 'none';
+      kendo.ui.showInfoDialog({
+        title: "提示",
+        message: "有必输字段未输入\r\n" + JSON.stringify(validator._errors),
+        iconClass: "fa fa-times-circle",
+        dialogClass: "k-dialog-error"
+      }).done(function (e) {
+      })
     }
-  });
+  }
 </script>
 </body>
 </html>

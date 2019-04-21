@@ -24,4 +24,57 @@
     <sql id="Base_Column_List">
         PRODUCT_CODE, PRODUCT_NAME, PRODUCT_TYPE, PRODUCT_CLASS, PRODUCT_CLASS, DECRIPTION, BUSINESS_TYPE, LINE_CODE, MODEL_ID, COMPANY_ID, CALCULATE, RATE_TYPE, VERSION, ENABLED_FLAG, START_DATE, END_DATE
     </sql>
+
+    <select id="selectProduct" parameterType="com.jingrui.jrap.product.dto.Product" resultMap="BaseResultMap">
+        select
+            product_code,
+            product_name,
+            product_type,
+            product_class,
+            decription,
+            business_type,
+            line_code,
+            model_id,
+            company_id,
+            calculate,
+            rate_type,
+            version,
+            enabled_flag,
+            start_date,
+            end_date
+        from
+        pro_product
+        <where>
+            <if test="productCode != null">
+                and product_code = #{productCode,jdbcType=VARCHAR}
+            </if>
+            <if test="productName != null">
+                and product_name = #{productName,jdbcType=VARCHAR}
+            </if>
+            <if test="productType != null">
+                and product_type = #{productType,jdbcType=VARCHAR}
+            </if>
+            <if test="productClass != null">
+                and product_class = #{productClass,jdbcType=VARCHAR}
+            </if>
+            <if test="decription != null">
+                and decription = LIKE CONCAT('%', CONCAT(#{decription,jdbcType=VARCHAR}, '%'))
+            </if>
+            <if test="businessType != null">
+                and business_type = #{businessType,jdbcType=VARCHAR}
+            </if>
+            <if test="lineCode != null">
+                and line_code = #{lineCode,jdbcType=VARCHAR}
+            </if>
+            <if test="companyId != null">
+                and company_id = #{companyId}
+            </if>
+            <if test="version > 0">
+                and version = #{productClass,jdbcType=INTEGER}
+            </if>
+            <if test="enabledFlag != null">
+                and enabled_flag = #{enabledFlag,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
 </mapper>

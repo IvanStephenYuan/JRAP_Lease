@@ -1,9 +1,4 @@
 <#include "../include/header.html">
-<script type="text/javascript">
-    var viewModelLeft = Jrap.createGridViewModel("#gridLeft");
-    var viewModelRight = Jrap.createGridViewModel("#gridRight");
-    var BaseUrl = _basePath;
-</script>
 <body>
 <style>
     * {
@@ -19,7 +14,6 @@
     .left {
         width: 300px;
         height: 100%;
-        background-color: #fffafe;
     }
 
     .right {
@@ -27,17 +21,92 @@
         top: 0;
         left: 301px;
         right: 0;
-        background-color: #fffafe;
         height: 100%;
     }
 </style>
+<script type="text/javascript">
+    var viewModelLeft = kendo.observable({
+        model: {
+            productCode: "",
+            configType:""
+        },
+        rows: []
+    });
+    var viewModelRight = Jrap.createGridViewModel("#gridRight");
+
+    kendo.bind($('#left'), viewModelLeft);
+    kendo.bind($('#right'), viewModelRight);
+
+    var BaseUrl = _basePath;
+
+    function queryHead() {
+        $.ajax({
+            url: BaseUrl + '/pro/product/config/query',
+            type: "POST",
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            data: {
+                "productCode": viewModelLeft.model.productCode,
+                "configType": viewModelLeft.model.configType
+            },
+            async: false,
+            success: function (args) {
+                viewModelLeft.rows = args.rows;
+            }
+        });
+    }
+
+
+    function queryLine() {
+        var columns = [{}];
+        // 获取数据
+        $.ajax({
+            url: BaseUrl + '/pro/product/config/query',
+            type: "POST",
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            data: {
+                "productCode": viewModelRight.model.productCode,
+                "configType": viewModelRight.model.configType
+            },
+            async: false,
+            success: function (args) {
+                if (args.rows.length > 0) {
+                    var columnsArr = new Array(args.rows.length);
+                    for (var k = 0; k < args.rows.length; k++) {
+                        var column = {
+                            field: args.rows[k].columnName,
+                            width: 100,
+                            title: args.rows[k].prompt,
+                        };
+                        columnsArr[k] = column;
+                    }
+                    columns = columnsArr;
+                }
+            }
+        });
+        var gridRight = $("#gridRight").kendoGrid({
+            dataSource: null,
+            resizable: true,
+            scrollable: true,
+            navigatable: false,
+            dataBound: function () {
+                if (parent.autoResizeIframe) {
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                }
+            },
+            columns: columns,
+            editable: false
+        });
+    }
+</script>
 <div class="left">
     <form id="mainform" class="form-horizontal">
         <div class="row">
             <div class="form-group">
                 <div class="col-sm-6">
                     <div class="col-sm-12">
-                        <input type="text" id="product" placeholder='<@spring.message "选择产品"/>'
+                        <input type="text" id="product" placeholder='<@spring.message "product.product"/>'
                                style="width:100%" required
                                data-bind="value:model.product">
                         <script>
@@ -67,9 +136,32 @@
                 </div>
             </div>
         </div>
-        <div style="clear:both">
-            <div id="gridLeft"></div>
+        <div class="row">
+            <div class="col-sm-3">
+                <label style="text-align: center"><@spring.message "product.columncode"/></label>
+            </div>
+            <div class="col-sm-5">
+                <label style="text-align: center"><@spring.message "product.columnname"/></label>
+            </div>
+            <div class="col-sm-4">
+                <label style="text-align: center"><@spring.message "product.columnvalue"/></label>
+            </div>
         </div>
+        <#if viewModelLeft.rows??>
+            <#list viewModelLeft.rows as row>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label style="text-align: center">${row.columnCode}</label>
+                    </div>
+                    <div class="col-sm-5">
+                        <label style="text-align: center">${row.prompt}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label style="text-align: center"></label>
+                    </div>
+                </div>
+            </#list>
+        </#if>
     </form>
 </div>
 <div class="right">
@@ -77,160 +169,5 @@
         <div id="gridRight"></div>
     </div>
 </div>
-<script type="text/javascript">
-    kendo.bind($('#left'), viewModelLeft);
-
-    function queryHead() {
-        var dataSourceLeft = new kendo.data.DataSource({
-            transport: {
-                read: {
-                    url: BaseUrl + "/pro/product/config/query",
-                    type: "POST",
-                    dataType: "json"
-                },
-                parameterMap: function (options, type) {
-                    if (type !== "read" && options.models) {
-                        var datas = Jrap.prepareSubmitParameter(options, type)
-                        return kendo.stringify(datas);
-                    } else if (type === "read") {
-                        return Jrap.prepareQueryParameter(viewModelLeft.model.toJSON(), options)
-                    }
-                }
-            },
-            batch: true,
-            serverPaging: true,
-            pageSize: 10,
-            schema: {
-                data: 'rows',
-                total: 'total',
-                model: {
-                    id: "configId",
-                    fields: {
-                        columnCode: {editable: false, nullable: true},
-                        prompt: {editable: false, nullable: true}
-                    }
-                }
-            }
-        });
-        $("#gridLeft").kendoGrid({
-            dataSource: dataSourceLeft,
-            resizable: true,
-            scrollable: true,
-            navigatable: false,
-            dataBound: function () {
-                if (parent.autoResizeIframe) {
-                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
-                }
-            },
-            columns: [
-                {
-                    field: "columnCode",
-                    title: '<@spring.message "简码"/>',
-                    width: 30,
-                },
-                {
-                    field: "prompt",
-                    title: '<@spring.message "参数"/>',
-                    width: 50,
-                },
-                {
-                    field: "defaultValue",
-                    title: '<@spring.message "参数值"/>',
-                    width: 60,
-                    editor: function (container, options) {
-                        $('<input name="' + options.field + '"/>')
-                            .appendTo(container)
-                            .kendoComboBox({
-                                dataTextField: "description",
-                                dataValueField: "cfType",
-                                valuePrimitive: true,
-                                filter: "contains",
-                                dataSource: cashflowTypeData
-                            });
-                    }
-                    /*template: function (rowdata) {
-                        // 数据类型
-                        if(rowdata.dataType=="DATE"){
-                            type: "DATE"
-                        }else if(rowdata.dataType=="STRING"){
-                            type: "STRING"
-                        }else if(rowdata.dataType=="NUMBER"){
-                            type: "NUMBER"
-                        }
-                        type: rowdata.dataType;
-                        // 必输标志
-                        if(rowdata.requireFlag=="Y"){
-                            validation: { required: true }
-                        }
-                        // 只读标志
-                        if(rowdata.readonlyFlag=="Y"){
-
-                        }
-
-                        return rowdata.defaultValue || '';
-                    }
-                    */
-                },
-            ],
-            editable: true
-        });
-    }
-
-</script>
-<script type="text/javascript">
-    kendo.bind($('#right'), viewModelRight);
-
-    function queryLine() {
-        var columns = [{}];
-        // 获取数据
-        $.ajax({
-            url: BaseUrl + '/pro/product/config/query',
-            type: "POST",
-            dataType: "json",
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            data: {
-                "productCode": viewModelRight.model.productCode,
-                "configType": viewModelRight.model.configType
-            },
-            async: false,
-            success: function (args) {
-                if (args.rows.length > 0) {
-                    var columnsArr = new Array(args.rows.length);
-                    for (var k=0;k<args.rows.length;k++) {
-                        var column = {
-                            field: args.rows[k].columnName,
-                            width: 100,
-                            title: args.rows[k].prompt,
-                        };
-                        columnsArr[k]=column;
-                    }
-                    columns = columnsArr;
-                }
-            }
-        });
-        var gridRight =  $("#gridRight").kendoGrid({
-            dataSource: null,
-            resizable: true,
-            scrollable: true,
-            navigatable: false,
-            dataBound: function () {
-                if (parent.autoResizeIframe) {
-                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
-                }
-            },
-            /*pageable: {
-                refresh: true,
-                pageSizes: true,
-                buttonCount: 5
-            },*/
-            columns:columns,
-            editable: false
-        });
-        /*var grid = $("#gridRight").data("kendoGrid");
-        grid.refresh();
-        grid.dataSource.read();*/
-
-    }
-</script>
 </body>
 </html>

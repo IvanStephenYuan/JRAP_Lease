@@ -28,7 +28,7 @@ public class Good extends BaseDTO {
   public static final String FIELD_TOTAL_NUMBER = "totalNumber";
   public static final String FIELD_TOTAL_AMOUNT = "totalAmount";
   public static final String FIELD_SURPLUS_AMOUNT = "surplusAmount";
-  public static final String FIELD_SUBMIT_STATUS = "submitStatus";
+  public static final String FIELD_STATUS = "status";
   public static final String FIELD_ENABLED_FLAG = "enabledFlag";
   public static final String FIELD_START_DATE = "startDate";
   public static final String FIELD_END_DATE = "endDate";
@@ -56,21 +56,13 @@ public class Good extends BaseDTO {
 
   @NotEmpty
   @Length(max = 60)
-  private String submitStatus; //单据类型
+  private String status; //状态
 
   @Length(max = 60)
   private String productCode; //产品编码
 
   @Length(max = 2147483647)
   private String description; //商品描述
-
-  public String getSubmitStatus() {
-    return submitStatus;
-  }
-
-  public void setSubmitStatus(String submitStatus) {
-    this.submitStatus = submitStatus;
-  }
 
   private Long unitPrice; //商品单价
 
@@ -93,6 +85,14 @@ public class Good extends BaseDTO {
   private Long programApplicationId;
 
   private Date programUpdateDate;
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
 
   public void setGoodId(Long goodId) {
