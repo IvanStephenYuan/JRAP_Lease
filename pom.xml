@@ -22,7 +22,6 @@
         <module>jrap-interface-db</module>
         <module>jrap-task</module>
         <module>jrap-task-db</module>
-        <!--<module>jrap-pom</module>-->
         <module>jrap-report</module>
         <module>jrap-report-db</module>
         <module>jrap-mail</module>
