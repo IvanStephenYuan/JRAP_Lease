@@ -30,6 +30,7 @@ public class ProductConfig extends BaseDTO {
     public static final String FIELD_DISPLAY_FLAG = "displayFlag";
     public static final String FIELD_DISPLAY_ORDER = "displayOrder";
     public static final String FIELD_PROMPT = "prompt";
+    public static final String FIELD_SYSCODE = "syscode";
     public static final String FIELD_REQUIRE_FLAG = "requireFlag";
     public static final String FIELD_READONLY_FLAG = "readonlyFlag";
     public static final String FIELD_DATA_PRECISION = "dataPrecision";
@@ -73,6 +74,9 @@ public class ProductConfig extends BaseDTO {
 
     @Length(max = 100)
     private String prompt; //描述
+
+    @Length(max = 60)
+    private String syscode;
 
     @Length(max = 1)
     private String requireFlag; //必输标识
@@ -177,6 +181,14 @@ public class ProductConfig extends BaseDTO {
 
     public String getPrompt() {
         return prompt;
+    }
+
+    public String getSyscode() {
+        return syscode;
+    }
+
+    public void setSyscode(String syscode) {
+        this.syscode = syscode;
     }
 
     public void setRequireFlag(String requireFlag) {

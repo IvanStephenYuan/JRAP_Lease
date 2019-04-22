@@ -3,6 +3,7 @@ package com.jingrui.jrap.product.controllers;
 import com.jingrui.jrap.generator.dto.DBColumn;
 import com.jingrui.jrap.generator.dto.DBTable;
 import com.jingrui.jrap.generator.service.IJrapGeneratorService;
+import com.jingrui.jrap.system.dto.UserDashboard;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -68,5 +70,17 @@ public class ProductConfigController extends BaseController {
         }else{
             return null;
         }
+    }
+    // 产品测算freemaker
+    @RequestMapping(value = "/product/product_calculate.html")
+    public ModelAndView productCalc(HttpServletRequest request) {
+        IRequest requestContext = createRequestContext(request);
+        ModelAndView view = new ModelAndView(getViewPath() + "/product/product_calculate");
+        ProductConfig productConfig = new ProductConfig();
+        productConfig.setProductCode(request.getParameter("productCode"));
+        productConfig.setConfigType("H");
+        List<ProductConfig>  productConfigs =  service.select(requestContext, productConfig, 1, 10);
+        view.addObject("heads", productConfigs);
+        return view;
     }
 }

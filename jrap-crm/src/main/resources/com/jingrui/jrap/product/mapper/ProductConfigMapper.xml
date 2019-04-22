@@ -14,6 +14,7 @@
         <result column="DISPLAY_FLAG" property="displayFlag" jdbcType="VARCHAR" />
         <result column="DISPLAY_ORDER" property="displayOrder" jdbcType="DECIMAL" />
         <result column="PROMPT" property="prompt" jdbcType="VARCHAR" />
+        <result column="SYSCODE" property="syscode" jdbcType="VARCHAR" />
         <result column="REQUIRE_FLAG" property="requireFlag" jdbcType="VARCHAR" />
         <result column="READONLY_FLAG" property="readonlyFlag" jdbcType="VARCHAR" />
         <result column="DATA_PRECISION" property="dataPrecision" jdbcType="DECIMAL" />

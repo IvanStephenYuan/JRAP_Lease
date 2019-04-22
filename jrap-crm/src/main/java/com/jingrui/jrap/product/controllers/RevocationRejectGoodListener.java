@@ -39,7 +39,7 @@ public class RevocationRejectGoodListener implements ExecutionListener, IActivit
     //通过流程pk来找到申请单据信息
     Good wklgood = wklgoodMapper.selectByPrimaryKey(revocationId);
     //将状态改变
-    wklgood.setStatus("Closed");
+    wklgood.setStatus("CLOSED");
     //更新状态
     wklgoodMapper.updateByPrimaryKey(wklgood);
   }

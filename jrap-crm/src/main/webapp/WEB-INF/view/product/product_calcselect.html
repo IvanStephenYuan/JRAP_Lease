@@ -9,15 +9,61 @@
 <body>
 <script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script>
+    var BaseUrl = _basePath;
+    var business_type = "";
     viewModel = new kendo.observable({
         model: {
         }
+    });
+    $.ajax({
+        url: BaseUrl + '/pro/business/type/query',
+        type: "POST",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        success: function (result) {
+            business_type = result.rows;
+            if(viewModel.model.get("businessType") == null || viewModel.model.get("businessType") != undefined){
+                if($("#businessType").data("kendoComboBox") != undefined){
+                    $("#businessType").data("kendoComboBox").refresh();
+                    $("#businessType").data("kendoComboBox").setDataSource(business_type);
+                    $("#businessType").data("kendoComboBox").text("");
+                    viewModel.model.set("businessType",null);
+                    $("#businessType").data("kendoComboBox").trigger("change");
+                }
+            }
+        },
     });
 </script>
 <div class="col-sm-6" style="margin-top: 10px;">
     <div style="padding:15px 15px 0">
         <div class="panel">
             <form class="form-horizontal" id="form-query" style="width:100%">
+                <div class="form-group" style="padding-top: 10px">
+                    <label class="col-sm-4 control-label"><@spring.message "businesstype.businesstype"/></label>
+                    <div class="col-sm-8">
+                        <input id="businessType" name="businessType" type=text
+                               data-bind="value:model.businessType"
+                               data-label="<@spring.message 'product.businessType'/>"
+                               style="width:100%"
+                               required
+                        />
+                    </div>
+                    <script>
+                        $("#businessType").kendoComboBox({
+                            dataSource: business_type,
+                            valuePrimitive: true,
+                            dataTextField: "description",
+                            dataValueField: "businessType"
+                        });
+                        $("#businessType").on('change', function () {
+                            if (this.value != '') {
+                                viewModel.model.set("businessType",this.value);
+                            }else {
+                                viewModel.model.set("businessType",null)
+                            }
+                        })
+                    </script>
+                </div>
                 <div class="form-group" style="padding-top: 10px">
                     <label class="col-sm-4 control-label"><@spring.message "product.product"/></label>
                     <div class="col-sm-8">
@@ -32,12 +78,14 @@
                         $("#productCode").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_PRODUCT")}, {
                             query: function (e) {
                                 e.param['enabledFlag'] = 'Y';
+                                e.param['businessType'] = viewModel.model.businessType;
                             },
                             select: function (e) {
                                 var item = e.item;
                                 // 查询头信息
                                 viewModel.model.set("productCode", item.productCode);
                                 viewModel.model.set("productName", item.productName);
+                                viewModel.model.set("configType", "H");
                                 viewModel.model.set("version", item.version);
                             }
                         }));
@@ -56,54 +104,47 @@
                     </div>
                 </div>
                 <div class="panel-footer text-center" id="toolbar">
-                            <span class="btn btn-success" onclick="submitform('template')">
-                                <i class="fa fa-save" style="margin-right:3px;"></i><@spring.message "jrap.ok"/>
-                            </span>
+                    <span class="btn btn-success k-grid-save-changes" onclick="submit()" type="button" style="margin-right: 5px;"><@spring.message "确定"/></span>
                 </div>
             </form>
             <script>kendo.bind($('#form-query'), viewModel);</script>
         </div>
     </div>
 </div>
+<div id = "calculate">
+</div>
 
 <script type="text/javascript">
-    var validator = $("#maintain").kendoValidator({
+    var validator = $("#form-query").kendoValidator({
         valid: function (e) {
         },
         invalidMessageType: "tooltip"
     }).data("kendoValidator");
-
-    var validator1 = $("#minortain").kendoValidator({
-        valid: function (e) {
-        },
-        invalidMessageType: "tooltip"
-    }).data("kendoValidator");
-
-    function submitform(mode) {
-        if (validator.validate() || validator1.validate()) {
-            viewModel.model.set("mode", mode);
+    function submit() {
             $.ajax({
-                url: '${base.contextPath}/sys/message/sendTest',
+                url: '${base.contextPath}/product/product_calculate.html',
                 type: "POST",
                 dataType: "json",
-                contentType: "application/json",
-                data: kendo.stringify(viewModel.model),
-                success: function (result) {
-                    if (result.success) {
-                        kendo.ui.showInfoDialog({
-                            message: '<@spring.message "jrap.tip.success"/>'
-                        }).done(function () {
-                        })
-                    } else {
-                        kendo.ui.showErrorDialog({
-                            title: $l('jrap.error'),
-                            message: result.message
-                        }).done(function () {
-                        });
-                    }
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                data: {
+                    productCode : viewModel.model.productCode
                 }
             });
-        }
+
+        var win = $("#calculate").kendoWindow({
+            actions: ["Close"],
+            title: '产品测算',
+            visible: false,
+            modal: true,
+            width: 900,
+            height: 400,
+            iframe: true,
+            content: '${base.contextPath}/product/product_calculate.html?productCode=' + viewModel.model.productCode,
+            close: function (e) {
+                // $("#grid").data('kendoGrid').dataSource.page(1);
+            }
+        }).data("kendoWindow");
+        win.center().maximize().open();
     }
 </script>
 </body>

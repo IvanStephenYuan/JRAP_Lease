@@ -25,149 +25,214 @@
     }
 </style>
 <script type="text/javascript">
-    var viewModelLeft = kendo.observable({
-        model: {
-            productCode: "",
-            configType:""
-        },
-        rows: []
-    });
     var viewModelRight = Jrap.createGridViewModel("#gridRight");
-
+    var viewModelLeft = new kendo.observable({
+        model: {}
+    });
     kendo.bind($('#left'), viewModelLeft);
     kendo.bind($('#right'), viewModelRight);
-
     var BaseUrl = _basePath;
-
-    function queryHead() {
-        $.ajax({
-            url: BaseUrl + '/pro/product/config/query',
-            type: "POST",
-            dataType: "json",
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            data: {
-                "productCode": viewModelLeft.model.productCode,
-                "configType": viewModelLeft.model.configType
-            },
-            async: false,
-            success: function (args) {
-                viewModelLeft.rows = args.rows;
-            }
-        });
-    }
-
-
-    function queryLine() {
-        var columns = [{}];
-        // 获取数据
-        $.ajax({
-            url: BaseUrl + '/pro/product/config/query',
-            type: "POST",
-            dataType: "json",
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            data: {
-                "productCode": viewModelRight.model.productCode,
-                "configType": viewModelRight.model.configType
-            },
-            async: false,
-            success: function (args) {
-                if (args.rows.length > 0) {
-                    var columnsArr = new Array(args.rows.length);
-                    for (var k = 0; k < args.rows.length; k++) {
-                        var column = {
-                            field: args.rows[k].columnName,
-                            width: 100,
-                            title: args.rows[k].prompt,
-                        };
-                        columnsArr[k] = column;
-                    }
-                    columns = columnsArr;
-                }
-            }
-        });
-        var gridRight = $("#gridRight").kendoGrid({
-            dataSource: null,
-            resizable: true,
-            scrollable: true,
-            navigatable: false,
-            dataBound: function () {
-                if (parent.autoResizeIframe) {
-                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
-                }
-            },
-            columns: columns,
-            editable: false
-        });
-    }
+    var productCode = '${RequestParameters.productCode!}';
 </script>
 <div class="left">
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="col-sm-6">
+                <span class="btn btn-primary k-grid-add" style="float:left;width:150px;margin-left:5px;"
+                      onclick="calculate()"> <@spring.message "计算"/></span>
+            </div>
+            <div class="col-sm-6">
+                <span class="btn btn-primary k-grid-add" style="float:right;width:150px;margin-right:5px;"
+                      onclick="back()"> <@spring.message "返回"/></span>
+            </div>
+        </div>
+    </div>
     <form id="mainform" class="form-horizontal">
         <div class="row">
-            <div class="form-group">
-                <div class="col-sm-6">
-                    <div class="col-sm-12">
-                        <input type="text" id="product" placeholder='<@spring.message "product.product"/>'
-                               style="width:100%" required
-                               data-bind="value:model.product">
-                        <script>
-                            $("#product").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_PRODUCT")},
-                                {
-                                    query: function (e) {
-                                        e.param['version'] = '1';
-                                        e.param['displayFlag'] = 'Y';
-                                    },
-                                    select: function (e) {
-                                        var item = e.item;
-                                        // 查询头信息
-                                        viewModelLeft.model.set("productCode", item.productCode);
-                                        viewModelLeft.model.set("configType", "H");
-                                        queryHead();
-                                        // 查询行信息
-                                        viewModelRight.model.set("productCode", item.productCode);
-                                        viewModelRight.model.set("configType", "L");
-                                        queryLine();
-                                    }
-                                }));
-                        </script>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <span class="btn btn-primary k-grid-add" style="float:left" data-bind="click:create"><@spring.message "计算"/></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
             <div class="col-sm-3">
-                <label style="text-align: center"><@spring.message "product.columncode"/></label>
+                <label class="" style="text-align: center"><@spring.message "product.columncode"/></label>
             </div>
             <div class="col-sm-5">
-                <label style="text-align: center"><@spring.message "product.columnname"/></label>
+                <label class="" style="text-align: center"><@spring.message "product.columnname"/></label>
             </div>
             <div class="col-sm-4">
-                <label style="text-align: center"><@spring.message "product.columnvalue"/></label>
+                <label class="" style="text-align: center"><@spring.message "product.columnvalue"/></label>
             </div>
         </div>
-        <#if viewModelLeft.rows??>
-            <#list viewModelLeft.rows as row>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <label style="text-align: center">${row.columnCode}</label>
-                    </div>
-                    <div class="col-sm-5">
-                        <label style="text-align: center">${row.prompt}</label>
-                    </div>
-                    <div class="col-sm-4">
-                        <label style="text-align: center"></label>
-                    </div>
-                </div>
-            </#list>
-        </#if>
-    </form>
+        <#if heads??>
+        <#list heads as head>
+        <div class="row">
+            <div class="col-sm-2">
+                <input type="text" style="text-align:left;width:80px;height: 8px;" class="k-textbox"
+                       value="${head.columnCode!}" readonly>
+            </div>
+            <div class="col-sm-5">
+                <input type="text" style="text-align:left;width:80px;height: 8px;" class="k-textbox"
+                       value="${head.prompt!}" readonly>
+            </div>
+            <div class="col-sm-5">
+                <input type="text" style="text-align:left;width:80px;height: 8px;" class="k-textbox"
+                       id="${head.columnName!}"
+                       value="${head.defaultValue!}"
+                       data-bind="value:model.${head.columnName!}"
+                <#if head.requireFlag == "Y"> required </#if>
+                <#if head.readonlyFlag == "Y"> readonly </#if>
+                <#if head.configType == "DATE">
+                    type="date"
+                <#elseif head.configType == "NUMBER">
+                   type="number"
+                <#else>
+                  type="text"
+                </#if>>
+                <script>
+                    $('#${head.columnName!}').kendoComboBox({
+                         dataTextField: "meaning",
+                         dataValueField: "value",
+                         dataSource: {
+                            transport: {
+                                read: {
+                                    url: _basePath + '/common/code/'+ ${head.syscode!} +'/',
+                                    dataType: "json"
+                                }
+                            }
+                        },
+                        select: function (e) {
+                            viewModelLeft.model.set("${head.columnName!}", e.dataItem.value);
+                        }
+                    }).data("kendoComboBox");
+
+                    kendo.bind($('#${head.columnName!}'), viewModelLeft);
+           </script>
+       </div>
+    </div>
+  </#list>
+  </#if>
+</form>
 </div>
 <div class="right">
     <div style="clear:both">
         <div id="gridRight"></div>
     </div>
 </div>
+<script type="text/javascript">
+    var dataSource = [{}];
+    var gridRight = $("#gridRight").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        columns: [
+            {
+                field: "times",
+                title: '<@spring.message "期数"/>',
+                width: 70
+            },
+            {
+                field: "calcDate",
+                title: '<@spring.message "计算日"/>',
+                width: 70
+            },
+            {
+                field: "dueDate",
+                title: '<@spring.message "支付日/到期日"/>',
+                width: 120
+            },
+            {
+                field: "dueAmount",
+                title: '<@spring.message "应收金额"/>',
+                width: 70
+            },
+            {
+                field: "netDueAmount",
+                title: '<@spring.message "不含税应收金额"/>',
+                width: 120
+            },
+            {
+                field: "vatDueAmount",
+                title: '<@spring.message "增值税额"/>',
+                width: 70
+            },
+            {
+                field: "principal",
+                title: '<@spring.message "应收本金"/>',
+                width: 70
+            },
+            {
+                field: "netPrincipal",
+                title: '<@spring.message "不含税本金"/>',
+                width: 120
+            },
+            {
+                field: "vatPrincipal",
+                title: '<@spring.message "本金增值税额"/>',
+                width: 120
+            },
+            {
+                field: "interest",
+                title: '<@spring.message "应收利息"/>',
+                width: 70
+            },
+            {
+                field: "netInterest",
+                title: '<@spring.message "不含税利息"/>',
+                width: 70
+            },
+            {
+                field: "vatInterest",
+                title: '<@spring.message "利息增值税额"/>',
+                width: 120
+            },
+            {
+                field: "cfType",
+                title: '<@spring.message "现金流类型"/>',
+                width: 120
+            },
+            {
+                field: "cfDirection",
+                title: '<@spring.message "现金流方向"/>',
+                width: 120
+            },
+            {
+                field: "outstandingRental",
+                title: '<@spring.message "当期剩余租金"/>',
+                width: 120
+            },
+            {
+                field: "outstandingPrincipal",
+                title: '<@spring.message "当期剩余本金"/>',
+                width: 120
+            },
+            {
+                field: "outstandingInterest",
+                title: '<@spring.message "当期剩余利息"/>',
+                width: 120
+            }
+        ],
+        editable: false
+    });
+
+    // 计算
+    function calculate() {
+        $.ajax({
+            url: '${base.contextPath}/product/calculate',
+            type: "POST",
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            data: {
+                productCode: viewModel.model.productCode
+            },
+            async: false,
+            success: function (rows) {
+                dataSource = rows;
+                gridRight.refresh();
+            }
+        });
+    }
+</script>
 </body>
 </html>

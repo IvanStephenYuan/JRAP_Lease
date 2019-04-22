@@ -68,9 +68,6 @@ public class Cashflow extends BaseDTO {
     public static final String FIELD_BILLING_AMOUNT = "billingAmount";
     public static final String FIELD_BILLING_PRINCIPAL = "billingPrincipal";
     public static final String FIELD_BILLING_INTEREST = "billingInterest";
-    public static final String FIELD_REMARK = "remark";
-    public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
-    public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
 
     @Id

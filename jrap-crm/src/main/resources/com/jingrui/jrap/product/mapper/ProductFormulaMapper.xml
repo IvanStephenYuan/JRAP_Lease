@@ -16,5 +16,24 @@
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
 
-
+    <select id="selectByConfigId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+            f.formula_id,
+            f.config_id,
+            f.matrix_type,
+            f.matrix_initial,
+            f.matrix_interval,
+            f.calc_formula,
+            f.calc_seq,
+            f.enabled_flag
+        from
+            pro_product_formula f
+        <where>
+            <if test="configId != null">
+                and f.configId = ${#configId}
+            </if>
+            and f.enabled_flag = 'Y'
+        </where>
+        order by f.calc_seq
+    </select>
 </mapper>

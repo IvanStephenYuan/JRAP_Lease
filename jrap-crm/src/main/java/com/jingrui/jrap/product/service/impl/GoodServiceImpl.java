@@ -25,7 +25,7 @@ public class GoodServiceImpl extends BaseServiceImpl<Good> implements IGoodServi
 
   public void createVacationInstance(IRequest iRequest, Good good) {
     //设置流程状态为提交中
-    good.setStatus("Submit");
+    good.setStatus("SUBMIT");
     //设置companyid
     good.setCompanyId(iRequest.getCompanyId());
     goodMapper.insert(good);

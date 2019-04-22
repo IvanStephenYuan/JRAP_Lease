@@ -4,8 +4,12 @@ import com.jingrui.jrap.code.rule.exception.CodeRuleException;
 import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import com.jingrui.jrap.fnd.dto.Company;
 import com.jingrui.jrap.fnd.service.ICompanyService;
+import com.jingrui.jrap.product.calculate.IProductCalculate;
+import com.jingrui.jrap.product.calculate.ProductCalculate;
+import com.jingrui.jrap.product.calculate.impl.ProductECICalculateImp;
 import com.jingrui.jrap.product.dto.ItemModel;
 import com.jingrui.jrap.product.dto.ProductConfig;
+import com.jingrui.jrap.product.service.IProductConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -50,6 +54,9 @@ public class ProductController extends BaseController {
 
     @Autowired
     private IProductService service;
+
+    @Autowired
+    private IProductConfigService configService;
 
     @Autowired
     private ICompanyService companyService;
@@ -127,27 +134,59 @@ public class ProductController extends BaseController {
         Product queryPara = new Product();
         queryPara.setProductCode(productCode);
         Product result = service.selectByPrimaryKey(requestContext, queryPara);
+        IProductCalculate calculate;
+
+        //虚拟头配置文件
+        ProductConfig configPara = new ProductConfig();
+        configPara.setConfigType("H");
+        configPara.setProductCode(productCode);
+        List<ProductConfig> dto = configService.select(requestContext, configPara, 1, 10);
+        for(ProductConfig record : dto){
+           if("LEASE_AMOUNT".equalsIgnoreCase(record.getColumnName())){
+               record.setDefaultValue("20000");
+           }else if("DOWN_PAYMENT".equalsIgnoreCase(record.getColumnName())){
+               record.setDefaultValue("5000");
+           }else if("INT_RATE".equalsIgnoreCase(record.getColumnName())){
+               record.setDefaultValue("0.1");
+           }else if("PAY_TIMES".equalsIgnoreCase(record.getColumnName())){
+               record.setDefaultValue("12");
+           }else if("PAY_TYPE".equalsIgnoreCase(record.getColumnName())){
+               record.setDefaultValue("0");
+           }else if("ANNUAL_PAY_TIMES".equalsIgnoreCase(record.getColumnName())){
+               record.setDefaultValue("12");
+           }else if("PARKING_FEE".equalsIgnoreCase(record.getColumnName())){
+               record.setDefaultValue("1200");
+           }
+        }
+
 
         switch (result.getCalculate()){
             //等额本息
             case ProductController.EFIXED_INSTALLMENT : {
                 logger.info("等额本息");
+                calculate = new ProductECICalculateImp();
+                calculate.calculate(dto);
+                break;
             }
             //等额本金
             case ProductController.FIXED_DPRINCIPAL : {
                 logger.info("等额本金");
+                break;
             }
             //等本等息
             case ProductController.FIXED_PRINCIPAL_INTEREST : {
                 logger.info("等本等息");
+                break;
             }
             //先息后本
             case ProductController.AINTEREST_PRINCIPAL : {
                 logger.info("等额本息");
+                break;
             }
             //阶梯降本
             case ProductController.DINTEREST_PRINCIPAL : {
                 logger.info("阶梯降本");
+                break;
             }
             default:{
                 logger.info("等本等息");

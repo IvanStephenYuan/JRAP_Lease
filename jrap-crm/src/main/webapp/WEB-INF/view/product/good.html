@@ -1,16 +1,25 @@
 <#include "../include/header.html">
 <script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?goodStatusData=GOOD.STATUS"
+        type="text/javascript"></script>
 <script type="text/javascript">
   var viewModel = Jrap.createGridViewModel("#grid");
 </script>
+<style>
+  .k-dropdown-wrap {
+    height: 28px;
+  }
+</style>
 <body>
 <div id="page-content">
   <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
-    <span class="btn btn-success k-grid-save-changes" data-bind="click:save"
+    <span onclick="saveGood()" class="btn btn-success"
           style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
   </div>
   <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
   <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+    <input id="status" placeholder='<@spring.message "good.status"/>' type="text"
+           style="float:left;width:150px;margin-right:5px;" data-bind="value:model.status">
     <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
            placeholder='<@spring.message "Good.goodName"/>'
            data-bind="value:model.goodName" class="k-textbox">
@@ -24,7 +33,18 @@
           type="submit"><@spring.message "jrap.query"/></span>
     <div style="clear:both"></div>
   </div>
-  <script>kendo.bind($('#query-form'), viewModel);</script>
+  <script>
+    $("#status").kendoComboBox({
+      dataTextField: "meaning",
+      dataValueField: "value",
+      valuePrimitive: true,
+      dataSource: goodStatusData
+    });
+  </script>
+  <script>
+    viewModel.model.set("status", "VALID");
+    kendo.bind($('#query-form'), viewModel);
+  </script>
   <div style="clear:both">
     <div id="grid"></div>
   </div>
@@ -33,7 +53,7 @@
 <script type="text/javascript">
   Jrap.initEnterQuery('#query-form', viewModel.query);
   var BaseUrl = _basePath;
-  dataSource = new kendo.data.DataSource({
+  var dataSource = new kendo.data.DataSource({
     transport: {
       read: {
         url: BaseUrl + "/afd/good/query",
@@ -74,7 +94,13 @@
         id: "goodId",
         fields: {
           enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
-        }
+        },
+        editable: function (col) {
+          if (col == "enabledFlag" || col == "endDate") {
+            return true;
+          }
+          return false;
+        },
       }
     }
   });
@@ -95,16 +121,12 @@
       refresh: true,
       buttonCount: 5
     },
+    editable: true,
     columns: [
 
       {
         field: "goodName",
         title: '<@spring.message "good.goodname"/>',
-        width: 120
-      },
-      {
-        field: "companyId",
-        title: '<@spring.message "good.companyid"/>',
         width: 120
       },
       {
@@ -115,11 +137,6 @@
       {
         field: "documentType",
         title: '<@spring.message "good.documenttype"/>',
-        width: 120
-      },
-      {
-        field: "productCode",
-        title: '<@spring.message "good.productcode"/>',
         width: 120
       },
       {
@@ -145,17 +162,6 @@
       {
         field: "surplusAmount",
         title: '<@spring.message "good.surplusamount"/>',
-        width: 120
-      },
-      {
-        field: "enabledFlag",
-        title: '<@spring.message "good.enabledflag"/>',
-        headerAttributes: {
-          "class": "table-header-cell",
-          style: "text-align: center"
-        },
-        attributes: {style: "text-align:center"},
-
         width: 120
       },
 
@@ -202,11 +208,97 @@
         },
         sortable: false
       },
+      {
+        field: "enabledFlag",
+        title: '<@spring.message "good.enabledflag"/>',
+        headerAttributes: {
+          "class": "table-header-cell",
+          style: "text-align: center"
+        },
+        attributes: {style: "text-align:center"},
 
+        width: 120
+      },
+      {
+        field: "status",
+        title: '<@spring.message "good.status"/>',
+        width: 80,
+        template: function (dataItem) {
+          var v = dataItem.status ? dataItem.status : "";
+          $.each(goodStatusData, function (i, n) {
+            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.meaning;
+              return v;
+            }
+          });
+          return v;
+        },
+        editor: function (container, options) {
+          $('<input name="' + options.field + '"/>')
+          .appendTo(container)
+          .kendoDropDownList({
+            dataTextField: "description",
+            dataValueField: "value",
+            valuePrimitive: true,
+            dataSource: goodStatusData
+          });
+        }
+      },
     ],
     editable: true
   });
 
+  /*商品信息的保存*/
+  function saveGood() {
+    var flag = true;
+    var submitdata = dataSource.data();
+    //循环遍历提交数据，校验结束日期
+    submitdata.forEach(function (v) {
+      var sDate = new Date(v.startDate);
+      var eDate = new Date(v.endDate);
+      if (sDate.getTime() > eDate.getTime()) {
+        flag = false;
+        return;
+      } else {
+        v.__status = "update";
+      }
+      if (flag == true) {
+        $.ajax({
+          type: "POST",
+          url: '${base.contextPath}/afd/good/submit',
+          dataType: "json",
+          data: kendo.stringify(submitdata),
+          async: false,
+          contentType: "application/json",
+          success: function (data) {
+            if (data.success = "true") {
+              kendo.ui.showInfoDialog({
+                title: "提示",
+                message: "保存成功"
+              }).done(function (e) {
+              });
+            } else {
+              kendo.ui.showInfoDialog({
+                title: "提示",
+                message: "保存失败",
+                iconClass: "fa fa-times-circle", // 提示图标
+                dialogClass: "k-dialog-error" // 图标类型
+              }).done(function (e) {
+              });
+            }
+          }
+        });
+      } else {
+        kendo.ui.showErrorDialog({
+          title: $l('jrap.error'),
+          message: '结束日期不能大于开始日期'
+        });
+
+      }
+
+    });
+
+  }
 </script>
 </body>
 </html>
