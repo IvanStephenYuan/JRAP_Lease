@@ -1176,8 +1176,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
  }
 
 
-
- changeSet(author:"Admin", id: "2019-03-18_CON_CHANGE"){
+ changeSet(author:"Admin", id: "2019-04-22_CON_CHANGE"){
   if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
    createSequence(sequenceName:'CON_CHANGE_S', startValue:"10001")
   }
@@ -1207,6 +1206,8 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"CUSTOMER_ID",type:"bigint",remarks:"客户ID")
    column(name:"CUSTOMER_NAME",type:"varchar(200)",remarks:"客户姓名")
    column(name:"CELLPHONE",type:"varchar(30)",remarks:"手机号")
+   column(name:"CELLPHONE02",type:"varchar(30)",remarks:"手机号02")
+   column(name:"CELLPHONE03",type:"varchar(30)",remarks:"手机号03")
    column(name:"ID_TYPE",type:"varchar(60)",defaultValue:"ID",remarks:"证件类型")
    column(name:"ID_NUMBER",type:"varchar(60)",remarks:"证件号")
    column(name:"CAR_LICENSE",type:"varchar(60)",remarks:"车牌号")
@@ -1265,7 +1266,172 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name: "DOCUMENT_TYPE")
    column(name: "COMPANY_ID")
   }
+ }
 
+
+ changeSet(author:"Admin", id: "2019-04-22_CON_CONTACT"){
+  if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
+   createSequence(sequenceName:'CON_CONTACT_S', startValue:"10001")
+  }
+  createTable(tableName:"CON_CONTACT"){
+   column(name:"CONTACT_ID",type:"bigint",autoIncrement:"true",startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "CON_CONTACT_PK")
+   }
+   column(name:"COMPANY_ID",type:"bigint",remarks:"公司FND_COMPANY_B.COMPANY_ID")
+   column(name:"STATUS",type:"varchar(60)",remarks:"状态")
+   column(name:"GOOD_ID",type:"bigint",remarks:"商品ID")
+   column(name:"CUSTOMER_NAME",type:"varchar(200)",remarks:"客户姓名")
+   column(name:"CELLPHONE",type:"varchar(30)",remarks:"手机号")
+   column(name:"CELLPHONE02",type:"varchar(30)",remarks:"手机号02")
+   column(name:"CELLPHONE03",type:"varchar(30)",remarks:"手机号03")
+   column(name:"ID_TYPE",type:"varchar(60)",defaultValue:"ID",remarks:"证件类型")
+   column(name:"ID_NUMBER",type:"varchar(60)",remarks:"证件号")
+   column(name:"SOURCE_TYPE",type:"varchar(60)",remarks:"来源")
+   column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
+   column(name:"REMARK",type:"clob",remarks:"备注说明")
+   column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
+    constraints(nullable:"false")
+   }
+   column(name:"CREATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"CREATION_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+   column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+   column(name:"PROGRAM_ID",type:"bigint")
+   column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+   column(name:"REQUEST_ID",type:"bigint")
+   column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
+   column(name:"ATTRIBUTE1",type:"varchar(150)")
+   column(name:"ATTRIBUTE2",type:"varchar(150)")
+   column(name:"ATTRIBUTE3",type:"varchar(150)")
+   column(name:"ATTRIBUTE4",type:"varchar(150)")
+   column(name:"ATTRIBUTE5",type:"varchar(150)")
+   column(name:"ATTRIBUTE6",type:"varchar(150)")
+   column(name:"ATTRIBUTE7",type:"varchar(150)")
+   column(name:"ATTRIBUTE8",type:"varchar(150)")
+   column(name:"ATTRIBUTE9",type:"varchar(150)")
+   column(name:"ATTRIBUTE10",type:"varchar(150)")
+   column(name:"ATTRIBUTE11",type:"varchar(150)")
+   column(name:"ATTRIBUTE12",type:"varchar(150)")
+   column(name:"ATTRIBUTE13",type:"varchar(150)")
+   column(name:"ATTRIBUTE14",type:"varchar(150)")
+   column(name:"ATTRIBUTE15",type:"varchar(150)")
+  }
+  createIndex(tableName:"CON_CONTACT",indexName:"CON_CONTACT_N1"){
+   column(name: "COMPANY_ID")
+   column(name: "GOOD_ID")
+  }
+  createIndex(tableName:"CON_CONTACT",indexName:"CON_CONTACT_N2"){
+   column(name: "COMPANY_ID")
+   column(name: "CELLPHONE")
+  }
+ }
+
+
+ changeSet(author:"Admin", id: "2019-04-22_CON_CHANGE_ASSIGN"){
+  if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
+   createSequence(sequenceName:'CON_CHANGE_ASSIGN_S', startValue:"10001")
+  }
+  createTable(tableName:"CON_CHANGE_ASSIGN"){
+   column(name:"ASSIGN_ID",type:"bigint",autoIncrement:"true",startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "CON_CHANGE_ASSIGN_PK")
+   }
+   column(name:"CONTACT_ID",type:"bigint",remarks:"联系人ID")
+   column(name:"CHANGE_ID",type:"bigint",remarks:"商机ID")
+   column(name:"UNIT_ID",type:"bigint",remarks:"组织部门HR_ORG_UNIT_B.UNIT_ID")
+   column(name:"EMPLOYEE_ID",type:"bigint",remarks:"员工HR_EMPLOYEE T.EMPLOYEE_ID")
+   column(name:"ASSIGN_DATE",type:"datetime",remarks:"分配时间")
+   column(name:"INVALID_DATE",type:"datetime",remarks:"失效时间")
+   column(name:"ASSIGN_NOTE",type:"varchar(200)",remarks:"备注")
+   column(name:"ENABLED_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"启用标识")
+   column(name:"REMARK",type:"clob",remarks:"备注说明")
+   column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
+    constraints(nullable:"false")
+   }
+   column(name:"CREATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"CREATION_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+   column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+   column(name:"PROGRAM_ID",type:"bigint")
+   column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+   column(name:"REQUEST_ID",type:"bigint")
+   column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
+   column(name:"ATTRIBUTE1",type:"varchar(150)")
+   column(name:"ATTRIBUTE2",type:"varchar(150)")
+   column(name:"ATTRIBUTE3",type:"varchar(150)")
+   column(name:"ATTRIBUTE4",type:"varchar(150)")
+   column(name:"ATTRIBUTE5",type:"varchar(150)")
+   column(name:"ATTRIBUTE6",type:"varchar(150)")
+   column(name:"ATTRIBUTE7",type:"varchar(150)")
+   column(name:"ATTRIBUTE8",type:"varchar(150)")
+   column(name:"ATTRIBUTE9",type:"varchar(150)")
+   column(name:"ATTRIBUTE10",type:"varchar(150)")
+   column(name:"ATTRIBUTE11",type:"varchar(150)")
+   column(name:"ATTRIBUTE12",type:"varchar(150)")
+   column(name:"ATTRIBUTE13",type:"varchar(150)")
+   column(name:"ATTRIBUTE14",type:"varchar(150)")
+   column(name:"ATTRIBUTE15",type:"varchar(150)")
+  }
+  createIndex(tableName:"CON_CHANGE_ASSIGN",indexName:"CON_CHANGE_ASSIGN_N1"){
+   column(name: "CHANGE_ID")
+  }
+  createIndex(tableName:"CON_CHANGE_ASSIGN",indexName:"CON_CHANGE_ASSIGN_N2"){
+   column(name: "UNIT_ID")
+  }
+  createIndex(tableName:"CON_CHANGE_ASSIGN",indexName:"CON_CHANGE_ASSIGN_N3"){
+   column(name: "EMPLOYEE_ID")
+  }
+ }
+
+
+ changeSet(author:"Admin", id: "2019-04-22_CON_CHANGE_TRACK"){
+  if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
+   createSequence(sequenceName:'CON_CHANGE_TRACK_S', startValue:"10001")
+  }
+  createTable(tableName:"CON_CHANGE_TRACK"){
+   column(name:"TRACK_ID",type:"bigint",autoIncrement:"true",startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
+    constraints(nullable:"false",primaryKey: "true",primaryKeyName: "CON_CHANGE_TRACK_PK")
+   }
+   column(name:"CHANGE_ID",type:"bigint",remarks:"商机ID")
+   column(name:"TRACK_DATE",type:"datetime",remarks:"跟踪日期")
+   column(name:"TRACK_TYPE",type:"varchar(60)",remarks:"跟踪方式")
+   column(name:"TRACK_NOTE",type:"varchar(200)",remarks:"跟踪日志")
+   column(name:"REMARK",type:"clob",remarks:"备注说明")
+   column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
+    constraints(nullable:"false")
+   }
+   column(name:"CREATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"CREATION_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
+   column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+   column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+   column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+   column(name:"PROGRAM_ID",type:"bigint")
+   column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+   column(name:"REQUEST_ID",type:"bigint")
+   column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
+   column(name:"ATTRIBUTE1",type:"varchar(150)")
+   column(name:"ATTRIBUTE2",type:"varchar(150)")
+   column(name:"ATTRIBUTE3",type:"varchar(150)")
+   column(name:"ATTRIBUTE4",type:"varchar(150)")
+   column(name:"ATTRIBUTE5",type:"varchar(150)")
+   column(name:"ATTRIBUTE6",type:"varchar(150)")
+   column(name:"ATTRIBUTE7",type:"varchar(150)")
+   column(name:"ATTRIBUTE8",type:"varchar(150)")
+   column(name:"ATTRIBUTE9",type:"varchar(150)")
+   column(name:"ATTRIBUTE10",type:"varchar(150)")
+   column(name:"ATTRIBUTE11",type:"varchar(150)")
+   column(name:"ATTRIBUTE12",type:"varchar(150)")
+   column(name:"ATTRIBUTE13",type:"varchar(150)")
+   column(name:"ATTRIBUTE14",type:"varchar(150)")
+   column(name:"ATTRIBUTE15",type:"varchar(150)")
+  }
+  createIndex(tableName:"CON_CHANGE_TRACK",indexName:"CON_CHANGE_TRACK_N1"){
+   column(name: "CHANGE_ID")
+  }
  }
 
 
