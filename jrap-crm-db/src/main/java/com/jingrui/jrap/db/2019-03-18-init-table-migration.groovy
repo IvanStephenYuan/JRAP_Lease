@@ -239,6 +239,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"DISPLAY_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"展示标识")
    column(name:"DISPLAY_ORDER",type:"Int",remarks:"展示顺序")
    column(name:"PROMPT",type:"varchar(100)",remarks:"描述")
+   column(name:"SYSCODE",type:"varchar(60)",remarks:"值列表")
    column(name:"REQUIRE_FLAG",type:"varchar(1)",remarks:"必输标识")
    column(name:"READONLY_FLAG",type:"varchar(1)",remarks:"只读标识")
    column(name:"DATA_PRECISION",type:"Int",remarks:"精度")
