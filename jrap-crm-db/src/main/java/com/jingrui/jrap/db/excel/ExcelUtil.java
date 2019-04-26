@@ -23,7 +23,7 @@ public class ExcelUtil {
         System.setProperty("db.override", "true");
 
         ExcelDataLoader processor = new ExcelDataLoader();
-        URL url = ExcelDataLoader.class.getResource("/com/jingrui/jrap/db/data/crm-init-data.xlsx");
+        URL url = ExcelDataLoader.class.getResource("/com/jingrui/jrap/db/data/20190426-init-data.xlsx");
         if (url == null) {
             throw new FileNotFoundException("excel not found.");
         }
