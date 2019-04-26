@@ -238,7 +238,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"SYSTEM_FLAG",type:"varchar(1)",defaultValue:"N",remarks:"系统标识")
    column(name:"DISPLAY_FLAG",type:"varchar(1)",defaultValue:"Y",remarks:"展示标识")
    column(name:"DISPLAY_ORDER",type:"Int",remarks:"展示顺序")
-   column(name:"PROMPT",type:"varchar(100)",remarks:"描述")
+   column(name:"PRO MPT",type:"varchar(100)",remarks:"描述")
    column(name:"SYSCODE",type:"varchar(60)",remarks:"值列表")
    column(name:"REQUIRE_FLAG",type:"varchar(1)",remarks:"必输标识")
    column(name:"READONLY_FLAG",type:"varchar(1)",remarks:"只读标识")
@@ -332,8 +332,9 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"ATTRIBUTE14",type:"varchar(150)")
    column(name:"ATTRIBUTE15",type:"varchar(150)")
   }
-  addUniqueConstraint(columnNames:"CONFIG_ID",tableName:"PRO_PRODUCT_FORMULA",constraintName: "PRO_PRODUCT_FORMULA_U1")
-
+  createIndex(tableName:"PRO_PRODUCT_FORMULA",indexName:"PRO_PRODUCT_FORMULA_N1"){
+   column(name: "CONFIG_ID")
+  }
  }
 
 
@@ -2402,8 +2403,6 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
 
  }
 
-
-
  changeSet(author:"Admin", id: "2019-03-18_PLM_DISPOSE"){
   if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
    createSequence(sequenceName:'PLM_DISPOSE_S', startValue:"10001")
@@ -2480,5 +2479,123 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
   }
 
  }
+
+    changeSet(author:"Admin", id: "2019-04-23_FND_COMPANY_LIMIT"){
+        if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
+            createSequence(sequenceName:'FND_COMPANY_LIMIT_S', startValue:"10001")
+        }
+        createTable(tableName:"FND_COMPANY_LIMIT"){
+            column(name:"LIMIT_ID",type:"bigint",autoIncrement:"true",startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
+                constraints(nullable:"false",primaryKey: "true",primaryKeyName: "FND_COMPANY_LIMIT_PK")
+            }
+            column(name:"LIMIT_TYPE",type:"varchar(60)",remarks:"授信类型")
+            column(name:"COMPANY_ID",type:"bigint",remarks:"商户ID")
+            column(name:"LIMIT_COMPANY_ID",type:"bigint",remarks:"资方ID")
+            column(name:"LIMIT_DATE",type:"datetime",remarks:"授信日期")
+            column(name:"GOOD_ID",type:"bigint",remarks:"商品ID")
+            column(name:"ORDER_ID",type:"bigint",remarks:"订单ID")
+            column(name:"LIMIT_AMOUNT",type:"decimal",remarks:"授信额度")
+            column(name:"BALANCE",type:"decimal",remarks:"可用额度")
+            column(name:"LIMIT_NOTE",type:"varchar(200)",remarks:"备注")
+            column(name:"ENABLED_FLAG",type:"varchar(1)",remarks:"启用标识")
+            column(name:"START_DATE",type:"datetime",remarks:"有效期从")
+            column(name:"END_DATE",type:"datetime",remarks:"有效期至")
+            column(name:"REMARK",type:"clob",remarks:"备注说明")
+            column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
+                constraints(nullable:"false")
+            }
+            column(name:"CREATED_BY",type:"bigint", defaultValue : "-1")
+            column(name:"CREATION_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+            column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
+            column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+            column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+            column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+            column(name:"PROGRAM_ID",type:"bigint")
+            column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+            column(name:"REQUEST_ID",type:"bigint")
+            column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
+            column(name:"ATTRIBUTE1",type:"varchar(150)")
+            column(name:"ATTRIBUTE2",type:"varchar(150)")
+            column(name:"ATTRIBUTE3",type:"varchar(150)")
+            column(name:"ATTRIBUTE4",type:"varchar(150)")
+            column(name:"ATTRIBUTE5",type:"varchar(150)")
+            column(name:"ATTRIBUTE6",type:"varchar(150)")
+            column(name:"ATTRIBUTE7",type:"varchar(150)")
+            column(name:"ATTRIBUTE8",type:"varchar(150)")
+            column(name:"ATTRIBUTE9",type:"varchar(150)")
+            column(name:"ATTRIBUTE10",type:"varchar(150)")
+            column(name:"ATTRIBUTE11",type:"varchar(150)")
+            column(name:"ATTRIBUTE12",type:"varchar(150)")
+            column(name:"ATTRIBUTE13",type:"varchar(150)")
+            column(name:"ATTRIBUTE14",type:"varchar(150)")
+            column(name:"ATTRIBUTE15",type:"varchar(150)")
+        }
+        createIndex(tableName:"FND_COMPANY_LIMIT",indexName:"FND_COMPANY_LIMIT_N1"){
+            column(name: "COMPANY_ID")
+        }
+        createIndex(tableName:"FND_COMPANY_LIMIT",indexName:"FND_COMPANY_LIMIT_N2"){
+            column(name: "LIMIT_COMPANY_ID")
+        }
+
+    }
+
+
+    changeSet(author:"Admin", id: "2019-04-23_FND_LIMIT_DETAIL"){
+        if(mhi.isDbType('oracle') || mhi.isDbType('hana')){
+            createSequence(sequenceName:'FND_LIMIT_DETAIL_S', startValue:"10001")
+        }
+        createTable(tableName:"FND_LIMIT_DETAIL"){
+            column(name:"DETAIL_ID",type:"bigint",autoIncrement:"true",startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
+                constraints(nullable:"false",primaryKey: "true",primaryKeyName: "FND_LIMIT_DETAIL_PK")
+            }
+            column(name:"COMPANY_ID",type:"bigint",remarks:"商户ID")
+            column(name:"LIMIT_ID",type:"bigint",remarks:"授信ID")
+            column(name:"DEAL_TYPE",type:"varchar(60)",remarks:"交易类型")
+            column(name:"ORDER_ID",type:"bigint",remarks:"订单ID")
+            column(name:"CASHFLOW_ID",type:"bigint",remarks:"现金流ID")
+            column(name:"DR_AMOUNT",type:"decimal",remarks:"借方金额")
+            column(name:"CR_AMOUNT",type:"decimal",remarks:"贷方金额")
+            column(name:"DEAL_DATE",type:"datetime",remarks:"交易日期")
+            column(name:"BALANCE",type:"decimal",remarks:"余额")
+            column(name:"DEAL_NOTE",type:"varchar(200)",remarks:"摘要")
+            column(name:"REMARK",type:"clob",remarks:"备注说明")
+            column(name:"OBJECT_VERSION_NUMBER",type:"bigint",defaultValue:"1",remarks:"行版本号，用来处理锁"){
+                constraints(nullable:"false")
+            }
+            column(name:"CREATED_BY",type:"bigint", defaultValue : "-1")
+            column(name:"CREATION_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+            column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
+            column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
+            column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+            column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+            column(name:"PROGRAM_ID",type:"bigint")
+            column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+            column(name:"REQUEST_ID",type:"bigint")
+            column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
+            column(name:"ATTRIBUTE1",type:"varchar(150)")
+            column(name:"ATTRIBUTE2",type:"varchar(150)")
+            column(name:"ATTRIBUTE3",type:"varchar(150)")
+            column(name:"ATTRIBUTE4",type:"varchar(150)")
+            column(name:"ATTRIBUTE5",type:"varchar(150)")
+            column(name:"ATTRIBUTE6",type:"varchar(150)")
+            column(name:"ATTRIBUTE7",type:"varchar(150)")
+            column(name:"ATTRIBUTE8",type:"varchar(150)")
+            column(name:"ATTRIBUTE9",type:"varchar(150)")
+            column(name:"ATTRIBUTE10",type:"varchar(150)")
+            column(name:"ATTRIBUTE11",type:"varchar(150)")
+            column(name:"ATTRIBUTE12",type:"varchar(150)")
+            column(name:"ATTRIBUTE13",type:"varchar(150)")
+            column(name:"ATTRIBUTE14",type:"varchar(150)")
+            column(name:"ATTRIBUTE15",type:"varchar(150)")
+        }
+        createIndex(tableName:"FND_LIMIT_DETAIL",indexName:"FND_LIMIT_DETAIL_N1"){
+            column(name: "LIMIT_ID")
+        }
+        createIndex(tableName:"FND_LIMIT_DETAIL",indexName:"FND_LIMIT_DETAIL_N2"){
+            column(name: "ORDER_ID")
+            column(name: "CASHFLOW_ID")
+        }
+
+    }
 
 }
