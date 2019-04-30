@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.fnd.mapper.CompanyLimitMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.fnd.dto.CompanyLimit">
+        <result column="LIMIT_ID" property="limitId" jdbcType="DECIMAL" />
+        <result column="LIMIT_TYPE" property="limitType" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="LIMIT_COMPANY_ID" property="limitCompanyId" jdbcType="DECIMAL" />
+        <result column="LIMIT_DATE" property="limitDate" jdbcType="DATE" />
+        <result column="GOOD_ID" property="goodId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="LIMIT_AMOUNT" property="limitAmount" jdbcType="DECIMAL" />
+        <result column="BALANCE" property="balance" jdbcType="DECIMAL" />
+        <result column="LIMIT_NOTE" property="limitNote" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="START_DATE" property="startDate" jdbcType="DATE" />
+        <result column="END_DATE" property="endDate" jdbcType="DATE" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

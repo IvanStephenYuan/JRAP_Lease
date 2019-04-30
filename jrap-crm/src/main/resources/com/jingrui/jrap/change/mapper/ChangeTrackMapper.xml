@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.change.mapper.ChangeTrackMapper">
+  <resultMap id="BaseResultMap" type="com.jingrui.jrap.change.dto.ChangeTrack">
+    <result column="TRACK_ID" property="trackId" jdbcType="DECIMAL"/>
+    <result column="CHANGE_ID" property="changeId" jdbcType="DECIMAL"/>
+    <result column="TRACK_TYPE" property="trackType" jdbcType="VARCHAR"/>
+    <result column="TRACK_NOTE" property="trackNote" jdbcType="VARCHAR"/>
+    <result column="TRACK_DATE" property="trackDate" jdbcType="DATE"/>
+    <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+    <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL"/>
+    <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE"/>
+  </resultMap>
+  <select id="selectByChangeId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+          select * from con_change_track ae where ae.CHANGE_ID= #{changeId}
+  </select>
+</mapper>

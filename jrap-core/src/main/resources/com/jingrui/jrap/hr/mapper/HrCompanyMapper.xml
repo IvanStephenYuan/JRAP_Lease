@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@3f1a96b0$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jingrui.jrap.hr.mapper.HrCompanyMapper">
+
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.hr.dto.HrCompany" extends="com.jingrui.jrap.mapper.StdMapper.STD">
+        <id column="company_id" property="companyId"/>
+        <result column="company_code" property="companyCode"/>
+        <result column="company_type" property="companyType"/>
+        <result column="address" property="address"/>
+        <result column="company_level_id" property="companyLevelId"/>
+        <result column="parent_company_id" property="parentCompanyId"/>
+        <result column="chief_position_id" property="chiefPositionId"/>
+        <result column="start_date_active" property="startDateActive"/>
+        <result column="end_date_active" property="endDateActive"/>
+        <result column="company_short_name" property="companyShortName"/>
+        <result column="company_full_name" property="companyFullName"/>
+        <result column="zipcode" property="zipcode"/>
+        <result column="fax" property="fax"/>
+        <result column="phone" property="phone"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="parent_company_name" property="parentCompanyName"/>
+        <result column="position_name" property="positionName"/>
+        <result column="status" property="status"/>
+        <result column="company_class" property="companyClass"/>
+    </resultMap>
+</mapper>

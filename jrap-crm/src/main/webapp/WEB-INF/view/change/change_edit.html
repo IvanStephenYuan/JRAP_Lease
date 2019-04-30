@@ -1,0 +1,504 @@
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?card_type=HR.CERTIFICATE_TYPE	"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?changeStatusData=CHANGE.STATUS"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?trackTypeData=TRACK.TYPE"
+        type="text/javascript"></script>
+<script>
+  var isedit = '${RequestParameters.isedit!0}' == '1';
+  var changeId = '${RequestParameters.changeId!0}';
+  var newViewModel = kendo.observable({
+    model: {}
+  });
+  if (isedit) {
+    $.ajax({
+      url: '${base.contextPath}/con/change/query?changeId=' + changeId,
+      success: function (args) {
+        console.log(args);
+        var a0 = args.rows[0] || {};
+        for (var k in a0) {
+          newViewModel.model.set(k, a0[k]);
+        }
+      }
+    });
+
+  }
+</script>
+<style>
+  .col-xs-4,
+  .col-xs-6,
+  .col-xs-8,
+  .col-xs-12 {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+</style>
+<div id="page-content">
+  <div>
+    <div id="tabstrip">
+      <ul>
+        <li class="k-state-active">
+          联系人信息
+        </li>
+        <li>
+          追踪信息
+        </li>
+      </ul>
+      <div>
+        <form class="form-horizontal">
+          <h4>联系人信息</h4>
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.changecode"/></label>
+                <div class="col-xs-8">
+                  <input id="changeCode" name="changeCode" type="text" data-role="maskedtextbox"
+                         disabled
+                         data-label="<@spring.message 'change.changecode'/>"
+                         data-bind="value:model.changeCode" class="k-textbox"
+                         style="width: 100%;">
+                  <script>kendo.bind($('#changeCode'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.status"/></label>
+                <div class="col-xs-8">
+                  <input id="status" type="text" data-bind="value:model.status" disabled
+                         style="width: 100%;">
+                  <script>
+                    $("#status").kendoComboBox({
+                      dataSource: changeStatusData,
+                      valuePrimitive: true,
+                      dataTextField: "meaning",
+                      dataValueField: "value",
+                      select: function (e) {
+                        newViewModel.model.set("status", e.dataItem.value);
+                      }
+                    });
+                    kendo.bind($("#status"), newViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.customername"/></label>
+                <div class="col-xs-8">
+                  <input id="customerName" type="text" data-bind="value:model.customerName"
+                         class="k-textbox" required
+                         style="width: 100%;">
+                  <script>kendo.bind($('#customerName'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.cellphone"/></label>
+                <div class="col-xs-8">
+                  <input id="cellphone" type="text" data-bind="value:model.cellphone"
+                         class="k-textbox"
+                         required
+                         style="width: 100%;">
+                  <script>kendo.bind($('#cellphone'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.cellphone02"/></label>
+                <div class="col-xs-8">
+                  <input id="cellphone02" type="text" data-bind="value:model.cellphone02"
+                         class="k-textbox"
+                         style="width: 100%;">
+                  <script>kendo.bind($('#cellphone02'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.cellphone03"/></label>
+                <div class="col-xs-8">
+                  <input id="cellphone03" type="text" data-bind="value:model.cellphone03"
+                         class="k-textbox"
+                         style="width: 100%;">
+                  <script>kendo.bind($('#cellphone03'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.idtype"/></label>
+                <div class="col-xs-8">
+                  <input id="idType" type="text" data-bind="value:model.idType"
+                         style="width: 100%;">
+                  <script>
+                    $("#idType").kendoComboBox({
+                      dataSource: card_type,
+                      valuePrimitive: true,
+                      dataTextField: "meaning",
+                      dataValueField: "value"
+                    });
+                    kendo.bind($('#idType'), newViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.idnumber"/></label>
+                <div class="col-xs-8">
+                  <input id="idNumber" type="text" data-bind="value:model.idNumber"
+                         class="k-textbox"
+                         style="width: 100%;">
+                  <script>kendo.bind($('#idNumber'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "change.carlicense"/></label>
+                <div class="col-xs-8">
+                  <input id="carLicense" type="text" data-bind="value:model.carLicense"
+                         class="k-textbox"
+                         style="width: 100%;">
+                  <script>kendo.bind($('#carLicense'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4   control-label"
+                       style="text-align: right"><@spring.message "change.carmodel"/></label>
+                <div class="col-xs-8">
+                  <input id="carModel" type="text" data-bind="value:model.carModel"
+                         class="k-textbox"
+                         style="width: 100%;">
+                  <script>kendo.bind($('#carModel'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message
+                  "change.indicativeamount"/></label>
+                <div class="col-xs-8">
+                  <input id="indicativeAmount" name="indicativeAmount" type="text"
+                         data-role="numerictextbox"
+                         data-label="<@spring.message 'change.indicativeamount'/>"
+                         data-bind="value:model.indicativeAmount"
+                         style="width: 100%;">
+                  <script>
+                    $("#indicativeAmount").kendoNumericTextBox({
+                      min: 0
+                    });
+                    kendo.bind($('#indicativeAmount'), newViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--<h4>追踪信息录入</h4>
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "changetrack.tracktype"/></label>
+                <div class="col-xs-8">
+                  <input id="trackType" type="text" data-bind="value:model.trackType"
+                         style="width: 100%;">
+                  <script>
+                    $("#trackType").kendoComboBox({
+                      dataSource: trackTypeData,
+                      valuePrimitive: true,
+                      dataTextField: "meaning",
+                      dataValueField: "value"
+                    });
+                    kendo.bind($('#trackType'), trackViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4   control-label"
+                       style="text-align: right"><@spring.message "changetrack.trackdate"/></label>
+                <div class="col-xs-8">
+                  <input id="trackDate" type="text" data-bind="value:model.trackDate"
+                         style="width: 100%;">
+                  <script>
+                    $('#trackDate').kendoDatePicker();
+                    kendo.bind($('#trackDate'), trackViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xs-12">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label class="col-xs-2 control-label"
+                       style="text-align: right"><@spring.message "changetrack.tracknote"/></label>
+                <div class="col-xs-10">
+                  <input id="trackNote" name="trackNote" type="text"
+                         data-bind="value:model.trackNote"
+                         style="width: 100%;" required
+                         data-label="<@spring.message 'changetrack.tracknote'/>">
+                  <span class="k-invalid-msg" data-for="trackNote"></span>
+
+                  <script>
+                    $("#trackNote").kendoTLEdit({
+                      field: 'companyFullName'
+                    })
+                    kendo.bind($('#trackNote'), trackViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+          </div>
+-->
+          <div class="text-right"
+               style="bottom: 15px;position: fixed; padding-right: 24px;  float: left;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+            <span class="btn btn-primary" id="saveGrid" type="submit" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+            <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
+          </div>
+        </form>
+      </div>
+      <div style="height:300px;">
+        <div class="panel-body">
+          <div class="row">
+            <div class="block">
+              <div class="form-group">
+                <div id='grid-container'>
+                  <div id="trackgrid" style="clear: both"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var tabstrip = $("#tabstrip").kendoTabStrip({
+      height: '100%',
+      animation: false
+    }).data("kendoTabStrip");
+    tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var item = $(e.target).closest(".k-item");
+      var index = item.index(),
+          prev = item.next().length == 1 ? item.next() : item.prev();
+      tabstrip.remove(item.index());
+      tabstrip.select(prev)
+    });
+  </script>
+</div>
+
+<script>
+
+  var validator = $("#page-content").kendoValidator({
+    valid: function (e) {
+    },
+    invalidMessageType: "tooltip"
+  }).data("kendoValidator");
+
+  $("#closeWin").click(function () {
+    window.parent.$("#newWin").data("kendoWindow").close();
+  });
+
+  $("#saveGrid").click(function () {
+    if (validator.validate()) {
+      newViewModel.model.__status = isedit ? 'update' : 'add';
+      Jrap.submitForm({
+        url: '${base.contextPath}/con/change/submit',
+        formModel: newViewModel.model,
+        success: function (data) {
+          window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
+          window.parent.$("#newWin").data("kendoWindow").close();
+        }
+      });
+    }
+  });
+  //追蹤信息的grid
+  var trackViewModel = Jrap.createGridViewModel("#trackgrid");
+  var BaseUrl = _basePath;
+  dataSource = new kendo.data.DataSource({
+    transport: {
+      read: {
+        url: BaseUrl + "/con/change/track/query?changeId=" + changeId,
+        type: "POST",
+        dataType: "json"
+      },
+      update: {
+        url: BaseUrl + "/con/change/track/submit",
+        type: "POST",
+        contentType: "application/json"
+      },
+      destroy: {
+        url: BaseUrl + "/con/change/track/remove",
+        type: "POST",
+        contentType: "application/json"
+      },
+      create: {
+        url: BaseUrl + "/con/change/track/submit",
+        type: "POST",
+        contentType: "application/json"
+      },
+      parameterMap: function (options, type) {
+        if (type !== "read" && options.models) {
+          var datas = Jrap.prepareSubmitParameter(options, type)
+          return kendo.stringify(datas);
+        } else if (type === "read") {
+          return Jrap.prepareQueryParameter(trackViewModel.model.toJSON(), options)
+        }
+      }
+    },
+    batch: true,
+    serverPaging: true,
+    pageSize: 10,
+    schema: {
+      data: 'rows',
+      total: 'total',
+      model: {
+        id: "trackId",
+        fields: {
+          changeId: {defaultValue: changeId},
+        }
+      }
+    }
+  });
+
+  var grid=$("#trackgrid").kendoGrid({
+    dataSource: dataSource,
+    resizable: true,
+    scrollable: true,
+    navigatable: false,
+    selectable: 'multiple, rowbox',
+    dataBound: function () {
+      if (parent.autoResizeIframe) {
+        parent.autoResizeIframe('${RequestParameters.functionCode!}')
+      }
+    },
+    pageable: {
+      pageSizes: [5, 10, 20, 50],
+      refresh: true,
+      buttonCount: 5
+    },
+    toolbar: [
+      {
+        template: '<span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>'
+      },
+      {
+        template: '<span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>'
+      },
+      {
+        template: '<span  onclick="deleteData()" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>'
+      }
+    ],
+    columns: [
+      {
+        field: "trackType",
+        title: '<@spring.message "changetrack.tracktype"/>',
+        width: 100,
+        template: function (dataItem) {
+          var v = dataItem.trackType ? dataItem.trackType : "";
+          $.each(trackTypeData, function (i, n) {
+            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.meaning;
+              return v;
+            }
+          });
+          return v;
+        },
+        editor: function (container, options) {
+          $('<input name="' + options.field + '"/>')
+          .appendTo(container)
+          .kendoDropDownList({
+            dataTextField: "meaning",
+            dataValueField: "value",
+            valuePrimitive: true,
+            dataSource: trackTypeData
+          });
+        }
+      },
+      {
+        field: "trackDate",
+        title: '<@spring.message "changetrack.trackdate"/>',
+        width: 100,
+        format: "{0:yyyy-MM-dd}",
+        editor: function (container, options) {
+          var input = $('<input name="' + options.field + '"/>');
+          input.appendTo(container);
+          input.kendoDatePicker({
+            format: "yyyy-MM-dd"
+          });
+        },
+      },
+      {
+        field: "trackNote",
+        title: '<@spring.message "changetrack.tracknote"/>',
+        width: 160
+      },
+
+    ],
+    editable: true
+  }).data("kendoGrid");
+
+  function deleteData() {
+    var checked = grid.selectedDataItems();
+    if (grid.selectedDataItems().length) {
+      kendo.ui.showConfirmDialog({
+        title: $l('jrap.tip.info'),
+        message: $l('jrap.tip.delete_confirm')
+      }).done(function (event) {
+        if (event.button == 'OK') {
+          $.each(checked, function (i, v) {
+            grid.dataSource.remove(v)
+          });
+          grid.dataSource.sync();
+        }
+      })
+    }
+  }
+</script>
+
+</body>
+</html>

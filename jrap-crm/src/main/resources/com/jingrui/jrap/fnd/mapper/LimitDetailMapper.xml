@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@25722510$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.fnd.mapper.LimitDetailMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.fnd.dto.LimitDetail">
+        <result column="DETAIL_ID" property="detailId" jdbcType="DECIMAL" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="LIMIT_ID" property="limitId" jdbcType="DECIMAL" />
+        <result column="DEAL_TYPE" property="dealType" jdbcType="VARCHAR" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="CASHFLOW_ID" property="cashflowId" jdbcType="DECIMAL" />
+        <result column="DR_AMOUNT" property="drAmount" jdbcType="DECIMAL" />
+        <result column="CR_AMOUNT" property="crAmount" jdbcType="DECIMAL" />
+        <result column="DEAL_DATE" property="dealDate" jdbcType="DATE" />
+        <result column="BALANCE" property="balance" jdbcType="DECIMAL" />
+        <result column="DEAL_NOTE" property="dealNote" jdbcType="VARCHAR" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

@@ -1,0 +1,229 @@
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script>
+  newViewModel = new kendo.observable({
+    model: {}
+  });
+  //数据源
+  var unitData = [];
+  var productData = [];
+  var venderData = [];
+  $.ajax({
+    url: '${base.contextPath}/hr/unit/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      unitData = data.rows;
+    }
+  });
+  $.ajax({
+    url: '${base.contextPath}/pro/product/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      productData = data.rows;
+    }
+  });
+  //post请求上线文指定方式不同
+  $.ajax({
+    url: '${base.contextPath}/afd/customer/query',
+    type: "POST",
+    dataType: "json",
+    data: {"customerType": "VENDER"},
+    async: false,
+    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+    success: function (data) {
+      venderData = data.rows;
+    }
+  });
+</script>
+<div class="col-sm-6" style="margin-top: 10px;">
+  <div style="padding:15px 15px 0">
+    <div class="panel">
+      <form class="form-horizontal" id="form-query" style="width:100%">
+        <div class="form-group" style="padding-top: 10px;margin-right: 70px">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "order.unitid"/></label>
+          <div class="col-xs-8">
+            <input id="unitId" type="text" data-bind="value:model.unitId" required
+                   style="width: 100%;">
+            <script>
+              $("#unitId").kendoComboBox({
+                dataSource: unitData,
+                valuePrimitive: true,
+                dataTextField: "description",
+                dataValueField: "unitId"
+              });
+              $("#unitId").on('change', function () {
+                if (this.value != '') {
+                  newViewModel.model.set("unitId", this.value);
+                } else {
+                  newViewModel.model.set("unitId", null)
+                }
+              })
+              kendo.bind($('#unitId'), newViewModel);
+            </script>
+          </div>
+        </div>
+        <div class="form-group" style="margin-right: 70px">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "order.employeeid"/></label>
+          <div class="col-xs-8">
+            <input id="employeeId" type="text" data-bind="value:model.employeeId"
+                   style="width: 100%;" required>
+            <script>
+              $("#employeeId").kendoLov(
+                  $.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_EMPLOYEEUID")},
+                      {
+                        query: function (e) {
+                          e.param['unitId'] = newViewModel.model.unitId;
+                        },
+                        select: function (e) {
+                          var item = e.item;
+                          // 查询头信息
+                          newViewModel.model.set("employeeId", item.employeeId);
+                        }
+                      }));
+              kendo.bind($('#employeeId'), newViewModel);
+            </script>
+          </div>
+        </div>
+        <div class="form-group" style="margin-right: 70px">
+          <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+            "order.agentid"/></label>
+          <div class="col-xs-8">
+            <input id="agentId" name="agentId" type="text"
+                   data-bind="value:model.agentId"
+                   style="width: 100%;" required
+                   data-label="<@spring.message 'order.agentid'/>">
+            <script>
+              $("#agentId").kendoComboBox({
+                dataTextField: "customerName",
+                dataValueField: "agentId",
+                valuePrimitive: true,
+                dataSource: venderData,
+                select: function (e) {
+                  newViewModel.model.set("agentId", e.dataItem.value);
+                }
+              }).data("kendoComboBox");
+              kendo.bind($("#agentId"), newViewModel);
+            </script>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-right: 70px">
+          <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+            "customer.customerClass"/></label>
+          <div class="col-xs-8">
+            <input id="customerClass" name="customerClass" type="text"
+                   data-bind="value:model.customerClass"
+                   style="width: 100%;" required
+                   data-label="<@spring.message 'customer.customerClass'/>">
+            <script>
+              $("#customerClass").kendoComboBox({
+                dataTextField: "meaning",
+                dataValueField: "value",
+                dataSource: {
+                  transport: {
+                    read: {
+                      url: _basePath + '/common/code/CUSTOMER.CLASS/',
+                      dataType: "json"
+                    }
+                  }
+                },
+                select: function (e) {
+                  newViewModel.model.set("customerClass", e.dataItem.value);
+                }
+              }).data("kendoComboBox");
+              kendo.bind($("#customerClass"), newViewModel);
+            </script>
+          </div>
+        </div>
+        <div class="form-group" style="margin-right: 70px">
+          <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+            "order.businesstype"/></label>
+          <div class="col-xs-8">
+            <input id="businessType" name="businessType" type="text"
+                   data-bind="value:model.businessType"
+                   style="width: 100%;" required
+                   data-label="<@spring.message 'order.businesstype'/>">
+            <script>
+              $("#businessType").kendoComboBox({
+                dataTextField: "meaning",
+                dataValueField: "value",
+                dataSource: {
+                  transport: {
+                    read: {
+                      url: _basePath + '/common/code/BUSINESS.TYPE/',
+                      dataType: "json"
+                    }
+                  }
+                },
+                select: function (e) {
+                  newViewModel.model.set("businessType", e.dataItem.value);
+                }
+              }).data("kendoComboBox");
+              kendo.bind($("#businessType"), newViewModel);
+            </script>
+          </div>
+        </div>
+        <div class="form-group" style="margin-right: 70px">
+          <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+            "order.productcode"/></label>
+          <div class="col-xs-8">
+            <input id="productCode" name="productCode" type="text"
+                   data-bind="value:model.productCode"
+                   style="width: 100%;" required
+                   data-label="<@spring.message 'order.productcode'/>">
+            <script>
+              $("#productCode").kendoComboBox({
+                dataTextField: "productName",
+                dataValueField: "productCode",
+                valuePrimitive: true,
+                dataSource: productData,
+                select: function (e) {
+                  newViewModel.model.set("productCode", e.dataItem.value);
+                }
+              }).data("kendoComboBox");
+              kendo.bind($("#productCode"), newViewModel);
+            </script>
+          </div>
+        </div>
+
+
+        <div class="panel-footer text-center" id="toolbar">
+          <span class="btn btn-success k-grid-save-changes" onclick="confirm()" type="button"
+                style="margin-right: 5px;"><@spring.message "确定"/></span>
+        </div>
+      </form>
+      <script>kendo.bind($('#form-query'), newViewModel);</script>
+    </div>
+  </div>
+</div>
+</div>
+<div id = "orderedit">
+<script type="text/javascript">
+  function confirm() {
+    var win = $("#orderedit").kendoWindow({
+      actions: ["Close"],
+      title: '订单编辑',
+      visible: false,
+      modal: true,
+      width: 900,
+      height: 400,
+      iframe: true,
+      content: '${base.contextPath}/order/order_edit.html',
+      close: function (e) {
+      }
+    }).data("kendoWindow");
+    //window.parent.$("#newWin").data("kendoWindow").close();
+    win.center().maximize().open();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@71512196$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.change.mapper.ChangeAssignMapper">
+  <resultMap id="BaseResultMap" type="com.jingrui.jrap.change.dto.ChangeAssign">
+    <result column="ASSIGN_ID" property="assignId" jdbcType="DECIMAL"/>
+    <result column="CHANGE_ID" property="changeId" jdbcType="DECIMAL"/>
+    <result column="CONTACT_ID" property="contactId" jdbcType="DECIMAL"/>
+    <result column="UNIT_ID" property="unitId" jdbcType="DECIMAL"/>
+    <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL"/>
+    <result column="INVALID_DATE" property="invalidDate" jdbcType="DATE"/>
+    <result column="ASSIGN_DATE" property="assignDate" jdbcType="DATE"/>
+    <result column="ASSIGN_NOTE" property="assignNote" jdbcType="VARCHAR"/>
+    <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+    <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL"/>
+    <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE"/>
+  </resultMap>
+  <select id="selectByCgeId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+            select * from con_change_assign cca where cca.change_id=#{changeId};
+    </select>
+</mapper>

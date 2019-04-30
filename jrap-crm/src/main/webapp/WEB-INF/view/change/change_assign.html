@@ -1,0 +1,197 @@
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?card_type=HR.CERTIFICATE_TYPE	"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?changeStatusData=CHANGE.STATUS"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?trackTypeData=TRACK.TYPE"
+        type="text/javascript"></script>
+<script>
+  var newViewModel = kendo.observable({
+    model: {}
+  });
+  //数据源
+  var unitData = [];
+  $.ajax({
+    url: '${base.contextPath}/hr/unit/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      unitData = data.rows;
+    }
+  });
+</script>
+<div id="page-content">
+  <div>
+    <div>
+      <form class="form-horizontal">
+        <div class="col-xs-12">
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4 control-label"
+                     style="text-align: right"><@spring.message "changeassign.unitid"/></label>
+              <div class="col-xs-8">
+                <input id="unitId" type="text" data-bind="value:model.unitId"
+                       style="width: 100%;">
+                <script>
+                  $("#unitId").kendoComboBox({
+                    dataSource: unitData,
+                    valuePrimitive: true,
+                    dataTextField: "description",
+                    dataValueField: "unitId"
+                  });
+                  $("#unitId").on('change', function () {
+                    if (this.value != '') {
+                      newViewModel.model.set("unitId", this.value);
+                    } else {
+                      newViewModel.model.set("unitId", null)
+                    }
+                  })
+                  kendo.bind($('#unitId'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4 control-label"
+                     style="text-align: right"><@spring.message "changeassign.employeeid"/></label>
+              <div class="col-xs-8">
+                <input id="employeeId" type="text" data-bind="value:model.employeeId"
+                       style="width: 100%;">
+                <script>
+                  $("#employeeId").kendoLov(
+                      $.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_EMPLOYEEUID")},
+                          {
+                            query: function (e) {
+                              e.param['unitId'] = newViewModel.model.unitId;
+                            },
+                            select: function (e) {
+                              var item = e.item;
+                              // 查询头信息
+                              newViewModel.model.set("employeeId", item.employeeId);
+                            }
+                          }));
+                  kendo.bind($('#employeeId'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xs-12">
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4   control-label"
+                     style="text-align: right"><@spring.message "changeassign.assigndate"/></label>
+              <div class="col-xs-8">
+                <input id="assignDate" type="text" data-bind="value:model.assignDate"
+                       style="width: 100%;">
+                <script>
+                  $('#assignDate').kendoDatePicker();
+                  kendo.bind($('#assignDate'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4   control-label"
+                     style="text-align: right"><@spring.message "changeassign.invaliddate"/></label>
+              <div class="col-xs-8">
+                <input id="invalidDate" type="text" data-bind="value:model.invalidDate"
+                       style="width: 100%;">
+                <script>
+                  $('#invalidDate').kendoDatePicker();
+                  kendo.bind($('#invalidDate'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-xs-12">
+          <div class="col-xs-12">
+            <div class="form-group">
+              <label class="col-xs-2 control-label"
+                     style="text-align: right"><@spring.message "changeassign.assignnote"/></label>
+              <div class="col-xs-10">
+                <input id="assignNote" type="text" data-bind="value:model.assignNote"
+                       style="width: 100%;">
+                <script>
+                  kendo.bind($('#assignNote'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-right"
+             style="bottom: 15px;position: fixed; padding-right: 24px;  float: left;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+          <span class="btn btn-primary" onclick="assignChange()" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+          <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  var validator = $("#page-content").kendoValidator({
+    valid: function (e) {
+    },
+    invalidMessageType: "tooltip"
+  }).data("kendoValidator");
+
+  $("#closeWin").click(function () {
+    window.parent.$("#changeassignWindow").data("kendoWindow").close();
+  });
+
+  //商机分配
+  function assignChange() {
+    //接收联系人数组
+    var contact = '${RequestParameters.contacts!null}';
+    var contacts = contact.split(",");
+    //将数组放入list中
+    var listdata = [];
+    listdata[0] = contacts;
+    var datamap = {};
+    datamap['contact'] = listdata;
+    datamap['changeassign'] = newViewModel.model;
+    //请求接口
+    $.ajax({
+      type: "POST",
+      url: '${base.contextPath}/con/contact/batchassign',
+      dataType: "json",
+      data: kendo.stringify(datamap),
+      async: false,
+      contentType: "application/json",
+      success: function (data) {
+        if (data.success = "true") {
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "分配成功"
+          }).done(function (e) {
+            window.parent.$("#changeassignWindow").data("kendoWindow").close()
+          });
+        } else {
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "分配失败",
+            iconClass: "fa fa-times-circle", // 提示图标
+            dialogClass: "k-dialog-error" // 图标类型
+          }).done(function (e) {
+            window.parent.$("#changeassignWindow").data("kendoWindow").close()
+          });
+        }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

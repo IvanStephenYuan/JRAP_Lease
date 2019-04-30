@@ -1,0 +1,234 @@
+<#include "../include/header.html">
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@8c2a6b1$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?card_type=HR.CERTIFICATE_TYPE	" type="text/javascript"></script>
+<script>
+  var isedit = '${RequestParameters.isedit!0}' == '1';
+  var contactId = '${RequestParameters.contactId!0}';
+  var newViewModel = kendo.observable({
+    model: {
+      enabledFlag: "Y",
+    }
+  });
+  if (isedit) {
+    $.ajax({
+      url: '${base.contextPath}/con/contact/query?contactId=' + contactId,
+      success: function (args) {
+        var a0 = args.rows[0] || {};
+        for (var k in a0) {
+          newViewModel.model.set(k, a0[k]);
+        }
+      }
+    });
+
+  }
+  //数据源
+  var goodData = [];
+  $.ajax({
+    url: '${base.contextPath}/afd/good/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      goodData = data.rows;
+    }
+  });
+</script>
+<div id="page-content">
+  <form class="form-horizontal">
+    <div class="col-xs-12">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "change.customername"/></label>
+          <div class="col-xs-8">
+            <input id="customerName" type="text" data-bind="value:model.customerName"
+                   class="k-textbox" required
+                   style="width: 100%;">
+            <script>kendo.bind($('#customerName'), newViewModel);</script>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "change.cellphone"/></label>
+          <div class="col-xs-8">
+            <input id="cellphone" type="text" data-bind="value:model.cellphone" class="k-textbox"
+                   required
+                   style="width: 100%;">
+            <script>kendo.bind($('#cellphone'), newViewModel);</script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "change.cellphone02"/></label>
+          <div class="col-xs-8">
+            <input id="cellphone02" type="text" data-bind="value:model.cellphone02"
+                   class="k-textbox"
+                   style="width: 100%;">
+            <script>kendo.bind($('#cellphone02'), newViewModel);</script>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "change.cellphone03"/></label>
+          <div class="col-xs-8">
+            <input id="cellphone03" type="text" data-bind="value:model.cellphone03"
+                   class="k-textbox"
+                   style="width: 100%;">
+            <script>kendo.bind($('#cellphone03'), newViewModel);</script>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-12">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "change.idtype"/></label>
+          <div class="col-xs-8">
+            <input id="idType" type="text" data-bind="value:model.idType"
+                   style="width: 100%;">
+            <script>
+              $("#idType").kendoComboBox({
+                dataSource: card_type,
+                valuePrimitive: true,
+                dataTextField: "meaning",
+                dataValueField: "value"
+              });
+              kendo.bind($('#idType'), newViewModel);
+            </script>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4 control-label"
+                 style="text-align: right"><@spring.message "change.idnumber"/></label>
+          <div class="col-xs-8">
+            <input id="idNumber" type="text" data-bind="value:model.idNumber" class="k-textbox"
+                   style="width: 100%;">
+            <script>kendo.bind($('#idNumber'), newViewModel);</script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4   control-label"
+                 style="text-align: right"><@spring.message "contact.sourcetype"/></label>
+          <div class="col-xs-8">
+            <input id="sourceType" type="text" data-bind="value:model.sourceType"
+                   class="k-textbox"
+                   style="width: 100%;">
+            <script>kendo.bind($('#sourceType'), newViewModel);</script>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label"
+                 style="text-align: right"><@spring.message "contact.goodid"/></label>
+          <div class="col-sm-8">
+            <input type="text" id="goodId"
+                   style="width:100%;"
+                   data-bind="value:model.goodId">
+            <script>
+              $("#goodId").kendoComboBox({
+                dataSource: goodData,
+                valuePrimitive: true,
+                dataTextField: "goodName",
+                dataValueField: "goodId",
+                select: function (e) {
+                  newViewModel.model.set("goodId", e.dataItem.value);
+                }
+              });
+              kendo.bind($('#goodId'), newViewModel);
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-xs-4 control-label"><@spring.message "contact.enabledflag"/>:</label>
+          <div class="col-xs-8" style="text-align: left">
+            <input id="enabledFlag" type="checkbox" class="k-checkbox" style="margin-top:5px"
+                   data-bind="value:model.enabledFlag">
+          </div>
+          <script>
+            kendo.bind($('#enabledFlag'), newViewModel);
+            $("#enabledFlag").kendoCheckbox({
+              checkedValue: 'Y',
+              uncheckedValue: 'N'
+            });
+          </script>
+        </div>
+      </div>
+
+
+    </div>
+
+
+    <div class="text-right"
+         style="bottom: 15px;position: fixed; padding-right: 24px;  float: left;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+      <span class="btn btn-primary" id="saveGrid" type="submit" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+      <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
+    </div>
+  </form>
+</div>
+
+<script>
+
+  var validator = $("#page-content").kendoValidator({
+    valid: function (e) {
+    },
+    invalidMessageType: "tooltip"
+  }).data("kendoValidator");
+
+  $("#closeWin").click(function () {
+    window.parent.$("#newWin").data("kendoWindow").close();
+  });
+
+  $("#saveGrid").click(function () {
+    if (validator.validate()) {
+      newViewModel.model.__status =  isedit ? 'update' : 'add' ;
+      Jrap.submitForm({
+        url: '${base.contextPath}/con/contact/submit',
+        formModel: newViewModel.model,
+        success: function (data) {
+          window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
+          window.parent.$("#newWin").data("kendoWindow").close();
+        }
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
