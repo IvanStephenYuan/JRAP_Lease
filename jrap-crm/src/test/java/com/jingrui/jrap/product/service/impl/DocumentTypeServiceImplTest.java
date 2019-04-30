@@ -59,16 +59,17 @@ public class DocumentTypeServiceImplTest {
 
     @Test
     public void getDocumentCodeRule() {
-        DocumentType returnData = new DocumentType();
-        returnData.setCodingRule("CUSTOMER");
+        DocumentType documentType = new DocumentType();
+        documentType.setCodingRule("CUSTOMER");
 
-        String documentCategory = "CUSTOMER";
-        String documentType = "CUSTOMER1";
+        DocumentType documentTypePara = new DocumentType();
+        documentTypePara.setDocumentCategory("CUSTOMER");
+        documentTypePara.setDocumentType("CUSTOMER");
 
-        when(documentTypeMapper.selectByDocumentType(documentCategory, documentType)).thenReturn(returnData);
+        when(documentTypeMapper.selectByDocumentType(null,null)).thenReturn(documentType);
 
         String codeRule = documentTypeService.getDocumentCodeRule("CUSTOMER", "CUSTOMER");
         assertEquals(codeRule, "CUSTOMER");
-        verify(documentTypeMapper, times(1)).selectByDocumentType(documentCategory, documentType);
+        verify(documentTypeMapper, times(1)).selectByDocumentType(null,null);
     }
 }

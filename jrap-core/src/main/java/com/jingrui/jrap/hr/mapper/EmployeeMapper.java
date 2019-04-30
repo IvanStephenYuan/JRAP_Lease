@@ -67,4 +67,12 @@ public interface EmployeeMapper extends Mapper<Employee> {
      * @return 员工列表
      */
     List<Employee> selectByRoleCode(String roleCode);
+
+    /**
+     * 通过组织id查询员工.
+     *
+     * @param unitId 组织id
+     * @return 员工列表
+     */
+    List<Employee> selectByUnitId(Long unitId);
 }

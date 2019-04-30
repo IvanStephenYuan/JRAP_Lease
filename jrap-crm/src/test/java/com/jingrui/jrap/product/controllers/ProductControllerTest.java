@@ -13,10 +13,12 @@ package com.jingrui.jrap.product.controllers;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jingrui.jrap.customer.controllers.CustomerController;
-import com.jingrui.jrap.customer.service.impl.CustomerServiceImpl;
+import com.jingrui.jrap.product.dto.Product;
+import com.jingrui.jrap.product.dto.ProductConfig;
 import com.jingrui.jrap.product.service.impl.ProductConfigServiceImpl;
+import com.jingrui.jrap.product.service.impl.ProductFormulaServiceImpl;
 import com.jingrui.jrap.product.service.impl.ProductServiceImpl;
+import com.jingrui.jrap.product.calculate.impl.ProductECICalculateImp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,9 +36,13 @@ import org.springframework.validation.Validator;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -63,11 +69,19 @@ public class ProductControllerTest {
     private ProductServiceImpl productService;
 
     @Mock
+    private ProductConfigServiceImpl configService;
+
+    @Mock
+    private ProductFormulaServiceImpl formulaService;
+
+    @Mock
     private Validator validator;
 
     @Mock
     private MessageSource messageSource;
 
+    @InjectMocks
+    private ProductECICalculateImp calculateImp;
 
     @Before
     public void setup() {
@@ -76,6 +90,22 @@ public class ProductControllerTest {
     }
     @Test
     public void calculate() throws Exception{
+        List<ProductConfig> configs = new ArrayList<ProductConfig>();
+        Product product = new Product();
+        product.setCalculate("ECI");
+
+        ProductConfig config = new ProductConfig();
+        config.setColumnCode("H1");
+        config.setColumnName("LEASE_AMONT");
+        configs.add(config);
+
+        config.setColumnCode("H2");
+        config.setColumnName("DOWN_PAYMENT");
+        configs.add(config);
+
+        when(productService.selectByPrimaryKey(anyObject(), anyObject())).thenReturn(product);
+        when(configService.select(anyObject(), anyObject(), anyInt(), anyInt())).thenReturn(configs);
+        when(formulaService.selectByConfigId(anyObject())).thenReturn(null);
 
         mockMvc.perform(
                 get("/pro/product/calculate?productCode=SH100010005"))

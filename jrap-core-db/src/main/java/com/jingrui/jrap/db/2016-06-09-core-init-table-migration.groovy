@@ -1605,8 +1605,9 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
                     constraints(nullable: "false")
                 }
             }
-
+            column(name:"status",type:"VARCHAR(60)",remarks: "状态")
             column(name:"company_type",type:"VARCHAR(30)",remarks: "公司类型")
+            column(name:"company_class",type:"VARCHAR(30)",remarks: "公司属性")
             column(name:"address",type:"VARCHAR(250)",remarks: "地址")
             column(name:"company_level_id",type:"BIGINT")
             column(name:"parent_company_id",type:"BIGINT")

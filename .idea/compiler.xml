@@ -30,5 +30,8 @@
         <module name="jrap-workflow-db" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="jrap-pom" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

@@ -1,5 +1,4 @@
 <#include "../include/header.html">
-<body>
 <style>
     * {
         margin: 0;
@@ -15,11 +14,58 @@
         width: 300px;
         height: 100%;
     }
+    #mainform{
+        height: 600px;
+    }
 
+    #mainform .row-label{
+        font-size: 1.05em;
+        font-weight: 600;
+        color: #2b425b;
+        text-align: left;
+    }
+
+    #mainform .rowtitle{
+        box-sizing: border-box;
+        border-style: solid;
+        border-color: #e7ecf1;
+        border-width: 1px  1px 0 0;
+        height: 30px;
+        text-indent: 10px;
+        line-height: 30px;
+        padding: 0;
+    }
+    #mainform .rowtitlefirst{
+        border-left-width: 1px;
+    }
+    #mainform .row{
+        margin: 0;
+    }
+    #mainform .row:last-of-type{
+        border-bottom: 1px solid #e7ecf1;
+    }
+    .row-content{
+        padding: 0;
+        box-sizing: border-box;
+        border-style: solid;
+        border-color: #e7ecf1;
+        border-width: 1px  1px 0 0;
+    }
+    .row-content:first-of-type{
+        border-left-width: 1px;
+    }
+    .row-content .inputText{
+        border: none;
+        padding: 0 0 0 10px;
+        width:100%;
+    }
+    .k-datepicker, .k-numerictextbox, .k-combobox{
+        width: 100%;
+    }
     .right {
         position: absolute;
         top: 0;
-        left: 301px;
+        left: 310px;
         right: 0;
         height: 100%;
     }
@@ -48,65 +94,68 @@
         </div>
     </div>
     <form id="mainform" class="form-horizontal">
-        <div class="row">
-            <div class="col-sm-3">
-                <label class="" style="text-align: center"><@spring.message "product.columncode"/></label>
+        <div class="row ">
+            <div class="col-sm-3 rowtitle rowtitlefirst" >
+                <label class="row-label" ><@spring.message "product.columncode"/></label>
             </div>
-            <div class="col-sm-5">
-                <label class="" style="text-align: center"><@spring.message "product.columnname"/></label>
+            <div class="col-sm-4 rowtitle" >
+                <label class="row-label" ><@spring.message "product.columnname"/></label>
             </div>
-            <div class="col-sm-4">
-                <label class="" style="text-align: center"><@spring.message "product.columnvalue"/></label>
+            <div class="col-sm-5 rowtitle"  >
+                <label class="row-label" ><@spring.message "product.columnvalue"/></label>
             </div>
         </div>
         <#if heads??>
         <#list heads as head>
-        <div class="row">
-            <div class="col-sm-2">
-                <input type="text" style="text-align:left;width:80px;height: 8px;" class="k-textbox"
+        <div class="row ">
+            <div class="col-sm-3 row-content ">
+                <input type="text"  class="k-textbox inputText"
                        value="${head.columnCode!}" readonly>
             </div>
-            <div class="col-sm-5">
-                <input type="text" style="text-align:left;width:80px;height: 8px;" class="k-textbox"
+            <div class="col-sm-4 row-content">
+                <input type="text"  class="k-textbox inputText"
                        value="${head.prompt!}" readonly>
             </div>
-            <div class="col-sm-5">
-                <input type="text" style="text-align:left;width:80px;height: 8px;" class="k-textbox"
+            <div class="col-sm-5 row-content">
+                <input type="text" class="k-textbox inputText"
                        id="${head.columnName!}"
                        value="${head.defaultValue!}"
-                       data-bind="value:model.${head.columnName!}"
                 <#if head.requireFlag == "Y"> required </#if>
-                <#if head.readonlyFlag == "Y"> readonly </#if>
-                <#if head.configType == "DATE">
-                    type="date"
-                <#elseif head.configType == "NUMBER">
-                   type="number"
-                <#else>
-                  type="text"
-                </#if>>
-                <script>
-                    $('#${head.columnName!}').kendoComboBox({
-                         dataTextField: "meaning",
-                         dataValueField: "value",
-                         dataSource: {
-                            transport: {
-                                read: {
-                                    url: _basePath + '/common/code/'+ ${head.syscode!} +'/',
-                                    dataType: "json"
-                                }
-                            }
-                        },
-                        select: function (e) {
-                            viewModelLeft.model.set("${head.columnName!}", e.dataItem.value);
-                        }
-                    }).data("kendoComboBox");
+            <#if head.readonlyFlag == "Y"> readonly </#if>
+        >
+        <script>
+            if('${head.dataType!}'=="DATE"){
+                $('#${head.columnName!}').removeClass();
+                $('#${head.columnName!}').kendoDatePicker();
 
-                    kendo.bind($('#${head.columnName!}'), viewModelLeft);
-           </script>
-       </div>
-    </div>
-  </#list>
-  </#if>
+            }else if('${head.dataType!}'=="NUMBER"){
+                /*$('#${head.columnName!}').removeClass();
+                $("#${head.columnName!}").kendoNumericTextBox();*/
+            }
+            else if('${head.syscode!}'!=""){
+                $('#${head.columnName!}').removeClass();
+                $('#${head.columnName!}').kendoComboBox({
+                    dataTextField: "meaning",
+                    dataValueField: "value",
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: _basePath + '/common/code/${head.syscode!}/',
+                                dataType: "json"
+                            }
+                        }
+                    },
+                    select: function (e) {
+                        viewModelLeft.model.set("${head.columnName!}", e.dataItem.value);
+                    }
+                }).data("kendoComboBox");
+            }
+            kendo.bind($("#${head.columnName!}"), viewModelLeft);
+        </script>
+</div>
+</div>
+</#list>
+</#if>
 </form>
 </div>
 <div class="right">
@@ -114,6 +163,7 @@
         <div id="gridRight"></div>
     </div>
 </div>
+</body>
 <script type="text/javascript">
     var dataSource = [{}];
     var gridRight = $("#gridRight").kendoGrid({
@@ -129,88 +179,88 @@
         columns: [
             {
                 field: "times",
-                title: '<@spring.message "期数"/>',
-                width: 70
+                title: '<@spring.message "ProductCalculateLine.times"/>',
+                width: 50
             },
             {
                 field: "calcDate",
-                title: '<@spring.message "计算日"/>',
-                width: 70
+                title: '<@spring.message "ProductCalculateLine.calcDate"/>',
+                width: 80
             },
             {
                 field: "dueDate",
-                title: '<@spring.message "支付日/到期日"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.dueDate"/>',
+                width: 80
             },
             {
                 field: "dueAmount",
-                title: '<@spring.message "应收金额"/>',
+                title: '<@spring.message "ProductCalculateLine.dueAmount"/>',
                 width: 70
             },
             {
                 field: "netDueAmount",
-                title: '<@spring.message "不含税应收金额"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.netDueAmount"/>',
+                width: 110
             },
             {
                 field: "vatDueAmount",
-                title: '<@spring.message "增值税额"/>',
+                title: '<@spring.message "ProductCalculateLine.vatDueAmount"/>',
                 width: 70
             },
             {
                 field: "principal",
-                title: '<@spring.message "应收本金"/>',
+                title: '<@spring.message "ProductCalculateLine.principal"/>',
                 width: 70
             },
             {
                 field: "netPrincipal",
-                title: '<@spring.message "不含税本金"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.netPrincipal"/>',
+                width: 80
             },
             {
                 field: "vatPrincipal",
-                title: '<@spring.message "本金增值税额"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.vatPrincipal"/>',
+                width: 100
             },
             {
                 field: "interest",
-                title: '<@spring.message "应收利息"/>',
+                title: '<@spring.message "ProductCalculateLine.interest"/>',
                 width: 70
             },
             {
                 field: "netInterest",
-                title: '<@spring.message "不含税利息"/>',
-                width: 70
+                title: '<@spring.message "ProductCalculateLine.netInterest"/>',
+                width: 80
             },
             {
                 field: "vatInterest",
-                title: '<@spring.message "利息增值税额"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.vatInterest"/>',
+                width: 100
             },
             {
                 field: "cfType",
-                title: '<@spring.message "现金流类型"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.cfType"/>',
+                width: 80
             },
             {
                 field: "cfDirection",
-                title: '<@spring.message "现金流方向"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.cfDirection"/>',
+                width: 80
             },
             {
                 field: "outstandingRental",
-                title: '<@spring.message "当期剩余租金"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.outstandingRental"/>',
+                width: 95
             },
             {
                 field: "outstandingPrincipal",
-                title: '<@spring.message "当期剩余本金"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.outstandingPrincipal"/>',
+                width: 95
             },
             {
                 field: "outstandingInterest",
-                title: '<@spring.message "当期剩余利息"/>',
-                width: 120
+                title: '<@spring.message "ProductCalculateLine.outstandingInterest"/>',
+                width: 95
             }
         ],
         editable: false
@@ -224,7 +274,8 @@
             dataType: "json",
             contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             data: {
-                productCode: viewModel.model.productCode
+                productCode: viewModel.model.productCode,
+                dto: viewModelLeft.model.rows
             },
             async: false,
             success: function (rows) {
@@ -234,5 +285,4 @@
         });
     }
 </script>
-</body>
 </html>

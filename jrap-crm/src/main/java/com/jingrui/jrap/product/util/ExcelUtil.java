@@ -148,7 +148,7 @@ public class ExcelUtil {
         return ExcelUtil.ppmt(rate, per, nper, pv, 0, 0);
     }
 
-    public static void main(String[]args){
+    /*public static void main(String[]args){
         System.out.println(ExcelUtil.ipmt(7.2, 12, 12, 1000000));
-    }
+    }*/
 }

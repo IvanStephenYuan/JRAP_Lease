@@ -41,7 +41,6 @@ public class ProductConfig extends BaseDTO {
     public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
     public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
-
     @Id
     @GeneratedValue
     private Long configId;

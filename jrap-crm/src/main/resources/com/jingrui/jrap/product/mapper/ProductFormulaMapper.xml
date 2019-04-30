@@ -10,13 +10,10 @@
         <result column="MATRIX_INTERVAL" property="matrixInterval" jdbcType="VARCHAR" />
         <result column="CALC_SEQ" property="calcSeq" jdbcType="DECIMAL" />
         <result column="CALC_FORMULA" property="calcFormula" jdbcType="VARCHAR" />
-        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
-        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
-        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
-        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <select id="selectByConfigId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByConfigId" resultMap="BaseResultMap">
         select
             f.formula_id,
             f.config_id,
@@ -29,11 +26,10 @@
         from
             pro_product_formula f
         <where>
+            f.enabled_flag = 'Y'
             <if test="configId != null">
-                and f.configId = ${#configId}
+                and f.config_id = #{configId}
             </if>
-            and f.enabled_flag = 'Y'
         </where>
-        order by f.calc_seq
     </select>
 </mapper>

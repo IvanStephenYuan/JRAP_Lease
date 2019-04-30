@@ -1,79 +1,82 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jingrui.jrap.hr.mapper.EmployeeMapper">
-    <resultMap id="BaseResultMap" type="com.jingrui.jrap.hr.dto.Employee">
-        <id column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL"/>
-        <result column="EMPLOYEE_CODE" property="employeeCode" jdbcType="VARCHAR"/>
-        <result column="NAME" property="name" jdbcType="VARCHAR"/>
-        <result column="BORN_DATE" property="bornDate" javaType="DATE"/>
-        <result column="EMAIL" property="email" jdbcType="VARCHAR"/>
-        <result column="MOBIL" property="mobil" jdbcType="VARCHAR"/>
-        <result column="JOIN_DATE" property="joinDate" javaType="DATE"/>
-        <result column="GENDER" property="gender" jdbcType="VARCHAR"/>
-        <result column="CERTIFICATE_ID" property="certificateId" jdbcType="VARCHAR"/>
-        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
-        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR"/>
-        <result column="POSITION_NAME" property="positionName" jdbcType="VARCHAR"/>
-        <result column="UNIT_NAME" property="unitName" jdbcType="VARCHAR"/>
-    </resultMap>
+  <resultMap id="BaseResultMap" type="com.jingrui.jrap.hr.dto.Employee">
+    <id column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL"/>
+    <result column="EMPLOYEE_CODE" property="employeeCode" jdbcType="VARCHAR"/>
+    <result column="NAME" property="name" jdbcType="VARCHAR"/>
+    <result column="BORN_DATE" property="bornDate" javaType="DATE"/>
+    <result column="EMAIL" property="email" jdbcType="VARCHAR"/>
+    <result column="MOBIL" property="mobil" jdbcType="VARCHAR"/>
+    <result column="JOIN_DATE" property="joinDate" javaType="DATE"/>
+    <result column="GENDER" property="gender" jdbcType="VARCHAR"/>
+    <result column="CERTIFICATE_ID" property="certificateId" jdbcType="VARCHAR"/>
+    <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+    <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR"/>
+    <result column="POSITION_NAME" property="positionName" jdbcType="VARCHAR"/>
+    <result column="UNIT_NAME" property="unitName" jdbcType="VARCHAR"/>
+    <result column="UNIT_ID" property="unitId" jdbcType="DECIMAL"/>
+  </resultMap>
 
-    <sql id="Base_Column_List">
+  <sql id="Base_Column_List">
         EMPLOYEE_ID, EMPLOYEE_CODE,NAME, BORN_DATE, EMAIL, MOBIL, JOIN_DATE,GENDER,CERTIFICATE_ID,STATUS,ENABLED_FLAG
     </sql>
 
-    <select id="queryAll" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.hr.dto.Employee">
-        SELECT
-        E1.EMPLOYEE_ID,
-        E1.EMPLOYEE_CODE,
-        E1.NAME,
-        E1.BORN_DATE,
-        E1.EMAIL,
-        E1.MOBIL,
-        E1.JOIN_DATE,
-        (
-        SELECT P1.NAME FROM HR_ORG_POSITION_B P1
-        WHERE P1.POSITION_ID = EA1.POSITION_ID
-        ) POSITION_NAME,
-        (
-        SELECT
-        (
-        SELECT U1.NAME FROM HR_ORG_UNIT_B U1
-        WHERE U1.UNIT_ID = P1.UNIT_ID
-        ) UNIT_NAME
-        FROM HR_ORG_POSITION_B P1
-        WHERE P1.POSITION_ID = EA1.POSITION_ID
-        ) UNIT_NAME
-        FROM
-        HR_EMPLOYEE E1
-        LEFT OUTER JOIN HR_EMPLOYEE_ASSIGN EA1 ON (
-        E1.EMPLOYEE_ID = EA1.EMPLOYEE_ID AND EA1.PRIMARY_POSITION_FLAG='Y')
-        <where>
-            <if test="enabledFlag !=null ">
-                E1.ENABLED_FLAG = #{enabledFlag}
-            </if>
-            <if test="positionId !=null ">
-                AND EA1.POSITION_ID = #{positionId}
-            </if>
-            <if test="unitId!=null">
-                AND EA1.POSITION_ID IN (SELECT P1.POSITION_ID FROM HR_ORG_POSITION_B P1 WHERE P1.UNIT_ID = #{unitId} )
-            </if>
-            <if test="employeeCode!=null">
-                AND E1.EMPLOYEE_CODE LIKE CONCAT('%', CONCAT(#{employeeCode,jdbcType=VARCHAR}, '%'))
-            </if>
-            <if test="name!=null">
-                AND E1.NAME LIKE CONCAT('%', CONCAT(#{name,jdbcType=VARCHAR}, '%'))
-            </if>
-            <if test="idList!=null">
-                AND E1.EMPLOYEE_ID NOT IN
-                <foreach collection="idList" index="index" item="item" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </if>
-        </where>
-        ORDER BY E1.EMPLOYEE_CODE ASC
-    </select>
+  <select id="queryAll" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.hr.dto.Employee">
+    SELECT
+    E1.EMPLOYEE_ID,
+    E1.EMPLOYEE_CODE,
+    E1.NAME,
+    E1.BORN_DATE,
+    E1.EMAIL,
+    E1.MOBIL,
+    E1.JOIN_DATE,
+    (
+    SELECT P1.NAME FROM HR_ORG_POSITION_B P1
+    WHERE P1.POSITION_ID = EA1.POSITION_ID
+    ) POSITION_NAME,
+    (
+    SELECT
+    (
+    SELECT U1.NAME FROM HR_ORG_UNIT_B U1
+    WHERE U1.UNIT_ID = P1.UNIT_ID
+    ) UNIT_NAME
+    FROM HR_ORG_POSITION_B P1
+    WHERE P1.POSITION_ID = EA1.POSITION_ID
+    ) UNIT_NAME
+    FROM
+    HR_EMPLOYEE E1
+    LEFT OUTER JOIN HR_EMPLOYEE_ASSIGN EA1 ON (
+    E1.EMPLOYEE_ID = EA1.EMPLOYEE_ID AND EA1.PRIMARY_POSITION_FLAG='Y')
+    <where>
+      <if test="enabledFlag !=null ">
+        E1.ENABLED_FLAG = #{enabledFlag}
+      </if>
+      <if test="positionId !=null ">
+        AND EA1.POSITION_ID = #{positionId}
+      </if>
+      <if test="unitId!=null">
+        AND EA1.POSITION_ID IN (SELECT P1.POSITION_ID FROM HR_ORG_POSITION_B P1 WHERE P1.UNIT_ID =
+        #{unitId} )
+      </if>
+      <if test="employeeCode!=null">
+        AND E1.EMPLOYEE_CODE LIKE CONCAT('%', CONCAT(#{employeeCode,jdbcType=VARCHAR}, '%'))
+      </if>
+      <if test="name!=null">
+        AND E1.NAME LIKE CONCAT('%', CONCAT(#{name,jdbcType=VARCHAR}, '%'))
+      </if>
+      <if test="idList!=null">
+        AND E1.EMPLOYEE_ID NOT IN
+        <foreach collection="idList" index="index" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+    </where>
+    ORDER BY E1.EMPLOYEE_CODE ASC
+  </select>
 
-    <select id="queryInfoByCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="queryInfoByCode" resultMap="BaseResultMap" parameterType="java.lang.String">
         SELECT
         E1.EMPLOYEE_ID,
         E1.EMPLOYEE_CODE,
@@ -94,7 +97,7 @@
         E1.EMPLOYEE_CODE = #{employeeCode,jdbcType=VARCHAR}
     </select>
 
-    <select id="queryByCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="queryByCode" resultMap="BaseResultMap" parameterType="java.lang.String">
         SELECT
             *
         FROM
@@ -103,7 +106,7 @@
             upper(EMPLOYEE_CODE) = upper(#{employeeCode})
     </select>
 
-    <select id="getDirector" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="getDirector" resultMap="BaseResultMap" parameterType="java.lang.String">
         SELECT
             E1.*
         FROM
@@ -129,7 +132,7 @@
         )
     </select>
 
-    <select id="getDeptDirector" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="getDeptDirector" resultMap="BaseResultMap" parameterType="java.lang.String">
         SELECT
              E1.*
         FROM HR_EMPLOYEE E1 ,
@@ -161,7 +164,7 @@
         )
     </select>
 
-    <select id="selectByPostionCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="selectByPostionCode" resultMap="BaseResultMap" parameterType="java.lang.String">
         SELECT
         E.EMPLOYEE_ID,
         E.EMPLOYEE_CODE,
@@ -178,7 +181,7 @@
         AND EA.POSITION_ID = P.POSITION_ID AND  upper(P.POSITION_CODE) = upper(#{positionCode})
     </select>
 
-    <select id="selectByRoleCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="selectByRoleCode" resultMap="BaseResultMap" parameterType="java.lang.String">
         SELECT DISTINCT
         E.EMPLOYEE_ID,
         E.EMPLOYEE_CODE
@@ -188,5 +191,19 @@
         LEFT JOIN SYS_USER_ROLE UR ON UR.USER_ID = U.USER_ID
         LEFT JOIN SYS_ROLE_B R ON R.ROLE_ID = UR.ROLE_ID
         WHERE R.ROLE_CODE = #{roleCode}
+    </select>
+  <select id="selectByUnitId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+            SELECT
+            hp.NAME,
+            hp.EMPLOYEE_ID
+            FROM
+              hr_employee hp,
+              hr_employee_assign hea,
+              hr_org_position_b hop,
+              hr_org_unit_b hob
+            where hea.POSITION_ID = hop.POSITION_ID
+            and hop.UNIT_ID=hob.UNIT_ID
+            and hea.EMPLOYEE_ID=hp.EMPLOYEE_ID
+            and hob.UNIT_ID= #{unitId}
     </select>
 </mapper>

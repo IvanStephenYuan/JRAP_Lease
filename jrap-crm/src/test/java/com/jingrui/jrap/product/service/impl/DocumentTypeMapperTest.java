@@ -37,7 +37,6 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 public class DocumentTypeMapperTest {
 
-    @Autowired
     DocumentTypeMapper documentTypeMapper;
 
     IRequest request;
@@ -62,10 +61,11 @@ public class DocumentTypeMapperTest {
     @Test
     public void testSelectByDocumentType() throws Exception {
         documentTypeMapper.insert(documentType);
-        String documentCategory = "CUSTOMER";
-        String documentType = "CUSTOMER1";
+        DocumentType documentType = new DocumentType();
+        documentType.setDocumentCategory("CUSTOMER");
+        documentType.setDocumentType("CUSTOMER1");
 
-        DocumentType result = documentTypeMapper.selectByDocumentType(documentCategory, documentType);
+        DocumentType result = documentTypeMapper.selectByDocumentType(null,null);
         assertNotNull(result);
         assertEquals("CUSTOMER", result.getCodingRule());
     }

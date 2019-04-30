@@ -236,14 +236,13 @@ public class ExcelDataLoader implements CustomTaskChange {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        System.setProperty("db.url", "jdbc:mysql://127.0.0.1:3306/jrap_dev");
+        System.setProperty("db.url", "jdbc:mysql://60.191.89.154:13306/jrap_dev");
         System.setProperty("db.user", "jrap_dev");
         System.setProperty("db.password", "jrap_dev");
         System.setProperty("db.override", "true");
-        // System.setProperty("db.skipUpdateTables", "HR_ORG_POSITION_s,SYS_CODE_s");
 
         ExcelDataLoader processor = new ExcelDataLoader();
-        URL url = ExcelDataLoader.class.getResource("/com/jingrui/jrap/db/data/core-init-data.xlsx");
+        URL url = ExcelDataLoader.class.getResource("/com/jingrui/jrap/db/data/20190426-init-data.xlsx");
         if (url == null) {
             throw new FileNotFoundException("excel not found.");
         }

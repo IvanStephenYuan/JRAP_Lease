@@ -80,7 +80,6 @@
       </element>
       <element id="javaee-facet-resources" facet="jrap/web/Web" />
       <element id="artifact" artifact-name="jrap-core:war exploded" />
-      <element id="artifact" artifact-name="jrap-crm:war exploded" />
       <element id="artifact" artifact-name="jrap-job:war exploded" />
       <element id="artifact" artifact-name="jrap-report:war exploded" />
       <element id="artifact" artifact-name="jrap-mail:war exploded" />
@@ -89,6 +88,7 @@
       <element id="artifact" artifact-name="jrap-interface:war exploded" />
       <element id="artifact" artifact-name="jrap-task:war exploded" />
       <element id="artifact" artifact-name="jrap-workflow:war exploded" />
+      <element id="artifact" artifact-name="jrap-crm:war exploded" />
     </root>
   </artifact>
 </component>

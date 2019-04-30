@@ -6,7 +6,6 @@ import javax.persistence.criteria.JoinType;
 import com.jingrui.jrap.core.BaseConstants;
 import com.jingrui.jrap.core.annotation.MultiLanguage;
 import com.jingrui.jrap.core.annotation.MultiLanguageField;
-import com.jingrui.jrap.fnd.dto.Company;
 import com.jingrui.jrap.mybatis.annotation.Condition;
 import com.jingrui.jrap.mybatis.common.query.*;
 import com.jingrui.jrap.mybatis.common.query.JoinColumn;
@@ -77,8 +76,8 @@ public class HrOrgUnit extends BaseDTO {
     @OrderBy
     private Long managerPosition;
 
-    @JoinTable(name = "companyJoin", joinMultiLanguageTable = true, target = Company.class, type = JoinType.LEFT, on = {@JoinOn(joinField = Company.FIELD_COMPANY_ID), @JoinOn(joinField = BaseDTO.FIELD_LANG, joinExpression = BaseConstants.PLACEHOLDER_LOCALE)})
-    @JoinTable(name = "companyJoin2", target = Company.class, type = JoinType.LEFT, on = {@JoinOn(joinField = HrOrgUnit.FIELD_COMPANY_ID)})
+    @JoinTable(name = "companyJoin", joinMultiLanguageTable = true, target = HrCompany.class, type = JoinType.LEFT, on = {@JoinOn(joinField = HrCompany.FIELD_COMPANY_ID), @JoinOn(joinField = BaseDTO.FIELD_LANG, joinExpression = BaseConstants.PLACEHOLDER_LOCALE)})
+    @JoinTable(name = "companyJoin2", target = HrCompany.class, type = JoinType.LEFT, on = {@JoinOn(joinField = HrOrgUnit.FIELD_COMPANY_ID)})
     @OrderBy
     private Long companyId;
 
@@ -93,11 +92,11 @@ public class HrOrgUnit extends BaseDTO {
     private String positionName;
 
     @Transient
-    @JoinColumn(joinName = "companyJoin", field = Company.FIELD_COMPANY_FULL_NAME)
+    @JoinColumn(joinName = "companyJoin", field = HrCompany.FIELD_COMPANY_FULL_NAME)
     private String companyName;
 
     @Transient
-    @JoinColumn(joinName = "companyJoin2", field = Company.FIELD_COMPANY_CODE)
+    @JoinColumn(joinName = "companyJoin2", field = HrCompany.FIELD_COMPANY_CODE)
     @OrderBy
     private String companyCode;
 

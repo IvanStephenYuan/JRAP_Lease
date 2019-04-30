@@ -472,6 +472,11 @@
                 },
                 attributes: {style: "text-align:center"},
                 sortable: false
+            },
+            {
+                field: "syscode",
+                title: '<@spring.message "jrap.syscode"/>',
+                width: 70,
             }
         ],
         editable: true
@@ -715,7 +720,6 @@
     });
 
     $("#saveChange").click(function () {
-        debugger;
         var headValidator = $("#headerGrid").kendoValidator({
             invalidMessageType: "tooltip"
         }).data("kendoValidator");

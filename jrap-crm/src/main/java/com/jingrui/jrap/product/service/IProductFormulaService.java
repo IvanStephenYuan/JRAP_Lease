@@ -11,5 +11,5 @@ public interface IProductFormulaService extends IBaseService<ProductFormula>, Pr
      * @param configId
      * @return
      */
-    List<ProductFormula> selectByConfigId(Long configId);
+    public List<ProductFormula> selectByConfigId(Long configId);
 }

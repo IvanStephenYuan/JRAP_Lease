@@ -1,12 +1,23 @@
+/*
+ * *
+ *  @file com.maddyhome.idea.copyright.pattern.JavaCopyrightVariablesProvider$1@2b60493a$
+ *  @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+ *  @brief JingRui Application Platform
+ *  @author $name$
+ *  @email yulong.yuan@jr-info.cn
+ *  @date $date$
+ * /
+ */
+
 package com.jingrui.jrap.fnd.dto;
 
 import com.jingrui.jrap.core.BaseConstants;
 import com.jingrui.jrap.core.annotation.MultiLanguage;
 import com.jingrui.jrap.core.annotation.MultiLanguageField;
 import com.jingrui.jrap.hr.dto.Position;
-import com.jingrui.jrap.mybatis.common.query.*;
 import com.jingrui.jrap.mybatis.common.query.JoinColumn;
 import com.jingrui.jrap.mybatis.common.query.JoinTable;
+import com.jingrui.jrap.mybatis.common.query.*;
 import com.jingrui.jrap.system.dto.BaseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
@@ -43,6 +54,8 @@ public class Company extends BaseDTO {
     public static final String FIELD_CONTACT_PERSON = "contactPerson";
     public static final String FIELD_PARENT_COMPANY_NAME = "parentCompanyName";
     public static final String FIELD_POSITION_NAME = "positionName";
+    public static final String FIELD_STATUS = "status";
+    public static final String FIELD_COMPANY_CLASS = "companyClass";
 
     @Id
     @GeneratedValue
@@ -112,6 +125,28 @@ public class Company extends BaseDTO {
     @Transient
     @JoinColumn(joinName = "positionJoin", field = Position.FIELD_NAME)
     private String positionName;
+
+    @Length(max = 60)
+    private String status;  //状态
+
+    @Length(max = 30)
+    private String companyClass; // 商户属性
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCompanyClass() {
+        return companyClass;
+    }
+
+    public void setCompanyClass(String companyClass) {
+        this.companyClass = companyClass;
+    }
 
     public Long getCompanyId() {
         return companyId;

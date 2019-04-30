@@ -1,6 +1,5 @@
 package com.jingrui.jrap.product.service.impl;
 
-import com.jingrui.jrap.product.dto.Product;
 import com.jingrui.jrap.product.mapper.ProductFormulaMapper;
 import com.jingrui.jrap.system.service.impl.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class ProductFormulaServiceImpl extends BaseServiceImpl<ProductFormula> implements IProductFormulaService{
     @Autowired
-    private ProductFormulaMapper mapper;
+    private ProductFormulaMapper productFormulaMapper;
 
     @Override
     protected boolean useSelectiveUpdate() {
@@ -23,7 +22,7 @@ public class ProductFormulaServiceImpl extends BaseServiceImpl<ProductFormula> i
 
     @Override
     public List<ProductFormula> selectByConfigId(Long configId){
-        List<ProductFormula> formulas = mapper.selectByConfigId(configId);
+        List<ProductFormula> formulas = productFormulaMapper.selectByConfigId(configId);
         return formulas;
     };
 }

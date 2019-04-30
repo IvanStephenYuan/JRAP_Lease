@@ -8,11 +8,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
+import com.jingrui.jrap.mybatis.common.query.Where;
 import org.hibernate.validator.constraints.Length;
 
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import com.jingrui.jrap.system.dto.BaseDTO;
+import org.springframework.core.annotation.Order;
 
 import java.util.Date;
 
@@ -28,15 +31,12 @@ public class ProductFormula extends BaseDTO {
     public static final String FIELD_CALC_SEQ = "calcSeq";
     public static final String FIELD_CALC_FORMULA = "calcFormula";
     public static final String FIELD_ENABLED_FLAG = "enabledFlag";
-    public static final String FIELD_REMARK = "remark";
-    public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
-    public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
-
 
     @Id
     @GeneratedValue
     private Long formulaId;
 
+    @Where
     private Long configId; //配置ID
 
     @Length(max = 60)
@@ -48,6 +48,7 @@ public class ProductFormula extends BaseDTO {
     @Length(max = 100)
     private String matrixInterval; //行步长
 
+    @OrderBy("ASC")
     private Long calcSeq; //执行顺序
 
     @Length(max = 200)

@@ -2,18 +2,15 @@ package com.jingrui.jrap.product.controllers;
 
 import com.jingrui.jrap.code.rule.exception.CodeRuleException;
 import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
-import com.jingrui.jrap.fnd.dto.Company;
-import com.jingrui.jrap.fnd.service.ICompanyService;
-import com.jingrui.jrap.product.calculate.IProductCalculate;
-import com.jingrui.jrap.product.calculate.ProductCalculate;
-import com.jingrui.jrap.product.calculate.impl.ProductECICalculateImp;
 import com.jingrui.jrap.product.dto.ItemModel;
 import com.jingrui.jrap.product.dto.ProductConfig;
+import com.jingrui.jrap.fnd.dto.Company;
+import com.jingrui.jrap.fnd.service.ICompanyService;
 import com.jingrui.jrap.product.service.IProductConfigService;
+import com.jingrui.jrap.product.calculate.IProductCalculate;
+import com.jingrui.jrap.product.calculate.impl.ProductECICalculateImp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -127,9 +124,12 @@ public class ProductController extends BaseController {
     @RequestMapping(value = "/calculate")
     @ResponseBody
     @ApiOperation(value="产品计算", notes = "产品计算器", httpMethod="POST", response=ProductCalculateLine.class)
-    public ResponseData calculate(@RequestParam() String productCode,
-                                  //@RequestBody List<ProductConfig> dto,
+    public ResponseData calculate(@RequestParam(value = "productCode") String productCode,
+                                  @RequestBody List<ProductConfig> dto,
                                   HttpServletRequest request){
+        System.out.println(productCode);
+        System.out.println(dto.size());
+
         IRequest requestContext = createRequestContext(request);
         Product queryPara = new Product();
         queryPara.setProductCode(productCode);
@@ -137,7 +137,7 @@ public class ProductController extends BaseController {
         IProductCalculate calculate;
 
         //虚拟头配置文件
-        ProductConfig configPara = new ProductConfig();
+        /*ProductConfig configPara = new ProductConfig();
         configPara.setConfigType("H");
         configPara.setProductCode(productCode);
         List<ProductConfig> dto = configService.select(requestContext, configPara, 1, 10);
@@ -157,7 +157,7 @@ public class ProductController extends BaseController {
            }else if("PARKING_FEE".equalsIgnoreCase(record.getColumnName())){
                record.setDefaultValue("1200");
            }
-        }
+        }*/
 
 
         switch (result.getCalculate()){
