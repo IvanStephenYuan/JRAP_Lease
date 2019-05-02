@@ -30,4 +30,12 @@ databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
         sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_business_type.sql"), encoding: "UTF-8")
     }
 
+    changeSet(author: "ivan", id: "201903012-data-document-category") {
+        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_document_category.sql"), encoding: "UTF-8")
+    }
+
+    changeSet(author: "ivan", id: "201903012-data-document-type") {
+        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_document_type.sql"), encoding: "UTF-8")
+    }
+
 }

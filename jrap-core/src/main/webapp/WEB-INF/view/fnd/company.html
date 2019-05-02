@@ -1,6 +1,6 @@
 <#include "../include/header.html">
 <body>
-<script src="${base.contextPath}/common/code?companyLevel=FND.COMPANY.LEVEL&companyType=FND.COMPANY.TYPE"
+<script src="${base.contextPath}/common/code?companyLevel=FND.COMPANY.LEVEL&companyType=FND.COMPANY.TYPE&companyClassData=COMPANY.CLASS&companyStatusData=COMPANY.STATUS"
         type="text/javascript"></script>
 <script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script type="text/javascript">
@@ -79,9 +79,11 @@
         model: {
             id: "companyId",
             fields: {
-                companyCode: {type: "int"}
+                companyCode: {type: "int"},
+
             }
-        }
+        },
+        pageSize  : 10
     });
 
     var grid = $("#grid").kendoGrid({
@@ -96,7 +98,8 @@
         scrollable: true,
         selectable:'multiple,rowbox',
         pageable: {
-            pageSizes: [5, 10, 20, 50],
+            pageSize : 5,
+            pageSizes: [5, 10,20,50],
             refresh: true,
             buttonCount: 5
         },
@@ -106,7 +109,7 @@
                 width: 80,
                 template: function (rowdata) {
                     if (rowdata.companyId) {
-                        return Jrap.createAnchor($l('jrap.edit'),newData,rowdata.companyId);
+                        return Jrap.createAnchor($l('jrap.edit'),editData,rowdata.companyId,rowdata.companyClass);
                     }
                     return '';
                 },
@@ -132,14 +135,37 @@
             	title: '<@spring.message "company.companyFullName"/>',
             	width: 120
             },
+            {field: "companyClass",
+                title: '<@spring.message "company.companyClass"/>',
+                width: 120,
+                /*template : function(item){
+                    return item['companyClass']||''
+                },*/
+                template: function (dataItem) {
+                    var v = dataItem.companyClass;
+                    $.each(companyClassData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
+                },
+            },
             {field: "companyTypeName", title: '<@spring.message "company.companyType"/>', width: 120},
             {field: "companyLevelName", title: '<@spring.message "company.companyLevelId"/>', width: 120},
-            {
-            	field: "chiefPositionId",
-            	title: '<@spring.message "company.positionName"/>', 
-            	width: 120,
+            {field: "companyStatus",
+                title: '<@spring.message "company.companyStatus"/>',
+                width: 120,
                 template : function(item){
-                    return item['positionName']||''
+                    var v = item.status;
+                    $.each(companyStatusData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
                 }
             },
             {
@@ -181,14 +207,49 @@
         editable: false
     }).data("kendoGrid");
 
-
     function newData(companyId) {
-        var url = "${base.contextPath}/fnd/company_edit.html?isedit=0";
+        var url = "${base.contextPath}/fnd/company_create.html?isedit=0";
         if (companyId) {
-            url = "${base.contextPath}/fnd/company_edit.html?isedit=1&companyId=" + companyId;
+            url = "${base.contextPath}/fnd/company_create.html?isedit=1&companyId=" + companyId;
         }
         Jrap.createWindow('#newWin',{
-            height:550,
+            height:500,
+            url:url
+        })
+        if (parent.autoResizeIframe) {
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
+                var win = $("#newWin").data("kendoWindow");
+                win.center().open();
+            })
+        } else {
+            var win = $("#newWin").data("kendoWindow");
+            win.center().open();
+        }
+
+    }
+    function editData(companyId,companyClass) {
+        var str="";
+        switch (companyClass) {
+            case "CAPITAL":
+                str="capital";
+                break;
+            case "SERVICE":
+                str="service";
+                break;
+            case "REQUIRE":
+                str="require";
+                break;
+            default:
+                str="service";
+                break;
+        }
+        console.log()
+        var url = "${base.contextPath}/fnd/company_"+str+"_edit.html?isedit=0";
+        if (companyId) {
+            url = "${base.contextPath}/fnd/company_"+str+"_edit.html?isedit=1&companyId=" + companyId;
+        }
+        Jrap.createWindow('#newWin',{
+            height:500,
             url:url
         })
         if (parent.autoResizeIframe) {
