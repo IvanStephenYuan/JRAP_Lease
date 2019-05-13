@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultCaptchaManager implements ICaptchaManager {
 
-    private static final String CAPTCHA_WIDTH = "120";
-    private static final String CAPTCHA_HEIGHT = "50";
+    private static final String CAPTCHA_WIDTH = "133";
+    private static final String CAPTCHA_HEIGHT = "45";
     private static final String CAPTCHA_CODE_COUNT = "4";
     private static final int CAPTCHA_EXPIRE = 60 * 5;
 
