@@ -47,6 +47,8 @@ public class DefaultCaptchaManager implements ICaptchaManager {
         Properties properties = new Properties();
         properties.setProperty(Constants.KAPTCHA_IMAGE_WIDTH, CAPTCHA_WIDTH);
         properties.setProperty(Constants.KAPTCHA_IMAGE_HEIGHT, CAPTCHA_HEIGHT);
+        //设置无边框
+        properties.setProperty(Constants.KAPTCHA_BORDER, "no");
         properties.setProperty(Constants.KAPTCHA_TEXTPRODUCER_CHAR_LENGTH, CAPTCHA_CODE_COUNT);
         Config config = new Config(properties);
         defaultKaptcha.setConfig(config);
