@@ -7,8 +7,13 @@ import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import com.jingrui.jrap.customer.dto.CustomerID;
 import com.jingrui.jrap.customer.dto.CustomerLicense;
 import com.jingrui.jrap.customer.service.ICustomerOcrService;
+import com.jingrui.jrap.customer.service.ICustomerPengYuanService;
+import com.jingrui.jrap.customer.service.ICustomerTongdunService;
+import com.jingrui.jrap.product.dto.Product;
 import com.jingrui.jrap.product.service.IDocumentTypeService;
 import com.jingrui.jrap.system.service.ICodeService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
 import com.jingrui.jrap.core.IRequest;
@@ -32,6 +37,7 @@ import java.util.List;
 import java.util.GregorianCalendar;
 
 @Controller
+@Api(value="CustomerController", tags = {"客户接口"})
 public class CustomerController extends BaseController {
     private static final String CUSTOMER_RULE_CODE = "CUSTOMER";
 
@@ -52,6 +58,12 @@ public class CustomerController extends BaseController {
 
     @Autowired
     private IDocumentTypeService documentTypeService;
+
+    @Autowired
+    private ICustomerPengYuanService customerPengYuanService;
+
+    @Autowired
+    private ICustomerTongdunService customerTongdunService;
 
     @RequestMapping(value = "/afd/customer/query")
     @ResponseBody
@@ -221,5 +233,34 @@ public class CustomerController extends BaseController {
     public ResponseData delete(HttpServletRequest request, @RequestBody List<Customer> dto) {
         service.batchDelete(dto);
         return new ResponseData();
+    }
+
+    @RequestMapping(value = "/afd/customer/credit")
+    @ResponseBody
+    @ApiOperation(value="同步征信信息", notes = "同步征信信息", httpMethod="POST")
+    public ResponseData creditQuery(@RequestBody List<Customer> dto, BindingResult result, HttpServletRequest request) {
+        IRequest requestCtx = createRequestContext(request);
+        ResponseData responseData = new ResponseData();
+
+        for (Customer record : dto) {
+            String message = "";
+            try {
+                message = customerTongdunService.readCustomerCredit(requestCtx, record.getCustomerId(), record.getCustomerName(), record.getIdNo(), record.getTelphone());
+                message = message + customerPengYuanService.readCustomerCredit(requestCtx, record.getCustomerId(), record.getCustomerName(), record.getIdNo(), record.getTelphone());
+                message = message + customerPengYuanService.readCustomerLoan(requestCtx, record.getCustomerId(), record.getCustomerName(), record.getIdNo(), record.getTelphone());
+                responseData.setSuccess(true);
+                responseData.setMessage(message);
+            }catch(ParseException e){
+                responseData.setSuccess(false);
+                responseData.setMessage(e.getMessage());
+                e.printStackTrace();
+            }catch(Exception e){
+                responseData.setSuccess(false);
+                responseData.setMessage(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return responseData;
     }
 }
