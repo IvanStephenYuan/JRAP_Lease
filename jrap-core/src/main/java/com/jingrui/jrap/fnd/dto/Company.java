@@ -35,7 +35,7 @@ import java.util.Date;
  */
 @MultiLanguage
 @Table(name = "FND_COMPANY_B")
-//@ExtensionAttribute(disable = true)
+//@ExtensionAttribute(disable = false)
 public class Company extends BaseDTO {
     public static final String FIELD_COMPANY_ID = "companyId";
     public static final String FIELD_COMPANY_CODE = "companyCode";

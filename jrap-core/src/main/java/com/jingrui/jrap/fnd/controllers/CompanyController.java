@@ -3,6 +3,7 @@ package com.jingrui.jrap.fnd.controllers;
 import com.jingrui.jrap.core.IRequest;
 import com.jingrui.jrap.fnd.dto.Company;
 import com.jingrui.jrap.fnd.service.ICompanyService;
+import com.jingrui.jrap.fnd.util.GetLatAndLngByBaidu;
 import com.jingrui.jrap.mybatis.common.Criteria;
 import com.jingrui.jrap.mybatis.common.query.Comparison;
 import com.jingrui.jrap.mybatis.common.query.WhereField;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 对公司的操作.
@@ -52,6 +54,17 @@ public class CompanyController extends BaseController {
             responseData.setMessage(getErrorMessage(result, request));
             return responseData;
         }
+
+        //批量更新经纬度
+        for(Company company:companies){
+            //如果地址不为空，获取经纬度
+            if(company.getAddress() != null){
+                Map<String, String> map = GetLatAndLngByBaidu.getLatitude(company.getAddress());
+                company.setAttribute1(map.get("lng"));  //经度
+                company.setAttribute2(map.get("lat"));  //维度
+            }
+        }
+
         return new ResponseData(companyService.batchUpdate(requestCtx, companies));
     }
 
@@ -71,6 +84,14 @@ public class CompanyController extends BaseController {
             responseData.setMessage(getErrorMessage(result, request));
             return responseData;
         }
+
+        //如果地址不为空，获取经纬度
+        if(company.getAddress() != null){
+            Map<String, String> map = GetLatAndLngByBaidu.getLatitude(company.getAddress());
+            company.setAttribute1(map.get("lng"));  //经度
+            company.setAttribute2(map.get("lat"));  //维度
+        }
+
         Company company1 = companyService.insertSelective(requestCtx,company);
         List<Company> list = new ArrayList<>();
         list.add(company1);
