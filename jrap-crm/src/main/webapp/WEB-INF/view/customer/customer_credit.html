@@ -1,0 +1,303 @@
+<#include "../include/header.html">
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@1c2a9e90$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+<style type="text/css">
+    .zhengxin_shade{
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        position: absolute;
+        top:0;
+        left: 0;
+        display:none;
+    }
+</style>
+<script src="${base.contextPath}/common/code?customerCategoryData=CUSTOMER.CATEGORY&customerTypeData=CUSTOMER.TYPE&customerIdTypeData=HR.CERTIFICATE_TYPE&customerClassData=CUSTOMER.CLASS" type="text/javascript"></script>
+<script type="text/javascript">
+    var viewModel = Jrap.createGridViewModel("#grid");
+</script>
+<body>
+<div id="newWin" style="display: none"></div>
+<div id="page-content">
+    <div class="pull-left" id="query-form" style="padding-bottom:10px;">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "customer.customercode"/>'
+               data-bind="value:model.customerCode" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "customer.customername"/>'
+               data-bind="value:model.customerName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "customer.customercategory"/>'
+               data-bind="value:model.customerCategory" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "customer.customertype"/>'
+               data-bind="value:model.customerType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "customer.idno"/>'
+               data-bind="value:model.idNo" class="k-textbox">
+        <div style="clear:both"></div>
+    </div>
+    <script>kendo.bind($('#query-form'), viewModel);</script>
+    <div class="pull-right" id="toolbar-btn" style="padding-bottom:10px;">
+            <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" onclick="creditQuery()">
+                <i class="fa fa-pencil-square-o" style="margin-right:3px;"></i><@spring.message "customer.creditquery"/>
+            </span>
+        <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit">
+            <i class="fa fa-search" style="margin-right:3px;"></i><@spring.message "jrap.query"/>
+        </span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+</div>
+
+
+<div class="zhengxin_shade"></div>
+
+<script type="text/javascript">
+    Jrap.initEnterQuery('#query-form', viewModel.query);
+
+    var BaseUrl = _basePath;
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/afd/customer/query",
+                type: "POST",
+                dataType: "json"
+            },
+            destroy: {
+                url: BaseUrl + "/afd/customer/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "customerId",
+                fields: {
+                    idEndDate: {type: "date"},
+                }
+            }
+        }
+    });
+
+    var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: "rowbox",
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "customerCode",
+                title: '<@spring.message "customer.customerCode"/>',
+                width: 140,
+                template: function (rowdata) {
+                    if (rowdata.customerCode) {
+                        return Jrap.createAnchor(rowdata.customerCode,creditEvaluate,rowdata.customerId);
+                    }
+                    return '';
+                }
+            },
+            {
+                field: "customerName",
+                title: '<@spring.message "customer.customerName"/>',
+                width: 120,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+            },
+            {
+                field: "customerClass",
+                title: '<@spring.message "customer.customerClass"/>',
+                width: 80,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.customerClass;
+                    $.each(customerClassData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
+                }
+            },
+            {
+                field: "customerCategory",
+                title: '<@spring.message "customer.customerCategory"/>',
+                width: 80,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.customerCategory;
+                    $.each(customerCategoryData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
+                }
+            },
+            {
+                field: "customerType",
+                title: '<@spring.message "customer.customerType"/>',
+                width: 80,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.customerType;
+                    $.each(customerTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
+                }
+            },
+            {
+                field: "telphone",
+                title: '<@spring.message "customer.telphone"/>',
+                width: 130,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+            },
+            {
+                field: "idType",
+                title: '<@spring.message "customer.idType"/>',
+                width: 80,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.idType;
+                    $.each(customerIdTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
+                }
+            },
+            {
+                field: "idNo",
+                title: '<@spring.message "customer.idNo"/>',
+                width: 140
+            },
+
+            {
+                field: "enabledFlag",
+                title: '<@spring.message "customer.enabledflag"/>',
+                width: 60,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (rowdata) {
+                    return rowdata.enabledFlag == 'Y' ? '<@spring.message "jrap.yes"/>' :　'<@spring.message "jrap.no"/>';
+                }
+            }
+        ],
+        editable: false
+    }).data("kendoGrid");
+
+    function creditQuery(){
+        var checked = grid.selectedDataItems();
+        if (checked.length) {
+            $(".zhengxin_shade").css("display","block");
+            var data = checked[0];
+            var sengMsg=[];
+            sengMsg[0]=data.toJSON(data);
+            var test=["yyy"];
+            $.ajax({
+                url  : '${base.contextPath}/afd/customer/credit',
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                data: kendo.stringify(sengMsg),
+                async: true,
+                success: function (res) {
+                    $(".zhengxin_shade").css("display","none");
+                    kendo.ui.showInfoDialog({
+                        message: res.message
+                    });
+
+                },
+                error:function (error) {
+                    kendo.ui.showInfoDialog({
+                        message: error.message
+                    });
+                }
+            });
+        }else{
+            kendo.ui.showInfoDialog({
+                message: '至少选择一条记录!'
+            });
+        }
+    }
+
+    function creditEvaluate(customerId){
+        Jrap.createWindow('#newWin',{
+            height:550,
+            url:"${base.contextPath}/customer/customer_evaluate.html?customerId="+customerId
+        });
+        if (parent.autoResizeIframe) {
+            parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
+                var win = $("#newWin").data("kendoWindow");
+                win.center().open();
+            })
+        } else {
+            var win = $("#newWin").data("kendoWindow");
+            win.center().open();
+        }
+    }
+
+</script>
+</body>
+</html>
