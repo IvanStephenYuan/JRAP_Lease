@@ -1,0 +1,479 @@
+<#include "../include/header.html">
+<style type="text/css">
+    .container{
+        font-size: 14px;
+        margin-bottom: 50px;
+    }
+    .clear{
+        zomm:1;
+    }
+    .clear:after{
+        content: "";
+        height: 0;
+        visibility: hidden;
+        overflow:hidden
+        clear:both;
+    }
+    .buildEndTime{
+        float: left;
+        height: 20px;
+        line-height: 20px;
+    }
+    .batNo{
+        float: right;
+        height: 20px;
+        line-height: 20px;
+    }
+    .report-tit{
+        height: 20px;
+       margin-top: 10px;
+    }
+    .info-container{
+        margin: 30px auto;
+    }
+    .info-container .info-tit{
+        height: 32px;
+        line-height: 32px;
+        font-size: 18px;
+        color: blueviolet;
+    }
+    .info-container  .info-tit-line{
+        display: inline-block;
+        width: 5px;
+        height: 100%;
+        margin-right: 10px;;
+        background: blueviolet;
+    }
+    .info-container .info-line{
+        height: 2px;
+        width: 100%;
+        background: blueviolet;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    .info-con{
+        font-size: 14px;
+        border: 1px solid #758697;
+        background-color: #f0f0f0;
+        padding-top: 5px;
+    }
+
+
+    .creditReportInfo,.behaviorMonitorInfo,.creditStatusInfo,.overdueReportInfo{
+        border: none;
+        background-color: #fff;
+    }
+    .table-con{
+        color: #0a0a0a;
+        margin: 0 auto 30px;
+    }
+    .table-con   p{
+        padding-left: 5px;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+    table td, table th{
+        text-align: center;
+        font-weight: normal;
+    }
+    table th{
+        background-color: #f0f0f0;
+    }
+
+
+</style>
+<script type="text/javascript">
+    var json={
+        "batNo":"2019050717000011",
+        "unitName":"查询单位名称",
+        "subOrgan":"分支机构名称",
+        "queryUserID":"登录名",
+        "queryCount":"10000",
+        "receiveTime":"2019-05-07 17:18:13",
+        "cisReport":[
+            {
+                "reportID":"2019050717000011",
+                "buildEndTime":"2019-05-07 17:18:13",
+                "queryReasonID":"101",
+                "subReportTypes":"101,101,101",
+                "subReportTypesShortCaption":"查询的收费子报告id简称，多个简称之间用空格分隔",
+                "treatResult":"暂无特殊含义，可忽略",
+                "refID":"1224234",
+                "hasSystemError":"false",
+                "isFrozen":"false",
+                "queryConditions":[
+                    {
+                        "caption": "被查询者姓名",
+                        "name": "name",
+                        "value": "测试一"
+                    },
+                    {
+                        "caption": "被查询者证件号码",
+                        "name": "documentNo",
+                        "value": "110000199001011112"
+                    },
+                    {
+                        "caption": "手机号码",
+                        "name": "phone",
+                        "value": "13712345670"
+                    }
+                ],
+                "creditReportInfo":{
+                    "subReportType":"13207",
+                    "subReportTypeCost":"13207",
+                    "treatResult":"1",
+                    "treatErrorCode":"",
+                    "errorMessage":"",
+                    "infoDate":"20190507",
+                    "applyMonitorInfo":{
+                        "last1MthsQueryCnt": "8",
+                        "last3MthsQueryCnt": "9",
+                        "last6MthsQueryCnt": "10",
+                        "latestQueryTime": "",
+                        "queryFinclOrgCnt": "21",
+                        "queryNetLoanOrgCnt": "23",
+                        "queryOrgCnt": "38",
+                        "queryOtherOrgCnt": "0",
+                        "totalQueryCnt": "41"
+                    },
+                    "behaviorMonitorInfo": {
+                        "creditLoanDur": "26",
+                        "last1MthsLoanCnt": "19",
+                        "last3MthsLoanCnt": "20",
+                        "last6MthsLoanCnt": "21",
+                        "latestLoanTime": "",
+                        "loanClosedCnt": "14",
+                        "loanFinclOrgCnt": "17",
+                        "loanNetLoanOrgCnt": "18",
+                        "loanOrderCnt": "13",
+                        "loanOrgCnt": "16",
+                        "loanOverdueCnt": "15"
+                    },
+                    "creditStatusInfo": {
+                        "finclOrgAvgCredits": "37.373737",
+                        "finclOrgMaxCredits": "36.363636",
+                        "inUseFinclOrgCnt": "34",
+                        "netLoanOrgAvgCredits": "33.333333",
+                        "netLoanOrgCnt": "30",
+                        "netLoanOrgMaxCredits": "32.323232"
+                    }
+                },
+                "overdueReportInfo":{
+                    "subReportType":"13208",
+                    "subReportTypeCost":"13207",
+                    "treatResult":"1",
+                    "treatErrorCode":"",
+                    "errorMessage":"",
+                    "infoDate":"20190812",
+                    "overdueStat":{
+                        "debtAmount": "1000000",
+                        "orderCount": "7",
+                        "orgCount": "4"
+                    },
+                    "overdueDetails":[
+                        {
+                            "amount": "100000-200000",
+                            "overdueDate": "201710",
+                            "overdueDays": "M12",
+                            "settlement": "未结清"
+                        },
+                        {
+                            "amount": "200000-300000",
+                            "overdueDate": "201709",
+                            "overdueDays": "M12",
+                            "settlement": "未结清"
+                        },
+                        {
+                            "amount": "400000-500000",
+                            "overdueDate": "201708",
+                            "overdueDays": "M12",
+                            "settlement": "未结清"
+                        },
+                        {
+                            "amount": "100000-200000",
+                            "overdueDate": "201708",
+                            "overdueDays": "M12",
+                            "settlement": "未结清"
+                        },
+                        {
+                            "amount": "100000-200000",
+                            "overdueDate": "201707",
+                            "overdueDays": "M12",
+                            "settlement": "未结清"
+                        },
+                        {
+                            "amount": "100000-200000",
+                            "overdueDate": "201705",
+                            "overdueDays": "M12",
+                            "settlement": "未结清"
+                        },
+                        {
+                            "amount": "100000-200000",
+                            "overdueDate": "201705",
+                            "overdueDays": "M12",
+                            "settlement": "未结清"
+                        }
+                    ]
+                }
+            }
+        ]
+    };
+    var customerId=${RequestParameters.customerId!-1}
+    var evaluateId=${RequestParameters.evaluateId!-1}
+
+    $.ajax({
+        url: '${base.contextPath}/afd/customer/evaluate/query?customerId='+customerId+'&evaluateId='+evaluateId,
+        type: "get",
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+        success: function (res) {
+            console.log(res.remark)
+
+        },
+        error: function (error) {
+            kendo.ui.showInfoDialog({
+                message: error.message
+            });
+        }
+    });
+    var data=json;
+    var newViewModel = kendo.observable({
+        model: {
+        }
+    });
+    for (var k in data) {
+        newViewModel.model.set(k, data[k]);
+    }
+
+
+</script>
+<body>
+
+<div class="container" id="container">
+    <div class="report-tit clear">
+        <div class="buildEndTime">查询时间：<span data-bind="text:model.receiveTime"></span></div>
+        <div class="batNo">报告编号：<span data-bind="text:model.batNo"></span></div>
+    </div>
+
+    <div class="info-container">
+        <div class="info-tit clear">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">申请监测</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="creditReportInfo" class="creditReportInfo info-con" >
+            <div class="applyMonitor-table table-con">
+                <p>疑似多头申请</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="20%" height="40px" valign="middle" class="tdTit" nowrap>查询机构总数</th>
+                        <td colspan="5" style="color: red" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryOrgCnt"></td>
+                    </tr>
+                    <tr>
+                        <th width="20%" height="40px" valign="middle" class="tdTit" nowrap>网络贷款类机构查询数</th>
+                        <td width="16%" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryNetLoanOrgCnt"></td>
+                        <th width="16%" class="tdTit">消费金融类机构查询数</th>
+                        <td width="16%" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryFinclOrgCnt"></td>
+                        <th width="16%" class="tdTit">其他机构查询数</th>
+                        <td width="16%" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryOtherOrgCnt"></td>
+                    </tr>
+                    <tr>
+                        <th width="20%" height="40px" valign="middle" class="tdTit" nowrap>近12个月总查询笔数</th>
+                        <td colspan="2" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.totalQueryCnt"> </td>
+                        <th class="tdTit">最近一次查询时间</th>
+                        <td colspan="2" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.latestQueryTime"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="applyMonitor-table table-con">
+                <p>申请历史</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="33.3%" height="40px" valign="middle" nowrap>近1个月贷款机构查询笔数</th>
+                        <th width="33.3%"> 近3个月贷款机构查询笔数</th>
+                        <th width="33.3%">近6个月贷款机构查询笔数</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" nowrap data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.last1MthsQueryCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.last3MthsQueryCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.last6MthsQueryCnt"></td>
+                    </tr>
+                </table>
+            </div>
+            <p >提示：申请监测采用的是近12个月内的贷款申请行为数据。</p>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <div class="info-tit clear">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">行为监测</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="behaviorMonitorInfo" class="behaviorMonitorInfo info-con" >
+            <div class=" table-con">
+                <p>履约行为</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="33.3%" height="40px" valign="middle" nowrap>贷款已结清笔数</th>
+                        <th width="33.3%"> 贷款逾期笔数（含已结清）</th>
+                        <th width="33.3%">查询机构总数</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" nowrap data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.loanClosedCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.loanOverdueCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.loanOrderCnt"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class=" table-con">
+                <p>多头贷款</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="33.3%" height="40px" valign="middle" nowrap>网络贷款类机构数</th>
+                        <th width="33.3%"> 消费金融类机构数</th>
+                        <th width="33.3%">贷款机构总数</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" nowrap data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.loanNetLoanOrgCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.loanFinclOrgCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.loanOrgCnt"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class=" table-con">
+                <p>贷款历史</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="20%" height="40px" valign="middle" nowrap>近1个月贷款放款笔</th>
+                        <th width="20%"> 近3个月贷款放款笔数</th>
+                        <th width="20%">近6个月贷款放款笔数</th>
+                        <th width="20%">信用贷款时长</th>
+                        <th width="20%">最近一次贷款时间</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" nowrap data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.last1MthsLoanCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.last3MthsLoanCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.last6MthsLoanCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.creditLoanDur"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.behaviorMonitorInfo.latestLoanTime"></td>
+                    </tr>
+                </table>
+            </div>
+            <p >提示：行为监测采用的是近12个月内的贷款履约行为数据。</p>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <div class="info-tit clear">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">信用现状</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="creditStatusInfo" class="creditStatusInfo info-con" >
+            <div class=" table-con">
+                <p>网络贷款额度</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="33.3%" height="40px" valign="middle" nowrap>网络贷款类机构数</th>
+                        <th width="33.3%"> 网络贷款机构最大授信额度</th>
+                        <th width="33.3%">网络贷款机构平均授信额度</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" nowrap data-bind="text:model.cisReport[0].creditReportInfo.creditStatusInfo.netLoanOrgCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.creditStatusInfo.netLoanOrgMaxCredits"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.creditStatusInfo.netLoanOrgAvgCredits"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class=" table-con">
+                <p>消费金融贷款额度</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="33.3%" height="40px" valign="middle" nowrap>消费金融类机构数</th>
+                        <th width="33.3%"> 消费金融类机构最大授信额度</th>
+                        <th width="33.3%">消费金融类机构平均授信额度</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" nowrap data-bind="text:model.cisReport[0].creditReportInfo.creditStatusInfo.inUseFinclOrgCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.creditStatusInfo.finclOrgMaxCredits"></td>
+                        <td data-bind="text:model.cisReport[0].creditReportInfo.creditStatusInfo.finclOrgAvgCredits"></td>
+                    </tr>
+                </table>
+            </div>
+            <p >提示：信用现状采用的是近12个月内的授信额度数据。</p>
+        </div>
+    </div>
+    <div class="info-container">
+        <div class="info-tit clear">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">逾期明细</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="overdueReportInfo" class="overdueReportInfo info-con" >
+            <div class=" table-con">
+                <p>逾期总览</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <th width="33.3%" height="40px" valign="middle" nowrap>查询机构总数</th>
+                        <th width="33.3%"> 逾期订单数</th>
+                        <th width="33.3%">负债金额（含逾期及正常未还金额）</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" nowrap data-bind="text:model.cisReport[0].overdueReportInfo.overdueStat.orgCount"></td>
+                        <td data-bind="text:model.cisReport[0].overdueReportInfo.overdueStat.orderCount"></td>
+                        <td data-bind="text:model.cisReport[0].overdueReportInfo.overdueStat.debtAmount"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class=" table-con" id="overdueDetails" >
+                <p>逾期详情</p>
+                <table border="1" width="100%" align="center" >
+                    <tr>
+                        <th width="20%" height="40px" valign="middle" nowrap>序号</th>
+                        <th width="20%"> 逾期时间</th>
+                        <th width="20%">逾期金额</th>
+                        <th width="20%"> 逾期天数</th>
+                        <th width="20%">是否结清</th>
+                    </tr>
+                </table>
+            </div>
+            <p >提示：信用现状采用的是近12个月内的授信额度数据。</p>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <p class="">报告使用说明：</p>
+        <p class="">1. 本报告著作权属于鹏元征信有限公司，未经书面许可，不得复制、摘录、转载和发表。</p>
+        <p class="">2. 本报告仅供使用者参考，鹏元征信有限公司不承担据此报告产生的任何法律责任。</p>
+        <p class="">3. 鹏元征信有限公司客服热线：400-612-1133，电子邮箱：credit@pycredit.cn 。</p>
+        <p class="">4. 公司地址：深圳市深南大道7008号阳光高尔夫大厦四楼。</p>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    kendo.bind($('#container'), newViewModel);
+
+    var overdueDetails = newViewModel.model.cisReport[0].overdueReportInfo.overdueDetails;
+    if(!overdueDetails){
+        $("#overdueDetails").html("<p style='text-align: center'>暂无数据</p>");
+    }else{
+        var str1="";
+        for(var i=0,len=overdueDetails.length;i<len;i++){
+            str1+=" <tr><td height='40px' valign='middle' nowrap>"+(i+1)+"</td>"+
+                    "<td>"+overdueDetails[i].overdueDate+"</td>"+
+                    "<td>"+overdueDetails[i].amount+"</td>"+
+                    "<td>"+overdueDetails[i].overdueDays+"</td>"+
+                    "<td>"+overdueDetails[i].settlement+"</td></tr>";
+        }
+        $("#overdueDetails table").append(str1)
+    }
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1017 @@
+<#include "../include/header.html">
+<style type="text/css">
+    .container{
+        font-size: 14px;
+        margin-bottom: 50px;
+    }
+    .title{
+        text-align: center;
+    }
+    .clear{
+        zomm:1;
+    }
+    .clear:after{
+        content: "";
+        height: 0;
+        visibility: hidden;
+        overflow:hidden
+        clear:both;
+    }
+    .buildEndTime{
+        float: left;
+        height: 20px;
+        line-height: 20px;
+    }
+    .batNo{
+        float: right;
+        height: 20px;
+        line-height: 20px;
+    }
+    .report-tit{
+        height: 20px;
+        margin-top: 10px;
+        /*border-bottom: 1px solid #758697;*/
+    }
+    .info-container{
+        margin: 30px auto;
+    }
+    .info-container .info-tit{
+        height: 32px;
+        line-height: 32px;
+        font-size: 18px;
+        color: blueviolet;
+    }
+    .info-container  .info-tit-line{
+        display: inline-block;
+        width: 5px;
+        height: 100%;
+        margin-right: 10px;;
+        background: blueviolet;
+    }
+    .info-container .info-line{
+        height: 2px;
+        width: 100%;
+        background: blueviolet;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+     .info-con{
+        font-size: 14px;
+        border: 1px solid #758697;
+        background: #f0f0f0;
+        padding-top: 5px;
+    }
+    .info-container .anti-Spoofing{
+        padding: 5px;
+    }
+    .info-container .anti-Spoofing-info{
+        background-color: #fff;
+        padding-bottom: 0;
+    }
+    .anti-Spoofing-info .risk{
+        position: relative;
+        color: red;
+    }
+    .riskLevel{
+        text-align: center;
+        font-size: 20px;
+        height: 30px;
+        line-height: 30px;
+    }
+    .suggest{
+        position: absolute;
+        right: 20px;
+        top:5px;
+        height: 20px;
+        line-height: 20px;
+        border: 1px solid red;
+        border-radius: 5px;
+        font-size: 12px;
+        padding: 0 5px;
+    }
+    .score{
+        margin:30px;
+        height: 50px;
+        position: relative;
+    }
+    .riskScore{
+        font-size: 18px;
+        color: #000;
+        font-weight: normal;
+        font-family: "simsun";
+        color: red;
+        width: 30%;
+    }
+    .riskScore-tit {
+        color: #0a0a0a;
+    }
+    .scoreLevel{
+        position: absolute;
+        right: 0;
+        top:0;
+        width: 65%;
+        height: 22px;
+        text-align: right;
+    }
+    .scoreLevel span{
+        display: inline-block;
+        height: 22px;
+        line-height: 22px;
+        text-align: center;
+        background-color:#758697 ;
+        margin-right: 1%;
+        width: 23%;
+        color: #fff;
+        position: relative;
+    }
+    .scoreLevel span:last-of-type{
+        margin-right: 0;
+    }
+    .scoreLevel .score-low{
+        width: 46%;
+    }
+    .scoreLevel .scoreLevel-active{
+        background-color: red;
+    }
+    .scoreNum{
+        position: absolute;
+        right: 0;
+        top:25px;
+        width: 65%;
+        height: 22px;
+        text-align: left;
+    }
+    .scoreNum .scoreNum0{
+        position: absolute;
+        left: 3%;
+    }
+    .scoreNum .scoreNum50{
+        position: absolute;
+        left: 49%;
+    }
+    .scoreNum .scoreNum75{
+        position: absolute;
+        left: 74%;
+    }
+    .scoreNum .scoreNum1{
+        position: absolute;
+        left: 95%;
+    }
+    .hit{
+        margin:30px;
+        height: 100px;
+        position: relative;
+        border: 1px solid #758697;
+        color: #000;
+    }
+    .hit .hit-tit{
+        height: 100px;
+        width: 15%;
+        text-align: center;
+        line-height: 100px;
+        background-color: #758697;
+        position: absolute;
+        left: 0;
+        top:0;
+    }
+    .hit .hit-tit:after{
+        content: "";
+        width: 0;
+        height: 0;
+        border-width: 50px 0 50px 50px;
+        border-style: solid;
+        border-color: transparent transparent transparent #758697;
+        position: absolute;
+        left: 100%;
+    }
+    .hit .hitTypes{
+        height: 100px;
+        width: 75%;
+        padding: 10px 20px;
+        font-size: 14px;
+        position: absolute;
+        right: 0;
+        top:0;
+        text-align: left;
+    }
+    .risk-prompt{
+        font-size: 12px;
+       /* background-color:#c0c0c0;*/
+        border-top: 1px solid #758697;
+        line-height: 20px;
+        color: #000;
+    }
+
+    .info-container .econnoisserurInfo, .info-container .fraudRiskInfo{
+        border: 1px solid #758697;
+        height: 30px;
+        line-height: 30px;
+        color: #000;
+        padding-top: 0;
+    }
+    .econnoisserurInfo .econnoisserur-tit,.fraudRiskInfo .fraudRiskInfo-tit{
+        display: inline-block;
+        height: 100%;
+        width: 25%;
+        border-right:  1px solid #758697;
+        text-align: center;
+        background-color:#c0c0c0;
+    }
+    .econnoisserurInfo .econnoisserur-value,.fraudRiskInfo .fraudRiskInfo-value{
+        display: inline-block;
+        text-align: center;
+        width: 73%;
+    }
+
+    .creditBehaviorInfo,.overdueLoanInfo,.personRiskInfo,.simpleQueryInfo{
+        border: none;
+        background-color: #fff;
+    }
+    .table-con{
+        background: #f0f0f0;
+        color: #0a0a0a;
+        margin: 0 auto 30px;
+    }
+    .table-con   p{
+        padding-left: 5px;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+    table td, table th{
+        text-align: center;
+        font-weight: normal;
+    }
+
+
+</style>
+<script type="text/javascript">
+    var json={
+        "returnValue": {
+            "batNo": "2019050616000474",
+            "cisReport": [
+                {
+                    "buildEndTime": "2019-05-06 16:32:21",
+                    "creditBehaviorInfo": {
+                        "avgCredits": "35",
+                        "errorMessage": "",
+                        "last12MthsLoanCnt": "13",
+                        "last1MthsLoanCnt": "19",
+                        "last3MthsLoanCnt": "20",
+                        "last6MthsLoanCnt": "21",
+                        "loanClosedCnt": "14",
+                        "loanNoClosedCnt": "0",
+                        "loanOrderCnt": "14",
+                        "loanOrgCnt": "16",
+                        "subReportType": "14238",
+                        "subReportTypeCost": "96043",
+                        "treatResult": "1",
+                        "undefinedCnt": "0"
+                    },
+                    "econnoisserurInfo": {
+                        "errorMessage": "",
+                        "state": "1",
+                        "subReportType": "14236",
+                        "subReportTypeCost": "96043",
+                        "treatResult": "1"
+                    },
+                    "fraudRiskInfo": {
+                        "errorMessage": "",
+                        "state": "1",
+                        "subReportType": "14237",
+                        "subReportTypeCost": "96043",
+                        "treatResult": "1"
+                    },
+                    "hasSystemError": "false",
+                    "historySimpleQueryInfo": {
+                        "count": {
+                            "last12Month": "9",
+                            "last18Month": "9",
+                            "last1Month": "0",
+                            "last24Month": "9",
+                            "last3Month": "0",
+                            "last6Month": "0"
+                        },
+                        "errorMessage": "",
+                        "items": [
+                            {
+                                "last12Month": "5",
+                                "last18Month": "5",
+                                "last1Month": "0",
+                                "last24Month": "5",
+                                "last3Month": "0",
+                                "last6Month": "0",
+                                "unitMember": "小额贷款公司"
+                            },
+                            {
+                                "last12Month": "4",
+                                "last18Month": "4",
+                                "last1Month": "0",
+                                "last24Month": "4",
+                                "last3Month": "0",
+                                "last6Month": "0",
+                                "unitMember": "消费金融公司"
+                            }
+                        ],
+                        "subReportType": "19902",
+                        "subReportTypeCost": "96043",
+                        "suspectedBulllending": {
+                            "applyFinclCnt": "4",
+                            "applyNetLoanCnt": "5",
+                            "appplyCnt": "9"
+                        },
+                        "treatResult": "1"
+                    },
+                    "isFrozen": "false",
+                    "overdueLoanInfo": {
+                        "errorMessage": "",
+                        "overdueDetails": [
+                            {
+                                "overdueAmount": "100000",
+                                "overdueDays": "逾期60-89天",
+                                "settlement": "未结清"
+                            },
+                            {
+                                "overdueAmount": "100000",
+                                "overdueDays": "逾期60-89天",
+                                "settlement": "未结清"
+                            },
+                            {
+                                "overdueAmount": "400000",
+                                "overdueDays": "逾期30-59天",
+                                "settlement": "未结清"
+                            },
+                            {
+                                "overdueAmount": "200000",
+                                "overdueDays": "逾期30-59天",
+                                "settlement": "未结清"
+                            },
+                            {
+                                "overdueAmount": "100000",
+                                "overdueDays": "逾期30-59天",
+                                "settlement": "未结清"
+                            },
+                            {
+                                "overdueAmount": "2000",
+                                "overdueDays": "逾期30-59天",
+                                "settlement": "未知"
+                            },
+                            {
+                                "overdueAmount": "100000",
+                                "overdueDays": "逾期7-29天",
+                                "settlement": "未结清"
+                            },
+                            {
+                                "overdueAmount": "100000",
+                                "overdueDays": "逾期7-29天",
+                                "settlement": "未结清"
+                            }
+                        ],
+                        "overdueStat": {
+                            "overdueAmount": "1102000",
+                            "overdueNoClosedCnt": "7",
+                            "overdueTotal": "8"
+                        },
+                        "subReportType": "14239",
+                        "subReportTypeCost": "96043",
+                        "treatResult": "1"
+                    },
+                    "personAntiSpoofingDescInfo": {
+                        "errorMessage": "",
+                        "personAntiSpoofingDesc": "1、反欺诈风险评分为100分，风险等级为高，建议拒绝。2、命中羊毛党名单。3、命中欺诈风险名单。4、检测到高频信贷行为。5、存在8笔逾期的信贷记录。6、存在18条个人风险概要信息。7、在近两年被机构查询过9次个人信息，疑似有9笔多头申请记录。",
+                        "subReportType": "14242",
+                        "subReportTypeCost": "96043",
+                        "treatResult": "1"
+                    },
+                    "personAntiSpoofingInfo": {
+                        "errorMessage": "",
+                            "hitTypes": "羊毛党名单，欺诈风险名单，高频信贷行为，信贷逾期名单，个人风险信息，被机构查询信息，多头申请记录",
+                            "riskLevel": "高",
+                            "riskScore": "100",
+                            "subReportType": "14241",
+                            "subReportTypeCost": "96043",
+                            "suggest": "建议拒绝",
+                            "treatResult": "1"
+                    },
+    "personRiskInfo": {
+        "errorMessage": "",
+            "stat": {
+            "alCount": "3",
+                "cqggCount": "3",
+                "swCount": "3",
+                "sxCount": "3",
+                "totleCount": "18",
+                "wdyqCount": "3",
+                "zxCount": "3"
+        },
+        "subReportType": "14227",
+            "subReportTypeCost": "96043",
+            "summary": {
+            "als": [
+                {
+                    "ajlx": "民事判决书",
+                    "bt": "原告某与被告张三买卖合同纠纷一案",
+                    "dsrlx": "被告",
+                    "recordId": "al_329576D41D18491481",
+                    "sjnf": "2009"
+                },
+                {
+                    "ajlx": "民事判决书",
+                    "bt": "原告许某良与被告张三买卖合同纠纷一案",
+                    "dsrlx": "被告",
+                    "recordId": "al_329577D41D18491482",
+                    "sjnf": "2009"
+                },
+                {
+                    "ajlx": "民事判决书",
+                    "bt": "原告许良与被告张三买卖合同纠纷一案",
+                    "dsrlx": "被告",
+                    "recordId": "al_329578D41D18491483",
+                    "sjnf": "2009"
+                }
+            ],
+                "cqs": [
+                {
+                    "bt": "被催欠人测试一",
+                    "fbrq": "2014-01-23",
+                    "recordId": "cq_10315D45D0"
+                },
+                {
+                    "bt": "被催欠人测试一2",
+                    "fbrq": "2014-01-23",
+                    "recordId": "cq_10316D45D1"
+                },
+                {
+                    "bt": "被催欠人测试一3",
+                    "fbrq": "2014-01-23",
+                    "recordId": "cq_10317D45D2"
+                }
+            ],
+                "sws": [
+                {
+                    "bt": "测试一(非正常户)",
+                    "ggrq": "2012-08-01",
+                    "recordId": "sw_1403038D44D0"
+                },
+                {
+                    "bt": "测试一(非正常户)2",
+                    "ggrq": "2012-08-01",
+                    "recordId": "sw_1403039D44D1"
+                },
+                {
+                    "bt": "测试一(非正常户)3",
+                    "ggrq": "2012-08-01",
+                    "recordId": "sw_1403037D44D2"
+                }
+            ],
+                "sxs": [
+                {
+                    "bt": "测试一(失信被执行人)",
+                    "fbrq": "2014-12-17",
+                    "larq": "2009-02-03",
+                    "recordId": "sx_6877415D42D0"
+                },
+                {
+                    "bt": "测试一(失信被执行人)2",
+                    "fbrq": "2014-12-17",
+                    "larq": "2009-02-03",
+                    "recordId": "sx_6877416D42D1"
+                },
+                {
+                    "bt": "测试一(失信被执行人)3",
+                    "fbrq": "2014-12-17",
+                    "larq": "2009-02-03",
+                    "recordId": "sx_6877417D42D2"
+                }
+            ],
+                "wdyqs": [
+                {
+                    "bt": "测试一",
+                    "fbrq": "2013-07-16",
+                    "recordId": "wdyq_4558264D46D0"
+                },
+                {
+                    "bt": "测试一2",
+                    "fbrq": "2013-07-16",
+                    "recordId": "wdyq_4558265D46D1"
+                },
+                {
+                    "bt": "测试一3",
+                    "fbrq": "2013-07-16",
+                    "recordId": "wdyq_4558266D46D2"
+                }
+            ],
+                "zxs": [
+                {
+                    "bt": "被执行人测试一一1",
+                    "larq": "2009-02-06",
+                    "recordId": "zx_4436174D43D0",
+                    "zxbd": "118200"
+                },
+                {
+                    "bt": "被执行人测试一一2",
+                    "larq": "2009-02-06",
+                    "recordId": "zx_4436175D43D1",
+                    "zxbd": "118200"
+                },
+                {
+                    "bt": "被执行人测试一一3",
+                    "larq": "2009-02-06",
+                    "recordId": "zx_4436176D43D2",
+                    "zxbd": "118200"
+                }
+            ]
+        },
+        "treatResult": "1"
+    },
+    "queryConditions": [
+        {
+            "caption": "被查询者姓名",
+            "name": "name",
+            "value": "测试一"
+        },
+        {
+            "caption": "被查询者证件号码",
+            "name": "documentNo",
+            "value": "110000199001011112"
+        },
+        {
+            "caption": "手机号码",
+            "name": "phone",
+            "value": "13712345670"
+        }
+    ],
+        "queryReasonID": "101",
+        "refID": "1224234",
+        "reportID": "2019050616000474",
+        "subReportTypes": "96043",
+        "subReportTypesShortCaption": "1、个人反欺诈分析报告(96043)",
+        "treatResult": "1"
+    }
+            ],
+            "queryCount": "1",
+                "queryUserID": "jlrzwsqueryn",
+                "receiveTime": "20190506 16:32:20",
+                "subOrgan": "技术部",
+                "unitName": "浙江吉磊融资租赁有限公司"
+            },
+            "status": "1"
+    }
+
+    var data=json.returnValue;
+
+    var newViewModel = kendo.observable({
+        model: {
+        }
+    });
+
+    for (var k in data) {
+        newViewModel.model.set(k, data[k]);
+    }
+
+
+</script>
+<body>
+
+<div class="container" id="container">
+    <div class="report-tit clear">
+        <div class="buildEndTime">查询时间：<span data-bind="text:model.cisReport[0].buildEndTime"></span></div>
+        <div class="batNo">报告编号：<span data-bind="text:model.batNo"></span></div>
+    </div>
+
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">反欺诈分析综述</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="anti-Spoofing" class="anti-Spoofing info-con" data-bind="html:model.cisReport[0].personAntiSpoofingDescInfo.personAntiSpoofingDesc"></div>
+    </div>
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">反欺诈风险评分</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="anti-Spoofing-info" class="anti-Spoofing-info info-con">
+            <div class="risk">
+                <p class="riskLevel">检测到<span data-bind="text:model.cisReport[0].personAntiSpoofingInfo.riskLevel"></span>风险信息</p>
+                <div class="suggest" data-bind="text:model.cisReport[0].personAntiSpoofingInfo.suggest"></div>
+            </div>
+            <div class="score">
+                <div class="riskScore"><span class="riskScore-tit">风险评分：</span><span data-bind="text:model.cisReport[0].personAntiSpoofingInfo.riskScore"></span>分
+                </div>
+                <div class="scoreLevel">
+                    <span class=" score-low ">低</span>
+                    <span class=" score-middle ">中</span>
+                    <span class=" score-high scoreLevel-active">高</span>
+                </div>
+                <div class="scoreNum">
+                    <span class="scoreNum0">0</span>
+                    <span class="scoreNum50">50</span>
+                    <span class="scoreNum75">75</span>
+                    <span class="scoreNum1">100</span>
+                </div>
+            </div>
+            <div class="hit">
+                <div class="hit-tit">命中</div>
+                <div class="hitTypes" id="hitTypes" data-bind="html:model.cisReport[0].personAntiSpoofingInfo.hitTypes"></div>
+            </div>
+            <div class="risk-prompt">
+                <p>提示信息：</p>
+                <p>1. 风险评分值介于0至100之间，分值越高，风险值越高，代表欺诈风险越高。</p>
+                <p>2. 风险评分值将分数0至100划分为三级，该客户处于第三级。</p>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">羊毛党名单</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="econnoisserurInfo" class="econnoisserurInfo info-con" >
+            <span class="econnoisserur-tit">是否命中羊毛党名单</span>
+            <span class="econnoisserur-value"></span>
+        </div>
+    </div>
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">欺诈风险名单</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="fraudRiskInfo" class="fraudRiskInfo info-con" >
+            <span class="fraudRiskInfo-tit">是否命中欺诈风险名单</span>
+            <span class="fraudRiskInfo-value"></span>
+        </div>
+    </div>
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">信贷行为信息</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="creditBehaviorInfo" class="creditBehaviorInfo info-con" >
+            <div class="history-table table-con">
+                <p>历史需求记录</p>
+                <table border="1" width="100%" align="center">
+                    <tr >
+                        <th width="20%" height="40px" valign="middle"  nowrap>时间</th>
+                        <th>近1个月</th>
+                        <th>近3个月</th>
+                        <th>近6个月</th>
+                        <th>近12个月</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle">需求笔数</td>
+                        <td data-bind="text:model.cisReport[0].creditBehaviorInfo.last1MthsLoanCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditBehaviorInfo.last3MthsLoanCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditBehaviorInfo.last6MthsLoanCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditBehaviorInfo.last12MthsLoanCnt"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="aveAmount table-con">
+                <p>平均额度</p>
+                <table border="1" width="100%" align="center">
+                    <tr>
+                        <td width="25%" height="40px" valign="middle" nowrap>机构总数</td>
+                        <td width="25%" data-bind="text:model.cisReport[0].creditBehaviorInfo.loanOrgCnt"></td>
+                        <td width="25%">平均额</td>
+                        <td width="25%" data-bind="text:model.cisReport[0].creditBehaviorInfo.avgCredits"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="behavior table-con">
+                <p>履约行为</p>
+                <table border="1" width="100%" align="center">
+                    <tr >
+                        <th width="25%" height="40px" valign="middle"  nowrap>已结清笔数</th>
+                        <th>未结清笔数</th>
+                        <th>未知笔数</th>
+                        <th>贷款总笔数</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" data-bind="text:model.cisReport[0].creditBehaviorInfo.loanClosedCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditBehaviorInfo.loanNoClosedCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditBehaviorInfo.undefinedCnt"></td>
+                        <td data-bind="text:model.cisReport[0].creditBehaviorInfo.loanOrderCnt"></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <p class="creditBehavior-prompt">提示：信贷需求信息采用的是近12个月内的数据。</p>
+    </div>
+
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">信贷逾期名单</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="overdueLoanInfo" class="overdueLoanInfo info-con" >
+            <div class="overdueStat table-con">
+                <p>逾期总览</p>
+                <table border="1" width="100%" align="center">
+                    <tr >
+                        <th width="33.3%" height="40px" valign="middle"  nowrap>逾期总金额</th>
+                        <th>逾期总笔数</th>
+                        <th>未结清的逾期笔数</th>
+                    </tr>
+                    <tr>
+                        <td height="40px" valign="middle" data-bind="text:model.cisReport[0].overdueLoanInfo.overdueStat.overdueAmount"></td>
+                        <td data-bind="text:model.cisReport[0].overdueLoanInfo.overdueStat.overdueTotal"></td>
+                        <td style="color: red" data-bind="text:model.cisReport[0].overdueLoanInfo.overdueStat.overdueNoClosedCnt"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="overdueDetails table-con">
+                <p>逾期详情</p>
+                <table border="1" width="100%" align="center" id="overdueTable">
+                    <tr >
+                        <th width="15%" height="40px" valign="middle"  nowrap>序号</th>
+                        <th width="28.33%" >逾期天数</th>
+                        <th width="28.33%">逾期金额</th>
+                        <th width="28.33%">结清状态</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <p class="">提示：逾期名单采用的是近12个月内的数据。</p>
+    </div>
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">个人风险信息综述</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="personRiskInfo" class="personRiskInfo info-con" >
+            <div class="table-con">
+                <p>个人风险信息</p>
+                <table border="1" width="100%" align="center">
+                    <tr >
+                        <th width="14.285%" height="40px" valign="middle"  >司法案例信息条数</th>
+                        <th>司法执行信息条数</th>
+                        <th>司法失信信息条数</th>
+                        <th>税务行政执法信息条数</th>
+                        <th>催欠公告信息条数</th>
+                        <th>网贷逾期信息条数</th>
+                        <th>风险概述总条数</th>
+                    </tr>
+                    <tr>
+                        <td width="14.285%" height="40px" valign="middle" data-bind="text:model.cisReport[0].personRiskInfo.stat.alCount"></td>
+                        <td data-bind="text:model.cisReport[0].personRiskInfo.stat.zxCount"></td>
+                        <td data-bind="text:model.cisReport[0].personRiskInfo.stat.sxCount"></td>
+                        <td data-bind="text:model.cisReport[0].personRiskInfo.stat.swCount"></td>
+                        <td data-bind="text:model.cisReport[0].personRiskInfo.stat.cqggCount"></td>
+                        <td data-bind="text:model.cisReport[0].personRiskInfo.stat.wdyqCount"></td>
+                        <td data-bind="text:model.cisReport[0].personRiskInfo.stat.totleCount" style="color: red"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="overdueDetails table-con">
+                <p>司法案例概要信息</p>
+                <table border="1" width="100%" align="center" id="alsTable">
+                    <tr >
+                        <th width="20%" height="40px" valign="middle"  nowrap>记录编号</th>
+                        <th width="35%" >标题</th>
+                        <th width="15%">案件类型</th>
+                        <th width="15%">审结年份</th>
+                        <th width="15%">当事人类型</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="overdueDetails table-con">
+                <p>司法执行概要信息</p>
+                <table border="1" width="100%" align="center" id="zxsTable">
+                    <tr >
+                        <th width="20%" height="40px" valign="middle"  nowrap>记录编号</th>
+                        <th width="40%" >标题</th>
+                        <th width="20%">执行日期</th>
+                        <th width="20%">立案日期</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="overdueDetails table-con">
+                <p>司法失信概要信息</p>
+                <table border="1" width="100%" align="center" id="sxsTable">
+                    <tr >
+                        <th width="20%" height="40px" valign="middle"  nowrap>记录编号</th>
+                        <th width="40%" >标题</th>
+                        <th width="20%">执行日期</th>
+                        <th width="20%">立案日期</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="overdueDetails table-con">
+                <p>税务行政执法概要信息</p>
+                <table border="1" width="100%" align="center" id="swsTable">
+                    <tr >
+                        <th width="25%" height="40px" valign="middle"  nowrap>记录编号</th>
+                        <th width="50%" >标题</th>
+                        <th width="25%">公告日期</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="overdueDetails table-con">
+                <p>催欠公告概要信息</p>
+                <table border="1" width="100%" align="center" id="cqsTable">
+                    <tr >
+                        <th width="25%" height="40px" valign="middle"  nowrap>记录编号</th>
+                        <th width="50%" >标题</th>
+                        <th width="25%">发布日期</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="overdueDetails table-con">
+                <p>网贷逾期概要信息</p>
+                <table border="1" width="100%" align="center" id="wdyqsTable">
+                    <tr >
+                        <th width="25%" height="40px" valign="middle"  nowrap>记录编号</th>
+                        <th width="50%" >标题</th>
+                        <th width="25%">发布日期</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <div class="info-tit">
+            <span class="info-tit-line">|</span>
+            <span class="info-tit-text">个人近两年历史查询记录</span>
+        </div>
+        <div class="info-line"></div>
+        <div id="simpleQueryInfo" class="simpleQueryInfo info-con" >
+            <div class="overdueStat table-con">
+                <p>个人近两年历史查询记录-各单位类型查询记录</p>
+                <table border="1" width="100%" align="center" id="simpleQueryTable">
+                    <tr >
+                        <th width="34%" height="40px" valign="middle"  nowrap>单位类型名称</th>
+                        <th width="11%">近1个月</th>
+                        <th width="11%">近3个月</th>
+                        <th width="11%">近6个月</th>
+                        <th width="11%">近12个月</th>
+                        <th width="11%">近18个</th>
+                        <th width="11%">近24个月</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="overdueDetails table-con">
+            <p>网贷逾期概要信息</p>
+            <table border="1" width="100%" align="center" id="suspectedTable">
+                <tr >
+                    <th width="33.3%" height="40px" valign="middle"  nowrap>消费金融类机构申请次数</th>
+                    <th width="33.3%" >网络贷款类机构申请次数</th>
+                    <th width="33.3%">多头申请总次数</th>
+                </tr>
+                <tr>
+                    <td height="40px" valign="middle"  nowrap data-bind="text:model.cisReport[0].historySimpleQueryInfo.suspectedBulllending.applyFinclCnt"></td>
+                    <td height="40px" valign="middle"  nowrap data-bind="text:model.cisReport[0].historySimpleQueryInfo.suspectedBulllending.applyNetLoanCnt"></td>
+                    <td height="40px" valign="middle"  nowrap data-bind="text:model.cisReport[0].historySimpleQueryInfo.suspectedBulllending.appplyCnt"></td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="info-container">
+        <p class="">报告使用说明：</p>
+        <p class="">1. 本报告著作权属于鹏元征信有限公司，未经书面许可，不得复制、摘录、转载和发表。</p>
+        <p class="">2. 本报告仅供使用者参考，鹏元征信有限公司不承担据此报告产生的任何法律责任。</p>
+        <p class="">3. 鹏元征信有限公司客服热线：400-612-1133，电子邮箱：credit@pycredit.cn 。</p>
+        <p class="">4. 公司地址：深圳市深南大道7008号阳光高尔夫大厦四楼。</p>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    kendo.bind($('#container'), newViewModel);
+
+    var riskScore = newViewModel.model.cisReport[0].personAntiSpoofingInfo.riskScore;
+    $(".scoreLevel span").removeClass("scoreLevel-active");
+    if(riskScore>-1 && riskScore<101){
+        if(riskScore<50 || riskScore==50 ){
+            $(".scoreLevel .score-low").addClass("scoreLevel-active");
+        }else if(riskScore>75){
+            $(".scoreLevel .score-high").addClass("scoreLevel-active");
+        }else{
+            $(".scoreLevel .score-middle").addClass("scoreLevel-active");
+        }
+    }
+
+    var econnoisserur=newViewModel.model.cisReport[0].econnoisserurInfo.state;
+    var value1=econnoisserur=="1"?"是":"否";
+    $(".econnoisserur-value").text(value1);
+    var fraudRiskInfo=newViewModel.model.cisReport[0].fraudRiskInfo.state;
+    var value2=fraudRiskInfo=="1"?"是":"否";
+    $(".fraudRiskInfo-value").text(value2);
+
+
+
+
+    var overdueDetails=newViewModel.model.cisReport[0].overdueLoanInfo.overdueDetails;
+    var str2="";
+    for(var i=0,len=overdueDetails.length;i<len;i++){
+        str2+="<tr><td width='12%' height='35px' valign='middle'  nowrap>"+(i+1)+"</td><td>"+overdueDetails[i].overdueAmount+
+            "</td><td>"+overdueDetails[i].overdueDays+"</td><td>"
+            +overdueDetails[i].settlement+"</td></tr>"
+    }
+    $("#overdueTable").append(str2);
+
+    $("#overdueTable td").each(function () {
+        if($(this).text()=="未结清"){
+            $(this).css("color","red");
+        }
+    });
+
+
+    var alsTable=newViewModel.model.cisReport[0].personRiskInfo.summary.als;
+    var str3="";
+    for(var i=0,len=alsTable.length;i<len;i++){
+        str3+="<tr><td  height='35px' valign='middle'  nowrap>"+alsTable[i].recordId+"</td><td>"+alsTable[i].bt+
+            "</td><td>"+alsTable[i].ajlx+"</td><td>"
+            +alsTable[i].sjnf+"</td><td>"+alsTable[i].dsrlx+"</td></tr>"
+    }
+    $("#alsTable").append(str3);
+
+    var zxsTable=newViewModel.model.cisReport[0].personRiskInfo.summary.zxs;
+    var str4="";
+    for(var i=0,len=zxsTable.length;i<len;i++){
+        str4+="<tr><td  height='35px' valign='middle'  nowrap>"+zxsTable[i].recordId+"</td><td>"+zxsTable[i].bt+
+            "</td><td>"+zxsTable[i].zxbd+"</td><td>"
+            +zxsTable[i].larq+"</td></tr>"
+    }
+    $("#zxsTable").append(str4);
+
+    var sxsTable=newViewModel.model.cisReport[0].personRiskInfo.summary.sxs;
+    var str5="";
+    for(var i=0,len=sxsTable.length;i<len;i++){
+        str5+="<tr><td  height='35px' valign='middle'  nowrap>"+sxsTable[i].recordId+"</td><td>"+sxsTable[i].bt+
+            "</td><td>"+sxsTable[i].larq+"</td><td>"
+            +sxsTable[i].fbrq+"</td></tr>"
+    }
+    $("#sxsTable").append(str5);
+
+    var swsTable=newViewModel.model.cisReport[0].personRiskInfo.summary.sws;
+    var str6="";
+    for(var i=0,len=swsTable.length;i<len;i++){
+        str6+="<tr><td  height='35px' valign='middle'  nowrap>"+swsTable[i].recordId+"</td><td>"+swsTable[i].bt+
+            "</td><td>"+swsTable[i].ggrq+"</td></tr>"
+    }
+    $("#swsTable").append(str6);
+
+    var  cqsTable=newViewModel.model.cisReport[0].personRiskInfo.summary.cqs;
+    var str7="";
+    for(var i=0,len= cqsTable.length;i<len;i++){
+        str7+="<tr><td  height='35px' valign='middle'  nowrap>"+ cqsTable[i].recordId+"</td><td>"+ cqsTable[i].bt+
+            "</td><td>"+ cqsTable[i].fbrq+"</td></tr>"
+    }
+    $("#cqsTable").append(str7);
+
+
+    var wdyqsTable=newViewModel.model.cisReport[0].personRiskInfo.summary.wdyqs;
+    var str8="";
+    for(var i=0,len=wdyqsTable.length;i<len;i++){
+        str8+="<tr><td  height='35px' valign='middle'  nowrap>"+wdyqsTable[i].recordId+"</td><td>"+wdyqsTable[i].bt+
+            "</td><td>"+wdyqsTable[i].fbrq+"</td></tr>"
+    }
+    $("#wdyqsTable").append(str8);
+
+
+    var historySimpleQueryInfo=newViewModel.model.cisReport[0].historySimpleQueryInfo.items;
+    var str9="";
+    for(var i=0,len=historySimpleQueryInfo.length;i<len;i++){
+        str9+="<tr><td  height='35px' valign='middle'  nowrap>"+historySimpleQueryInfo[i].unitMember+"</td>"+
+            "<td>"+historySimpleQueryInfo[i].last1Month+"</td>"+
+            "<td>"+historySimpleQueryInfo[i].last3Month+"</td>"+
+            "<td>"+historySimpleQueryInfo[i].last6Month+"</td>"+
+            "<td>"+historySimpleQueryInfo[i].last12Month+"</td>"+
+            "<td>"+historySimpleQueryInfo[i].last18Month+"</td>"+
+            "<td>"+historySimpleQueryInfo[i].last24Month+"</td></tr>"
+    }
+    var SimpleQueryCount=newViewModel.model.cisReport[0].historySimpleQueryInfo.count;
+        str9+="<tr><td>总计</td>"+
+            "<td>"+SimpleQueryCount.last1Month+"</td>"+
+            "<td>"+SimpleQueryCount.last3Month+"</td>"+
+            "<td>"+SimpleQueryCount.last6Month+"</td>"+
+            "<td>"+SimpleQueryCount.last12Month+"</td>"+
+            "<td>"+SimpleQueryCount.last18Month+"</td>"+
+            "<td>"+SimpleQueryCount.last24Month+"</td></tr>";
+    $("#simpleQueryTable").append(str9);
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
