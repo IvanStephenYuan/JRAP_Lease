@@ -33,10 +33,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class CustomerPengYuanServiceImpl implements ICustomerPengYuanService {
@@ -50,6 +48,9 @@ public class CustomerPengYuanServiceImpl implements ICustomerPengYuanService {
     public final static String ERROR_STATUS = "2";
     public final static String CREDIT_FRAUD_CODE = "96043"; //个人反欺诈
     public final static String CREDIT_LOAN_CODE = "13207";  //多头借贷
+    public final static String CREDIT_CODE = "PYCREDIT";
+    public final static String LOAN_CODE = "PYLOAN";
+    public final static String EVALUATOR = "鹏元征信";
 
     static final Logger logger = LoggerFactory.getLogger(CustomerPengYuanServiceImpl.class);
 
@@ -115,6 +116,7 @@ public class CustomerPengYuanServiceImpl implements ICustomerPengYuanService {
     @Override
     public String readCustomerCredit(IRequest request, Long customerId, String customerName, String idNumber, String phone) throws ParseException, Exception {
         String retStr = "";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String result = requestApi(customerId, customerName, idNumber, phone, CREDIT_FRAUD_CODE, pyConfig.getHost(), pyConfig.getPath());
         JSONObject resultJson = (JSONObject) JSONObject.parse(result);
         String status = resultJson.getString("status");
@@ -127,23 +129,44 @@ public class CustomerPengYuanServiceImpl implements ICustomerPengYuanService {
 
             if (CREDIT_FRAUD_CODE.equalsIgnoreCase(cisReport.getString("subReportTypes"))
                     && customerId.toString().equalsIgnoreCase(cisReport.getString("refID"))) {
-                if("true".equalsIgnoreCase(cisReport.getString("hasSystemError"))){
+                if ("true".equalsIgnoreCase(cisReport.getString("hasSystemError"))) {
                     retStr = "[鹏元反欺诈查询失败]";
-                }else{
+                } else {
                     AntiFraudReport report = new AntiFraudReport(returnValue);
 
-                    CustomerEvaluate customerEvaluate = new CustomerEvaluate();
-                    customerEvaluate.setCustomerId(customerId);
-                    customerEvaluate.setEvaluateType("PYCREDIT");
-                    customerEvaluate.setEvaluator("鹏元征信");
-                    customerEvaluate.setCompositeScore(report.getRiskScore());
-                    customerEvaluate.setEvaluateDate(report.getBuildEndTime());
-                    customerEvaluate.setBrief(report.getPersonAntiSpoofingDesc());
-                    customerEvaluate.setAttribute1(report.getReportID());
-                    customerEvaluate.setAttribute2(report.getBatchNo());
-                    customerEvaluate.setRemark(returnValue.toJSONString());
+                    CustomerEvaluate query = new CustomerEvaluate();
+                    Date evaluateDate = dateFormat.parse(dateFormat.format(report.getBuildEndTime()));
+                    query.setEvaluateDate(evaluateDate);
+                    query.setCustomerId(customerId);
+                    query.setEvaluateType(CREDIT_CODE);
+                    List<CustomerEvaluate> list = customerEvaluateService.select(request, query, 1, 1);
+                    CustomerEvaluate customerEvaluate;
 
-                    customerEvaluateService.insertSelective(request, customerEvaluate);
+                    if (list.size() == 1) {
+                        customerEvaluate = list.get(0);
+                        customerEvaluate.setEvaluator(EVALUATOR);
+                        customerEvaluate.setCompositeScore(report.getRiskScore());
+                        customerEvaluate.setEvaluateDate(report.getBuildEndTime());
+                        customerEvaluate.setBrief(report.getPersonAntiSpoofingDesc());
+                        customerEvaluate.setAttribute1(report.getReportID());
+                        customerEvaluate.setAttribute2(report.getBatchNo());
+                        customerEvaluate.setRemark(returnValue.toJSONString());
+
+                        customerEvaluateService.updateByPrimaryKeySelective(request, customerEvaluate);
+                    } else {
+                        customerEvaluate = new CustomerEvaluate();
+                        customerEvaluate.setCustomerId(customerId);
+                        customerEvaluate.setEvaluateType(CREDIT_CODE);
+                        customerEvaluate.setEvaluator(EVALUATOR);
+                        customerEvaluate.setCompositeScore(report.getRiskScore());
+                        customerEvaluate.setEvaluateDate(evaluateDate);
+                        customerEvaluate.setBrief(report.getPersonAntiSpoofingDesc());
+                        customerEvaluate.setAttribute1(report.getReportID());
+                        customerEvaluate.setAttribute2(report.getBatchNo());
+                        customerEvaluate.setRemark(returnValue.toJSONString());
+
+                        customerEvaluateService.insertSelective(request, customerEvaluate);
+                    }
                     retStr = "[鹏元反欺诈查询成功]";
                 }
             } else {
@@ -162,6 +185,7 @@ public class CustomerPengYuanServiceImpl implements ICustomerPengYuanService {
     @Override
     public String readCustomerLoan(IRequest request, Long customerId, String customerName, String idNumber, String phone) throws ParseException, Exception {
         String retStr = "";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String result = requestApi(customerId, customerName, idNumber, phone, CREDIT_LOAN_CODE, pyConfig.getHost(), pyConfig.getPath());
         JSONObject resultJson = (JSONObject) JSONObject.parse(result);
         String status = resultJson.getString("status");
@@ -174,22 +198,41 @@ public class CustomerPengYuanServiceImpl implements ICustomerPengYuanService {
 
             if (CREDIT_LOAN_CODE.equalsIgnoreCase(cisReport.getString("subReportTypes"))
                     && customerId.toString().equalsIgnoreCase(cisReport.getString("refID"))) {
-                if("true".equalsIgnoreCase(cisReport.getString("hasSystemError"))){
+                if ("true".equalsIgnoreCase(cisReport.getString("hasSystemError"))) {
                     retStr = "[鹏元多头借贷查询失败]";
-                }else{
+                } else {
                     LoanReport report = new LoanReport(returnValue);
 
-                    CustomerEvaluate customerEvaluate = new CustomerEvaluate();
-                    customerEvaluate.setCustomerId(customerId);
-                    customerEvaluate.setEvaluateType("PYLOAN");
-                    customerEvaluate.setEvaluator("鹏元征信");
-                    customerEvaluate.setEvaluateDate(report.getBuildEndTime());
-                    customerEvaluate.setBrief(report.getSubReportTypesShortCaption());
-                    customerEvaluate.setAttribute1(report.getReportID());
-                    customerEvaluate.setAttribute2(report.getBatchNo());
-                    customerEvaluate.setRemark(returnValue.toJSONString());
+                    CustomerEvaluate query = new CustomerEvaluate();
+                    Date evaluateDate = dateFormat.parse(dateFormat.format(report.getBuildEndTime()));
+                    query.setEvaluateDate(evaluateDate);
+                    query.setCustomerId(customerId);
+                    query.setEvaluateType(LOAN_CODE);
+                    List<CustomerEvaluate> list = customerEvaluateService.select(request, query, 1, 1);
+                    CustomerEvaluate customerEvaluate;
 
-                    customerEvaluateService.insertSelective(request, customerEvaluate);
+                    if (list.size() == 1) {
+                        customerEvaluate = list.get(0);
+                        customerEvaluate.setEvaluator(EVALUATOR);
+                        customerEvaluate.setEvaluateDate(report.getBuildEndTime());
+                        customerEvaluate.setBrief(report.getSubReportTypesShortCaption());
+                        customerEvaluate.setAttribute1(report.getReportID());
+                        customerEvaluate.setAttribute2(report.getBatchNo());
+                        customerEvaluate.setRemark(returnValue.toJSONString());
+                        customerEvaluateService.updateByPrimaryKeySelective(request, customerEvaluate);
+                    } else {
+                        customerEvaluate = new CustomerEvaluate();
+                        customerEvaluate.setCustomerId(customerId);
+                        customerEvaluate.setEvaluateType(LOAN_CODE);
+                        customerEvaluate.setEvaluator(EVALUATOR);
+                        customerEvaluate.setEvaluateDate(evaluateDate);
+                        customerEvaluate.setBrief(report.getSubReportTypesShortCaption());
+                        customerEvaluate.setAttribute1(report.getReportID());
+                        customerEvaluate.setAttribute2(report.getBatchNo());
+                        customerEvaluate.setRemark(returnValue.toJSONString());
+
+                        customerEvaluateService.insertSelective(request, customerEvaluate);
+                    }
                     retStr = "[鹏元多头借贷查询成功]";
                 }
             } else {

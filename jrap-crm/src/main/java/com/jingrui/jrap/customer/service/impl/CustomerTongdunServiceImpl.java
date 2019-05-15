@@ -19,6 +19,7 @@ import com.jingrui.jrap.customer.service.ICustomerTongdunService;
 import com.jingrui.jrap.customer.entity.PreloanSubmitResponse;
 import com.jingrui.jrap.customer.entity.PreloanQueryResponse;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.alibaba.fastjson.JSON;
@@ -38,6 +39,8 @@ public class CustomerTongdunServiceImpl implements ICustomerTongdunService {
 
     static final Logger logger = LoggerFactory.getLogger(CustomerTongdunServiceImpl.class);
 
+    private static final String LOAN_CODE = "TDLOAN";
+    public final static String EVALUATOR = "铜盾征信";
     private static final String EVENT_TYPE = "loan";    // 事件类型
     private static final String VERSION = "v1";      // 表单版本号
 
@@ -81,6 +84,7 @@ public class CustomerTongdunServiceImpl implements ICustomerTongdunService {
     @Override
     public String readCustomerCredit(IRequest request, Long customerId, String customerName, String idNumber, String phone) throws Exception {
         String result = "";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", customerName); // 姓名
         params.put("id_number", idNumber); // 身份证号
@@ -101,18 +105,39 @@ public class CustomerTongdunServiceImpl implements ICustomerTongdunService {
             PreloanQueryResponse response = this.query(riskPreloanResponse.getReport_id());
             if(response.getSuccess()){
                 logger.debug("提交返回：" + response.toString());
-                CustomerEvaluate customerEvaluate = new CustomerEvaluate();
-                customerEvaluate.setCustomerId(customerId);
-                customerEvaluate.setEvaluateType("TDLOAN");
-                customerEvaluate.setEvaluator("铜盾征信");
-                customerEvaluate.setCompositeScore(Double.valueOf(response.getFinal_score()));
-                customerEvaluate.setEvaluateDate(new Date(response.getReport_time()));
-                customerEvaluate.setBrief(response.getFinal_decision());
-                customerEvaluate.setAttribute1(response.getReport_id());
-                customerEvaluate.setAttribute2(response.getApplication_id());
-                customerEvaluate.setRemark(response.getRisk_items().toJSONString());
+                CustomerEvaluate query = new CustomerEvaluate();
+                Date evaluateDate = new Date(response.getReport_time());
+                evaluateDate = dateFormat.parse(dateFormat.format(evaluateDate));
+                query.setEvaluateDate(evaluateDate);
+                query.setCustomerId(customerId);
+                query.setEvaluateType(LOAN_CODE);
+                List<CustomerEvaluate> list =  customerEvaluateService.select(request, query, 1, 10);
+                CustomerEvaluate customerEvaluate;
 
-                customerEvaluateService.insertSelective(request, customerEvaluate);
+                if(list.size() == 1){
+                    customerEvaluate = list.get(0);
+                    customerEvaluate.setEvaluator(EVALUATOR);
+                    customerEvaluate.setCompositeScore(Double.valueOf(response.getFinal_score()));
+                    customerEvaluate.setEvaluateDate(new Date(response.getReport_time()));
+                    customerEvaluate.setBrief(response.getFinal_decision());
+                    customerEvaluate.setAttribute1(response.getReport_id());
+                    customerEvaluate.setAttribute2(response.getApplication_id());
+                    customerEvaluate.setRemark(JSON.toJSONString(response));
+                    customerEvaluateService.updateByPrimaryKeySelective(request, customerEvaluate);
+                }else{
+                    customerEvaluate = new CustomerEvaluate();
+                    customerEvaluate.setCustomerId(customerId);
+                    customerEvaluate.setEvaluateType(LOAN_CODE);
+                    customerEvaluate.setEvaluator(EVALUATOR);
+                    customerEvaluate.setCompositeScore(Double.valueOf(response.getFinal_score()));
+                    customerEvaluate.setEvaluateDate(evaluateDate);
+                    customerEvaluate.setBrief(response.getFinal_decision());
+                    customerEvaluate.setAttribute1(response.getReport_id());
+                    customerEvaluate.setAttribute2(response.getApplication_id());
+                    customerEvaluate.setRemark(JSON.toJSONString(response));
+                    customerEvaluateService.insertSelective(request, customerEvaluate);
+                }
+
                 result = "[铜盾查询成功]";
             }else{
                 logger.debug(response.getReason_desc());
