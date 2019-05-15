@@ -136,36 +136,13 @@ public class ProductController extends BaseController {
         Product result = service.selectByPrimaryKey(requestContext, queryPara);
         IProductCalculate calculate;
 
-        //虚拟头配置文件
-        /*ProductConfig configPara = new ProductConfig();
-        configPara.setConfigType("H");
-        configPara.setProductCode(productCode);
-        List<ProductConfig> dto = configService.select(requestContext, configPara, 1, 10);
-        for(ProductConfig record : dto){
-           if("LEASE_AMOUNT".equalsIgnoreCase(record.getColumnName())){
-               record.setDefaultValue("20000");
-           }else if("DOWN_PAYMENT".equalsIgnoreCase(record.getColumnName())){
-               record.setDefaultValue("5000");
-           }else if("INT_RATE".equalsIgnoreCase(record.getColumnName())){
-               record.setDefaultValue("0.1");
-           }else if("PAY_TIMES".equalsIgnoreCase(record.getColumnName())){
-               record.setDefaultValue("12");
-           }else if("PAY_TYPE".equalsIgnoreCase(record.getColumnName())){
-               record.setDefaultValue("0");
-           }else if("ANNUAL_PAY_TIMES".equalsIgnoreCase(record.getColumnName())){
-               record.setDefaultValue("12");
-           }else if("PARKING_FEE".equalsIgnoreCase(record.getColumnName())){
-               record.setDefaultValue("1200");
-           }
-        }*/
-
 
         switch (result.getCalculate()){
             //等额本息
             case ProductController.EFIXED_INSTALLMENT : {
                 logger.info("等额本息");
                 calculate = new ProductECICalculateImp();
-                calculate.calculate(dto);
+                //calculate.calculate(null);
                 break;
             }
             //等额本金

@@ -179,87 +179,87 @@
         columns: [
             {
                 field: "times",
-                title: '<@spring.message "ProductCalculateLine.times"/>',
+                title: '<@spring.message "cashflow.times"/>',
                 width: 50
             },
             {
                 field: "calcDate",
-                title: '<@spring.message "ProductCalculateLine.calcDate"/>',
+                title: '<@spring.message "cashflow.calcDate"/>',
                 width: 80
             },
             {
                 field: "dueDate",
-                title: '<@spring.message "ProductCalculateLine.dueDate"/>',
+                title: '<@spring.message "cashflow.duedate"/>',
                 width: 80
             },
             {
                 field: "dueAmount",
-                title: '<@spring.message "ProductCalculateLine.dueAmount"/>',
+                title: '<@spring.message "cashflow.dueamount"/>',
                 width: 70
             },
             {
                 field: "netDueAmount",
-                title: '<@spring.message "ProductCalculateLine.netDueAmount"/>',
+                title: '<@spring.message "cashflow.netdueamount"/>',
                 width: 110
             },
             {
                 field: "vatDueAmount",
-                title: '<@spring.message "ProductCalculateLine.vatDueAmount"/>',
+                title: '<@spring.message "cashflow.vatdueamount"/>',
                 width: 70
             },
             {
                 field: "principal",
-                title: '<@spring.message "ProductCalculateLine.principal"/>',
+                title: '<@spring.message "cashflow.principal"/>',
                 width: 70
             },
             {
                 field: "netPrincipal",
-                title: '<@spring.message "ProductCalculateLine.netPrincipal"/>',
+                title: '<@spring.message "cashflow.netprincipal"/>',
                 width: 80
             },
             {
                 field: "vatPrincipal",
-                title: '<@spring.message "ProductCalculateLine.vatPrincipal"/>',
+                title: '<@spring.message "cashflow.vatprincipal"/>',
                 width: 100
             },
             {
                 field: "interest",
-                title: '<@spring.message "ProductCalculateLine.interest"/>',
+                title: '<@spring.message "cashflow.interest"/>',
                 width: 70
             },
             {
                 field: "netInterest",
-                title: '<@spring.message "ProductCalculateLine.netInterest"/>',
+                title: '<@spring.message "cashflow.netinterest"/>',
                 width: 80
             },
             {
                 field: "vatInterest",
-                title: '<@spring.message "ProductCalculateLine.vatInterest"/>',
+                title: '<@spring.message "cashflow.vatinterest"/>',
                 width: 100
             },
             {
                 field: "cfType",
-                title: '<@spring.message "ProductCalculateLine.cfType"/>',
+                title: '<@spring.message "cashflow.cftype"/>',
                 width: 80
             },
             {
                 field: "cfDirection",
-                title: '<@spring.message "ProductCalculateLine.cfDirection"/>',
+                title: '<@spring.message "cashflow.cfdirection"/>',
                 width: 80
             },
             {
                 field: "outstandingRental",
-                title: '<@spring.message "ProductCalculateLine.outstandingRental"/>',
+                title: '<@spring.message "cashflow.outstandingrental"/>',
                 width: 95
             },
             {
                 field: "outstandingPrincipal",
-                title: '<@spring.message "ProductCalculateLine.outstandingPrincipal"/>',
+                title: '<@spring.message "cashflow.outstandingprincipal"/>',
                 width: 95
             },
             {
                 field: "outstandingInterest",
-                title: '<@spring.message "ProductCalculateLine.outstandingInterest"/>',
+                title: '<@spring.message "cashflow.outstandinginterest"/>',
                 width: 95
             }
         ],
@@ -268,18 +268,19 @@
 
     // 计算
     function calculate() {
+        debugger;
         $.ajax({
-            url: '${base.contextPath}/product/calculate',
+            url: BaseUrl + '/pro/product/calculate',
             type: "POST",
             dataType: "json",
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
             data: {
-                productCode: viewModel.model.productCode,
+                productCode: productCode,
                 dto: viewModelLeft.model.rows
             },
             async: false,
-            success: function (rows) {
-                dataSource = rows;
+            success: function (result) {
+                dataSource = result;
                 gridRight.refresh();
             }
         });

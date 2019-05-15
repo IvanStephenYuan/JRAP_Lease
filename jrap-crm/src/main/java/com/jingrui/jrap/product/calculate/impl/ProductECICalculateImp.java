@@ -30,6 +30,10 @@ public class ProductECICalculateImp extends ProductCalculate implements IProduct
     @Override
     public List<ProductCalculateLine> calculate(List<ProductConfig> configs) {
         List<ProductCalculateLine> calculateLines = new ArrayList<>();
+
+        if(configs == null){
+            return calculateLines;
+        }
         super.convertConfigMap(configs);
         Map map = this.getMap();
 
@@ -48,8 +52,6 @@ public class ProductECICalculateImp extends ProductCalculate implements IProduct
         }
 
         //计算行数据
-
-
         return calculateLines;
     }
 }

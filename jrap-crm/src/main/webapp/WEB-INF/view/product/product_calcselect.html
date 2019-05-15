@@ -121,16 +121,6 @@
         invalidMessageType: "tooltip"
     }).data("kendoValidator");
     function submit() {
-            $.ajax({
-                url: '${base.contextPath}/product/product_calculate.html',
-                type: "POST",
-                dataType: "json",
-                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                data: {
-                    productCode : viewModel.model.productCode
-                }
-            });
-
         var win = $("#calculate").kendoWindow({
             actions: ["Close"],
             title: '产品测算',
