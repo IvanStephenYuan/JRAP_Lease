@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.validation.BindingResult;
+import com.jingrui.jrap.mybatis.common.Criteria;
 import java.util.List;
 
-    @Controller
-    public class ${controllerName} extends BaseController{
+@Controller
+public class ${controllerName} extends BaseController{
 
     @Autowired
     private ${serviceName} service;
@@ -27,6 +28,15 @@ import java.util.List;
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
         return new ResponseData(service.select(requestContext,dto,page,pageSize));
+    }
+
+    @RequestMapping(value = "${queryUrlOptions}")
+    @ResponseBody
+    public ResponseData queryOptions(${dtoName} dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
+        @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
+        IRequest requestContext = createRequestContext(request);
+        Criteria criteria = new Criteria(dto);
+        return new ResponseData(service.selectOptions(requestContext, dto, criteria, page, pageSize));
     }
 
     @RequestMapping(value = "${submitUrl}")
@@ -48,4 +58,4 @@ import java.util.List;
         service.batchDelete(dto);
         return new ResponseData();
     }
-    }
+}

@@ -16,17 +16,13 @@ package com.jingrui.jrap.fnd.dto;
  **/
 
 import com.jingrui.jrap.core.BaseConstants;
-import com.jingrui.jrap.core.annotation.MultiLanguageField;
-import com.jingrui.jrap.hr.dto.Position;
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
-import com.jingrui.jrap.mybatis.common.query.Comparison;
-import com.jingrui.jrap.mybatis.common.query.JoinCode;
 import com.jingrui.jrap.mybatis.common.query.JoinColumn;
 import com.jingrui.jrap.mybatis.common.query.JoinOn;
+import com.jingrui.jrap.mybatis.common.query.JoinTable;
 import com.jingrui.jrap.mybatis.common.query.Where;
 import com.jingrui.jrap.system.dto.BaseDTO;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.persistence.criteria.JoinType;
@@ -55,42 +51,69 @@ public class CompanyLimit extends BaseDTO {
     public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
 
+    @Where
     @Id
     @GeneratedValue
+    @OrderBy("desc")
     private Long limitId;
 
+    @Where
     @Length(max = 60)
     private String limitType; //授信类型
 
+    @Where
+    @JoinTable(name = "companyJoin",  target = Company.class, type = JoinType.LEFT, on = {@JoinOn(joinField = Company.FIELD_COMPANY_ID)})
     private Long companyId; //商户ID
 
+    @Transient
+    @JoinColumn(joinName = "companyJoin", field = Company.FIELD_COMPANY_FULL_NAME)
+    private String companyFullName; // 商户全称
+
+    @Where
+    @JoinTable(name = "companyJoin2",  target = Company.class, type = JoinType.LEFT, on = {@JoinOn(joinField = Company.FIELD_COMPANY_ID)})
     private Long limitCompanyId; //资方ID
 
+    @Transient
+    @JoinColumn(joinName = "companyJoin2", field = Company.FIELD_COMPANY_FULL_NAME)
+    private String limitCompanyFullName; // 资方商户全称
+
+    @Where
     private Date limitDate; //授信日期
 
+    @Where
     private Long goodId; //商品ID
 
+    @Where
     private Long orderId; //订单ID
 
+    @Where
     private Long limitAmount; //授信额度
 
+    @Where
     private Long balance; //可用额度
 
+    @Where
     @Length(max = 200)
     private String limitNote; //备注
 
+    @Where
     @Length(max = 1)
     private String enabledFlag; //启用标识
 
+    @Where
     private Date startDate; //有效期从
 
+    @Where
     private Date endDate; //有效期至
 
+    @Where
     @Length(max = 2147483647)
     private String remark; //备注说明
 
+    @Where
     private Long programApplicationId;
 
+    @Where
     private Date programUpdateDate;
 
     @Transient
@@ -127,9 +150,6 @@ public class CompanyLimit extends BaseDTO {
     private String companyShortName;
 
     @Transient
-    private String companyFullName;
-
-    @Transient
     private String zipcode;
 
     @Transient
@@ -158,6 +178,14 @@ public class CompanyLimit extends BaseDTO {
 
     @Transient
     private List<CompanyLimit> companyLimits; //资方信息
+
+    public String getLimitCompanyFullName() {
+        return limitCompanyFullName;
+    }
+
+    public void setLimitCompanyFullName(String limitCompanyFullName) {
+        this.limitCompanyFullName = limitCompanyFullName;
+    }
 
     public List<CompanyLimit> getCompanyLimits() {
         return companyLimits;

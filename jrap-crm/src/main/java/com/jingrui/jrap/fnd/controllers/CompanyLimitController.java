@@ -12,6 +12,8 @@
 package com.jingrui.jrap.fnd.controllers;
 
 import com.jingrui.jrap.core.IRequest;
+import com.jingrui.jrap.fnd.dto.LimitChange;
+import com.jingrui.jrap.mybatis.common.Criteria;
 import com.jingrui.jrap.system.controllers.BaseController;
 import com.jingrui.jrap.system.dto.ResponseData;
 import com.jingrui.jrap.fnd.dto.CompanyLimit;
@@ -34,19 +36,27 @@ public class CompanyLimitController extends BaseController {
     @Autowired
     private ICompanyLimitService service;
 
-
     @RequestMapping(value = "/fnd/company/limit/query")
     @ResponseBody
     @ApiOperation(value="获取额度信息", notes = "通用额度接口", httpMethod="GET", response=CompanyLimit.class)
     public ResponseData query(CompanyLimit dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
                               @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
-        return new ResponseData(service.select(requestContext, dto, page, pageSize));
+        return new ResponseData(service.select(requestContext,dto,page,pageSize));
+    }
+
+    @RequestMapping(value = "/fnd/company/limit/selectOptions")
+    @ResponseBody
+    public ResponseData queryOptions(CompanyLimit dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
+                                     @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
+        IRequest requestContext = createRequestContext(request);
+        Criteria criteria = new Criteria(dto);
+        return new ResponseData(service.selectOptions(requestContext, dto, criteria, page, pageSize));
     }
 
     @RequestMapping(value = "/fnd/company/limit/submit")
     @ResponseBody
-    public ResponseData update(@RequestBody List<CompanyLimit> dto, BindingResult result, HttpServletRequest request) {
+    public ResponseData update(@RequestBody List<CompanyLimit> dto, BindingResult result, HttpServletRequest request){
         getValidator().validate(dto, result);
         if (result.hasErrors()) {
             ResponseData responseData = new ResponseData(false);
@@ -59,16 +69,17 @@ public class CompanyLimitController extends BaseController {
 
     @RequestMapping(value = "/fnd/company/limit/remove")
     @ResponseBody
-    public ResponseData delete(HttpServletRequest request, @RequestBody List<CompanyLimit> dto) {
+    public ResponseData delete(HttpServletRequest request,@RequestBody List<CompanyLimit> dto){
         service.batchDelete(dto);
         return new ResponseData();
     }
+
     /*
      * 商户入网工作流启动
      * */
     @RequestMapping(value = "/wfl/runtime/processInstances/company/limit/apply")
     @ResponseBody
-    @ApiOperation(value="额度申请", notes = "额度申请工作流接口", httpMethod="GET")
+    @ApiOperation(value="商户入网申请", notes = "商户入网申请接口", httpMethod="GET")
     public ResponseData createVacationInstance(String companyId,
                                                       HttpServletRequest httpRequest, HttpServletResponse response) {
         IRequest iRequest = createRequestContext(httpRequest);
@@ -85,7 +96,7 @@ public class CompanyLimitController extends BaseController {
      */
     @RequestMapping(value = "/fnd/company/limit/modify")
     @ResponseBody
-    @ApiOperation(value="商户信息变更", notes = "商户信息变更接口", httpMethod="GET")
+    @ApiOperation(value="商户信息变更", notes = "商户信息变更接口", httpMethod="POST")
     public ResponseData modify(@RequestBody CompanyLimit dto, BindingResult result, HttpServletRequest request) {
         getValidator().validate(dto, result);
         if (result.hasErrors()) {
@@ -108,8 +119,23 @@ public class CompanyLimitController extends BaseController {
      */
     @RequestMapping(value = "/fnd/company/limit/adjust")
     @ResponseBody
-    @ApiOperation(value="额度调整", notes = "额度调整接口", httpMethod="GET")
-    public ResponseData adjust(@RequestBody List<CompanyLimit> dto, BindingResult result, HttpServletRequest request) {
+    @ApiOperation(value="额度调整", notes = "额度调整接口", httpMethod="POST")
+    public ResponseData adjust(@RequestBody CompanyLimit dto, BindingResult result, HttpServletRequest request) {
+        IRequest requestCtx = createRequestContext(request);
+        return service.adjust(requestCtx, dto);
+    }
+
+    /**
+     * 添加资方
+     * @param dto
+     * @param result
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/fnd/company/limit/addCap")
+    @ResponseBody
+    @ApiOperation(value="添加资方", notes = "添加资方", httpMethod="POST")
+    public ResponseData addCap(@RequestBody CompanyLimit dto, BindingResult result, HttpServletRequest request) {
         getValidator().validate(dto, result);
         if (result.hasErrors()) {
             ResponseData responseData = new ResponseData(false);
@@ -117,9 +143,22 @@ public class CompanyLimitController extends BaseController {
             return responseData;
         }
         IRequest requestCtx = createRequestContext(request);
-        service.adjust(requestCtx, dto);
+        service.addCap(requestCtx, dto);
         return new ResponseData();
     }
 
-
+    /**
+     *  额度变更申请
+     * @param dto
+     * @param result
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/fnd/limit/change/apply/workflow")
+    @ResponseBody
+    @ApiOperation(value="额度变更申请", notes = "额度变更申请接口", httpMethod="POST")
+    public ResponseData limitChangeApply(@RequestBody List<CompanyLimit> dto, BindingResult result, HttpServletRequest request) {
+        IRequest requestCtx = createRequestContext(request);;
+        return service.limitChangeApply(requestCtx, dto);
+    }
 }

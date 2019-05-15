@@ -36,7 +36,7 @@ ${'<body>'}
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: BaseUrl + "${queryUrl}",
+                url: BaseUrl + "${queryUrlOptions}",
                 type: "POST",
                 dataType: "json"
             },
