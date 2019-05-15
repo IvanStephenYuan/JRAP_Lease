@@ -17,7 +17,6 @@
 <div id="page-content">
   <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
     <span data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
-    <span class="btn btn-success k-grid-save-changes" onclick="changeRelase()" style="float:left;margin-left:10px;"><@spring.message "产品发布"/></span>
   </div>
   <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
   <div class="pull-right" id="query-form" style="padding-bottom:10px;">
@@ -29,7 +28,7 @@
            data-bind="value:model.customerName" class="k-textbox">
     <input id="idType" type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
            placeholder='<@spring.message "Change.idType"/>'
-           data-bind="value:model.idType" class="k-textbox">
+           data-bind="value:model.idType">
 
     <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query"
           type="submit"><@spring.message "jrap.query"/></span>
@@ -210,19 +209,19 @@
       url = "${base.contextPath}/change/change_edit.html?isedit=1&changeId=" + changeId;
     }
     Jrap.createWindow('#newWin', {
-      width: 1050,
-      height: 400,
+      width: 1500,
+      height: 800,
       title: '商机编辑',
       url: url
     })
     if (parent.autoResizeIframe) {
       parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
         var win = $("#newWin").data("kendoWindow");
-        win.center().open();
+        win.center().maximize().open();
       })
     } else {
       var win = $("#newWin").data("kendoWindow");
-      win.center().open();
+      win.center().maximize().open();
     }
   }
 

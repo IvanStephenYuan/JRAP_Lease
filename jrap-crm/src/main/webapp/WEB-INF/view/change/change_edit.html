@@ -17,7 +17,6 @@
     $.ajax({
       url: '${base.contextPath}/con/change/query?changeId=' + changeId,
       success: function (args) {
-        console.log(args);
         var a0 = args.rows[0] || {};
         for (var k in a0) {
           newViewModel.model.set(k, a0[k]);
@@ -233,68 +232,9 @@
               </div>
             </div>
           </div>
-          <!--<h4>追踪信息录入</h4>
-          <div class="col-xs-12">
-            <div class="col-xs-6">
-              <div class="form-group">
-                <label class="col-xs-4 control-label"
-                       style="text-align: right"><@spring.message "changetrack.tracktype"/></label>
-                <div class="col-xs-8">
-                  <input id="trackType" type="text" data-bind="value:model.trackType"
-                         style="width: 100%;">
-                  <script>
-                    $("#trackType").kendoComboBox({
-                      dataSource: trackTypeData,
-                      valuePrimitive: true,
-                      dataTextField: "meaning",
-                      dataValueField: "value"
-                    });
-                    kendo.bind($('#trackType'), trackViewModel);
-                  </script>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-6">
-              <div class="form-group">
-                <label class="col-xs-4   control-label"
-                       style="text-align: right"><@spring.message "changetrack.trackdate"/></label>
-                <div class="col-xs-8">
-                  <input id="trackDate" type="text" data-bind="value:model.trackDate"
-                         style="width: 100%;">
-                  <script>
-                    $('#trackDate').kendoDatePicker();
-                    kendo.bind($('#trackDate'), trackViewModel);
-                  </script>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-xs-12">
-            <div class="col-xs-12">
-              <div class="form-group">
-                <label class="col-xs-2 control-label"
-                       style="text-align: right"><@spring.message "changetrack.tracknote"/></label>
-                <div class="col-xs-10">
-                  <input id="trackNote" name="trackNote" type="text"
-                         data-bind="value:model.trackNote"
-                         style="width: 100%;" required
-                         data-label="<@spring.message 'changetrack.tracknote'/>">
-                  <span class="k-invalid-msg" data-for="trackNote"></span>
-
-                  <script>
-                    $("#trackNote").kendoTLEdit({
-                      field: 'companyFullName'
-                    })
-                    kendo.bind($('#trackNote'), trackViewModel);
-                  </script>
-                </div>
-              </div>
-            </div>
-          </div>
--->
           <div class="text-right"
-               style="bottom: 15px;position: fixed; padding-right: 24px;  float: left;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+               style="bottom: 15px; padding-right: 24px;  float: left;border-top:1px  #ebebeb;width:100%; background: #fff;">
+            <span class="btn btn-success k-grid-save-changes" onclick="createorder()" style="margin-right: 5px;"><@spring.message "生成订单"/></span>
             <span class="btn btn-primary" id="saveGrid" type="submit" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
             <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
           </div>
@@ -315,6 +255,7 @@
       </div>
     </div>
   </div>
+  <div id="orderedit"/>
   <script>
     var tabstrip = $("#tabstrip").kendoTabStrip({
       height: '100%',
@@ -406,7 +347,7 @@
     }
   });
 
-  var grid=$("#trackgrid").kendoGrid({
+  var grid = $("#trackgrid").kendoGrid({
     dataSource: dataSource,
     resizable: true,
     scrollable: true,
@@ -497,6 +438,25 @@
         }
       })
     }
+  }
+
+  function createorder(){
+    var changeId=newViewModel.model.changeId;
+    var win = $("#orderedit").kendoWindow({
+      actions: ["Close"],
+      title: '生成订单',
+      visible: false,
+      modal: true,
+      width: 900,
+      height: 400,
+      iframe: true,
+      content: '${base.contextPath}/order/order_edit.html?isedit=0&changeId=' + changeId,
+      close: function (e) {
+      }
+    }).data("kendoWindow");
+    win.center().maximize().open();
+
+
   }
 </script>
 
