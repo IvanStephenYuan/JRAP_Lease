@@ -31,6 +31,10 @@ public class RevocationLimitRejectedListener implements ExecutionListener, IActi
 
     private CompanyMapper companyMapper;
 
+    /**
+     * 商户入网申请-拒绝-监听处理
+     * @param delegateExecution
+     */
     @Override
     public void notify(DelegateExecution delegateExecution) {
         // 获取Mapper接口
