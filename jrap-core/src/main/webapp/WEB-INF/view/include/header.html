@@ -46,6 +46,25 @@
                 $('input, textarea').placeholder({customClass:'my-placeholder'});
             }
         });
+
+
+        // 获取session
+        var session_value = null;
+        function getSession() {
+            if (session_value == null) {
+                $.ajax({
+                    type: "POST",
+                    url: '${base.contextPath}/sys/session',
+                    dataType: "json",
+                    contentType: "application/json;charset=UTF-8",
+                    async: false,
+                    success: function (data) {
+                        session_value = data;
+                    }
+                });
+            }
+            return session_value;
+        }
     </script>
     <script src="${base.contextPath}/common/hotkey"></script>
     <script src="${base.contextPath}/common/prompts"></script>

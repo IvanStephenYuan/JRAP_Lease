@@ -130,8 +130,10 @@ public class FileUtil {
         sb.append("import javax.persistence.GeneratedValue;\r\n");
         sb.append("import javax.persistence.Id;\r\n");
         sb.append("import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;\r\n");
+        sb.append("import com.jingrui.jrap.mybatis.common.query.Where;\r\n");
         sb.append("import org.hibernate.validator.constraints.Length;\r\n");
         sb.append("import javax.persistence.Table;\r\n");
+        sb.append("import javax.persistence.OrderBy;\r\n");
         String d = BaseDTO.class.getName();
         sb.append("import " + d + ";\r\n");
         if (needUtil) {
@@ -156,14 +158,16 @@ public class FileUtil {
 
         //生成filed
         for(DBColumn co : columns){
-           String filed1=  "     public static final String FIELD_" + co.getName().toUpperCase() + " = \"" + columnToCamel(co.getName()) + "\";\r\n";
+            String filed1=  "     public static final String FIELD_" + co.getName().toUpperCase() + " = \"" + columnToCamel(co.getName()) + "\";\r\n";
             sb.append(filed1);
         }
         sb.append("\r\n\r\n");
         // 生成属性
         for (DBColumn cl : columns) {
+            sb.append("     @Where\r\n");
             if (cl.isId()) {
                 sb.append("     @Id\r\n     @GeneratedValue\r\n");
+                sb.append("     @OrderBy(\"desc\")\r\n");
             } else {
                 if (cl.isNotEmpty()) {
                     sb.append("     @NotEmpty\r\n");
@@ -303,6 +307,7 @@ public class FileUtil {
             }
             url = url.replaceAll("_", "/");
             map.put("queryUrl", "/" + url + "/query");
+            map.put("queryUrlOptions", "/" + url + "/selectOptions");
             map.put("submitUrl", "/" + url + "/submit");
             map.put("removeUrl", "/" + url + "/remove");
             template.process(map, new OutputStreamWriter(out));

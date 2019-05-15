@@ -26,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
@@ -154,5 +155,13 @@ public class LoginController extends BaseController implements InitializingBean 
                 break;
         }
         return reasonTitle;
+    }
+
+    // 返回session
+    @RequestMapping(value = "/sys/session")
+    @ResponseBody
+    public IRequest queryStatusAll(HttpServletRequest request) {
+        IRequest requestContext = createRequestContext(request);
+        return requestContext;
     }
 }
