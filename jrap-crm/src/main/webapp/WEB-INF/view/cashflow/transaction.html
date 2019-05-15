@@ -7,20 +7,29 @@
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span class="btn btn-primary  k-grid-excel" style="float:left;margin-left: 5px"
+              onclick='Jrap.importExcel("csh_transaction")'><i class="fa fa-arrow-circle-up"
+                                                               style="margin-right:3px;"></i><@spring.message "excel.import"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Transaction.transactionType"/>'
-                   data-bind="value:model.transactionType" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Transaction.periodName"/>'
-                   data-bind="value:model.periodName" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Transaction.optAccountName"/>'
-                   data-bind="value:model.optAccountName" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Transaction.optBankName"/>'
-                   data-bind="value:model.optBankName" class="k-textbox">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Transaction.sourceType"/>'
-                   data-bind="value:model.sourceType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "Transaction.transactionType"/>'
+               data-bind="value:model.transactionType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "Transaction.periodName"/>'
+               data-bind="value:model.periodName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "Transaction.optAccountName"/>'
+               data-bind="value:model.optAccountName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "Transaction.optBankName"/>'
+               data-bind="value:model.optBankName" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "Transaction.sourceType"/>'
+               data-bind="value:model.sourceType" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -95,198 +104,98 @@
         },
         columns: [
             {
-                field: "transactionId",
-                title: '<@spring.message "transaction.transactionid"/>',
-                width: 120
-            },
-                    {
                 field: "transactionNum",
                 title: '<@spring.message "transaction.transactionnum"/>',
                 width: 120
             },
-                    {
+            {
                 field: "transactionCategory",
                 title: '<@spring.message "transaction.transactioncategory"/>',
                 width: 120
             },
-                    {
+            {
                 field: "transactionType",
                 title: '<@spring.message "transaction.transactiontype"/>',
                 width: 120
             },
-                    {
+            {
                 field: "transactionDate",
                 title: '<@spring.message "transaction.transactiondate"/>',
                 width: 120
             },
-                    {
+            {
                 field: "companyId",
                 title: '<@spring.message "transaction.companyid"/>',
                 width: 120
             },
-                    {
+            {
                 field: "transactionAmount",
                 title: '<@spring.message "transaction.transactionamount"/>',
                 width: 120
             },
-                    {
+            {
                 field: "cashflowAmount",
                 title: '<@spring.message "transaction.cashflowamount"/>',
                 width: 120
             },
-                    {
-                field: "internalPeriodNum",
-                title: '<@spring.message "transaction.internalperiodnum"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "periodName",
                 title: '<@spring.message "transaction.periodname"/>',
                 width: 120
             },
-                    {
+            {
                 field: "bankAccountId",
                 title: '<@spring.message "transaction.bankaccountid"/>',
                 width: 120
             },
-                    {
+            {
                 field: "orderId",
                 title: '<@spring.message "transaction.orderid"/>',
                 width: 120
             },
-                    {
+            {
                 field: "customerId",
                 title: '<@spring.message "transaction.customerid"/>',
                 width: 120
             },
-                    {
+            {
                 field: "optAccountId",
                 title: '<@spring.message "transaction.optaccountid"/>',
                 width: 120
             },
-                    {
+            {
                 field: "optAccountNum",
                 title: '<@spring.message "transaction.optaccountnum"/>',
                 width: 120
             },
-                    {
+            {
                 field: "optAccountName",
                 title: '<@spring.message "transaction.optaccountname"/>',
                 width: 120
             },
-                    {
+            {
                 field: "optBankName",
                 title: '<@spring.message "transaction.optbankname"/>',
                 width: 120
             },
-                    {
+            {
                 field: "bankSlipNum",
                 title: '<@spring.message "transaction.bankslipnum"/>',
                 width: 120
             },
-                    {
+            {
                 field: "description",
                 title: '<@spring.message "transaction.description"/>',
                 width: 120
             },
-                    {
+            {
                 field: "postedFlag",
                 title: '<@spring.message "transaction.postedflag"/>',
                 width: 120
             },
-                    {
-                field: "writeoffFlag",
-                title: '<@spring.message "transaction.writeoffflag"/>',
-                width: 120
-            },
-                    {
-                field: "writeoffAmount",
-                title: '<@spring.message "transaction.writeoffamount"/>',
-                width: 120
-            },
-                    {
-                field: "fullWriteoffDate",
-                title: '<@spring.message "transaction.fullwriteoffdate"/>',
-                width: 120
-            },
-                    {
-                field: "reversedFlag",
-                title: '<@spring.message "transaction.reversedflag"/>',
-                width: 120
-            },
-                    {
-                field: "reversedDate",
-                title: '<@spring.message "transaction.reverseddate"/>',
-                width: 120
-            },
-                    {
-                field: "reversedTransId",
-                title: '<@spring.message "transaction.reversedtransid"/>',
-                width: 120
-            },
-                    {
-                field: "returnedFlag",
-                title: '<@spring.message "transaction.returnedflag"/>',
-                width: 120
-            },
-                    {
-                field: "returnedAmount",
-                title: '<@spring.message "transaction.returnedamount"/>',
-                width: 120
-            },
-                    {
-                field: "returnedDate",
-                title: '<@spring.message "transaction.returneddate"/>',
-                width: 120
-            },
-                    {
-                field: "returnedTransId",
-                title: '<@spring.message "transaction.returnedtransid"/>',
-                width: 120
-            },
-                    {
-                field: "sourceType",
-                title: '<@spring.message "transaction.sourcetype"/>',
-                width: 120
-            },
-                    {
-                field: "sourceId",
-                title: '<@spring.message "transaction.sourceid"/>',
-                width: 120
-            },
-                    {
-                field: "sourceLineId",
-                title: '<@spring.message "transaction.sourcelineid"/>',
-                width: 120
-            },
-                    {
-                field: "jeMethod",
-                title: '<@spring.message "transaction.jemethod"/>',
-                width: 120
-            },
-                    {
-                field: "jeFlag",
-                title: '<@spring.message "transaction.jeflag"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "transaction.enabledflag"/>',
-                width: 120
-            },
-                    {
-                field: "remark",
-                title: '<@spring.message "transaction.remark"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "transaction.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "transaction.programupdatedate"/>',
                 width: 120
             },
         ],
