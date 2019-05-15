@@ -26,47 +26,9 @@
 
     <context:property-placeholder location="classpath:config.properties"/>
 
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/jrap_dev"/>
-        <property name="username" value="jrap_dev"/>
-        <property name="password" value="jrap_dev"/>
-    </bean>
-
-    <!-- config transactionManager -->
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <tx:annotation-driven transaction-manager="transactionManager"/>
-
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="mapperLocations" value="classpath*:/**/*Mapper.xml"/>
-        <property name="configLocation" value="classpath:mybatis-configuration.xml"/>
-    </bean>
-
-
-    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" name="sqlSessionFactory" ref="sqlSessionFactory"/>
-    </bean>
-
-    <bean id="mapperScannerConfigurer" class="com.jingrui.jrap.mybatis.spring.MapperScannerConfigurer">
-        <property name="basePackage" value="com.jingrui.**.mapper"/>
-        <property name="processPropertyPlaceHolders" value="true"/>
-        <property name="propertiesMap">
-            <map>
-                <entry key="mappers" value="com.jingrui.jrap.mybatis.common.Mapper"/>
-                <entry key="IDENTITY" value="${mybatis.identity}"/>
-                <entry key="seqFormat" value="{3}_s.nextVal"/>
-                <entry key="enableMethodAnnotation" value="true"/>
-            </map>
-        </property>
-        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
-    </bean>
-
-    <bean id="productFormulaService" class="com.jingrui.jrap.product.service.impl.ProductFormulaServiceImpl"/>
-    <bean class="com.jingrui.jrap.product.calculate.impl.ProductECICalculateImp">
-        <property name="formulaService" value="productFormulaService"/>
-    </bean>
+    <bean id="customerOcrService" class="com.jingrui.jrap.customer.service.impl.CustomerOcrServiceImpl"/>
+    <!--<bean id="pyConfig" class="com.jingrui.jrap.customer.config.PyConfig"/>
+    <bean id="customerPengYuanService" class="com.jingrui.jrap.customer.service.impl.CustomerPengYuanServiceImpl"/>-->
+    <bean id="tdConfig" class="com.jingrui.jrap.customer.config.TdConfig"/>
+    <bean id="customerTongdunService" class="com.jingrui.jrap.customer.service.impl.CustomerTongdunServiceImpl"/>
 </beans>

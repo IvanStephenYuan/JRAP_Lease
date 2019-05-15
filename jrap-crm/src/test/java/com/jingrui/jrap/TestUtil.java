@@ -24,6 +24,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:/spring/applicationContext.xml"})
@@ -68,24 +70,12 @@ public class TestUtil {
 
     @Test
     public void productTest(){
-        Product product = new Product();
-        product.setProductCode("SH100010005");
-        product.setVersion(0);
-
-        String sqlId = "com.jingrui.jrap.product.mapper." + StringUtils.capitalize("ProductMapper.select");
-        List<Product> list;
-
-        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            PageHelper.startPage(1, 10);
-
-            list = sqlSession.selectList(sqlId, product);
-            if(list.size() > 0){
-                System.out.println(list.get(0).getVersion());
-            }
-        } catch (Throwable e) {
-            if (logger.isErrorEnabled()) {
-                logger.error(e.getMessage(), e);
-            }
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date today = dateTimeFormat.parse("2019-05-14 10:39:59");
+            System.out.println(today.toString());
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 }
