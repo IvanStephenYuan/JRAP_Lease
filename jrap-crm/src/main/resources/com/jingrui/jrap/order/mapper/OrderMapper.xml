@@ -1,119 +1,261 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jingrui.jrap.order.mapper.OrderMapper">
-    <resultMap id="BaseResultMap" type="com.jingrui.jrap.order.dto.Order">
-        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
-        <result column="ORDER_CODE" property="orderCode" jdbcType="VARCHAR" />
-        <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR" />
-        <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
-        <result column="ORDER_STATUS" property="orderStatus" jdbcType="VARCHAR" />
-        <result column="PRODUCT_CODE" property="productCode" jdbcType="VARCHAR" />
-        <result column="BUSINESS_TYPE" property="businessType" jdbcType="VARCHAR" />
-        <result column="CHANGE_ID" property="changeId" jdbcType="DECIMAL" />
-        <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL" />
-        <result column="ITEM_ID" property="itemId" jdbcType="DECIMAL" />
-        <result column="AGENT_ID" property="agentId" jdbcType="DECIMAL" />
-        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
-        <result column="UNIT_ID" property="unitId" jdbcType="DECIMAL" />
-        <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL" />
-        <result column="RISK_EMPLOYEE_ID" property="riskEmployeeId" jdbcType="DECIMAL" />
-        <result column="GUIDE_PRICE" property="guidePrice" jdbcType="DECIMAL" />
-        <result column="EVALUATION_AMOUNT" property="evaluationAmount" jdbcType="DECIMAL" />
-        <result column="LEASE_AMOUNT" property="leaseAmount" jdbcType="DECIMAL" />
-        <result column="FINANCE_AMOUNT" property="financeAmount" jdbcType="DECIMAL" />
-        <result column="CONTRACT_AMOUNT" property="contractAmount" jdbcType="DECIMAL" />
-        <result column="NET_FINANCE_AMOUNT" property="netFinanceAmount" jdbcType="DECIMAL" />
-        <result column="VAT_FINANCE_AMOUNT" property="vatFinanceAmount" jdbcType="DECIMAL" />
-        <result column="DOWN_PAYMENT" property="downPayment" jdbcType="DECIMAL" />
-        <result column="NET_DOWN_PAYMENT" property="netDownPayment" jdbcType="DECIMAL" />
-        <result column="VAT_DOWN_PAYMENT" property="vatDownPayment" jdbcType="DECIMAL" />
-        <result column="FINAL_PAYMENT" property="finalPayment" jdbcType="DECIMAL" />
-        <result column="RESIDUAL_VALUE" property="residualValue" jdbcType="DECIMAL" />
-        <result column="VAT_INPUT" property="vatInput" jdbcType="DECIMAL" />
-        <result column="LEASE_TIMES" property="leaseTimes" jdbcType="DECIMAL" />
-        <result column="PAY_TYPE" property="payType" jdbcType="VARCHAR" />
-        <result column="PAY_TIMES" property="payTimes" jdbcType="DECIMAL" />
-        <result column="ANNUAL_PAY_TIMES" property="annualPayTimes" jdbcType="DECIMAL" />
-        <result column="LEASE_TERM" property="leaseTerm" jdbcType="DECIMAL" />
-        <result column="BASE_RATE" property="baseRate" jdbcType="DECIMAL" />
-        <result column="INT_RATE" property="intRate" jdbcType="DECIMAL" />
-        <result column="INT_RATE_IMPLICIT" property="intRateImplicit" jdbcType="DECIMAL" />
-        <result column="INT_RATE_REAL" property="intRateReal" jdbcType="DECIMAL" />
-        <result column="INT_RATE_TYPE" property="intRateType" jdbcType="VARCHAR" />
-        <result column="PLATE_PRICE" property="platePrice" jdbcType="DECIMAL" />
-        <result column="INSURANCE_AMOUNT" property="insuranceAmount" jdbcType="DECIMAL" />
-        <result column="MORTGAGE_FEE" property="mortgageFee" jdbcType="DECIMAL" />
-        <result column="CHARGE" property="charge" jdbcType="DECIMAL" />
-        <result column="GPS_FEE" property="gpsFee" jdbcType="DECIMAL" />
-        <result column="PARKING_FEE" property="parkingFee" jdbcType="DECIMAL" />
-        <result column="PROPERTY_FEE" property="propertyFee" jdbcType="DECIMAL" />
-        <result column="DOCUMENT_FEE" property="documentFee" jdbcType="DECIMAL" />
-        <result column="PURCHASE_TAX" property="purchaseTax" jdbcType="DECIMAL" />
-        <result column="NOTARIAL_FEE" property="notarialFee" jdbcType="DECIMAL" />
-        <result column="CREDIT_FEE" property="creditFee" jdbcType="DECIMAL" />
-        <result column="LICENSE_FEE" property="licenseFee" jdbcType="DECIMAL" />
-        <result column="OTHER_FEE_01" property="otherFee01" jdbcType="DECIMAL" />
-        <result column="OTHER_FEE_02" property="otherFee02" jdbcType="DECIMAL" />
-        <result column="OTHER_FEE_03" property="otherFee03" jdbcType="DECIMAL" />
-        <result column="OTHER_FEE_04" property="otherFee04" jdbcType="DECIMAL" />
-        <result column="OTHER_FEE_05" property="otherFee05" jdbcType="DECIMAL" />
-        <result column="TOTAL_FEE" property="totalFee" jdbcType="DECIMAL" />
-        <result column="NET_TOTAL_FEE" property="netTotalFee" jdbcType="DECIMAL" />
-        <result column="VAT_TOTAL_FEE" property="vatTotalFee" jdbcType="DECIMAL" />
-        <result column="VIOLATION_DEPOSIT" property="violationDeposit" jdbcType="DECIMAL" />
-        <result column="INSURANCE_DEPOSIT" property="insuranceDeposit" jdbcType="DECIMAL" />
-        <result column="ANNUAL_SURVEY_DEPOSIT" property="annualSurveyDeposit" jdbcType="DECIMAL" />
-        <result column="OTHER_DEPOSIT_01" property="otherDeposit01" jdbcType="DECIMAL" />
-        <result column="OTHER_DEPOSIT_02" property="otherDeposit02" jdbcType="DECIMAL" />
-        <result column="OTHER_DEPOSIT_03" property="otherDeposit03" jdbcType="DECIMAL" />
-        <result column="OTHER_DEPOSIT_04" property="otherDeposit04" jdbcType="DECIMAL" />
-        <result column="OTHER_DEPOSIT_05" property="otherDeposit05" jdbcType="DECIMAL" />
-        <result column="TOTAL_DEPOSIT" property="totalDeposit" jdbcType="DECIMAL" />
-        <result column="TOTAL_RENTAL" property="totalRental" jdbcType="DECIMAL" />
-        <result column="NET_TOTAL_RENTAL" property="netTotalRental" jdbcType="DECIMAL" />
-        <result column="VAT_TOTAL_RENTAL" property="vatTotalRental" jdbcType="DECIMAL" />
-        <result column="TOTAL_INTEREST" property="totalInterest" jdbcType="DECIMAL" />
-        <result column="NET_TOTAL_INTEREST" property="netTotalInterest" jdbcType="DECIMAL" />
-        <result column="VAT_TOTAL_INTEREST" property="vatTotalInterest" jdbcType="DECIMAL" />
-        <result column="FINANCE_INCOME" property="financeIncome" jdbcType="DECIMAL" />
-        <result column="NET_FINANCE_INCOME" property="netFinanceIncome" jdbcType="DECIMAL" />
-        <result column="VAT_FINANCE_INCOME" property="vatFinanceIncome" jdbcType="DECIMAL" />
-        <result column="RECEIVE_RENTAL" property="receiveRental" jdbcType="DECIMAL" />
-        <result column="RECEIVE_PRINCIPAL" property="receivePrincipal" jdbcType="DECIMAL" />
-        <result column="RECEIVE_INTEREST" property="receiveInterest" jdbcType="DECIMAL" />
-        <result column="DEPOSIT_BALANCE" property="depositBalance" jdbcType="DECIMAL" />
-        <result column="SUBMIT_DATE" property="submitDate" jdbcType="DATE" />
-        <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE" />
-        <result column="REFUSE_DATE" property="refuseDate" jdbcType="DATE" />
-        <result column="SIGNING_DATE" property="signingDate" jdbcType="DATE" />
-        <result column="SIGNED_DATE" property="signedDate" jdbcType="DATE" />
-        <result column="PAYMENT_DATE" property="paymentDate" jdbcType="DATE" />
-        <result column="DELIVERY_DATE" property="deliveryDate" jdbcType="DATE" />
-        <result column="INCEPT_DATE" property="inceptDate" jdbcType="DATE" />
-        <result column="FINISHED_DATE" property="finishedDate" jdbcType="DATE" />
-        <result column="START_DATE" property="startDate" jdbcType="DATE" />
-        <result column="END_DATE" property="endDate" jdbcType="DATE" />
-        <result column="OVERDUE_FLAG" property="overdueFlag" jdbcType="VARCHAR" />
-        <result column="TOTAL_OVERDUE" property="totalOverdue" jdbcType="DECIMAL" />
-        <result column="BILL_STATUS" property="billStatus" jdbcType="VARCHAR" />
-        <result column="DELIVERY_STATUS" property="deliveryStatus" jdbcType="VARCHAR" />
-        <result column="INT_RATE_PRECISION" property="intRatePrecision" jdbcType="DECIMAL" />
-        <result column="IRR" property="irr" jdbcType="DECIMAL" />
-        <result column="IRR_AFTER_TAX" property="irrAfterTax" jdbcType="DECIMAL" />
-        <result column="PMT" property="pmt" jdbcType="DECIMAL" />
-        <result column="PMT_FIRST" property="pmtFirst" jdbcType="DECIMAL" />
-        <result column="CALC_PROMPT" property="calcPrompt" jdbcType="VARCHAR" />
-        <result column="CALC_PROMPT_MSG" property="calcPromptMsg" jdbcType="VARCHAR" />
-        <result column="SOURCE_TYPE" property="sourceType" jdbcType="VARCHAR" />
-        <result column="SOURCE_ID" property="sourceId" jdbcType="DECIMAL" />
-        <result column="USER_STATUS_1" property="userStatus1" jdbcType="VARCHAR" />
-        <result column="USER_STATUS_2" property="userStatus2" jdbcType="VARCHAR" />
-        <result column="DATA_CLASS" property="dataClass" jdbcType="VARCHAR" />
-        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
-        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
-        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
-    </resultMap>
+  <resultMap id="BaseResultMap" type="com.jingrui.jrap.order.dto.Order">
+    <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL"/>
+    <result column="ORDER_CODE" property="orderCode" jdbcType="VARCHAR"/>
+    <result column="DOCUMENT_CATEGORY" property="documentCategory" jdbcType="VARCHAR"/>
+    <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR"/>
+    <result column="ORDER_STATUS" property="orderStatus" jdbcType="VARCHAR"/>
+    <result column="PRODUCT_CODE" property="productCode" jdbcType="VARCHAR"/>
+    <result column="BUSINESS_TYPE" property="businessType" jdbcType="VARCHAR"/>
+    <result column="CHANGE_ID" property="changeId" jdbcType="DECIMAL"/>
+    <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL"/>
+    <result column="ITEM_ID" property="itemId" jdbcType="DECIMAL"/>
+    <result column="AGENT_ID" property="agentId" jdbcType="DECIMAL"/>
+    <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL"/>
+    <result column="UNIT_ID" property="unitId" jdbcType="DECIMAL"/>
+    <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL"/>
+    <result column="RISK_EMPLOYEE_ID" property="riskEmployeeId" jdbcType="DECIMAL"/>
+    <result column="GUIDE_PRICE" property="guidePrice" jdbcType="DECIMAL"/>
+    <result column="EVALUATION_AMOUNT" property="evaluationAmount" jdbcType="DECIMAL"/>
+    <result column="LEASE_AMOUNT" property="leaseAmount" jdbcType="DECIMAL"/>
+    <result column="FINANCE_AMOUNT" property="financeAmount" jdbcType="DECIMAL"/>
+    <result column="CONTRACT_AMOUNT" property="contractAmount" jdbcType="DECIMAL"/>
+    <result column="NET_FINANCE_AMOUNT" property="netFinanceAmount" jdbcType="DECIMAL"/>
+    <result column="VAT_FINANCE_AMOUNT" property="vatFinanceAmount" jdbcType="DECIMAL"/>
+    <result column="DOWN_PAYMENT" property="downPayment" jdbcType="DECIMAL"/>
+    <result column="NET_DOWN_PAYMENT" property="netDownPayment" jdbcType="DECIMAL"/>
+    <result column="VAT_DOWN_PAYMENT" property="vatDownPayment" jdbcType="DECIMAL"/>
+    <result column="FINAL_PAYMENT" property="finalPayment" jdbcType="DECIMAL"/>
+    <result column="RESIDUAL_VALUE" property="residualValue" jdbcType="DECIMAL"/>
+    <result column="VAT_INPUT" property="vatInput" jdbcType="DECIMAL"/>
+    <result column="LEASE_TIMES" property="leaseTimes" jdbcType="DECIMAL"/>
+    <result column="PAY_TYPE" property="payType" jdbcType="VARCHAR"/>
+    <result column="PAY_TIMES" property="payTimes" jdbcType="DECIMAL"/>
+    <result column="ANNUAL_PAY_TIMES" property="annualPayTimes" jdbcType="DECIMAL"/>
+    <result column="LEASE_TERM" property="leaseTerm" jdbcType="DECIMAL"/>
+    <result column="BASE_RATE" property="baseRate" jdbcType="DECIMAL"/>
+    <result column="INT_RATE" property="intRate" jdbcType="DECIMAL"/>
+    <result column="INT_RATE_IMPLICIT" property="intRateImplicit" jdbcType="DECIMAL"/>
+    <result column="INT_RATE_REAL" property="intRateReal" jdbcType="DECIMAL"/>
+    <result column="INT_RATE_TYPE" property="intRateType" jdbcType="VARCHAR"/>
+    <result column="PLATE_PRICE" property="platePrice" jdbcType="DECIMAL"/>
+    <result column="INSURANCE_AMOUNT" property="insuranceAmount" jdbcType="DECIMAL"/>
+    <result column="MORTGAGE_FEE" property="mortgageFee" jdbcType="DECIMAL"/>
+    <result column="CHARGE" property="charge" jdbcType="DECIMAL"/>
+    <result column="GPS_FEE" property="gpsFee" jdbcType="DECIMAL"/>
+    <result column="PARKING_FEE" property="parkingFee" jdbcType="DECIMAL"/>
+    <result column="PROPERTY_FEE" property="propertyFee" jdbcType="DECIMAL"/>
+    <result column="DOCUMENT_FEE" property="documentFee" jdbcType="DECIMAL"/>
+    <result column="PURCHASE_TAX" property="purchaseTax" jdbcType="DECIMAL"/>
+    <result column="NOTARIAL_FEE" property="notarialFee" jdbcType="DECIMAL"/>
+    <result column="CREDIT_FEE" property="creditFee" jdbcType="DECIMAL"/>
+    <result column="LICENSE_FEE" property="licenseFee" jdbcType="DECIMAL"/>
+    <result column="OTHER_FEE_01" property="otherFee01" jdbcType="DECIMAL"/>
+    <result column="OTHER_FEE_02" property="otherFee02" jdbcType="DECIMAL"/>
+    <result column="OTHER_FEE_03" property="otherFee03" jdbcType="DECIMAL"/>
+    <result column="OTHER_FEE_04" property="otherFee04" jdbcType="DECIMAL"/>
+    <result column="OTHER_FEE_05" property="otherFee05" jdbcType="DECIMAL"/>
+    <result column="TOTAL_FEE" property="totalFee" jdbcType="DECIMAL"/>
+    <result column="NET_TOTAL_FEE" property="netTotalFee" jdbcType="DECIMAL"/>
+    <result column="VAT_TOTAL_FEE" property="vatTotalFee" jdbcType="DECIMAL"/>
+    <result column="VIOLATION_DEPOSIT" property="violationDeposit" jdbcType="DECIMAL"/>
+    <result column="INSURANCE_DEPOSIT" property="insuranceDeposit" jdbcType="DECIMAL"/>
+    <result column="ANNUAL_SURVEY_DEPOSIT" property="annualSurveyDeposit" jdbcType="DECIMAL"/>
+    <result column="OTHER_DEPOSIT_01" property="otherDeposit01" jdbcType="DECIMAL"/>
+    <result column="OTHER_DEPOSIT_02" property="otherDeposit02" jdbcType="DECIMAL"/>
+    <result column="OTHER_DEPOSIT_03" property="otherDeposit03" jdbcType="DECIMAL"/>
+    <result column="OTHER_DEPOSIT_04" property="otherDeposit04" jdbcType="DECIMAL"/>
+    <result column="OTHER_DEPOSIT_05" property="otherDeposit05" jdbcType="DECIMAL"/>
+    <result column="TOTAL_DEPOSIT" property="totalDeposit" jdbcType="DECIMAL"/>
+    <result column="TOTAL_RENTAL" property="totalRental" jdbcType="DECIMAL"/>
+    <result column="NET_TOTAL_RENTAL" property="netTotalRental" jdbcType="DECIMAL"/>
+    <result column="VAT_TOTAL_RENTAL" property="vatTotalRental" jdbcType="DECIMAL"/>
+    <result column="TOTAL_INTEREST" property="totalInterest" jdbcType="DECIMAL"/>
+    <result column="NET_TOTAL_INTEREST" property="netTotalInterest" jdbcType="DECIMAL"/>
+    <result column="VAT_TOTAL_INTEREST" property="vatTotalInterest" jdbcType="DECIMAL"/>
+    <result column="FINANCE_INCOME" property="financeIncome" jdbcType="DECIMAL"/>
+    <result column="NET_FINANCE_INCOME" property="netFinanceIncome" jdbcType="DECIMAL"/>
+    <result column="VAT_FINANCE_INCOME" property="vatFinanceIncome" jdbcType="DECIMAL"/>
+    <result column="RECEIVE_RENTAL" property="receiveRental" jdbcType="DECIMAL"/>
+    <result column="RECEIVE_PRINCIPAL" property="receivePrincipal" jdbcType="DECIMAL"/>
+    <result column="RECEIVE_INTEREST" property="receiveInterest" jdbcType="DECIMAL"/>
+    <result column="DEPOSIT_BALANCE" property="depositBalance" jdbcType="DECIMAL"/>
+    <result column="SUBMIT_DATE" property="submitDate" jdbcType="DATE"/>
+    <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE"/>
+    <result column="REFUSE_DATE" property="refuseDate" jdbcType="DATE"/>
+    <result column="SIGNING_DATE" property="signingDate" jdbcType="DATE"/>
+    <result column="SIGNED_DATE" property="signedDate" jdbcType="DATE"/>
+    <result column="PAYMENT_DATE" property="paymentDate" jdbcType="DATE"/>
+    <result column="DELIVERY_DATE" property="deliveryDate" jdbcType="DATE"/>
+    <result column="INCEPT_DATE" property="inceptDate" jdbcType="DATE"/>
+    <result column="FINISHED_DATE" property="finishedDate" jdbcType="DATE"/>
+    <result column="START_DATE" property="startDate" jdbcType="DATE"/>
+    <result column="END_DATE" property="endDate" jdbcType="DATE"/>
+    <result column="OVERDUE_FLAG" property="overdueFlag" jdbcType="VARCHAR"/>
+    <result column="TOTAL_OVERDUE" property="totalOverdue" jdbcType="DECIMAL"/>
+    <result column="BILL_STATUS" property="billStatus" jdbcType="VARCHAR"/>
+    <result column="DELIVERY_STATUS" property="deliveryStatus" jdbcType="VARCHAR"/>
+    <result column="INT_RATE_PRECISION" property="intRatePrecision" jdbcType="DECIMAL"/>
+    <result column="IRR" property="irr" jdbcType="DECIMAL"/>
+    <result column="IRR_AFTER_TAX" property="irrAfterTax" jdbcType="DECIMAL"/>
+    <result column="PMT" property="pmt" jdbcType="DECIMAL"/>
+    <result column="PMT_FIRST" property="pmtFirst" jdbcType="DECIMAL"/>
+    <result column="CALC_PROMPT" property="calcPrompt" jdbcType="VARCHAR"/>
+    <result column="CALC_PROMPT_MSG" property="calcPromptMsg" jdbcType="VARCHAR"/>
+    <result column="SOURCE_TYPE" property="sourceType" jdbcType="VARCHAR"/>
+    <result column="SOURCE_ID" property="sourceId" jdbcType="DECIMAL"/>
+    <result column="USER_STATUS_1" property="userStatus1" jdbcType="VARCHAR"/>
+    <result column="USER_STATUS_2" property="userStatus2" jdbcType="VARCHAR"/>
+    <result column="DATA_CLASS" property="dataClass" jdbcType="VARCHAR"/>
+    <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+    <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL"/>
+    <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE"/>
+  </resultMap>
+  <select id="selectOrder" resultMap="BaseResultMap"
+    parameterType="com.jingrui.jrap.order.dto.Order">
+    SELECT REQUEST_ID,
+    od.PROGRAM_ID,
+    od.OBJECT_VERSION_NUMBER,
+    od.CREATED_BY,
+    od.CREATION_DATE,
+    od.LAST_UPDATED_BY,
+    od.LAST_UPDATE_DATE,
+    od.LAST_UPDATE_LOGIN,
+    od.ORDER_ID,
+    od.ORDER_CODE,
+    od.DOCUMENT_CATEGORY,
+    od.DOCUMENT_TYPE,
+    od.ORDER_STATUS,
+    od.PRODUCT_CODE,
+    od.BUSINESS_TYPE,
+    od.CHANGE_ID,
+    od.CUSTOMER_ID,
+    od.ITEM_ID,
+    od.AGENT_ID,
+    od.COMPANY_ID,
+    od.UNIT_ID,
+    od.EMPLOYEE_ID,
+    od.RISK_EMPLOYEE_ID,
+    od.GUIDE_PRICE,
+    od.EVALUATION_AMOUNT,
+    od.LEASE_AMOUNT,
+    od.FINANCE_AMOUNT,
+    od.CONTRACT_AMOUNT,
+    od.NET_FINANCE_AMOUNT,
+    od.VAT_FINANCE_AMOUNT,
+    od.DOWN_PAYMENT,
+    od.NET_DOWN_PAYMENT,
+    od.VAT_DOWN_PAYMENT,
+    od.FINAL_PAYMENT,
+    od.RESIDUAL_VALUE,
+    od.VAT_INPUT,
+    od.LEASE_TIMES,
+    od.PAY_TYPE,
+    od.PAY_TIMES,
+    od.ANNUAL_PAY_TIMES,
+    od.LEASE_TERM,
+    od.BASE_RATE,
+    od.INT_RATE,
+    od.INT_RATE_IMPLICIT,
+    od.INT_RATE_REAL,
+    od.INT_RATE_TYPE,
+    od.PLATE_PRICE,
+    od.INSURANCE_AMOUNT,
+    od.MORTGAGE_FEE,
+    od.CHARGE,
+    od.GPS_FEE,
+    od.PARKING_FEE,
+    od.PROPERTY_FEE,
+    od.DOCUMENT_FEE,
+    od.PURCHASE_TAX,
+    od.NOTARIAL_FEE,
+    od.CREDIT_FEE,
+    od.LICENSE_FEE,
+    od.OTHER_FEE_01,
+    od.OTHER_FEE_02,
+    od.OTHER_FEE_03,
+    od.OTHER_FEE_04,
+    od.OTHER_FEE_05,
+    od.TOTAL_FEE,
+    od.NET_TOTAL_FEE,
+    od.VAT_TOTAL_FEE,
+    od.VIOLATION_DEPOSIT,
+    od.INSURANCE_DEPOSIT,
+    od.ANNUAL_SURVEY_DEPOSIT,
+    od.OTHER_DEPOSIT_01,
+    od.OTHER_DEPOSIT_02,
+    od.OTHER_DEPOSIT_03,
+    od.OTHER_DEPOSIT_04,
+    od.OTHER_DEPOSIT_05,
+    od.TOTAL_DEPOSIT,
+    od.TOTAL_RENTAL,
+    od.NET_TOTAL_RENTAL,
+    od.VAT_TOTAL_RENTAL,
+    od.TOTAL_INTEREST,
+    od.NET_TOTAL_INTEREST,
+    od.VAT_TOTAL_INTEREST,
+    od.FINANCE_INCOME,
+    od.NET_FINANCE_INCOME,
+    od.VAT_FINANCE_INCOME,
+    od.RECEIVE_RENTAL,
+    od.RECEIVE_PRINCIPAL,
+    od.RECEIVE_INTEREST,
+    od.DEPOSIT_BALANCE,
+    od.SUBMIT_DATE,
+    od.APPROVED_DATE,
+    od.REFUSE_DATE,
+    od.SIGNING_DATE,
+    od.SIGNED_DATE,
+    od.PAYMENT_DATE,
+    od.DELIVERY_DATE,
+    od.INCEPT_DATE,
+    od.FINISHED_DATE,
+    od.START_DATE,
+    od.END_DATE,
+    od.OVERDUE_FLAG,
+    od.TOTAL_OVERDUE,
+    od.BILL_STATUS,
+    od.DELIVERY_STATUS,
+    od.INT_RATE_PRECISION,
+    od.IRR,
+    od.IRR_AFTER_TAX,
+    od.PMT,
+    od.PMT_FIRST,
+    od.CALC_PROMPT,
+    od.CALC_PROMPT_MSG,
+    od.SOURCE_TYPE,
+    od.SOURCE_ID,
+    od.USER_STATUS_1,
+    od.USER_STATUS_2,
+    od.DATA_CLASS
+    FROM
+    con_order od
+    <where>
+      <if test="orderId !=null ">
+        AND od.ORDER_ID = #{orderId}
+      </if>
+      <if test="orderCode !=null ">
+        AND od.ORDER_CODE = #{orderCode}
+      </if>
+      <if test="businessType !=null ">
+        AND od.BUSINESS_TYPE LIKE CONCAT('%', CONCAT(#{businessType,jdbcType=VARCHAR}, '%'))
+      </if>
+      <if test="payType != null">
+        AND od.PAY_TYPE LIKE CONCAT('%', CONCAT(#{payType,jdbcType=VARCHAR}, '%'))
+      </if>
+      <if test="intRateType !=null ">
+        AND od.INT_RATE_TYPE LIKE CONCAT('%', CONCAT(#{intRateType,jdbcType=VARCHAR}, '%'))
+      </if>
+      <if test="sourceType !=null ">
+        AND od.SOURCE_TYPE LIKE CONCAT('%', CONCAT(#{sourceType,jdbcType=VARCHAR}, '%'))
+      </if>
+    </where>
+    ORDER BY od.order_Id ASC
+  </select>
 
 
 </mapper>

@@ -1,41 +1,47 @@
 <#include "../include/header.html">
+<script src="${base.contextPath}/common/code?businessTypeData=BUSINESS.TYPE"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?orderStatusData=ORDER.STATUS"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?orderLestData=ORDER.LEASETIMES"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?orderAnnuPtData=ORDER.ANNUALPAYTIMES"
+        type="text/javascript"></script>
 <script type="text/javascript">
   var viewModel = Jrap.createGridViewModel("#grid");
 </script>
+<style>
+  .k-textbox.k-combobox .k-icon.k-i-close {
+    top: 22px !important;
+  }
+</style>
 <body>
-<div id="newWin" style="display: none"></div>
+<div id="orderedit" style="display: none"></div>
 <div id="page-content">
   <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
-    <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"
-          onclick="newData()"><@spring.message "jrap.new"/></span>
-    <span class="btn btn-success k-grid-save-changes" data-bind="click:save"
-          style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
     <span data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
   </div>
   <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
   <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-    <!--  <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Order.orderCode"/>'
-             data-bind="value:model.orderCode" class="k-textbox">
-      <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Order.documentType"/>'
-             data-bind="value:model.documentType" class="k-textbox">
-      <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Order.productCode"/>'
-             data-bind="value:model.productCode" class="k-textbox">-->
     <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+           placeholder='<@spring.message "order.ordercode"/>'
+           data-bind="value:model.orderCode" class="k-textbox">
+    <input type="text" id="bussinesstype" data-role="maskedtextbox"
+           style="float:left;width:150px;margin-right:5px;"
            placeholder='<@spring.message "Order.businessType"/>'
-           data-bind="value:model.businessType" class="k-textbox">
-    <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
-           placeholder='<@spring.message "Order.payType"/>'
-           data-bind="value:model.payType" class="k-textbox">
-    <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
-           placeholder='<@spring.message "Order.intRateType"/>'
-           data-bind="value:model.intRateType" class="k-textbox">
-    <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
-           placeholder='<@spring.message "Order.sourceType"/>'
-           data-bind="value:model.sourceType" class="k-textbox">
+           data-bind="value:model.businessType">
     <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query"
           type="submit"><@spring.message "jrap.query"/></span>
     <div style="clear:both"></div>
   </div>
+  <script>
+    $("#bussinesstype").kendoComboBox({
+      dataTextField: "meaning",
+      dataValueField: "value",
+      valuePrimitive: true,
+      dataSource: businessTypeData
+    });
+  </script>
   <script>kendo.bind($('#query-form'), viewModel);</script>
   <div style="clear:both">
     <div id="grid"></div>
@@ -44,6 +50,67 @@
 
 <script type="text/javascript">
   Jrap.initEnterQuery('#query-form', viewModel.query);
+  // 数据源
+  var customerData = [];
+  var itemData = [];
+  var unitData = [];
+  var employeeData = [];
+  var productData = [];
+  $.ajax({
+    url: '${base.contextPath}/afd/customer/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      customerData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/afd/item/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      itemData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/hr/unit/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      unitData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/hr/employee/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      employeeData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/pro/product/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      productData = data.rows;
+    }
+  });
+
   var BaseUrl = _basePath;
   dataSource = new kendo.data.DataSource({
     transport: {
@@ -107,17 +174,13 @@
     },
     columns: [
       {
-        field: "orderId",
-        title: '<@spring.message "order.orderid"/>',
-        width: 120
-      },
-      {
         field: "orderCode",
         title: '<@spring.message "order.ordercode"/>',
-        width: 120,
+        width: 150,
         template: function (rowdata) {
-          if (rowdata.orderId) {
-            return Jrap.createAnchor(rowdata.orderCode, newData, rowdata.orderId);
+          if (rowdata.orderId && rowdata.customerId && rowdata.itemId) {
+            return Jrap.createAnchor(rowdata.orderCode, newData, rowdata.orderId,
+                rowdata.customerId, rowdata.itemId);
           }
           return '';
         },
@@ -128,69 +191,110 @@
         attributes: {style: "text-align:center"}
       },
       {
-        field: "documentCategory",
-        title: '<@spring.message "order.documentcategory"/>',
-        width: 120
-      },
-      {
-        field: "documentType",
-        title: '<@spring.message "order.documenttype"/>',
-        width: 120
-      },
-      {
-        field: "orderStatus",
-        title: '<@spring.message "order.orderstatus"/>',
-        width: 120
+        field: "customerId",
+        title: '<@spring.message "order.customerid"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.customerId ? dataItem.customerId : "";
+          $.each(customerData, function (i, n) {
+            if ((n.customerId || '') == (v || '')) {
+              v = n.customerName;
+              return v;
+            }
+          });
+          return v;
+        },
       },
       {
         field: "productCode",
         title: '<@spring.message "order.productcode"/>',
-        width: 120
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.productCode ? dataItem.productCode : "";
+          $.each(productData, function (i, n) {
+            if ((n.productCode || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.productName;
+              return v;
+            }
+          });
+          return v;
+        },
       },
-      {
-        field: "businessType",
-        title: '<@spring.message "order.businesstype"/>',
-        width: 120
-      },
-      {
-        field: "changeId",
-        title: '<@spring.message "order.changeid"/>',
-        width: 120
-      },
-      {
-        field: "customerId",
-        title: '<@spring.message "order.customerid"/>',
-        width: 120
-      },
+
       {
         field: "itemId",
         title: '<@spring.message "order.itemid"/>',
-        width: 120
+        width: 140,
+        template: function (dataItem) {
+          var v = dataItem.itemId ? dataItem.itemId : "";
+          $.each(itemData, function (i, n) {
+            if ((n.itemId || '') == (v || '')) {
+              v = n.itemCode;
+              return v;
+            }
+          });
+          return v;
+        },
       },
       {
         field: "agentId",
         title: '<@spring.message "order.agentid"/>',
-        width: 120
-      },
-      {
-        field: "companyId",
-        title: '<@spring.message "order.companyid"/>',
-        width: 120
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.agentId ? dataItem.agentId : "";
+          $.each(customerData, function (i, n) {
+            if ((n.customerId || '') == (v || '')) {
+              v = n.customerName;
+              return v;
+            }
+          });
+          return v;
+        },
       },
       {
         field: "unitId",
         title: '<@spring.message "order.unitid"/>',
-        width: 120
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.unitId ? dataItem.unitId : "";
+          $.each(unitData, function (i, n) {
+            if ((n.unitId || '') == (v || '')) {
+              v = n.description;
+              return v;
+            }
+          });
+          return v;
+        },
       },
       {
         field: "employeeId",
         title: '<@spring.message "order.employeeid"/>',
-        width: 120
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.employeeId ? dataItem.employeeId : "";
+          $.each(employeeData, function (i, n) {
+            if ((n.employeeId || '') == (v || '')) {
+              v = n.name;
+              return v;
+            }
+          });
+          return v;
+        },
       },
       {
-        field: "riskEmployeeId",
-        title: '<@spring.message "order.riskemployeeid"/>',
-        width: 120
+        field: "businessType",
+        title: '<@spring.message "order.businesstype"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.businessType;
+          $.each(businessTypeData, function (i, n) {
+            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        }
       },
       {
         field: "guidePrice",
@@ -208,38 +312,8 @@
         width: 120
       },
       {
-        field: "financeAmount",
-        title: '<@spring.message "order.financeamount"/>',
-        width: 120
-      },
-      {
-        field: "contractAmount",
-        title: '<@spring.message "order.contractamount"/>',
-        width: 120
-      },
-      {
-        field: "netFinanceAmount",
-        title: '<@spring.message "order.netfinanceamount"/>',
-        width: 120
-      },
-      {
-        field: "vatFinanceAmount",
-        title: '<@spring.message "order.vatfinanceamount"/>',
-        width: 120
-      },
-      {
         field: "downPayment",
         title: '<@spring.message "order.downpayment"/>',
-        width: 120
-      },
-      {
-        field: "netDownPayment",
-        title: '<@spring.message "order.netdownpayment"/>',
-        width: 120
-      },
-      {
-        field: "vatDownPayment",
-        title: '<@spring.message "order.vatdownpayment"/>',
         width: 120
       },
       {
@@ -253,19 +327,20 @@
         width: 120
       },
       {
-        field: "vatInput",
-        title: '<@spring.message "order.vatinput"/>',
-        width: 120
-      },
-      {
         field: "leaseTimes",
         title: '<@spring.message "order.leasetimes"/>',
-        width: 120
-      },
-      {
-        field: "payType",
-        title: '<@spring.message "order.paytype"/>',
-        width: 120
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.leaseTimes;
+          $.each(orderLestData, function (i, n) {
+            if ((n.value || '') == (v || '')) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        }
+
       },
       {
         field: "payTimes",
@@ -275,7 +350,17 @@
       {
         field: "annualPayTimes",
         title: '<@spring.message "order.annualpaytimes"/>',
-        width: 120
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.annualPayTimes;
+          $.each(orderAnnuPtData, function (i, n) {
+            if ((n.value || '') == (v || '')) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        }
       },
       {
         field: "leaseTerm",
@@ -283,30 +368,11 @@
         width: 120
       },
       {
-        field: "baseRate",
-        title: '<@spring.message "order.baserate"/>',
-        width: 120
-      },
-      {
         field: "intRate",
         title: '<@spring.message "order.intrate"/>',
         width: 120
       },
-      {
-        field: "intRateImplicit",
-        title: '<@spring.message "order.intrateimplicit"/>',
-        width: 120
-      },
-      {
-        field: "intRateReal",
-        title: '<@spring.message "order.intratereal"/>',
-        width: 120
-      },
-      {
-        field: "intRateType",
-        title: '<@spring.message "order.intratetype"/>',
-        width: 120
-      },
+
       {
         field: "platePrice",
         title: '<@spring.message "order.plateprice"/>',
@@ -367,46 +433,13 @@
         title: '<@spring.message "order.licensefee"/>',
         width: 120
       },
-      {
-        field: "otherFee01",
-        title: '<@spring.message "order.otherfee01"/>',
-        width: 120
-      },
-      {
-        field: "otherFee02",
-        title: '<@spring.message "order.otherfee02"/>',
-        width: 120
-      },
-      {
-        field: "otherFee03",
-        title: '<@spring.message "order.otherfee03"/>',
-        width: 120
-      },
-      {
-        field: "otherFee04",
-        title: '<@spring.message "order.otherfee04"/>',
-        width: 120
-      },
-      {
-        field: "otherFee05",
-        title: '<@spring.message "order.otherfee05"/>',
-        width: 120
-      },
+
       {
         field: "totalFee",
         title: '<@spring.message "order.totalfee"/>',
         width: 120
       },
-      {
-        field: "netTotalFee",
-        title: '<@spring.message "order.nettotalfee"/>',
-        width: 120
-      },
-      {
-        field: "vatTotalFee",
-        title: '<@spring.message "order.vattotalfee"/>',
-        width: 120
-      },
+
       {
         field: "violationDeposit",
         title: '<@spring.message "order.violationdeposit"/>',
@@ -422,31 +455,7 @@
         title: '<@spring.message "order.annualsurveydeposit"/>',
         width: 120
       },
-      {
-        field: "otherDeposit01",
-        title: '<@spring.message "order.otherdeposit01"/>',
-        width: 120
-      },
-      {
-        field: "otherDeposit02",
-        title: '<@spring.message "order.otherdeposit02"/>',
-        width: 120
-      },
-      {
-        field: "otherDeposit03",
-        title: '<@spring.message "order.otherdeposit03"/>',
-        width: 120
-      },
-      {
-        field: "otherDeposit04",
-        title: '<@spring.message "order.otherdeposit04"/>',
-        width: 120
-      },
-      {
-        field: "otherDeposit05",
-        title: '<@spring.message "order.otherdeposit05"/>',
-        width: 120
-      },
+
       {
         field: "totalDeposit",
         title: '<@spring.message "order.totaldeposit"/>',
@@ -457,240 +466,49 @@
         title: '<@spring.message "order.totalrental"/>',
         width: 120
       },
-      {
-        field: "netTotalRental",
-        title: '<@spring.message "order.nettotalrental"/>',
-        width: 120
-      },
-      {
-        field: "vatTotalRental",
-        title: '<@spring.message "order.vattotalrental"/>',
-        width: 120
-      },
-      {
-        field: "totalInterest",
-        title: '<@spring.message "order.totalinterest"/>',
-        width: 120
-      },
-      {
-        field: "netTotalInterest",
-        title: '<@spring.message "order.nettotalinterest"/>',
-        width: 120
-      },
-      {
-        field: "vatTotalInterest",
-        title: '<@spring.message "order.vattotalinterest"/>',
-        width: 120
-      },
-      {
-        field: "financeIncome",
-        title: '<@spring.message "order.financeincome"/>',
-        width: 120
-      },
-      {
-        field: "netFinanceIncome",
-        title: '<@spring.message "order.netfinanceincome"/>',
-        width: 120
-      },
-      {
-        field: "vatFinanceIncome",
-        title: '<@spring.message "order.vatfinanceincome"/>',
-        width: 120
-      },
-      {
-        field: "receiveRental",
-        title: '<@spring.message "order.receiverental"/>',
-        width: 120
-      },
-      {
-        field: "receivePrincipal",
-        title: '<@spring.message "order.receiveprincipal"/>',
-        width: 120
-      },
-      {
-        field: "receiveInterest",
-        title: '<@spring.message "order.receiveinterest"/>',
-        width: 120
-      },
-      {
-        field: "depositBalance",
-        title: '<@spring.message "order.depositbalance"/>',
-        width: 120
-      },
-      {
-        field: "submitDate",
-        title: '<@spring.message "order.submitdate"/>',
-        width: 120
-      },
-      {
-        field: "approvedDate",
-        title: '<@spring.message "order.approveddate"/>',
-        width: 120
-      },
-      {
-        field: "refuseDate",
-        title: '<@spring.message "order.refusedate"/>',
-        width: 120
-      },
-      {
-        field: "signingDate",
-        title: '<@spring.message "order.signingdate"/>',
-        width: 120
-      },
-      {
-        field: "signedDate",
-        title: '<@spring.message "order.signeddate"/>',
-        width: 120
-      },
-      {
-        field: "paymentDate",
-        title: '<@spring.message "order.paymentdate"/>',
-        width: 120
-      },
-      {
-        field: "deliveryDate",
-        title: '<@spring.message "order.deliverydate"/>',
-        width: 120
-      },
-      {
-        field: "inceptDate",
-        title: '<@spring.message "order.inceptdate"/>',
-        width: 120
-      },
-      {
-        field: "finishedDate",
-        title: '<@spring.message "order.finisheddate"/>',
-        width: 120
-      },
+
       {
         field: "startDate",
         title: '<@spring.message "order.startdate"/>',
         width: 120
       },
+
       {
-        field: "endDate",
-        title: '<@spring.message "order.enddate"/>',
-        width: 120
-      },
-      {
-        field: "overdueFlag",
-        title: '<@spring.message "order.overdueflag"/>',
-        width: 120
-      },
-      {
-        field: "totalOverdue",
-        title: '<@spring.message "order.totaloverdue"/>',
-        width: 120
-      },
-      {
-        field: "billStatus",
-        title: '<@spring.message "order.billstatus"/>',
-        width: 120
-      },
-      {
-        field: "deliveryStatus",
-        title: '<@spring.message "order.deliverystatus"/>',
-        width: 120
-      },
-      {
-        field: "intRatePrecision",
-        title: '<@spring.message "order.intrateprecision"/>',
-        width: 120
-      },
-      {
-        field: "irr",
-        title: '<@spring.message "order.irr"/>',
-        width: 120
-      },
-      {
-        field: "irrAfterTax",
-        title: '<@spring.message "order.irraftertax"/>',
-        width: 120
-      },
-      {
-        field: "pmt",
-        title: '<@spring.message "order.pmt"/>',
-        width: 120
-      },
-      {
-        field: "pmtFirst",
-        title: '<@spring.message "order.pmtfirst"/>',
-        width: 120
-      },
-      {
-        field: "calcPrompt",
-        title: '<@spring.message "order.calcprompt"/>',
-        width: 120
-      },
-      {
-        field: "calcPromptMsg",
-        title: '<@spring.message "order.calcpromptmsg"/>',
-        width: 120
-      },
-      {
-        field: "sourceType",
-        title: '<@spring.message "order.sourcetype"/>',
-        width: 120
-      },
-      {
-        field: "sourceId",
-        title: '<@spring.message "order.sourceid"/>',
-        width: 120
-      },
-      {
-        field: "userStatus1",
-        title: '<@spring.message "order.userstatus1"/>',
-        width: 120
-      },
-      {
-        field: "userStatus2",
-        title: '<@spring.message "order.userstatus2"/>',
-        width: 120
-      },
-      {
-        field: "dataClass",
-        title: '<@spring.message "order.dataclass"/>',
-        width: 120
-      },
-      {
-        field: "remark",
-        title: '<@spring.message "order.remark"/>',
-        width: 120
-      },
-      {
-        field: "programApplicationId",
-        title: '<@spring.message "order.programapplicationid"/>',
-        width: 120
-      },
-      {
-        field: "programUpdateDate",
-        title: '<@spring.message "order.programupdatedate"/>',
-        width: 120
+        field: "orderStatus",
+        title: '<@spring.message "order.orderstatus"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.orderStatus;
+          $.each(orderStatusData, function (i, n) {
+            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        }
       },
     ],
-    editable: true
+    editable: false
   });
 
-  //联系人信息编辑页面
-  function newData(orderId, status) {
-    var url = "${base.contextPath}/order/order_create.html?isedit=0";
-    if (orderId) {
-      url = "${base.contextPath}/order/order_create.html?isedit=1&orderId=" + orderId;
-    }
-
-    Jrap.createWindow('#newWin', {
+  //订单编辑页面
+  function newData(orderId, customerId, itemId) {
+    url = "${base.contextPath}/order/order_edit.html?isedit=1&orderId=" + orderId + '&customerId='
+        + customerId + '&itemId=' + itemId;
+    Jrap.createWindow('#orderedit', {
       width: 600,
       height: 400,
-      title: '订单创建',
+      title: '订单编辑',
       url: url
     })
     if (parent.autoResizeIframe) {
       parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
-        var win = $("#newWin").data("kendoWindow");
+        var win = $("#orderedit").data("kendoWindow");
         win.center().maximize().open();
       })
     } else {
-      var win = $("#newWin").data("kendoWindow");
+      var win = $("#orderedit").data("kendoWindow");
       win.center().maximize().open();
     }
 

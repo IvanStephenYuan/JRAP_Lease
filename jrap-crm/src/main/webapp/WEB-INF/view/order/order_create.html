@@ -10,7 +10,7 @@
   var productData = [];
   var venderData = [];
   $.ajax({
-    url: '${base.contextPath}/hr/unit/query',
+    url: '${base.contextPath}/hr/unit/query?unitType=' + "ORG",
     type: "POST",
     dataType: "json",
     async: false,
@@ -104,7 +104,7 @@
             <script>
               $("#agentId").kendoComboBox({
                 dataTextField: "customerName",
-                dataValueField: "agentId",
+                dataValueField: "customerId",
                 valuePrimitive: true,
                 dataSource: venderData,
                 select: function (e) {
@@ -206,23 +206,46 @@
   </div>
 </div>
 </div>
-<div id = "orderedit">
+<div id="orderedit"/>
 <script type="text/javascript">
   function confirm() {
-    var win = $("#orderedit").kendoWindow({
-      actions: ["Close"],
-      title: '订单编辑',
-      visible: false,
-      modal: true,
-      width: 900,
-      height: 400,
-      iframe: true,
-      content: '${base.contextPath}/order/order_edit.html',
-      close: function (e) {
-      }
-    }).data("kendoWindow");
-    //window.parent.$("#newWin").data("kendoWindow").close();
-    win.center().maximize().open();
+    var orderData = new Array(6);
+    var uid = newViewModel.model.unitId;
+    var eid = newViewModel.model.employeeId;
+    var aid = newViewModel.model.agentId;
+    var ccs = newViewModel.model.customerClass;
+    var btp = newViewModel.model.businessType;
+    var pdc = newViewModel.model.productCode;
+    if (uid != undefined && eid != undefined && aid != undefined && ccs != undefined && btp
+        != undefined && pdc != undefined) {
+      orderData[0] = uid;
+      orderData[1] = eid;
+      orderData[2] = aid;
+      orderData[3] = ccs;
+      orderData[4] = btp;
+      orderData[5] = pdc;
+      var win = $("#orderedit").kendoWindow({
+        actions: ["Close"],
+        title: '订单编辑',
+        visible: false,
+        modal: true,
+        width: 900,
+        height: 400,
+        iframe: true,
+        content: '${base.contextPath}/order/order_edit.html?isedit=0&orderData=' + orderData,
+        close: function (e) {
+        }
+      }).data("kendoWindow");
+      win.center().maximize().open();
+    } else {
+      kendo.ui.showInfoDialog({
+        title: "提示",
+        message: "请输入必填项",
+        iconClass: "fa fa-times-circle", // 提示图标
+        dialogClass: "k-dialog-error" // 图标类型
+      })
+
+    }
   }
 </script>
 </body>

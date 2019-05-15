@@ -1,5 +1,7 @@
 package com.jingrui.jrap.order.controllers;
 
+import com.jingrui.jrap.change.dto.Change;
+import com.jingrui.jrap.change.service.IChangeService;
 import com.jingrui.jrap.code.rule.exception.CodeRuleException;
 import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import com.jingrui.jrap.customer.dto.Customer;
@@ -7,6 +9,7 @@ import com.jingrui.jrap.customer.service.ICustomerService;
 import com.jingrui.jrap.item.dto.Item;
 import com.jingrui.jrap.item.service.IItemService;
 import com.jingrui.jrap.mybatis.util.StringUtil;
+import com.jingrui.jrap.order.mapper.OrderMapper;
 import com.jingrui.jrap.product.service.IDocumentTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +38,8 @@ public class OrderController extends BaseController {
   private static final String CUSTOMER_RULE_CODE = "CUSTOMER";
   private static final String CAR_RULE_CODE = "CAR";
   private static final String ORDER_RULE_CODE = "ORDER";
+  private static final String ORDER_DOCUMENT_CATEGORY = "ORDER";
+  private static final String ORDER_DOCUMENT_TYPE = "ORDER";
 
 
   @Autowired
@@ -51,6 +56,10 @@ public class OrderController extends BaseController {
 
   @Autowired
   private IItemService itemService;
+  @Autowired
+  private IChangeService changeService;
+  @Autowired
+  private OrderMapper orderMapper;
 
 
   @RequestMapping(value = "/con/order/query")
@@ -58,21 +67,20 @@ public class OrderController extends BaseController {
   public ResponseData query(Order dto, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
       @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize, HttpServletRequest request) {
     IRequest requestContext = createRequestContext(request);
-    return new ResponseData(service.select(requestContext, dto, page, pageSize));
+    return new ResponseData(orderMapper.selectOrder(dto));
   }
 
   @RequestMapping(value = "/con/order/submit")
   @ResponseBody
   @ApiOperation(value = "录入订单信息", notes = "通用订单接口", httpMethod = "POST", response = Order.class)
-  public ResponseData update(@RequestBody Map tolmapparam, BindingResult result,
-      HttpServletRequest request) {
+  public ResponseData update(@RequestBody Map tolmapparam, HttpServletRequest request) {
     IRequest requestCtx = createRequestContext(request);
     //订单信息的集合
-    List<Map> orederMap = (List<Map>) tolmapparam.get("order");
+    Map order = (Map) tolmapparam.get("order");
     //客户信息的集合
-    List<Map> customerMap = (List<Map>) tolmapparam.get("customer");
+    Map cm = (Map) tolmapparam.get("customer");
     //租赁物信息的集合
-    List<Map> itemMap = (List<Map>) tolmapparam.get("item");
+    Map item = (Map) tolmapparam.get("item");
     //定义客户对象的集合
     List<Customer> listcustomer = new ArrayList<>();
     //定义租赁物对象的集合
@@ -80,120 +88,139 @@ public class OrderController extends BaseController {
     //定义订单的集合
     List<Order> listorder = new ArrayList<>();
     //先进行客户信息的插入
-    for (Map cm : customerMap) {
-      String customerCode = cm.get("customerCode").toString();
-      Long employeeId = Long.parseLong(cm.get("employeeId").toString());
-      String customerCategory = cm.get("customerCategory").toString();
-      String customerType = cm.get("customerType").toString();
-      String customerSource = cm.get("customerSource").toString();
-      Long companyId = Long.parseLong(cm.get("companyId").toString());
-      if (customerCode == null || "".equalsIgnoreCase(customerCode)) {
-        try {
-          if (StringUtil.isNotEmpty(customerCategory) && StringUtil.isNotEmpty(customerType)) {
-            String ruleCode = documentTypeService
-                .getDocumentCodeRule(customerCategory, customerType);
-            if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
-              ruleCode = OrderController.CUSTOMER_RULE_CODE;
-            }
-            customerCode = codeRuleProcessService.getRuleCode(ruleCode);
-            cm.put("customerCode", customerCode);
-          }
-        } catch (CodeRuleException e) {
-          e.printStackTrace();
+    Object customerCode = cm.get("customerCode");
+    Object employeeId = cm.get("employeeId");
+    Object companyId = cm.get("companyId");
+    Object customerCategory = cm.get("customerCategory");
+    Object customerType = cm.get("customerType");
+    Object customerSource = cm.get("customerSource");
+    //将状态接收
+    String cstatus = cm.get("__status").toString();
+    String ostatus = order.get("__status").toString();
+    String istatus = item.get("__status").toString();
+    if (customerCode == null) {
+      try {
+        String ruleCode = null;
+        if (customerCategory != null && customerType != null) {
+          ruleCode = documentTypeService
+              .getDocumentCodeRule(customerCategory.toString(), customerType.toString());
         }
+        if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
+          ruleCode = OrderController.CUSTOMER_RULE_CODE;
+        }
+        customerCode = codeRuleProcessService.getRuleCode(ruleCode);
+        cm.put("customerCode", customerCode);
+
+      } catch (CodeRuleException e) {
+        e.printStackTrace();
       }
-      //设置默认商户
-      if (companyId == null) {
-        companyId = requestCtx.getCompanyId();
-        cm.put("companyId", companyId);
-      }
-      //设置默认业务员
-      if (employeeId == null) {
-        employeeId = requestCtx.getEmployeeId();
-        cm.put("employeeId", employeeId);
-      }
-      //设置客户来源
-      if (customerSource == null) {
-        customerSource = "MANUAL";
-        cm.put("customerSource", customerSource);
-      }
-      // 将map转为Customer对象
-      Customer Customer = JSON.parseObject(JSON.toJSONString(cm), Customer.class);
-      //将对象放在集合中
-      listcustomer.add(Customer);
     }
+    //设置默认商户
+    if (companyId == null) {
+      companyId = requestCtx.getCompanyId();
+      cm.put("companyId", companyId);
+    }
+    //设置默认业务员
+    if (employeeId == null) {
+      employeeId = requestCtx.getEmployeeId();
+      cm.put("employeeId", employeeId);
+    }
+    //设置客户来源
+    if (customerSource == null) {
+      customerSource = "MANUAL";
+      cm.put("customerSource", customerSource);
+    }
+    // 将map转为Customer对象
+    Customer customer = JSON.parseObject(JSON.toJSONString(cm), Customer.class);
+    customer.set__status(cstatus);
+    //将对象放在集合中
+    listcustomer.add(customer);
     //客户插入返回结果
     List<Customer> resultcustomer = customerService.batchUpdate(requestCtx, listcustomer);
     //租赁物的保存
-    for (Map item : itemMap) {
-      String companyId = item.get("companyId").toString();
-      String itemCode = item.get("itemCode").toString();
-      String documentCategory = item.get("documentCategory").toString();
-      String documentType = item.get("documentType").toString();
-      //设置租赁物编码
-      if (itemCode == null || "".equalsIgnoreCase(itemCode)) {
-        try {
-          String ruleCode = documentTypeService.getDocumentCodeRule(documentCategory, documentType);
-          if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
-            ruleCode = OrderController.CAR_RULE_CODE;
-          }
-          String carCode = codeRuleProcessService.getRuleCode(ruleCode);
-          item.put("itemCode", carCode);
-        } catch (CodeRuleException e) {
-          e.printStackTrace();
+    Object icompanyId = item.get("companyId");
+    Object itemCode = item.get("itemCode");
+    Object documentCategory = item.get("documentCategory");
+    Object documentType = item.get("documentType");
+    //设置租赁物编码
+    if (itemCode == null) {
+      try {
+        String ruleCode = null;
+        if (documentCategory != null && documentType != null) {
+          ruleCode = documentTypeService
+              .getDocumentCodeRule(documentCategory.toString(), documentType.toString());
         }
+        if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
+          ruleCode = OrderController.CAR_RULE_CODE;
+        }
+        String carCode = codeRuleProcessService.getRuleCode(ruleCode);
+        item.put("itemCode", carCode);
+      } catch (CodeRuleException e) {
+        e.printStackTrace();
       }
-      if (StringUtil.isNotEmpty(companyId)) {
-        item.put("companyId", requestCtx.getCompanyId());
-      }
-      //将map转换成item对象
-      Item ritem = JSON.parseObject(JSON.toJSONString(item), Item.class);
-      listitem.add(ritem);
     }
+    if (icompanyId != null) {
+      item.put("companyId", requestCtx.getCompanyId());
+    }
+    //将map转换成item对象
+    Item ritem = JSON.parseObject(JSON.toJSONString(item), Item.class);
+    ritem.set__status(istatus);
+    listitem.add(ritem);
     //返回租赁物插入结果
     List<Item> resultitem = itemService.batchUpdate(requestCtx, listitem);
     for (Customer csm : resultcustomer) {
       //循环遍历订单的集合
-      for (Map order : orederMap) {
-        for (Map imap : itemMap) {
-          order.put("customerId", imap.get("customerId"));
-          order.put("itemId", imap.get("itemId"));
-          String orderCode = order.get("orderCode").toString();
-          Long employeeId = Long.parseLong(order.get("employeeId").toString());
-          String documentCategory = order.get("documentCategory").toString();
-          String documentType = order.get("documentType").toString();
-          Long companyId = Long.parseLong(order.get("companyId").toString());
-          if (orderCode == null || "".equalsIgnoreCase(orderCode)) {
-            try {
-              if (StringUtil.isNotEmpty(documentCategory) && StringUtil.isNotEmpty(documentType)) {
-                String ruleCode = documentTypeService
-                    .getDocumentCodeRule(documentCategory, documentType);
-                if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
-                  ruleCode = OrderController.ORDER_RULE_CODE;
-                }
-                orderCode = codeRuleProcessService.getRuleCode(ruleCode);
-                order.put("orderCode", orderCode);
-              }
-            } catch (CodeRuleException e) {
-              e.printStackTrace();
+      for (Item im : resultitem) {
+        order.put("customerId", csm.getCustomerId());
+        order.put("itemId", im.getItemId());
+        order.put("documentCategory", ORDER_DOCUMENT_CATEGORY);
+        order.put("documentType", ORDER_DOCUMENT_TYPE);
+        Object orderCode = order.get("orderCode");
+        Object oemployeeId = order.get("employeeId");
+        Object ocompanyId = order.get("companyId");
+        Object ochangeId = order.get("changeId");
+        Object ounitId = order.get("unitId");
+        if (orderCode == null) {
+          try {
+            String ruleCode = documentTypeService
+                .getDocumentCodeRule(ORDER_DOCUMENT_CATEGORY, ORDER_DOCUMENT_TYPE);
+            if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
+              ruleCode = OrderController.ORDER_RULE_CODE;
             }
+            orderCode = codeRuleProcessService.getRuleCode(ruleCode);
+            order.put("orderCode", orderCode);
+          } catch (CodeRuleException e) {
+            e.printStackTrace();
           }
-          //设置默认商户
-          if (companyId == null) {
-            companyId = requestCtx.getCompanyId();
-            order.put("companyId", companyId);
-          }
-          //设置默认业务员
-          if (employeeId == null) {
-            employeeId = requestCtx.getEmployeeId();
-            order.put("employeeId", employeeId);
-          }
-          order.put("customerId", csm.getCustomerId());
-          // 将map转为order对象
-          Order rorder = JSON.parseObject(JSON.toJSONString(order), Order.class);
-          //将对象放在集合中
-          listorder.add(rorder);
         }
+        //设置默认商户
+        if (ocompanyId == null) {
+          order.put("companyId", requestCtx.getCompanyId());
+        }
+        //设置默认业务员
+        if (oemployeeId == null) {
+          order.put("employeeId", requestCtx.getEmployeeId());
+        }
+
+        //如果商机id有值，则将其状态改变
+        if (ochangeId != null && ostatus.equals("add")) {
+          Change querychange = new Change();
+          querychange.setChangeId(Long.parseLong(ochangeId.toString()));
+          Change change = changeService.selectByPrimaryKey(requestCtx, querychange);
+          change.setStatus("SUBMIT");
+          change.set__status("update");
+          List<Change> lchange = new ArrayList<>();
+          lchange.add(change);
+          changeService.batchUpdate(requestCtx, lchange);
+          if (ounitId == null) {
+            order.put("unitId", change.getUnitId());
+          }
+        }
+        // 将map转为order对象
+        Order rorder = JSON.parseObject(JSON.toJSONString(order), Order.class);
+        rorder.set__status(ostatus);
+        //将对象放在集合中
+        listorder.add(rorder);
       }
     }
     return new ResponseData(service.batchUpdate(requestCtx, listorder));
