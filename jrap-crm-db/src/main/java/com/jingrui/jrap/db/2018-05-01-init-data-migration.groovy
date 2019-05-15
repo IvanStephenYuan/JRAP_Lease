@@ -22,6 +22,19 @@ databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
         }
     }
 
+
+    changeSet(author: "ivan", id: "20190428-crm-init-data-xlsx", runAlways: "true") {
+        customChange(class: ExcelDataLoader.class.name) {
+            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/20190428-init-data.xlsx"))
+        }
+    }
+
+    changeSet(author: "ivan", id: "20190430-crm-init-data-xlsx", runAlways: "true") {
+        customChange(class: ExcelDataLoader.class.name) {
+            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/20190430-init-data.xlsx"))
+        }
+    }
+
     changeSet(author: "ivan", id: "201903012-data-cashflow-type") {
         sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_cashflow_type_insert.sql"), encoding: "UTF-8")
     }
@@ -31,11 +44,11 @@ databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
     }
 
     changeSet(author: "ivan", id: "201903012-data-document-category") {
-        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_document_category.sql"), encoding: "UTF-8")
+        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_document_category_insert.sql"), encoding: "UTF-8")
     }
 
     changeSet(author: "ivan", id: "201903012-data-document-type") {
-        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_document_type.sql"), encoding: "UTF-8")
+        sqlFile(path: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/"+dbType+"/init/pro_document_type_insert.sql"), encoding: "UTF-8")
     }
 
 }
