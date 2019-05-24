@@ -867,6 +867,8 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
     constraints(nullable:"false")
    }
    column(name:"PURCHASE_ID",type:"bigint",remarks:"采购单ID")
+   column(name:"ASSIGN_ID",type:"bigint",remarks:"采购分配ID")
+   column(name:"MODEL_ID",type:"bigint",remarks:"模型ID")
    column(name:"MODEL",type:"varchar(200)",remarks:"型号")
    column(name:"OUTSIDE_COLOR",type:"varchar(60)",remarks:"车体颜色")
    column(name:"INSIDE_COLOR",type:"varchar(60)",remarks:"车内颜色")
@@ -1008,6 +1010,8 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"STOCK_TYPE",type:"varchar(60)",remarks:"出入库类型")
    column(name:"STATUS",type:"varchar(60)",remarks:"状态")
    column(name:"STOCK_DATE",type:"datetime",remarks:"出入库日期")
+   column(name:"UNIT_ID",type:"bigint",remarks:"部门ID")
+   column(name:"WAREHOUSE_ID",type:"bigint",remarks:"仓库ID")
    column(name:"STOCKMAN",type:"varchar(200)",remarks:"仓库人员")
    column(name:"EMPLOYEE_ID",type:"bigint",remarks:"员工ID")
    column(name:"REMARK",type:"clob",remarks:"备注说明")
