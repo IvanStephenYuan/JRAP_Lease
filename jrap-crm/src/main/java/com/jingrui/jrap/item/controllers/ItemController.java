@@ -95,8 +95,8 @@ public class ItemController extends BaseController {
     ItemEvaluate itemEvaluate;
     for (Item item : dto) {
       //通过itemid查找出评论集合
-      Long v=item.getItemId();
-      liteme=itemEvaluateMapper.selectByItemId(item.getItemId());
+      Long v = item.getItemId();
+      liteme = itemEvaluateMapper.selectByItemId(item.getItemId());
       evaluateservice.batchDelete(liteme);
     }
     return new ResponseData();

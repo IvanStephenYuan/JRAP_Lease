@@ -140,10 +140,10 @@
         var str = "";
         switch (evaluateType) {
             case "PYLOAN":
-                 str="fanqizha";
+                 str="duotou";
                  break;
             case "PYCREDIT":
-                 str="duotou";
+                 str="fanqizha";
               break;
              case "TDLOAN":
                str="tongdun";
@@ -153,23 +153,7 @@
                 break;
          }
         var url = "${base.contextPath}/customer/customer_"+str+".html?evaluateId="+evaluateId+"&customerId="+customerId;
-        /*Jrap.createWindow('#newWindow', {
-            height: 550,
-            width:1200,
-            url: url,
-            title: "个人信息报告"
-        });
-        if (parent.autoResizeIframe) {
-            parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
-                var win = $("#newWindow").data("kendoWindow");
-                win.center().open();
-            })
-        } else {
-            var win = $("#newWindow").data("kendoWindow");
-            win.center().open();
-        }*/
         window.open(url);
-
     }
 
 </script>

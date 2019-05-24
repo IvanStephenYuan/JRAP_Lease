@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="demo">
   <process id="COPANY_INNET_APPLY" name="商户入网申请" isExecutable="true">
-    <startEvent id="sid-RQ0h5Tl7-rBtd-4k7r-8ud1-WElNryw3Vp4h" name="发起商户入网申请" activiti:initiator="initiator" activiti:formKey="pstore/examine_pstore_apply.html"/>
+    <startEvent id="sid-RQ0h5Tl7-rBtd-4k7r-8ud1-WElNryw3Vp4h" name="发起商户入网申请" activiti:initiator="initiator" activiti:formKey="fnd/company_apply.html"/>
     <userTask id="sid-80mZ-DSsqXo0YOkjP" name="风控审批" activiti:formKey="fnd\company_apply_exam.html">
       <extensionElements>
         <activiti:formProperty id="APPROVAL_CANDIDATE_RULE" type="enum">

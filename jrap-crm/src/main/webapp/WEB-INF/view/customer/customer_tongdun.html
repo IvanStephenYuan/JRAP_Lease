@@ -5,6 +5,10 @@
         font-size: 14px;
         margin-bottom: 50px;
     }
+    .title{
+        text-align: center;
+        margin-bottom: 50px;
+    }
 
     .clear {
         zomm: 1;
@@ -83,6 +87,13 @@
         margin-bottom: 5px;
         background-color: #fff;
     }
+    .table-con .item_title{
+        font-size: 16px;
+    }
+    .table-con .item_detail{
+        background-color: #f0f0f0;
+        padding: 10px;
+    }
 
     table td, table th {
         text-align: center;
@@ -96,635 +107,59 @@
     .red{
         color: red;
     }
+    .green{
+        color:green;
+    }
+    .blue{
+        color:blue;
+    }
     .summarize{
         font-size: 16px;
         color: #000;
         background-color: #f0f0f0;
         padding: 10px 15px;
     }
-
+    .item_details{
+        padding: 10px 15px;
+        text-align: center;
+    }
 
 
 </style>
 <script type="text/javascript">
-    var json = {
-        "success": true,
-        "risk_items": [{
-            "score": 10,
-            "item_detail": {"type": "custom_list", "high_risk_areas": ["山东省枣庄市峄城区"]},
-            "item_id": 5337675,
-            "item_name": "身份证归属地位于高风险较为集中地区"
-        }, {
-            "score": 80,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "法院失信、法院失信",
-                    "court_details": [{
-                        "gender": "-",
-                        "fraud_type": "法院失信",
-                        "filing_time": "2014年07月16日",
-                        "discredit_detail": "其他有履行能力而拒不履行生效法律文书确定义务",
-                        "execution_base": "-",
-                        "execution_department": "-",
-                        "province": "-",
-                        "name": "-",
-                        "duty": "-",
-                        "case_number": "-",
-                        "court_name": "厦门市思明区人民法院",
-                        "age": "-",
-                        "situation": "全部未履行"
-                    }, {
-                        "gender": "-",
-                        "fraud_type": "法院失信",
-                        "filing_time": "2018年01月16日",
-                        "discredit_detail": "有履行能力而拒不履行生效法律文书确定义务",
-                        "execution_base": "-",
-                        "execution_department": "-",
-                        "province": "广东",
-                        "name": "-",
-                        "duty": "-",
-                        "case_number": "（2015）中二法执字第1850号",
-                        "court_name": "中山市第二人民法院",
-                        "age": "-",
-                        "situation": "全部未履行"
-                    }],
-                    "description": "身份证命中法院失信名单",
-                    "type": "black_list"
-                }], "fraud_type": "法院失信、法院失信"
-            },
-            "item_id": 5337701,
-            "item_name": "身份证命中法院失信名单"
-        }, {
-            "score": 80,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "刑事犯罪、刑事犯罪",
-                    "description": "身份证命中犯罪通缉名单",
-                    "type": "black_list"
-                }], "fraud_type": "刑事犯罪、刑事犯罪"
-            },
-            "item_id": 5337729,
-            "item_name": "身份证命中犯罪通缉名单"
-        }, {
-            "score": 80,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "法院执行、法院执行",
-                    "court_details": [{
-                        "execution_status": "-",
-                        "fraud_type": "法院执行",
-                        "name": "皮晴晴",
-                        "filing_time": "-",
-                        "execution_number": "-",
-                        "case_number": "(2015)乌中执字第129号",
-                        "court_name": "乌鲁木齐市中级人民法院"
-                    }, {
-                        "execution_status": "-",
-                        "fraud_type": "法院执行",
-                        "name": "皮晴晴",
-                        "filing_time": "2010年1月4日",
-                        "execution_number": "-",
-                        "case_number": "(2010)榆执字第0121233号",
-                        "court_name": "晋中市榆次区人民法院"
-                    }],
-                    "description": "身份证命中法院执行名单",
-                    "type": "black_list"
-                }], "fraud_type": "法院执行、法院执行"
-            },
-            "item_id": 5337759,
-            "item_name": "身份证命中法院执行名单"
-        }, {
-            "score": 60,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "助学贷款欠费、助学贷款欠费",
-                    "description": "身份证对应人存在助学贷款欠费历史",
-                    "type": "black_list"
-                }], "fraud_type": "助学贷款欠费、助学贷款欠费"
-            },
-            "item_id": 5337785,
-            "item_name": "身份证对应人存在助学贷款欠费历史"
-        }, {
-            "score": 105,
-            "item_detail": {
-                "discredit_times": 7,
-                "overdue_details": [{
-                    "overdue_time": "2018-11",
-                    "overdue_amount_range": "(10000, 50000]",
-                    "overdue_day_range": "(0, 30]",
-                    "overdue_count": 1
-                }, {
-                    "overdue_time": "2018-11",
-                    "overdue_amount_range": "500000+",
-                    "overdue_day_range": "360+",
-                    "overdue_count": 1
-                }, {"overdue_time": "2018-11"}, {
-                    "overdue_time": "2018-11",
-                    "overdue_amount_range": "(10000, 50000]",
-                    "overdue_day_range": "(90, 180]",
-                    "overdue_count": 4
-                }, {"overdue_time": "2018-04"}, {
-                    "overdue_time": "2018-12",
-                    "overdue_amount_range": "(10000, 50000]",
-                    "overdue_day_range": "(30, 60]",
-                    "overdue_count": 2
-                }, {
-                    "overdue_time": "2018-11",
-                    "overdue_amount_range": "(10000, 50000]",
-                    "overdue_day_range": "(90, 180]",
-                    "overdue_count": 4
-                }],
-                "type": "discredit_count"
-            },
-            "item_id": 5337809,
-            "item_name": "身份证命中信贷逾期名单"
-        }, {
-            "score": 40,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "异常交易、恶意爬取、游戏消费欠费、异常支付、风险激活、欠款公司法人代表、作弊行为、法院执行、法院失信欠款类、异常登录、异常充值、信贷逾期后还款、异常接单、欠税、电商风险名单、垃圾注册、盗卡、车贷风险名单、信贷逾期名单、机构代办、异常叫车、欠税公司法人代表、信用炒作、异常退款、法院失信、异常租赁、异常提现、刷单、垃圾消息、异常转账、异常审核、伪冒风险、异常行为、电信欺诈、法院结案、骗取补贴、助学贷款欠费、异常注册、故意违章乘车",
-                    "description": "身份证命中高风险关注名单",
-                    "type": "grey_list"
-                }],
-                "fraud_type": "异常交易、恶意爬取、游戏消费欠费、异常支付、风险激活、欠款公司法人代表、作弊行为、法院执行、法院失信欠款类、异常登录、异常充值、信贷逾期后还款、异常接单、欠税、电商风险名单、垃圾注册、盗卡、车贷风险名单、信贷逾期名单、机构代办、异常叫车、欠税公司法人代表、信用炒作、异常退款、法院失信、异常租赁、异常提现、刷单、垃圾消息、异常转账、异常审核、伪冒风险、异常行为、电信欺诈、法院结案、骗取补贴、助学贷款欠费、异常注册、故意违章乘车"
-            },
-            "item_id": 5337835,
-            "item_name": "身份证命中高风险关注名单"
-        }, {
-            "score": 70,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "汽车租赁违约",
-                    "description": "身份证命中车辆租赁违约名单",
-                    "type": "black_list"
-                }], "fraud_type": "汽车租赁违约"
-            },
-            "item_id": 5337863,
-            "item_name": "身份证命中车辆租赁违约名单"
-        }, {
-            "score": 40,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "法院结案、法院结案",
-                    "court_details": [{
-                        "gender": "男",
-                        "fraud_type": "法院结案",
-                        "filing_time": "2010年1月4日",
-                        "execution_number": "1000",
-                        "discredit_detail": "其他有履行能力而拒不履行生效法律文书确定义务",
-                        "execution_base": "(2017)榆民二初字第112号民事判决书",
-                        "execution_department": "运城市人民法院",
-                        "province": "山西",
-                        "execution_status": "已结案",
-                        "name": "皮晴晴",
-                        "duty": "被告于本判决生效后10日内偿还原告借款10000元并支付相应利息",
-                        "case_number": "(2010)榆执字第0121234号",
-                        "court_name": "运城市人民法院",
-                        "age": "27",
-                        "situation": "全部未履行"
-                    }, {
-                        "gender": "男",
-                        "fraud_type": "法院结案",
-                        "filing_time": "2017年5月4日",
-                        "execution_number": "-",
-                        "discredit_detail": "其他有履行能力而拒不履行生效法律文书确定义务",
-                        "execution_base": "(2017)榆民二初字第112号民事判决书",
-                        "execution_department": "晋中市榆次区人民法院",
-                        "province": "山西",
-                        "execution_status": "-",
-                        "name": "皮晴晴",
-                        "duty": "被告于本判决生效后10日内偿还原告借款10000元并支付相应利息",
-                        "case_number": "(2017)榆执字第0121112号",
-                        "court_name": "晋中市榆次区人民法院",
-                        "age": "27",
-                        "situation": "全部未履行"
-                    }],
-                    "description": "身份证命中法院结案名单",
-                    "type": "black_list"
-                }], "fraud_type": "法院结案、法院结案"
-            },
-            "item_id": 5337869,
-            "item_name": "身份证命中法院结案名单"
-        }, {
-            "score": 5,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "消费信用风险、信用异常",
-                    "description": "身份证命中中风险关注名单",
-                    "type": "grey_list"
-                }], "fraud_type": "消费信用风险、信用异常"
-            },
-            "item_id": 5337875,
-            "item_name": "身份证命中中风险关注名单"
-        }, {
-            "score": 2,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "异常借款",
-                    "description": "身份证命中低风险关注名单",
-                    "type": "grey_list"
-                }], "fraud_type": "异常借款"
-            },
-            "item_id": 5337879,
-            "item_name": "身份证命中低风险关注名单"
-        }, {
-            "score": 40,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "fuzzy_detail_hits": [{
-                        "fuzzy_id_number": "37040419900630****",
-                        "fraud_type": "信贷逾期名单",
-                        "fuzzy_name": "皮晴晴"
-                    }], "description": "身份证_姓名命中信贷逾期模糊名单", "type": "fuzzy_list"
-                }]
-            },
-            "item_id": 5337883,
-            "item_name": "身份证_姓名命中信贷逾期模糊名单"
-        }, {
-            "score": 40,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "fuzzy_detail_hits": [{
-                        "fuzzy_id_number": "37040419900630****",
-                        "fraud_type": "法院失信",
-                        "fuzzy_name": "皮晴晴"
-                    }], "description": "身份证_姓名命中法院失信模糊名单", "type": "fuzzy_list"
-                }]
-            },
-            "item_id": 5337887,
-            "item_name": "身份证_姓名命中法院失信模糊名单"
-        }, {
-            "score": 40,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "fuzzy_detail_hits": [{
-                        "fuzzy_id_number": "3704041990****1915",
-                        "fraud_type": "法院执行",
-                        "fuzzy_name": "皮晴晴"
-                    }], "description": "身份证_姓名命中法院执行模糊名单", "type": "fuzzy_list"
-                }]
-            },
-            "item_id": 5337891,
-            "item_name": "身份证_姓名命中法院执行模糊名单"
-        }, {
-            "score": 30,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "fuzzy_detail_hits": [{
-                        "fuzzy_id_number": "3704041990****1915",
-                        "fraud_type": "法院结案",
-                        "fuzzy_name": "皮晴晴"
-                    }], "description": "身份证_姓名命中法院结案模糊名单", "type": "fuzzy_list"
-                }]
-            },
-            "item_id": 5337895,
-            "item_name": "身份证_姓名命中法院结案模糊名单"
-        }, {
-            "score": 80,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "欠款公司法人代表、欠款公司法人代表",
-                    "description": "身份证命中欠款公司法人代表名单",
-                    "type": "black_list"
-                }], "fraud_type": "欠款公司法人代表、欠款公司法人代表"
-            },
-            "item_id": 5337899,
-            "item_name": "身份证命中欠款公司法人代表名单"
-        }, {
-            "score": 20,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "故意违章乘车",
-                    "description": "身份证命中故意违章乘车名单",
-                    "type": "black_list"
-                }], "fraud_type": "故意违章乘车"
-            },
-            "item_id": 5337903,
-            "item_name": "身份证命中故意违章乘车名单"
-        }, {
-            "score": 60,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "欠税",
-                    "description": "身份证命中欠税名单",
-                    "type": "black_list"
-                }], "fraud_type": "欠税"
-            },
-            "item_id": 5337907,
-            "item_name": "身份证命中欠税名单"
-        }, {
-            "score": 60,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "欠税公司法人代表",
-                    "description": "身份证命中欠税公司法人代表名单",
-                    "type": "black_list"
-                }], "fraud_type": "欠税公司法人代表"
-            },
-            "item_id": 5337911,
-            "item_name": "身份证命中欠税公司法人代表名单"
-        }, {
-            "score": 30,
-            "item_detail": {
-                "namelist_hit_details": [{
-                    "hit_type_displayname": "借款人身份证",
-                    "fraud_type": "信贷逾期后还款",
-                    "description": "身份证命中信贷逾期后还款名单",
-                    "type": "black_list"
-                }], "fraud_type": "信贷逾期后还款"
-            },
-            "item_id": 5337915,
-            "item_name": "身份证命中信贷逾期后还款名单"
-        }, {
-            "score": 27,
-            "item_detail": {
-                "frequency_detail_list": [{"detail": "3个月身份证关联家庭地址数：0"}, {
-                    "data": ["13260665731", "133※※※※3333", "136※※※※9920", "153※※※※8190", "181※※※※3118", "185※※※※5122", "159※※※※0121", "188※※※※2258", "133※※※※※※※333"],
-                    "detail": "3个月身份证关联手机号数：9"
-                }], "type": "frequency_detail"
-            },
-            "item_id": 5337917,
-            "item_name": "3个月内身份证关联多个申请信息"
-        }, {"score": 10, "item_id": 5337923, "item_name": "3个月内申请人身份证作为联系人身份证出现的次数大于等于2"}, {
-            "score": 5,
-            "item_detail": {"frequency_detail_list": [{"detail": "7天内身份证申请次数：19"}], "type": "frequency_detail"},
-            "item_id": 5337937,
-            "item_name": "7天内设备或身份证或手机号申请次数过多"
-        }, {
-            "score": 30,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 1,
-                    "detail": ["融资租赁:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 36,
-                    "detail": ["一般消费分期平台:3", "银行个人业务:4", "融资租赁:1", "财产保险:2", "第三方服务商:1", "O2O:1", "信息中介:1", "众筹平台:1", "银行消费金融公司:1", "信用卡中心:2", "网上银行:1", "小额贷款公司:7", "理财机构:1", "P2P网贷:5", "银行小微贷款:1", "厂商汽车金融:4"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:3", "银行个人业务:4", "融资租赁:1", "财产保险:2", "第三方服务商:1", "O2O:1", "信息中介:1", "众筹平台:1", "银行消费金融公司:1", "信用卡中心:2", "网上银行:1", "小额贷款公司:7", "理财机构:1", "P2P网贷:5", "银行小微贷款:1", "厂商汽车金融:4"],
-                "platform_count": 36,
-                "type": "platform_detail"
-            },
-            "item_id": 5337975,
-            "item_name": "7天内申请人在多个平台申请借款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 1,
-                    "detail": ["融资租赁:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 36,
-                    "detail": ["一般消费分期平台:3", "银行个人业务:4", "融资租赁:1", "财产保险:2", "第三方服务商:1", "O2O:1", "信息中介:1", "众筹平台:1", "银行消费金融公司:1", "信用卡中心:2", "网上银行:1", "小额贷款公司:7", "理财机构:1", "P2P网贷:5", "银行小微贷款:1", "厂商汽车金融:4"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:3", "银行个人业务:4", "融资租赁:1", "财产保险:2", "第三方服务商:1", "O2O:1", "信息中介:1", "众筹平台:1", "银行消费金融公司:1", "信用卡中心:2", "网上银行:1", "小额贷款公司:7", "理财机构:1", "P2P网贷:5", "银行小微贷款:1", "厂商汽车金融:4"],
-                "platform_count": 36,
-                "type": "platform_detail"
-            },
-            "item_id": 5337977,
-            "item_name": "1个月内申请人在多个平台申请借款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 1,
-                    "detail": ["融资租赁:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 36,
-                    "detail": ["一般消费分期平台:3", "银行个人业务:4", "融资租赁:1", "财产保险:2", "第三方服务商:1", "O2O:1", "信息中介:1", "众筹平台:1", "银行消费金融公司:1", "信用卡中心:2", "网上银行:1", "小额贷款公司:7", "理财机构:1", "P2P网贷:5", "银行小微贷款:1", "厂商汽车金融:4"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:3", "银行个人业务:4", "融资租赁:1", "财产保险:2", "第三方服务商:1", "O2O:1", "信息中介:1", "众筹平台:1", "银行消费金融公司:1", "信用卡中心:2", "网上银行:1", "小额贷款公司:7", "理财机构:1", "P2P网贷:5", "银行小微贷款:1", "厂商汽车金融:4"],
-                "platform_count": 36,
-                "type": "platform_detail"
-            },
-            "item_id": 5337979,
-            "item_name": "3个月内申请人在多个平台申请借款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 2,
-                    "detail": ["融资租赁:1", "小额贷款公司:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 504,
-                    "detail": ["房地产金融:5", "一般消费分期平台:38", "互联网金融门户:7", "银行个人业务:41", "第三方服务商:7", "众筹平台:2", "游戏:1", "大型消费金融公司:15", "厂商汽车金融:20", "融资租赁:43", "财产保险:4", "设备租赁:3", "O2O:1", "信息中介:1", "汽车租赁:4", "担保:3", "大数据金融:2", "银行消费金融公司:12", "直销银行:4", "信用卡中心:24", "网上银行:10", "小额贷款公司:158", "理财机构:4", "P2P网贷:73", "房屋租赁:1", "银行小微贷款:15", "第三方支付:3", "综合类电商平台:3"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["房地产金融:5", "一般消费分期平台:38", "互联网金融门户:7", "银行个人业务:41", "第三方服务商:7", "众筹平台:2", "游戏:1", "大型消费金融公司:15", "厂商汽车金融:20", "融资租赁:43", "财产保险:4", "设备租赁:3", "O2O:1", "信息中介:1", "汽车租赁:4", "担保:3", "大数据金融:2", "银行消费金融公司:12", "直销银行:4", "信用卡中心:24", "网上银行:10", "小额贷款公司:159", "理财机构:4", "P2P网贷:73", "房屋租赁:1", "银行小微贷款:15", "第三方支付:3", "综合类电商平台:3"],
-                "platform_count": 505,
-                "type": "platform_detail"
-            },
-            "item_id": 5337981,
-            "item_name": "6个月内申请人在多个平台申请借款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 3,
-                    "detail": ["融资租赁:1", "小额贷款公司:1", "P2P网贷:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 632,
-                    "detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:201", "理财机构:7", "P2P网贷:94", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:202", "理财机构:7", "P2P网贷:95", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                "platform_count": 634,
-                "type": "platform_detail"
-            },
-            "item_id": 5337983,
-            "item_name": "12个月内申请人在多个平台申请借款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 3,
-                    "detail": ["融资租赁:1", "小额贷款公司:1", "P2P网贷:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 632,
-                    "detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:201", "理财机构:7", "P2P网贷:94", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:202", "理财机构:7", "P2P网贷:95", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                "platform_count": 634,
-                "type": "platform_detail"
-            },
-            "item_id": 5337985,
-            "item_name": "18个月内申请人在多个平台申请借款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 3,
-                    "detail": ["融资租赁:1", "小额贷款公司:1", "P2P网贷:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 632,
-                    "detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:201", "理财机构:7", "P2P网贷:94", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:202", "理财机构:7", "P2P网贷:95", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                "platform_count": 634,
-                "type": "platform_detail"
-            },
-            "item_id": 5337987,
-            "item_name": "24个月内申请人在多个平台申请借款"
-        }, {
-            "score": 6,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 3,
-                    "detail": ["融资租赁:1", "小额贷款公司:1", "P2P网贷:1"],
-                    "dimension": "借款人手机详情"
-                }, {
-                    "count": 634,
-                    "detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:201", "理财机构:7", "P2P网贷:96", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["房地产金融:7", "一般消费分期平台:50", "互联网金融门户:7", "银行个人业务:43", "第三方服务商:12", "众筹平台:2", "垂直类电商平台:1", "游戏:2", "大型消费金融公司:18", "厂商汽车金融:22", "融资租赁:56", "财产保险:6", "设备租赁:4", "O2O:2", "信息中介:1", "汽车租赁:7", "担保:4", "大数据金融:2", "银行消费金融公司:15", "直销银行:4", "信用卡中心:26", "网上银行:14", "小额贷款公司:202", "理财机构:7", "P2P网贷:97", "房屋租赁:1", "银行小微贷款:17", "第三方支付:4", "综合类电商平台:3"],
-                "platform_count": 636,
-                "type": "platform_detail"
-            },
-            "item_id": 5337989,
-            "item_name": "近60个月以上申请人在多个平台申请借款"
-        }, {
-            "score": 8,
-            "item_detail": {
-                "platform_detail": ["一般消费分期平台:2", "银行个人业务:1", "P2P网贷:1"],
-                "platform_count": 4,
-                "type": "platform_detail"
-            },
-            "item_id": 5337991,
-            "item_name": "3个月内申请人在多个平台被放款_不包含本合作方"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 16,
-                    "detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "设备租赁:1", "小额贷款公司:2", "P2P网贷:1", "大型消费金融公司:1"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "设备租赁:1", "小额贷款公司:2", "P2P网贷:1", "大型消费金融公司:1"],
-                "platform_count": 16,
-                "type": "platform_detail"
-            },
-            "item_id": 5337995,
-            "item_name": "6个月内申请人在多个平台被放款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 21,
-                    "detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "设备租赁:1", "小额贷款公司:4", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "设备租赁:1", "小额贷款公司:4", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1"],
-                "platform_count": 21,
-                "type": "platform_detail"
-            },
-            "item_id": 5337997,
-            "item_name": "12个月内申请人在多个平台被放款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 23,
-                    "detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "信用卡中心:1", "设备租赁:1", "小额贷款公司:4", "第三方服务商:1", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "信用卡中心:1", "设备租赁:1", "小额贷款公司:4", "第三方服务商:1", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1"],
-                "platform_count": 23,
-                "type": "platform_detail"
-            },
-            "item_id": 5337999,
-            "item_name": "18个月内申请人在多个平台被放款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 23,
-                    "detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "信用卡中心:1", "设备租赁:1", "小额贷款公司:4", "第三方服务商:1", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:2", "互联网金融门户:1", "大数据金融:1", "银行个人业务:6", "融资租赁:1", "信用卡中心:1", "设备租赁:1", "小额贷款公司:4", "第三方服务商:1", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1"],
-                "platform_count": 23,
-                "type": "platform_detail"
-            },
-            "item_id": 5338001,
-            "item_name": "24个月内申请人在多个平台被放款"
-        }, {
-            "score": 0,
-            "item_detail": {
-                "platform_detail_dimension": [{
-                    "count": 24,
-                    "detail": ["一般消费分期平台:2", "互联网金融门户:1", "银行个人业务:6", "融资租赁:1", "设备租赁:1", "第三方服务商:1", "大数据金融:1", "信用卡中心:1", "小额贷款公司:4", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1", "银行小微贷款:1"],
-                    "dimension": "借款人身份证详情"
-                }],
-                "platform_detail": ["一般消费分期平台:2", "互联网金融门户:1", "银行个人业务:6", "融资租赁:1", "设备租赁:1", "第三方服务商:1", "大数据金融:1", "信用卡中心:1", "小额贷款公司:4", "P2P网贷:3", "房屋租赁:1", "大型消费金融公司:1", "银行小微贷款:1"],
-                "platform_count": 24,
-                "type": "platform_detail"
-            },
-            "item_id": 5338003,
-            "item_name": "近60个月以上申请人在多个平台被放款"
-        }, {
-            "score": 20,
-            "item_detail": {
-                "assoc_risk_score_detail": [{
-                    "node_score": 59,
-                    "dim_type": "idNumber",
-                    "assoc_risk_score_detail_list": [{
-                        "dim_type": "idNumber",
-                        "node_socre": 59,
-                        "dim_value": "370404199006301915"
-                    }],
-                    "dim_value": "370404199006301915"
-                }], "type": "assoc_risk_score"
-            },
-            "item_id": 5338077,
-            "item_name": "借款人信息复杂网络建议人审"
-        }],
-        "final_decision": "Reject",
-        "final_score": 100,
-        "apply_time": 1557383166000,
-        "application_id": "19050914260646738232B4DDE8C06C63",
-        "report_time": 1557383168000,
-        "report_id": "ER20190509142606480F4039",
-        "address_detect": {"mobile_address": "湖北省武汉市", "id_card_address": "山东省枣庄市峄城区"}
-    };
-
-    var data = json;
+    var customerId='${RequestParameters.customerId!-1}';
+    var evaluateId='${RequestParameters.evaluateId!-1}';
     var newViewModel = kendo.observable({
-        model: {}
+        model: {
+        }
+    });
+    var data;
+    $.ajax({
+        url: '${base.contextPath}/afd/customer/evaluate/query?customerId='+customerId+'&evaluateId='+evaluateId,
+        type: "get",
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+        success: function (res) {
+            data= $.parseJSON( res.rows[0].remark );
+        },
+        error: function (error) {
+            kendo.ui.showInfoDialog({
+                message: error.message
+            });
+        }
     });
     for (var k in data) {
         newViewModel.model.set(k, data[k]);
     }
 
+    console.log(data);
 
 </script>
 <body>
 
 <div class="container" id="container">
+    <h2 class="title">个人信息报告</h2>
     <div class="report-tit clear">
         <div class="buildEndTime">查询时间：<span ></span></div>
         <div class="batNo">报告编号：<span data-bind="text:model.report_id"></span></div>
@@ -750,7 +185,7 @@
     <div class="info-container riskDetails">
         <div class="info-tit clear">
             <span class="info-tit-line">|</span>
-            <span class="info-tit-text">个人风险信息扫描详情</span>
+            <span class="info-tit-text">贷前风险信息扫描详情</span>
         </div>
         <div class="info-line"></div>
     </div>
@@ -814,18 +249,123 @@
     $(".errorTotal").text(newViewModel.model.risk_items.length);
 
     var items= newViewModel.model.risk_items;
-    var str="";
+    var str='<div class="table-con"><table border="1" width="100%" align="center">' +
+        '<tr><th width="25%" height="40px" valign="middle">检查项目</th>' +
+        '<th width="10%">风险等级</th>' +
+        '<th width="65%">备注</th>' +
+        '</tr>';
     for(var i=0,len=items.length;i<len;i++){
-        str+='<div class="table-con">';
-            str+='<p>('+(i+1)+')检查项目:<span class="bold">'+items[i].item_name+'</span>,风险等级：<span class="red">'+getRiskLevel(items[i].score)+'</span>。</p>';
-            if(items[i].item_detail){
-                var item=items[i].item_detail;
-                if(item.type=="platform_detail"){
-                    str+='<p class="item_detail">'+item.platform_detail.join(";")+'</p>';
+
+        var item_name=items[i].item_name;
+        if(item_name.indexOf("在网时长为")>-1){
+            item_name="在网时长";
+        }
+
+        str+='<tr><td height="40px" valign="middle">'+item_name+'</td>' ;
+        if(items[i].score>75){
+            str+='<td class="red">'+getRiskLevel(items[i].score)+'</td>';
+        }else if(items[i].score<50){
+            str+='<td class="green">'+getRiskLevel(items[i].score)+'</td>';
+        }else{
+            str+='<td class="blue">'+getRiskLevel(items[i].score)+'</td>';
+        }
+
+        if(items[i].item_detail){
+            var item=items[i].item_detail;
+            if(item.type=="platform_detail"){
+                str+='<td class="item_details">'+item.platform_detail.join(";")+'</td>';
+            }else if(item.namelist_hit_details){
+                str+='<td class="item_details">'
+                for(var j=0,len2=item.namelist_hit_details.length;j<len2;j++){
+                    var type=item.namelist_hit_details[j].type;
+                    if(type=="black_list" ){
+                        if(item.namelist_hit_details[j].fraud_type=='法院结案、法院结案'){
+                            var court_details = item.namelist_hit_details[j].court_details;
+                            for(var m=0,len3=court_details.length;m<len3;m++){
+                                str+='<p>风险类型:'+court_details[m].fraud_type+';' +
+                                    '立案时间:' +court_details[m].filing_time+';' +
+                                    '执行法院:' +court_details[m].court_name+';' +
+                                    '做出执行依据单位:' +court_details[m].execution_department+';' +
+                                    '生效法律文书确定的义务:' +court_details[m].duty+';' +
+                                    '被执行人的履行情况:' +court_details[m].situation+';' +
+                                    '失信被执行人行为具体情形:' +court_details[m].discredit_detail+';' +
+                                    '执行依据文号:' +court_details[m].execution_base+';' +
+                                    '案号:' +court_details[m].case_number+',' +
+                                    '执行状态:' +court_details[m].execution_status+';' +
+                                    '</p>';
+                            }
+                        }else{
+                            str+=item.namelist_hit_details[j].hit_type_displayname;
+                        }
+                    }else if(type=="grey_list"){
+                        str+=item.namelist_hit_details[j].fraud_type;
+                    }else if(type=='fuzzy_list'){
+                        str+='风险类型:'+item.namelist_hit_details[j].fuzzy_detail_hits[0].fraud_type+
+                            ';模糊身份证:'+item.namelist_hit_details[j].fuzzy_detail_hits[0].fuzzy_id_number+';' +
+                            '姓名:' +item.namelist_hit_details[j].fuzzy_detail_hits[0].fuzzy_name+'。';
+                    }
+                }
+                str+='</td>'
+            }else if(item.type=="frequency_detail"){
+                var frequency_detail_list=item.frequency_detail_list;
+                str+='<td class="item_details">';
+                for(var i4=0,len4=frequency_detail_list.length;i4<len4;i4++){
+                    str+='<p>'+frequency_detail_list[i4].detail+';'
+                   if(frequency_detail_list[i4].data){
+                       var data5=frequency_detail_list[i4].data;
+                       str+="分别为：";
+                       for(var i5=0,len5=data5.length;i5<len5;i5++){
+                            str+='('+(i5+1)+').'+data5[i5]+';';
+                       }
+                    }
+                    str+='</p>'
+                }
+                str+='</td>';
+            }else if(item.type=="discredit_count"){
+                var overdue_details=item.overdue_details;
+                str+='<td class="item_details"> <p>失信次数：'+item.discredit_times+'</p>';
+
+                for(var i6=0,len6=overdue_details.length;i6<len6;i6++){
+                    str+='<p>逾期笔数:'+overdue_details[i6].overdue_count+';'+
+                        '逾期金额:'+overdue_details[i6].overdue_amount_range+';'+
+                        '逾期天数:'+overdue_details[i6].overdue_day_range+';'+
+                        '逾期入库时间:'+overdue_details[i6].overdue_time+';</p>';
+                }
+                str+='</td>';
+            }else if(item.type=="assoc_risk_score"){
+                   str+='<td>匹配字段值：'+item.assoc_risk_score_detail[0].dim_value+'； 得分:'+item.assoc_risk_score_detail[0].node_score+'。</td>'
+            }else if(item.type=="custom_list"){
+                if(item.high_risk_areas){
+                    str+='<td>高风险区域：'+(item.high_risk_areas.join(","))+'</td>'
+                }else{
+                    str+='<td>'+items[i].item_name+'</td>'
                 }
             }
-        str+='</div>';
+        }else{
+            var item_name2=items[i].item_name;
+            if(item_name2.indexOf("在网时长为")>-1){
+                var onlineArr=item_name2.split("为");
+                var time=onlineArr[1];
+                var onlineStr="在网时长";
+                if(time=="(6,12]"){
+                    onlineStr+="大于6个月，小于等于12个月";
+                }else if(time=="(0,6]"){
+                    onlineStr+="小于等于6个月";
+                }else if(time=="(12,24]"){
+                    onlineStr+="大于12个月，小于等于24四个月";
+                }else{
+                    onlineStr+="大于24个月";
+                }
+                str+='<td>'+onlineStr+'</td>'
+
+            }else{
+                str+='<td>'+item_name2+'</td>'
+            }
+        }
+        str+='</tr>';
     }
+    str+='</table></div>';
+
     $(".riskDetails").append(str);
 
 

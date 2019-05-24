@@ -114,12 +114,22 @@ public class CustomerTongdunServiceImpl implements ICustomerTongdunService {
                 List<CustomerEvaluate> list =  customerEvaluateService.select(request, query, 1, 10);
                 CustomerEvaluate customerEvaluate;
 
+                //风险结果说明
+                String brief = response.getFinal_decision();
+                if("Reject".equalsIgnoreCase(brief)){
+                    brief = "建议拒绝";
+                }else if("Review".equalsIgnoreCase(brief)){
+                    brief = "建议审核";
+                }else{
+                    brief = "建议通过";
+                }
+
                 if(list.size() == 1){
                     customerEvaluate = list.get(0);
                     customerEvaluate.setEvaluator(EVALUATOR);
                     customerEvaluate.setCompositeScore(Double.valueOf(response.getFinal_score()));
                     customerEvaluate.setEvaluateDate(new Date(response.getReport_time()));
-                    customerEvaluate.setBrief(response.getFinal_decision());
+                    customerEvaluate.setBrief(brief);
                     customerEvaluate.setAttribute1(response.getReport_id());
                     customerEvaluate.setAttribute2(response.getApplication_id());
                     customerEvaluate.setRemark(JSON.toJSONString(response));
@@ -131,7 +141,7 @@ public class CustomerTongdunServiceImpl implements ICustomerTongdunService {
                     customerEvaluate.setEvaluator(EVALUATOR);
                     customerEvaluate.setCompositeScore(Double.valueOf(response.getFinal_score()));
                     customerEvaluate.setEvaluateDate(evaluateDate);
-                    customerEvaluate.setBrief(response.getFinal_decision());
+                    customerEvaluate.setBrief(brief);
                     customerEvaluate.setAttribute1(response.getReport_id());
                     customerEvaluate.setAttribute2(response.getApplication_id());
                     customerEvaluate.setRemark(JSON.toJSONString(response));

@@ -628,9 +628,9 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
    column(name:"REQUEST_ID",type:"bigint")
    column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
-   column(name:"ATTRIBUTE1",type:"varchar(150)")
-   column(name:"ATTRIBUTE2",type:"varchar(150)")
-   column(name:"ATTRIBUTE3",type:"varchar(150)")
+   column(name:"ATTRIBUTE1",type:"varchar(150)",remarks:"法人身份证")
+   column(name:"ATTRIBUTE2",type:"varchar(150)",remarks:"法人姓名")
+   column(name:"ATTRIBUTE3",type:"varchar(150)",remarks:"法人手机号")
    column(name:"ATTRIBUTE4",type:"varchar(150)")
    column(name:"ATTRIBUTE5",type:"varchar(150)")
    column(name:"ATTRIBUTE6",type:"varchar(150)")
@@ -866,6 +866,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"LINE_CODE",type:"bigint",remarks:"产品线"){
     constraints(nullable:"false")
    }
+   column(name:"PURCHASE_ID",type:"bigint",remarks:"采购单ID")
    column(name:"MODEL",type:"varchar(200)",remarks:"型号")
    column(name:"OUTSIDE_COLOR",type:"varchar(60)",remarks:"车体颜色")
    column(name:"INSIDE_COLOR",type:"varchar(60)",remarks:"车内颜色")
@@ -2551,6 +2552,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
             column(name:"COMPANY_ID",type:"bigint",remarks:"商户ID")
             column(name:"LIMIT_ID",type:"bigint",remarks:"授信ID")
             column(name:"DEAL_TYPE",type:"varchar(60)",remarks:"交易类型")
+            column(name:"ASSIGN_ID",type:"bigint",remarks:"采购分配ID")
             column(name:"ORDER_ID",type:"bigint",remarks:"订单ID")
             column(name:"CASHFLOW_ID",type:"bigint",remarks:"现金流ID")
             column(name:"DR_AMOUNT",type:"decimal",remarks:"借方金额")

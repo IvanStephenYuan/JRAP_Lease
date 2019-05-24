@@ -3,6 +3,9 @@
     var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?TRANSACTION_CATEGORY=TRANSACTION.CATEGORY" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?TRANSACTION_TYPE=TRANSACTION.TYPE" type="text/javascript"></script>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
@@ -42,10 +45,24 @@
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
+    // var periodNameData = [];
+    // $(document).ready(function() {
+    //     // 期间集
+    //     $.ajax({
+    //         url: _basePath + '/fin/periods/query',
+    //         dataType: "json",
+    //         type: "POST",
+    //         async: false,
+    //         contentType: "application/json",
+    //         success: function (data) {
+    //             periodNameData = data.rows;
+    //         }
+    //     });
+    // });
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: BaseUrl + "/csh/transaction/query",
+                url: BaseUrl + "/csh/transaction/selectOptions",
                 type: "POST",
                 dataType: "json"
             },
@@ -66,7 +83,14 @@
             },
             parameterMap: function (options, type) {
                 if (type !== "read" && options.models) {
-                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    var datas = Jrap.prepareSubmitParameter(options, type);
+                    for(var i=0;i<datas.length;i++){
+                        datas[i].companyId=getSession().companyId;
+                        var  tranDate =  datas[i].transactionDate;
+                        if(tranDate!=null&&tranDate.length>7) {
+                            datas[i].periodName = tranDate.substring(0, 7); //期间
+                        }
+                    }
                     return kendo.stringify(datas);
                 } else if (type === "read") {
                     return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
@@ -81,7 +105,14 @@
             total: 'total',
             model: {
                 id: "transactionId",
-                fields: {}
+                fields: {
+                    transactionNum:{editable: false},
+                    transactionDate: {type: 'date'},
+                    transactionAmount:{type:'number'},
+                    cashflowAmount:{type:'number'},
+                    postedFlag: {defaultValue: 'N', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    enabledFlag: {defaultValue: 'N', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                }
             }
         }
     });
@@ -106,27 +137,89 @@
             {
                 field: "transactionNum",
                 title: '<@spring.message "transaction.transactionnum"/>',
-                width: 120
+                width: 120,
+                template: function (rowdata) {
+                    if (!!rowdata.transactionNum) {
+                        return  rowdata.transactionNum;
+                    }else {
+                        return '<span style="color:blue">' + rowdata.transactionNum + '</span>';
+                    }
+                },
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
             },
             {
                 field: "transactionCategory",
                 title: '<@spring.message "transaction.transactioncategory"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.transactionCategory ? dataItem.transactionCategory : "";
+                    $.each(TRANSACTION_CATEGORY, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: TRANSACTION_CATEGORY
+                        });
+                }
             },
             {
                 field: "transactionType",
                 title: '<@spring.message "transaction.transactiontype"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.transactionType ? dataItem.transactionType : "";
+                    $.each(TRANSACTION_TYPE, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: TRANSACTION_TYPE
+                        });
+                }
             },
             {
                 field: "transactionDate",
                 title: '<@spring.message "transaction.transactiondate"/>',
-                width: 120
-            },
-            {
-                field: "companyId",
-                title: '<@spring.message "transaction.companyid"/>',
-                width: 120
+                width: 120,
+                nullable:true,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                format: "{0:yyyy-MM-dd}",
+                editor: function (container, options) {
+                    var opts = {
+                        format: "yyyy-MM-dd"
+                    };
+
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDatePicker(opts);
+                },
+                sortable: false
             },
             {
                 field: "transactionAmount",
@@ -141,27 +234,107 @@
             {
                 field: "periodName",
                 title: '<@spring.message "transaction.periodname"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.periodName ? dataItem.periodName : "";
+                    $.each(periodNameData, function (i, n) {
+                        if ((n.periodName || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.periodName;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoComboBox({
+                            dataTextField: "periodName",
+                            dataValueField: "periodName",
+                            valuePrimitive: true,
+                            dataSource: periodNameData
+                        });
+                }
             },
             {
                 field: "bankAccountId",
                 title: '<@spring.message "transaction.bankaccountid"/>',
-                width: 120
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['bankAccountName'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input  name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_ACCOUNT"/>, {
+                        query: function (e) {
+                            // e.param['status'] = '';
+                        },
+                        textField: 'bankAccountName',
+                        valueField:'bankAccountId',
+                        model: options.model
+                    }));
+                }
             },
             {
                 field: "orderId",
                 title: '<@spring.message "transaction.orderid"/>',
-                width: 120
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['orderCode'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input  name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_ORDER"/>, {
+                        query: function (e) {
+                            // e.param['status'] = '';
+                        },
+                        textField: 'orderCode',
+                        valueField:'orderid',
+                        model: options.model
+                    }));
+                }
             },
             {
                 field: "customerId",
                 title: '<@spring.message "transaction.customerid"/>',
-                width: 120
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['customerName'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input  name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_CUSTOMER"/>, {
+                        query: function (e) {
+                            // e.param['status'] = '';
+                        },
+                        textField: 'customerName',
+                        valueField:'customerId',
+                        model: options.model
+                    }));
+                }
             },
             {
                 field: "optAccountId",
                 title: '<@spring.message "transaction.optaccountid"/>',
-                width: 120
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['optAccountName'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input  name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_ACCOUNT"/>, {
+                        query: function (e) {
+                            // e.param['status'] = '';
+                        },
+                        textField: 'optAccountName',
+                        valueField:'optAccountId',
+                        model: options.model
+                    }));
+                }
             },
             {
                 field: "optAccountNum",
@@ -191,12 +364,22 @@
             {
                 field: "postedFlag",
                 title: '<@spring.message "transaction.postedflag"/>',
-                width: 120
+                width: 120,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
             {
                 field: "enabledFlag",
                 title: '<@spring.message "transaction.enabledflag"/>',
-                width: 120
+                width: 120,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
         ],
         editable: true

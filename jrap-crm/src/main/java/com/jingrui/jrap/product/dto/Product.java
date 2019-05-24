@@ -30,207 +30,211 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Table(name = "pro_product")
 @ApiModel(value = "pro_product", description = "产品表")
 public class Product extends BaseDTO {
-    public static final String FIELD_PRODUCT_CODE = "productCode";
-    public static final String FIELD_PRODUCT_NAME = "productName";
-    public static final String FIELD_PRODUCT_TYPE = "productType";
-    public static final String FIELD_PRODUCT_CLASS = "productClass";
-    public static final String FIELD_DECRIPTION = "decription";
-    public static final String FIELD_BUSINESS_TYPE = "businessType";
-    public static final String FIELD_LINE_CODE = "lineCode";
-    public static final String FIELD_MODEL_ID = "modelId";
-    public static final String FIELD_MODEL = "model";
-    public static final String FIELD_COMPANY_ID = "companyId";
-    public static final String FIELD_CALCULATE = "calculate";
-    public static final String FIELD_RATE_TYPE = "rateType";
-    public static final String FIELD_VERSION = "version";
-    public static final String FIELD_ENABLED_FLAG = "enabledFlag";
-    public static final String FIELD_START_DATE = "startDate";
-    public static final String FIELD_END_DATE = "endDate";
 
-    @Id
-    @NotEmpty
-    @Length(max = 60)
-    @OrderBy("ASC")
-    @Where
-    @ApiModelProperty(value = "productCode", name = "产品编码")
-    private String productCode; //产品编码
+  public static final String FIELD_PRODUCT_CODE = "productCode";
+  public static final String FIELD_PRODUCT_NAME = "productName";
+  public static final String FIELD_PRODUCT_TYPE = "productType";
+  public static final String FIELD_PRODUCT_CLASS = "productClass";
+  public static final String FIELD_DECRIPTION = "decription";
+  public static final String FIELD_BUSINESS_TYPE = "businessType";
+  public static final String FIELD_LINE_CODE = "lineCode";
+  public static final String FIELD_MODEL_ID = "modelId";
+  public static final String FIELD_MODEL = "model";
+  public static final String FIELD_COMPANY_ID = "companyId";
+  public static final String FIELD_CALCULATE = "calculate";
+  public static final String FIELD_RATE_TYPE = "rateType";
+  public static final String FIELD_VERSION = "version";
+  public static final String FIELD_ENABLED_FLAG = "enabledFlag";
+  public static final String FIELD_START_DATE = "startDate";
+  public static final String FIELD_END_DATE = "endDate";
 
-    @Length(max = 200)
-    @Where
-    private String productName; //产品名称
+  @Id
+  @NotEmpty
+  @Length(max = 60)
+  @OrderBy("ASC")
+  @Where
+  @ApiModelProperty(value = "productCode", name = "产品编码")
+  private String productCode; //产品编码
 
-    @Length(max = 60)
-    @Where
-    private String productType; //产品类型
+  @Length(max = 200)
+  @Where
+  private String productName; //产品名称
 
-    @Length(max = 60)
-    @Where
-    private String productClass; //产品属性
+  @Length(max = 60)
+  @Where
+  private String productType; //产品类型
 
-    @Length(max = 200)
-    private String decription; //产品描述
+  @Length(max = 60)
+  @Where
+  private String productClass; //产品属性
 
-    @Length(max = 60)
-    @Where
-    private String businessType; //业务类型
+  @Length(max = 200)
+  private String decription; //产品描述
 
-    @Length(max = 60)
-    @Where
-    private String lineCode; //产品线
+  @Length(max = 60)
+  @Where
+  private String businessType; //业务类型
 
-    @Where
-    @JoinTable(name = "itemModelJoin", target = ItemModel.class, type = JoinType.LEFT, on = {@JoinOn(joinField = ItemModel.FIELD_MODEL_ID)})
-    private Long modelId; //租赁物模型ID
+  @Length(max = 60)
+  @Where
+  private String lineCode; //产品线
 
-    @Transient
-    @JoinColumn(joinName = "itemModelJoin", field = ItemModel.FIELD_MODEL)
-    private String model;
+  @Where
+  @JoinTable(name = "itemModelJoin", target = ItemModel.class, type = JoinType.LEFT, on = {
+      @JoinOn(joinField = ItemModel.FIELD_MODEL_ID)})
+  private Long modelId; //租赁物模型ID
 
-    @Where
-    private Long companyId; //公司FND_COMPANY_B.COMPANY_ID
+  @Transient
+  @JoinColumn(joinName = "itemModelJoin", field = ItemModel.FIELD_MODEL)
+  private String model;
 
-    @Length(max = 60)
-    private String calculate; //计算器
 
-    @Length(max = 60)
-    private String rateType; //利率类型
+  @Where
+  private Long companyId; //公司FND_COMPANY_B.COMPANY_ID
 
-    @Where
-    private int version; //版本
 
-    @Length(max = 1)
-    private String enabledFlag; //启用标识
+  @Length(max = 60)
+  private String calculate; //计算器
 
-    private Date startDate; //有效期从
+  @Length(max = 60)
+  private String rateType; //利率类型
 
-    private Date endDate; //有效期至
+  @Where
+  private int version; //版本
 
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
-    }
+  @Length(max = 1)
+  private String enabledFlag; //启用标识
 
-    public String getProductCode() {
-        return productCode;
-    }
+  private Date startDate; //有效期从
 
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
+  private Date endDate; //有效期至
 
-    public String getProductName() {
-        return productName;
-    }
+  public void setProductCode(String productCode) {
+    this.productCode = productCode;
+  }
 
-    public void setProductType(String productType) {
-        this.productType = productType;
-    }
+  public String getProductCode() {
+    return productCode;
+  }
 
-    public String getProductType() {
-        return productType;
-    }
+  public void setProductName(String productName) {
+    this.productName = productName;
+  }
 
-    public void setProductClass(String productClass) {
-        this.productClass = productClass;
-    }
+  public String getProductName() {
+    return productName;
+  }
 
-    public String getProductClass() {
-        return productClass;
-    }
+  public void setProductType(String productType) {
+    this.productType = productType;
+  }
 
-    public void setDecription(String decription) {
-        this.decription = decription;
-    }
+  public String getProductType() {
+    return productType;
+  }
 
-    public String getDecription() {
-        return decription;
-    }
+  public void setProductClass(String productClass) {
+    this.productClass = productClass;
+  }
 
-    public void setBusinessType(String businessType) {
-        this.businessType = businessType;
-    }
+  public String getProductClass() {
+    return productClass;
+  }
 
-    public String getBusinessType() {
-        return businessType;
-    }
+  public void setDecription(String decription) {
+    this.decription = decription;
+  }
 
-    public void setLineCode(String lineCode) {
-        this.lineCode = lineCode;
-    }
+  public String getDecription() {
+    return decription;
+  }
 
-    public String getLineCode() {
-        return lineCode;
-    }
+  public void setBusinessType(String businessType) {
+    this.businessType = businessType;
+  }
 
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
-    }
+  public String getBusinessType() {
+    return businessType;
+  }
 
-    public Long getModelId() {
-        return modelId;
-    }
+  public void setLineCode(String lineCode) {
+    this.lineCode = lineCode;
+  }
 
-    public String getModel() {
-        return model;
-    }
+  public String getLineCode() {
+    return lineCode;
+  }
 
-    public void setModel(String model) {
-        this.model = model;
-    }
+  public void setModelId(Long modelId) {
+    this.modelId = modelId;
+  }
 
-    public void setCompanyId(Long companyId) {
-        this.companyId = companyId;
-    }
+  public Long getModelId() {
+    return modelId;
+  }
 
-    public Long getCompanyId() {
-        return companyId;
-    }
+  public String getModel() {
+    return model;
+  }
 
-    public void setCalculate(String calculate) {
-        this.calculate = calculate;
-    }
+  public void setModel(String model) {
+    this.model = model;
+  }
 
-    public String getCalculate() {
-        return calculate;
-    }
+  public void setCompanyId(Long companyId) {
+    this.companyId = companyId;
+  }
 
-    public void setRateType(String rateType) {
-        this.rateType = rateType;
-    }
+  public Long getCompanyId() {
+    return companyId;
+  }
 
-    public String getRateType() {
-        return rateType;
-    }
+  public void setCalculate(String calculate) {
+    this.calculate = calculate;
+  }
 
-    public int getVersion() {
-        return version;
-    }
+  public String getCalculate() {
+    return calculate;
+  }
 
-    public void setVersion(int version) {
-        this.version = version;
-    }
+  public void setRateType(String rateType) {
+    this.rateType = rateType;
+  }
 
-    public void setEnabledFlag(String enabledFlag) {
-        this.enabledFlag = enabledFlag;
-    }
+  public String getRateType() {
+    return rateType;
+  }
 
-    public String getEnabledFlag() {
-        return enabledFlag;
-    }
+  public int getVersion() {
+    return version;
+  }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
+  public void setVersion(int version) {
+    this.version = version;
+  }
 
-    public Date getStartDate() {
-        return startDate;
-    }
+  public void setEnabledFlag(String enabledFlag) {
+    this.enabledFlag = enabledFlag;
+  }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
+  public String getEnabledFlag() {
+    return enabledFlag;
+  }
 
-    public Date getEndDate() {
-        return endDate;
-    }
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
+  }
+
+  public Date getStartDate() {
+    return startDate;
+  }
+
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
+  }
+
+  public Date getEndDate() {
+    return endDate;
+  }
 
 }

@@ -5,10 +5,12 @@
   newViewModel = new kendo.observable({
     model: {}
   });
+
   //数据源
   var unitData = [];
-  var productData = [];
   var venderData = [];
+  var businessTypeData = [];
+
   $.ajax({
     url: '${base.contextPath}/hr/unit/query?unitType=' + "ORG",
     type: "POST",
@@ -19,16 +21,7 @@
       unitData = data.rows;
     }
   });
-  $.ajax({
-    url: '${base.contextPath}/pro/product/query',
-    type: "POST",
-    dataType: "json",
-    async: false,
-    contentType: "application/json",
-    success: function (data) {
-      productData = data.rows;
-    }
-  });
+
   //post请求上线文指定方式不同
   $.ajax({
     url: '${base.contextPath}/afd/customer/query',
@@ -39,6 +32,18 @@
     contentType: "application/x-www-form-urlencoded; charset=UTF-8",
     success: function (data) {
       venderData = data.rows;
+    }
+  });
+
+  //业务类型
+  $.ajax({
+    url: _basePath + '/pro/business/type/query',
+    dataType: "json",
+    type: "POST",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      businessTypeData = data.rows;
     }
   });
 </script>
@@ -146,30 +151,50 @@
         </div>
         <div class="form-group" style="margin-right: 70px">
           <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
-            "order.businesstype"/></label>
+            "businesstype.businesstype"/></label>
           <div class="col-xs-8">
             <input id="businessType" name="businessType" type="text"
                    data-bind="value:model.businessType"
                    style="width: 100%;" required
-                   data-label="<@spring.message 'order.businesstype'/>">
+                   data-label="<@spring.message 'businesstype.businesstype'/>">
             <script>
               $("#businessType").kendoComboBox({
-                dataTextField: "meaning",
-                dataValueField: "value",
-                dataSource: {
-                  transport: {
-                    read: {
-                      url: _basePath + '/common/code/BUSINESS.TYPE/',
-                      dataType: "json"
-                    }
-                  }
-                },
+                placeholder: "选择业务类型",
+                dataTextField: "description",
+                dataValueField: "businessType",
+                dataSource: businessTypeData,
                 select: function (e) {
-                  newViewModel.model.set("businessType", e.dataItem.value);
+                  newViewModel.model.set("businessType", e.dataItem.businessType);
+                  newViewModel.model.set("productCode", "");
+                  var combobox = $("#productCode").data("kendoComboBox");
+                  var dataSource = new kendo.data.DataSource({
+                    serverFiltering: true,
+                    transport: {
+                      read: function (options) {
+                        $.ajax({
+                          url: '${base.contextPath}/pro/product/query?businessType='
+                          + e.dataItem.businessType,
+                          type: "POST",
+                          dataType: "json",
+                          async: false,
+                          contentType: "application/json",
+                          success: function (data) {
+                            options.success(data.rows);
+                          }
+                        });
+                      }
+                    }
+                  });
+                  combobox.setDataSource(dataSource);
+                },
+                schema: {
+                  data: 'rows'
                 }
-              }).data("kendoComboBox");
+              });
               kendo.bind($("#businessType"), newViewModel);
             </script>
+
+
           </div>
         </div>
         <div class="form-group" style="margin-right: 70px">
@@ -182,20 +207,50 @@
                    data-label="<@spring.message 'order.productcode'/>">
             <script>
               $("#productCode").kendoComboBox({
+                autoBind: false,
+                cascadeFrom: "businessType",
+                cascadeFromField: "businessType",
+                filter: "contains",
+                placeholder: "选择产品",
                 dataTextField: "productName",
                 dataValueField: "productCode",
                 valuePrimitive: true,
-                dataSource: productData,
                 select: function (e) {
-                  newViewModel.model.set("productCode", e.dataItem.value);
+                  newViewModel.model.set("productCode", e.dataItem.productCode);
+                  $.ajax({
+                    url: '${base.contextPath}/pro/product/line/query?lineCode='
+                    + e.dataItem.lineCode,
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    contentType: "application/json",
+                    success: function (data) {
+                      if (typeof (data.rows[0]) == 'undefined') {
+                        return;
+                      } else {
+                        newViewModel.model.set("lineCode", data.rows[0].description);
+                      }
+
+                    }
+                  });
                 }
               }).data("kendoComboBox");
               kendo.bind($("#productCode"), newViewModel);
             </script>
           </div>
         </div>
-
-
+        <div class="form-group" style="margin-right: 70px">
+          <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+            "item.linecode"/></label>
+          <div class="col-xs-8">
+            <input id="lineCode" name="lineCode" type="text"
+                   data-bind="value:model.lineCode"
+                   style="width: 100%;" class="k-textbox" readonly
+                   data-label="<@spring.message 'item.linecode'/>">
+            <script>
+            </script>
+          </div>
+        </div>
         <div class="panel-footer text-center" id="toolbar">
           <span class="btn btn-success k-grid-save-changes" onclick="confirm()" type="button"
                 style="margin-right: 5px;"><@spring.message "确定"/></span>
@@ -209,6 +264,7 @@
 <div id="orderedit"/>
 <script type="text/javascript">
   function confirm() {
+    var linecode = newViewModel.model.get("lineCode");
     var orderData = new Array(6);
     var uid = newViewModel.model.unitId;
     var eid = newViewModel.model.employeeId;
@@ -216,36 +272,49 @@
     var ccs = newViewModel.model.customerClass;
     var btp = newViewModel.model.businessType;
     var pdc = newViewModel.model.productCode;
-    if (uid != undefined && eid != undefined && aid != undefined && ccs != undefined && btp
-        != undefined && pdc != undefined) {
-      orderData[0] = uid;
-      orderData[1] = eid;
-      orderData[2] = aid;
-      orderData[3] = ccs;
-      orderData[4] = btp;
-      orderData[5] = pdc;
-      var win = $("#orderedit").kendoWindow({
-        actions: ["Close"],
-        title: '订单编辑',
-        visible: false,
-        modal: true,
-        width: 900,
-        height: 400,
-        iframe: true,
-        content: '${base.contextPath}/order/order_edit.html?isedit=0&orderData=' + orderData,
-        close: function (e) {
-        }
-      }).data("kendoWindow");
-      win.center().maximize().open();
+        if (uid != undefined && eid != undefined && aid != undefined && ccs != undefined && btp
+            != undefined && pdc != undefined) {
+    orderData[0] = uid;
+    orderData[1] = eid;
+    orderData[2] = aid;
+    orderData[3] = ccs;
+    orderData[4] = btp;
+    orderData[5] = pdc;
+    var url;
+    if (ccs == 'ORG') {
+      if(linecode=='新车'){
+        url = '${base.contextPath}/order/order_lawnewedit.html?isedit=0&orderData=' + orderData;
+      }else {
+        url = '${base.contextPath}/order/order_lawedit.html?isedit=0&orderData=' + orderData;
+      }
     } else {
-      kendo.ui.showInfoDialog({
-        title: "提示",
-        message: "请输入必填项",
-        iconClass: "fa fa-times-circle", // 提示图标
-        dialogClass: "k-dialog-error" // 图标类型
-      })
-
+      if(linecode=='新车'){
+        url = '${base.contextPath}/order/order_newedit.html?isedit=0&orderData=' + orderData
+      }else {
+        url = '${base.contextPath}/order/order_edit.html?isedit=0&orderData=' + orderData
+      }
     }
+    var win = $("#orderedit").kendoWindow({
+      actions: ["Close"],
+      title: '订单编辑',
+      visible: false,
+      modal: true,
+      width: 900,
+      height: 400,
+      iframe: true,
+      content: url,
+      close: function (e) {
+      }
+    }).data("kendoWindow");
+    win.center().maximize().open();
+        } else {
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "请输入必填项",
+            iconClass: "fa fa-times-circle", // 提示图标
+            dialogClass: "k-dialog-error" // 图标类型
+          })
+        }
   }
 </script>
 </body>

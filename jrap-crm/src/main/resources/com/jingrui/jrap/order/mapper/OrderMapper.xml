@@ -112,12 +112,15 @@
     <result column="USER_STATUS_2" property="userStatus2" jdbcType="VARCHAR"/>
     <result column="DATA_CLASS" property="dataClass" jdbcType="VARCHAR"/>
     <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+    <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+    <result column="PRODUCT_NAME" property="productName" jdbcType="VARCHAR"/>
+    <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR"/>
     <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL"/>
     <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE"/>
   </resultMap>
   <select id="selectOrder" resultMap="BaseResultMap"
     parameterType="com.jingrui.jrap.order.dto.Order">
-    SELECT REQUEST_ID,
+    SELECT
     od.PROGRAM_ID,
     od.OBJECT_VERSION_NUMBER,
     od.CREATED_BY,
@@ -231,10 +234,19 @@
     od.SOURCE_ID,
     od.USER_STATUS_1,
     od.USER_STATUS_2,
-    od.DATA_CLASS
+    od.DATA_CLASS,
+    acm.CUSTOMER_NAME,
+    aim.ITEM_CODE,
+    ppd.PRODUCT_NAME
     FROM
-    con_order od
+    con_order od,
+    afd_customer acm,
+    afd_item aim,
+    pro_product ppd
     <where>
+      od.CUSTOMER_ID=acm.CUSTOMER_ID AND
+      od.ITEM_ID = aim.ITEM_ID AND
+      ppd.PRODUCT_CODE = od.PRODUCT_CODE
       <if test="orderId !=null ">
         AND od.ORDER_ID = #{orderId}
       </if>

@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
+import javax.persistence.Transient;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Table;
@@ -367,6 +368,35 @@ public class Order extends BaseDTO {
 
     @Length(max = 60)
     private String dataClass; //数据种类（NORMAL/HISTORY/CHANGE）
+
+    @Transient
+    @Length(max=255)
+    private String customerName;
+
+    @Transient
+    @Length(max=255)
+    private String productName;
+
+
+    @Transient
+    @Length(max=255)
+    private String itemCode;
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
+    }
 
     public Long getOrderId() {
         return orderId;

@@ -24,5 +24,4 @@
         select * from afd_item_evaluate ae where ae.ITEM_ID= #{itemId}
     </select>
 
-
 </mapper>

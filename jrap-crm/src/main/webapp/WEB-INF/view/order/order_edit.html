@@ -13,6 +13,10 @@
         type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?casstuData=CASHFLOW.STATUS"
         type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?paytypeData=ORDER.PAYTYPE"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?spouseTypeData=CM.SPOUSE_TYPE"
+        type="text/javascript"></script>
 <style type="text/css">
   .left {
     margin: 7px;
@@ -35,15 +39,15 @@
   }
 </style>
 <script>
+  var carViewModel=kendo.observable({
+    model: {},
+  });
   var isedit = '${RequestParameters.isedit!0}' == '1';
   //编辑状态
   if (isedit) {
     var orderid = '${RequestParameters.orderId!0}';
     var customerid = '${RequestParameters.customerId!0}';
     var itemid = '${RequestParameters.itemId!0}';
-    queryorder(orderid);
-    queryitem(itemid);
-    querycustomer(customerid);
     //订单的viewmodel
     var orderViewModel = kendo.observable({
       model: {
@@ -54,7 +58,6 @@
     //租赁物
     var itemViewModel = kendo.observable({
       model: {
-        enabledFlag: "Y",
         companyId: -1,
         __status: "update"
       },
@@ -63,19 +66,23 @@
     var customerViewModel = kendo.observable({
       model: {
         idType: "ID",
-        enabledFlag: "Y",
         __status: "update"
       },
       categoryId: "-1",
       sourceType: "CUSTOMER_ID"
     });
-
+    queryorder(orderid);
+    queryitem(itemid);
+    querycustomer(customerid);
+    getModelid(orderViewModel.model.productCode);
   } else {
     //新建状态接收订单参数
     var orderdata = '${RequestParameters.orderData!0}';
     var changeid = '${RequestParameters.changeId!0}';
     var orderViewModel;
     if (changeid != '0') {
+      var customerid = '${RequestParameters.customerId!0}';
+      querycustomer(customerid);
       //订单的viewmodel
       orderViewModel = kendo.observable({
         model: {
@@ -88,9 +95,8 @@
       var customerViewModel = kendo.observable({
         model: {
           idType: "ID",
-          enabledFlag: "Y",
           companyId: -1,
-          __status: "add"
+          __status: "update"
         },
         categoryId: "-1",
         sourceType: "CUSTOMER_ID"
@@ -113,15 +119,16 @@
       var customerViewModel = kendo.observable({
         model: {
           idType: "ID",
-          enabledFlag: "Y",
           customerClass: od[3],
           companyId: -1,
-          __status: "add"
+          __status: "add",
+          customerCategory: "TENANT",
+          customerType: "TENANT"
         },
         categoryId: "-1",
         sourceType: "CUSTOMER_ID"
       });
-
+      getModelid(od[5]);
     }
 
     //租赁物
@@ -129,12 +136,42 @@
       model: {
         documentCategory: 'ITEM',
         documentType: 'ITEM',
-        enabledFlag: "Y",
         companyId: -1,
         __status: "add"
       },
     });
 
+  }
+
+  //通过code查找到租赁物id
+  function getModelid(productCode) {
+    $.ajax({
+      url: '${base.contextPath}/pro/product/query?productCode=' + productCode,
+      success: function (args) {
+        if (typeof (args.rows[0]) == 'undefined') {
+          return;
+        } else {
+          queryItemModel(args.rows[0].modelId);
+        }
+      }
+    })
+  }
+
+  //查找租赁物模板信息
+  function queryItemModel(modelid) {
+    $.ajax({
+      url: '${base.contextPath}/pro/item/model/query?modelId=' + modelid,
+      success: function (args) {
+        if (typeof (args.rows[0]) == 'undefined') {
+          return;
+        } else {
+          var a0 = args.rows[0] || {};
+          for (var k in a0) {
+            carViewModel.model.set(k, a0[k]);
+          }
+        }
+      }
+    })
   }
 
   //查找订单
@@ -182,6 +219,7 @@
   var documentTypeData = [];
   var cfTypeData = [];
   var venderData = [];
+  var businessTypeData = [];
   $.ajax({
     url: '${base.contextPath}/pro/product/line/query',
     type: "POST",
@@ -239,9 +277,19 @@
     }
   });
 
+  //业务类型
+  $.ajax({
+    url: _basePath + '/pro/business/type/query',
+    dataType: "json",
+    type: "POST",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      businessTypeData = data.rows;
+    }
+  });
 
 </script>
-
 <div id="page-content">
   <div class="text-left"
        style="bottom: 10px; position: relative;   float: left; padding-top:10px;border-top:1px solid #ebebeb;width:100%; background: #fff;z-index:11;">
@@ -260,6 +308,9 @@
           客户信息
         </li>
         <li>
+          担保人信息
+        </li>
+        <li>
           租赁物信息
         </li>
         <li>
@@ -275,34 +326,112 @@
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
-                  "order.productcode"/></label>
+                  "order.ordercode"/></label>
                 <div class="col-xs-8">
-                  <input id="productCode" name="productCode" type="text"
-                         data-bind="value:model.productCode"
+                  <input id="orderCode" name="orderCode" type="text" data-role="maskedtextbox"
+                         data-label="<@spring.message 'order.ordercode'/>"
+                         data-bind="value:model.orderCode"
+                         class="k-textbox" disabled
+                         style="width: 100%;">
+                  <script>kendo.bind($('#orderCode'), orderViewModel);</script>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message
+                  "businesstype.businesstype"/></label>
+                <div class="col-xs-8">
+                  <input id="businessType" name="businessType" type="text"
+                         data-bind="value:model.businessType"
                          style="width: 100%;" required
-                         data-label="<@spring.message 'order.productcode'/>">
+                         data-label="<@spring.message 'businesstype.businesstype'/>">
                   <script>
-                    $("#productCode").kendoComboBox({
-                      dataTextField: "productName",
-                      dataValueField: "productCode",
-                      valuePrimitive: true,
-                      dataSource: productData,
+                    $("#businessType").kendoComboBox({
+                      placeholder: "选择业务类型",
+                      dataTextField: "description",
+                      dataValueField: "businessType",
+                      dataSource: businessTypeData,
                       select: function (e) {
-                        orderViewModel.model.set("productCode", e.dataItem.value);
+                        carViewModel.model.set("brand", "");
+                        carViewModel.model.set("series", "");
+                        carViewModel.model.set("model", "");
+                        orderViewModel.model.set("businessType", e.dataItem.businessType);
+                        orderViewModel.model.set("productCode", "");
+                        var combobox = $("#productCode").data("kendoComboBox");
+                        var dataSource = new kendo.data.DataSource({
+                          serverFiltering: true,
+                          transport: {
+                            read: function (options) {
+                              $.ajax({
+                                url: '${base.contextPath}/pro/product/query?businessType='
+                                + e.dataItem.businessType,
+                                type: "POST",
+                                dataType: "json",
+                                async: false,
+                                contentType: "application/json",
+                                success: function (data) {
+                                  options.success(data.rows);
+                                }
+                              });
+                            }
+                          }
+                        });
+                        combobox.setDataSource(dataSource);
+                      },
+                      schema: {
+                        data: 'rows'
                       }
-                    }).data("kendoComboBox");
-                    kendo.bind($("#productCode"), orderViewModel);
+                    });
+                    kendo.bind($("#businessType"), orderViewModel);
                   </script>
                 </div>
               </div>
             </div>
+
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "order.productcode"/></label>
+                <div class="col-xs-8">
+                  <input id="productCode" name="productCode" type="text"
+                         data-bind="value:model.productCode,text:model.productName"
+                         style="width: 100%;"
+                         data-label="<@spring.message 'order.productcode'/>">
+                  <script>
+                    $("#productCode").kendoComboBox({
+                      autoBind: false,
+                      cascadeFrom: "businessType",
+                      cascadeFromField: "businessType",
+                      filter: "contains",
+                      placeholder: "选择产品",
+                      dataTextField: "productName",
+                      dataValueField: "productCode",
+                      select: function (e) {
+                        console.log(e.dataItem.productCode);
+                        orderViewModel.model.set("productCode", e.dataItem.productCode);
+                        getModelid(e.dataItem.productCode);
+                      },
+                      schema: {
+                        data: 'rows'
+                      }
+                    }).data('kendoComboBox');
+                    kendo.bind($('#productCode'), orderViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 row">
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
                   "order.agentid"/></label>
                 <div class="col-xs-8">
                   <input id="agentId" name="agentId" type="text"
-                         data-bind="value:model.agentId"
+                         data-bind="value:model.agentId,text:model.customerName"
                          style="width: 100%;" required
                          data-label="<@spring.message 'order.agentId'/>">
                   <script>
@@ -334,9 +463,6 @@
                 </div>
               </div>
             </div>
-
-          </div>
-          <div class="col-xs-12 row">
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
@@ -362,6 +488,9 @@
               </div>
             </div>
 
+
+          </div>
+          <div class="col-xs-12 row">
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
@@ -389,22 +518,42 @@
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
-                  "order.paytimes"/></label>
+                  "order.paytype"/></label>
                 <div class="col-xs-8">
-                  <input id="payTimes" name="payTimes" type="text" data-role="maskedtextbox"
-                         data-label="<@spring.message 'order.paytimes'/>"
-                         data-bind="value:model.payTimes"
-                         class="k-textbox"
+                  <input id="payType" name="payType" type="text" data-role="maskedtextbox"
+                         data-label="<@spring.message 'order.paytype'/>"
+                         data-bind="value:model.payType"
                          style="width: 100%;">
-                  <script>kendo.bind($('#payTimes'), orderViewModel);</script>
+                  <script>
+                    $("#payType").kendoComboBox({
+                      dataSource: paytypeData,
+                      valuePrimitive: true,
+                      dataTextField: "meaning",
+                      dataValueField: "value",
+                      select: function (e) {
+                        orderViewModel.model.set("payType", e.dataItem.value);
+                      }
+                    });
+                    kendo.bind($('#payType'), orderViewModel);
+                  </script>
                 </div>
               </div>
             </div>
-
-
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                  "order.intrate"/></label>
+                <div class="col-xs-8">
+                  <input id="intRate" type="text" data-bind="value:model.intRate"
+                         style="width: 100%;" disabled="disabled">
+                  <script>
+                    $("#intRate").kendoNumericTextBox({min: 0});
+                    kendo.bind($('#intRate'), orderViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
           </div>
-
-
           <div class="col-xs-12 row">
             <div class="col-xs-4">
               <div class="form-group">
@@ -450,11 +599,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-
-          <div class="col-xs-12 row">
-
           </div>
 
 
@@ -669,7 +813,8 @@
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
                   "order.violationdeposit"/></label>
                 <div class="col-xs-8">
-                  <input id="violationDeposit" type="text" data-bind="value:model.violationDeposit"
+                  <input id="violationDeposit" type="text"
+                         data-bind="value:model.violationDeposit"
                          style="width: 100%;">
                   <script>
                     $("#violationDeposit").kendoNumericTextBox({min: 0});
@@ -684,7 +829,8 @@
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
                   "order.insurancedeposit"/></label>
                 <div class="col-xs-8">
-                  <input id="insuranceDeposit" type="text" data-bind="value:model.insuranceDeposit"
+                  <input id="insuranceDeposit" type="text"
+                         data-bind="value:model.insuranceDeposit"
                          style="width: 100%;">
                   <script>
                     $("#insuranceDeposit").kendoNumericTextBox({min: 0});
@@ -734,7 +880,7 @@
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
                   "order.totalfee"/></label>
                 <div class="col-xs-8">
-                  <input id="totalFee" type="text" data-bind="value:order.totalFee"
+                  <input id="totalFee" type="text" data-bind="value:model.totalFee"
                          disabled="disabled"
                          style="width: 100%;">
                   <script>
@@ -747,16 +893,17 @@
           </div>
 
           <div class="col-xs-12 row">
+
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
-                  "order.intrate"/></label>
+                  "itemmodel.brand"/></label>
                 <div class="col-xs-8">
-                  <input id="intRate" type="text" data-bind="value:model.intRate"
-                         style="width: 100%;" disabled="disabled">
+                  <input id="brand" type="text" data-bind="value:model.brand"
+                         disabled="disabled" class="k-textbox"
+                         style="width: 100%;background-color: #ededed;">
                   <script>
-                    $("#intRate").kendoNumericTextBox({min: 0});
-                    kendo.bind($('#intRate'), orderViewModel);
+                    kendo.bind($('#brand'), carViewModel);
                   </script>
                 </div>
               </div>
@@ -764,21 +911,39 @@
 
             <div class="col-xs-4">
               <div class="form-group">
-                <label class="col-xs-4 control-label"
-                       style="text-align: right"><@spring.message "order.startdate"/></label>
+                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                  "itemmodel.series"/></label>
                 <div class="col-xs-8">
-                  <input id="startDate" style="width: 100%" data-bind="value:model.startDate">
+                  <input id="series" type="text" data-bind="value:model.series"
+                         disabled="disabled" class="k-textbox"
+                         style="width: 100%;background-color: #ededed;">
                   <script>
-                    $('#startDate').kendoDatePicker();
-                    kendo.bind($('#startDate'), orderViewModel);</script>
+                    kendo.bind($('#series'), carViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                  "itemmodel.model"/></label>
+                <div class="col-xs-8">
+                  <input id="carmodel" type="text" data-bind="value:model.model"
+                         disabled="disabled" class="k-textbox"
+                         style="width: 100%;background-color: #ededed;">
+                  <script>
+                    kendo.bind($('#carmodel'), carViewModel);
+                  </script>
                 </div>
               </div>
             </div>
           </div>
+
         </form>
       </div>
       <div id="customer">
         <form class="form-horizontal" role="form" style="width: 98%;">
+          <h4>基础信息</h4>
           <div class="col-xs-12 row">
             <div class="col-xs-4">
               <div class="form-group">
@@ -823,7 +988,7 @@
                 <div class="col-xs-8">
                   <input id="customerClass" name="customerClass" type="text"
                          data-bind="value:model.customerClass"
-                         style="width: 100%;" required
+                         style="width: 100%;" disabled
                          data-label="<@spring.message 'customer.customerClass'/>">
                   <script>
                     $("#customerClass").kendoComboBox({
@@ -857,7 +1022,7 @@
                 <div class="col-xs-8">
                   <input id="customerCategory" name="customerCategory" type="text"
                          data-bind="value:model.customerCategory"
-                         style="width: 100%;" required
+                         style="width: 100%;" disabled
                          data-label="<@spring.message 'customer.customerCategory'/>">
                   <script>
                     $("#customerCategory").kendoComboBox({
@@ -885,6 +1050,7 @@
                               + '/common/childCode?parentCode=CUSTOMER.CATEGORY&value='
                               + e.dataItem.value,
                               dataType: "json"
+
                             }
                           }
                         });
@@ -907,7 +1073,7 @@
                 <div class="col-xs-8">
                   <input id="customerType" name="customerType" type="text"
                          data-bind="value:model.customerType"
-                         style="width: 100%;"
+                         style="width: 100%;" disabled readonly
                          data-label="<@spring.message 'customer.customerType'/>">
                   <script>
                     $("#customerType").kendoComboBox({
@@ -932,7 +1098,6 @@
                               var customerCategory = customerViewModel.model.get(
                                   "customerCategory");
                               map["parentCode"] = "CUSTOMER.CATEGORY";
-                              //map[filter.field] = filter.value;
                               map["value"] = customerCategory;
                               return map;
                             }
@@ -992,6 +1157,13 @@
                         customerViewModel.model.set("idEndDate", "");
                       }
                     });
+                    $("#idType").on('change', function () {
+                      if (this.value == '') {
+                        $('#idType').attr('disabled', 'disabled')
+                      } else {
+                        $('#idType').removeAttr('disabled');
+                      }
+                    })
                     kendo.bind($('#idType'), customerViewModel);
                   </script>
                 </div>
@@ -1002,8 +1174,8 @@
               <div class="form-group">
                 <label class="col-xs-4 control-label"
                        style="text-align: right"><@spring.message "customer.idNo"/></label>
-                <div class="col-xs-8">
-                  <input id="idNo" type="text" data-bind="value:model.idNo"
+                <div class="col-xs-7" style="padding-right: 0;">
+                  <input id="idNo" type="text" data-bind="value:model.idNo" onblur="queryCard()"
                          class="k-textbox"
                          style="width: 100%;">
                   <script>kendo.bind($('#idNo'), customerViewModel);</script>
@@ -1101,8 +1273,29 @@
               </div>
             </div>
           </div>
-
+          <h4>紧急联系人</h4>
           <div class="col-xs-12 row">
+            <div class="col-xs-4">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "customer.spouseType"/></label>
+                <div class="col-xs-8">
+                  <input id="spouseType" type="text" data-bind="value:model.spouseType"
+                         style="width: 100%;">
+                  <script>
+                    $("#spouseType").kendoComboBox({
+                      dataTextField: "meaning",
+                      dataValueField: "value",
+                      dataSource: spouseTypeData,
+                      select: function (e) {
+                        customerViewModel.model.set("spouseType", e.dataItem.value);
+                      }
+                    });
+                    kendo.bind($('#spouseType'), customerViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label"
@@ -1115,18 +1308,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-xs-4">
-              <div class="form-group">
-                <label class="col-xs-4 control-label"
-                       style="text-align: right"><@spring.message "customer.spouseType"/></label>
-                <div class="col-xs-8">
-                  <input id="spouseType" type="text" data-bind="value:model.spouseType"
-                         class="k-textbox"
-                         style="width: 100%;">
-                  <script>kendo.bind($('#spouseType'), customerViewModel);</script>
-                </div>
-              </div>
-            </div>
+
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label"
@@ -1155,25 +1337,36 @@
               </div>
             </div>
 
-            <div class="col-xs-4">
-              <div class="form-group">
-                <label class="col-xs-4 control-label"><@spring.message
-                  "customer.enabledFlag"/>:</label>
-                <div class="col-xs-8" style="text-align: left">
-                  <input id="enabledFlag" type="checkbox" class="k-checkbox" style="margin-top:5px"
-                         data-bind="value:model.enabledFlag">
+
+          </div>
+          <h4>银行卡信息</h4>
+          <div style="height:300px;">
+            <div class="panel-body">
+              <div class="row">
+                <div class="block">
+                  <div class="form-group">
+                    <div id='grid-contaierr'>
+                      <div id="bankcardid" style="clear: both"></div>
+                    </div>
+                  </div>
                 </div>
-                <script>
-                  kendo.bind($('#enabledFlag'), customerViewModel);
-                  $("#enabledFlag").kendoCheckbox({
-                    checkedValue: 'Y',
-                    uncheckedValue: 'N'
-                  });
-                </script>
               </div>
             </div>
           </div>
         </form>
+      </div>
+      <div style="height:300px;">
+        <div class="panel-body">
+          <div class="row">
+            <div class="block">
+              <div class="form-group">
+                <div id='grid-conterr'>
+                  <div id="guarantorid" style="clear: both"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="item">
         <form class="form-horizontal" role="form" style="width: 98%;">
@@ -1447,7 +1640,6 @@
           </div>
 
           <div class="col-xs-12 row">
-
             <div class="col-xs-4">
               <div class="form-group">
                 <label class="col-xs-4 control-label"
@@ -1458,22 +1650,6 @@
                     $('#drivingDate').kendoDatePicker();
                     kendo.bind($('#drivingDate'), itemViewModel);</script>
                 </div>
-              </div>
-            </div>
-            <div class="col-xs-4">
-              <div class="form-group">
-                <label class="col-xs-4 control-label"><@spring.message "item.enabledFlag"/>:</label>
-                <div class="col-xs-8" style="text-align: left">
-                  <input id="ienabledFlag" type="checkbox" class="k-checkbox" style="margin-top:5px"
-                         data-bind="value:model.enabledFlag">
-                </div>
-                <script>
-                  kendo.bind($('#ienabledFlag'), itemViewModel);
-                  $("#ienabledFlag").kendoCheckbox({
-                    checkedValue: 'Y',
-                    uncheckedValue: 'N'
-                  });
-                </script>
               </div>
             </div>
           </div>
@@ -1582,7 +1758,7 @@
 <script>
   var cashflowviewModel = Jrap.createGridViewModel("#cashflowgrid");
   var orderId = orderViewModel.model.orderId;
-  if (orderId == undefined) {
+  if (typeof (orderId) == 'undefined') {
     orderId = -1
   }
   var BaseUrl = _basePath;
@@ -1747,6 +1923,205 @@
     ],
     editable: false
   });
+</script>
+<script>
+  var guarantorviewModel = Jrap.createGridViewModel("#guarantorid");
+  var BaseUrl = _basePath;
+  var orderId = orderViewModel.model.orderId;
+  var customerId = customerViewModel.model.customerId;
+  if (typeof (customerId) == 'undefined'||typeof (orderId) == 'undefined') {
+    guarantorviewModel.model.set("customerId", -1);
+    guarantorviewModel.model.set("orderId", -1);
+  }else{
+    guarantorviewModel.model.set("customerId",customerId);
+    guarantorviewModel.model.set("orderId", orderId);
+  }
+  guarantdataSource = new kendo.data.DataSource({
+    transport: {
+      read: {
+        url: BaseUrl + "/con/guarantor/selectOptions",
+        type: "POST",
+        dataType: "json"
+      },
+      update: {
+        url: BaseUrl + "/con/guarantor/submit",
+        type: "POST",
+        contentType: "application/json"
+      },
+      destroy: {
+        url: BaseUrl + "/con/guarantor/remove",
+        type: "POST",
+        contentType: "application/json"
+      },
+      create: {
+        url: BaseUrl + "/con/guarantor/submit",
+        type: "POST",
+        contentType: "application/json"
+      },
+      parameterMap: function (options, type) {
+        if (type !== "read" && options.models) {
+          var datas = Jrap.prepareSubmitParameter(options, type)
+          return kendo.stringify(datas);
+        } else if (type === "read") {
+          return Jrap.prepareQueryParameter(guarantorviewModel.model.toJSON(), options)
+        }
+      }
+    },
+    batch: true,
+    serverPaging: true,
+    pageSize: 10,
+    schema: {
+      data: 'rows',
+      total: 'total',
+      model: {
+        id: "guarantorId",
+        fields: {
+          orderId: {defaultValue: orderViewModel.model.orderId},
+          customerId:{defaultValue: customerViewModel.model.customerId}
+        }
+      }
+    }
+  });
+
+  var guarantorgrid=$("#guarantorid").kendoGrid({
+    dataSource: guarantdataSource,
+    resizable: true,
+    scrollable: true,
+    navigatable: false,
+    selectable: 'multiple, rowbox',
+    dataBound: function () {
+      if (parent.autoResizeIframe) {
+        parent.autoResizeIframe('${RequestParameters.functionCode!}')
+      }
+    },
+    pageable: {
+      pageSizes: [5, 10, 20, 50],
+      refresh: true,
+      buttonCount: 5
+    },
+    toolbar: [
+      {
+        template: '<span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>'
+      },
+      {
+        template: '<span class="btn btn-success" onclick="saveGuarant()" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>'
+      },
+      {
+        template: '<span  onclick="deleteData()" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>'
+      }
+    ],
+    columns: [
+    /*  {
+        field: "orderId",
+        title: '<@spring.message "guarantor.orderid"/>',
+        width: 120
+      },
+      {
+        field: "customerId",
+        title: '<@spring.message "guarantor.customerid"/>',
+        width: 120
+      },*/
+      {
+        field: "guarantorSequence",
+        title: '<@spring.message "guarantor.guarantorsequence"/>',
+        width: 120
+      }
+    ],
+    editable: true
+  }).data("kendoGrid");
+
+</script>
+
+<script>
+  var bankcardviewModel = Jrap.createGridViewModel("#bankcardid");
+  var customerId = customerViewModel.model.customerId;
+  if (typeof (customerId) == 'undefined') {
+    bankcardviewModel.model.set("ownerId", -1);
+  }else{
+    bankcardviewModel.model.set("ownerId", customerId);
+  }
+  var BaseUrl = _basePath;
+  dataSource = new kendo.data.DataSource({
+    transport: {
+      read: {
+        url: BaseUrl + "/afd/account/queryone",
+        type: "POST",
+        dataType: "json"
+      },
+      parameterMap: function (options, type) {
+        if (type === "read") {
+          return Jrap.prepareQueryParameter(bankcardviewModel.model.toJSON(), options)
+        }
+      }
+    },
+    batch: true,
+    serverPaging: true,
+    pageSize: 10,
+    schema: {
+      data: 'rows',
+      total: 'total',
+      model: {
+        id: "accountId",
+        fields: {
+          enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+        }
+      }
+    }
+  });
+
+  $("#bankcardid").kendoGrid({
+    dataSource: dataSource,
+    resizable: true,
+    scrollable: true,
+    navigatable: false,
+    selectable: 'multiple, rowbox',
+    dataBound: function () {
+      if (parent.autoResizeIframe) {
+        parent.autoResizeIframe('${RequestParameters.functionCode!}')
+      }
+    },
+    columns: [
+      {
+        field: "accountNumber",
+        title: '<@spring.message "account.accountnumber"/>',
+        width: 120
+      },
+      {
+        field: "accountName",
+        title: '<@spring.message "account.accountname"/>',
+        width: 150
+      },
+      {
+        field: "bankId",
+        title: '<@spring.message "account.bankid"/>',
+        width: 200,
+        template : function (dataItem) {
+          return dataItem['bankName'] || '';
+        },
+        editor  : function (container, options) {
+          $('<input required name="' + options.field + '"/>')
+          .appendTo(container)
+          .kendoLov($.extend(<@lov "LOV_BANK"/>, {
+            query: function (e) {
+              e.param['enabledFlag'] = 'Y';
+            },
+            textField: 'bankName',
+            valueField:'bankId',
+            model: options.model
+          }));
+        }
+      },
+      {
+        field: "enabledFlag",
+        title: '<@spring.message "jrap.enableflag"/>',
+        width: 60,
+        headerAttributes: {
+          style: "text-align: center"
+        },
+        attributes: {style: "text-align:center"},
+        sortable: false
+      }],
+    editable: false});
 </script>
 
 <script>
@@ -1960,6 +2335,94 @@
     window.parent.$("#orderedit").data("kendoWindow").close();
   });
 
+  // 身份证查询
+  function queryCard() {
+    if ((customerViewModel.model.idType == undefined || customerViewModel.model.idType == "")
+        || (customerViewModel.model.idNo == undefined || customerViewModel.model.idNo == "")) {
+      kendo.ui.showInfoDialog({
+        title: "提示",
+        message: "请输入证件类型和证件号",
+        iconClass: "fa fa-times-circle", // 提示图标
+        dialogClass: "k-dialog-error" // 图标类型
+      })
+      return;
+    }
+    $.ajax({
+      type: "POST",
+      url: '${base.contextPath}/afd/customer/query',
+      data: {
+        "idType": customerViewModel.model.idType,
+        "idNo": customerViewModel.model.idNo,
+        "customerCategory": "TENANT",
+        "customerType": "TENANT"
+      },
+      dataType: "json",
+      contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+      success: function (data) {
+        if (data.rows.length > 0) {
+          var a0 = data.rows[0] || {};
+          for (var k in a0) {
+            customerViewModel.model.set(k, a0[k]);
+          }
+          $("#customerCode").attr('disabled', 'disabled');
+          $("#customerName").attr('disabled', 'disabled');
+          $("#customerClass").attr('disabled', 'disabled');
+          $("#customerCategory").attr('disabled', 'disabled');
+          $("#customerType").attr('disabled', 'disabled');
+          $("#telphone").attr('disabled', 'disabled');
+          $("#idEndDate").attr('disabled', 'disabled');
+          $("#email").attr('disabled', 'disabled');
+          $("#qq").attr('disabled', 'disabled');
+          $("#weixin").attr('disabled', 'disabled');
+          $("#unitName").attr('disabled', 'disabled');
+          $("#position").attr('disabled', 'disabled');
+          $("#unitAddress").attr('disabled', 'disabled');
+          $("#spouseType").attr('disabled', 'disabled');
+          $("#spouseName").attr('disabled', 'disabled');
+          $("#spouseTelphone").attr('disabled', 'disabled');
+          $("#homeAddress").attr('disabled', 'disabled');
+
+        } else {
+          $("#customerCode").removeAttr('disabled');
+          $("#customerName").removeAttr('disabled');
+          $("#customerClass").removeAttr('disabled');
+          $("#customerCategory").removeAttr('disabled');
+          $("#customerType").removeAttr('disabled');
+          $("#telphone").removeAttr('disabled');
+          $("#idEndDate").removeAttr('disabled');
+          $("#email").removeAttr('disabled');
+          $("#qq").removeAttr('disabled');
+          $("#weixin").removeAttr('disabled');
+          $("#unitName").removeAttr('disabled');
+          $("#position").removeAttr('disabled');
+          $("#unitAddress").removeAttr('disabled');
+          $("#spouseType").removeAttr('disabled');
+          $("#spouseName").removeAttr('disabled');
+          $("#spouseTelphone").removeAttr('disabled');
+          $("#homeAddress").removeAttr('disabled');
+
+          customerViewModel.model.set("customerCode", "");
+          customerViewModel.model.set("customerName", "");
+          customerViewModel.model.set("customerClass", "");
+          customerViewModel.model.set("customerCategory", "");
+          customerViewModel.model.set("customerType", "");
+          customerViewModel.model.set("telphone", "");
+          customerViewModel.model.set("idEndDate", "");
+          customerViewModel.model.set("email", "");
+          customerViewModel.model.set("qq", "");
+          customerViewModel.model.set("weixin", "");
+          customerViewModel.model.set("unitName", "");
+          customerViewModel.model.set("position", "");
+          customerViewModel.model.set("unitAddress", "");
+          customerViewModel.model.set("spouseType", "");
+          customerViewModel.model.set("spouseName", "");
+          customerViewModel.model.set("spouseTelphone", "");
+          customerViewModel.model.set("homeAddress", "");
+        }
+      }
+    });
+  }
+
   //创建订单
   $("#saveGrid").click(function () {
     var datamap = {};
@@ -1997,6 +2460,63 @@
       });
     }
   })
+  /*担保信息的删除*/
+  function deleteData() {
+    var checked = guarantorgrid.selectedDataItems();
+    if (guarantorgrid.selectedDataItems().length) {
+      kendo.ui.showConfirmDialog({
+        title: $l('jrap.tip.info'),
+        message: $l('jrap.tip.delete_confirm')
+      }).done(function (event) {
+        if (event.button == 'OK') {
+          $.each(checked, function (i, v) {
+            guarantorgrid.dataSource.remove(v)
+          });
+          guarantorgrid.dataSource.sync();
+        }
+      })
+    }
+  }
+
+  /*担保信息的保存*/
+  function saveGuarant() {
+    if ((customerViewModel.model.customerId == undefined || customerViewModel.model.customerId == "")
+        || (orderViewModel.model.orderId == undefined || orderViewModel.model.orderId == "")){
+        kendo.ui.showErrorDialog({
+        title: $l('jrap.error'),
+        message: '请先保存客户和订单信息'
+         });
+      }else {
+      $.ajax({
+        type: "POST",
+        url: '${base.contextPath}/con/guarantor/submit',
+        dataType: "json",
+        data: kendo.stringify(guarantdataSource.data()),
+        async: false,
+        contentType: "application/json",
+        success: function (data) {
+          if (data.success = "true") {
+            kendo.ui.showInfoDialog({
+              title: "提示",
+              message: "保存成功"
+            }).done(function (e) {
+            });
+          } else {
+            kendo.ui.showInfoDialog({
+              title: "提示",
+              message: "保存失败",
+              iconClass: "fa fa-times-circle", // 提示图标
+              dialogClass: "k-dialog-error" // 图标类型
+            }).done(function (e) {
+            });
+          }
+        }
+      });
+
+    }
+  }
+
+
 </script>
 </body>
 </html>

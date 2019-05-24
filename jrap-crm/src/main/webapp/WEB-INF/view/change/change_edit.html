@@ -21,6 +21,7 @@
         for (var k in a0) {
           newViewModel.model.set(k, a0[k]);
         }
+        console.log(newViewModel.model);
       }
     });
 
@@ -234,7 +235,8 @@
           </div>
           <div class="text-right"
                style="bottom: 15px; padding-right: 24px;  float: left;border-top:1px  #ebebeb;width:100%; background: #fff;">
-            <span class="btn btn-success k-grid-save-changes" onclick="createorder()" style="margin-right: 5px;"><@spring.message "生成订单"/></span>
+            <span class="btn btn-success k-grid-save-changes" onclick="createorder()"
+                  style="margin-right: 5px;"><@spring.message "生成订单"/></span>
             <span class="btn btn-primary" id="saveGrid" type="submit" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
             <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
           </div>
@@ -440,8 +442,9 @@
     }
   }
 
-  function createorder(){
-    var changeId=newViewModel.model.changeId;
+  function createorder() {
+    var changeId = newViewModel.model.changeId;
+    var customerId = newViewModel.model.customerId;
     var win = $("#orderedit").kendoWindow({
       actions: ["Close"],
       title: '生成订单',
@@ -450,12 +453,12 @@
       width: 900,
       height: 400,
       iframe: true,
-      content: '${base.contextPath}/order/order_edit.html?isedit=0&changeId=' + changeId,
+      content: '${base.contextPath}/order/order_edit.html?isedit=0&changeId=' + changeId
+      + '&customerId=' + customerId,
       close: function (e) {
       }
     }).data("kendoWindow");
     win.center().maximize().open();
-
 
   }
 </script>

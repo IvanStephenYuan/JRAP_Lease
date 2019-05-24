@@ -120,8 +120,8 @@
               <label class="col-xs-2 control-label"
                      style="text-align: right"><@spring.message "changeassign.assignnote"/></label>
               <div class="col-xs-10">
-                <input id="assignNote" type="text" data-bind="value:model.assignNote"
-                       style="width: 100%;">
+                <textarea id="assignNote" type="text" data-bind="value:model.assignNote"
+                          style="width: 100%;resize:none;height: 120px;"></textarea>
                 <script>
                   kendo.bind($('#assignNote'), newViewModel);
                 </script>
@@ -176,6 +176,7 @@
             title: "提示",
             message: "分配成功"
           }).done(function (e) {
+            window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
             window.parent.$("#changeassignWindow").data("kendoWindow").close()
           });
         } else {
@@ -185,6 +186,7 @@
             iconClass: "fa fa-times-circle", // 提示图标
             dialogClass: "k-dialog-error" // 图标类型
           }).done(function (e) {
+            window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
             window.parent.$("#changeassignWindow").data("kendoWindow").close()
           });
         }

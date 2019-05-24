@@ -109,6 +109,7 @@
         scrollable: true,
         navigatable: false,
         selectable: "rowbox",
+        persistSelection: true,
         dataBound: function () {
             if (parent.autoResizeIframe) {
                 parent.autoResizeIframe('${RequestParameters.functionCode!}')
@@ -247,10 +248,12 @@
         editable: false
     }).data("kendoGrid");
 
+
+
     function creditQuery(){
         var checked = grid.selectedDataItems();
         if (checked.length) {
-            $(".zhengxin_shade").css("display","block");
+            $.blockUI({ css: { backgroundColor: '#081731', color: '#fff',height:'50px',lineHeight:'50px',fontSize:'16px'},message:'<p style>正在查询中，请耐心等待。。。</p>' });
             var data = checked[0];
             var sengMsg=[];
             sengMsg[0]=data.toJSON(data);
@@ -263,7 +266,7 @@
                 data: kendo.stringify(sengMsg),
                 async: true,
                 success: function (res) {
-                    $(".zhengxin_shade").css("display","none");
+                    $.unblockUI();
                     kendo.ui.showInfoDialog({
                         message: res.message
                     });

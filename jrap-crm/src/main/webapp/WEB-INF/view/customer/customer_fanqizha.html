@@ -6,6 +6,7 @@
     }
     .title{
         text-align: center;
+        margin-bottom: 50px;
     }
     .clear{
         zomm:1;
@@ -130,8 +131,14 @@
     .scoreLevel .score-low{
         width: 46%;
     }
-    .scoreLevel .scoreLevel-active{
+    .bgRed{
         background-color: red;
+    }
+    .bgGreen{
+        background-color: green;
+    }
+    .bgBlue{
+        background-color: blue;
     }
     .scoreNum{
         position: absolute;
@@ -194,6 +201,11 @@
         top:0;
         text-align: left;
     }
+    .hit .hitTypes p{
+        position: relative;
+        top:50%;
+        transform: translateY(-50%);
+    }
     .risk-prompt{
         font-size: 12px;
        /* background-color:#c0c0c0;*/
@@ -245,325 +257,29 @@
 
 </style>
 <script type="text/javascript">
-    var json={
-        "returnValue": {
-            "batNo": "2019050616000474",
-            "cisReport": [
-                {
-                    "buildEndTime": "2019-05-06 16:32:21",
-                    "creditBehaviorInfo": {
-                        "avgCredits": "35",
-                        "errorMessage": "",
-                        "last12MthsLoanCnt": "13",
-                        "last1MthsLoanCnt": "19",
-                        "last3MthsLoanCnt": "20",
-                        "last6MthsLoanCnt": "21",
-                        "loanClosedCnt": "14",
-                        "loanNoClosedCnt": "0",
-                        "loanOrderCnt": "14",
-                        "loanOrgCnt": "16",
-                        "subReportType": "14238",
-                        "subReportTypeCost": "96043",
-                        "treatResult": "1",
-                        "undefinedCnt": "0"
-                    },
-                    "econnoisserurInfo": {
-                        "errorMessage": "",
-                        "state": "1",
-                        "subReportType": "14236",
-                        "subReportTypeCost": "96043",
-                        "treatResult": "1"
-                    },
-                    "fraudRiskInfo": {
-                        "errorMessage": "",
-                        "state": "1",
-                        "subReportType": "14237",
-                        "subReportTypeCost": "96043",
-                        "treatResult": "1"
-                    },
-                    "hasSystemError": "false",
-                    "historySimpleQueryInfo": {
-                        "count": {
-                            "last12Month": "9",
-                            "last18Month": "9",
-                            "last1Month": "0",
-                            "last24Month": "9",
-                            "last3Month": "0",
-                            "last6Month": "0"
-                        },
-                        "errorMessage": "",
-                        "items": [
-                            {
-                                "last12Month": "5",
-                                "last18Month": "5",
-                                "last1Month": "0",
-                                "last24Month": "5",
-                                "last3Month": "0",
-                                "last6Month": "0",
-                                "unitMember": "小额贷款公司"
-                            },
-                            {
-                                "last12Month": "4",
-                                "last18Month": "4",
-                                "last1Month": "0",
-                                "last24Month": "4",
-                                "last3Month": "0",
-                                "last6Month": "0",
-                                "unitMember": "消费金融公司"
-                            }
-                        ],
-                        "subReportType": "19902",
-                        "subReportTypeCost": "96043",
-                        "suspectedBulllending": {
-                            "applyFinclCnt": "4",
-                            "applyNetLoanCnt": "5",
-                            "appplyCnt": "9"
-                        },
-                        "treatResult": "1"
-                    },
-                    "isFrozen": "false",
-                    "overdueLoanInfo": {
-                        "errorMessage": "",
-                        "overdueDetails": [
-                            {
-                                "overdueAmount": "100000",
-                                "overdueDays": "逾期60-89天",
-                                "settlement": "未结清"
-                            },
-                            {
-                                "overdueAmount": "100000",
-                                "overdueDays": "逾期60-89天",
-                                "settlement": "未结清"
-                            },
-                            {
-                                "overdueAmount": "400000",
-                                "overdueDays": "逾期30-59天",
-                                "settlement": "未结清"
-                            },
-                            {
-                                "overdueAmount": "200000",
-                                "overdueDays": "逾期30-59天",
-                                "settlement": "未结清"
-                            },
-                            {
-                                "overdueAmount": "100000",
-                                "overdueDays": "逾期30-59天",
-                                "settlement": "未结清"
-                            },
-                            {
-                                "overdueAmount": "2000",
-                                "overdueDays": "逾期30-59天",
-                                "settlement": "未知"
-                            },
-                            {
-                                "overdueAmount": "100000",
-                                "overdueDays": "逾期7-29天",
-                                "settlement": "未结清"
-                            },
-                            {
-                                "overdueAmount": "100000",
-                                "overdueDays": "逾期7-29天",
-                                "settlement": "未结清"
-                            }
-                        ],
-                        "overdueStat": {
-                            "overdueAmount": "1102000",
-                            "overdueNoClosedCnt": "7",
-                            "overdueTotal": "8"
-                        },
-                        "subReportType": "14239",
-                        "subReportTypeCost": "96043",
-                        "treatResult": "1"
-                    },
-                    "personAntiSpoofingDescInfo": {
-                        "errorMessage": "",
-                        "personAntiSpoofingDesc": "1、反欺诈风险评分为100分，风险等级为高，建议拒绝。2、命中羊毛党名单。3、命中欺诈风险名单。4、检测到高频信贷行为。5、存在8笔逾期的信贷记录。6、存在18条个人风险概要信息。7、在近两年被机构查询过9次个人信息，疑似有9笔多头申请记录。",
-                        "subReportType": "14242",
-                        "subReportTypeCost": "96043",
-                        "treatResult": "1"
-                    },
-                    "personAntiSpoofingInfo": {
-                        "errorMessage": "",
-                            "hitTypes": "羊毛党名单，欺诈风险名单，高频信贷行为，信贷逾期名单，个人风险信息，被机构查询信息，多头申请记录",
-                            "riskLevel": "高",
-                            "riskScore": "100",
-                            "subReportType": "14241",
-                            "subReportTypeCost": "96043",
-                            "suggest": "建议拒绝",
-                            "treatResult": "1"
-                    },
-    "personRiskInfo": {
-        "errorMessage": "",
-            "stat": {
-            "alCount": "3",
-                "cqggCount": "3",
-                "swCount": "3",
-                "sxCount": "3",
-                "totleCount": "18",
-                "wdyqCount": "3",
-                "zxCount": "3"
-        },
-        "subReportType": "14227",
-            "subReportTypeCost": "96043",
-            "summary": {
-            "als": [
-                {
-                    "ajlx": "民事判决书",
-                    "bt": "原告某与被告张三买卖合同纠纷一案",
-                    "dsrlx": "被告",
-                    "recordId": "al_329576D41D18491481",
-                    "sjnf": "2009"
-                },
-                {
-                    "ajlx": "民事判决书",
-                    "bt": "原告许某良与被告张三买卖合同纠纷一案",
-                    "dsrlx": "被告",
-                    "recordId": "al_329577D41D18491482",
-                    "sjnf": "2009"
-                },
-                {
-                    "ajlx": "民事判决书",
-                    "bt": "原告许良与被告张三买卖合同纠纷一案",
-                    "dsrlx": "被告",
-                    "recordId": "al_329578D41D18491483",
-                    "sjnf": "2009"
-                }
-            ],
-                "cqs": [
-                {
-                    "bt": "被催欠人测试一",
-                    "fbrq": "2014-01-23",
-                    "recordId": "cq_10315D45D0"
-                },
-                {
-                    "bt": "被催欠人测试一2",
-                    "fbrq": "2014-01-23",
-                    "recordId": "cq_10316D45D1"
-                },
-                {
-                    "bt": "被催欠人测试一3",
-                    "fbrq": "2014-01-23",
-                    "recordId": "cq_10317D45D2"
-                }
-            ],
-                "sws": [
-                {
-                    "bt": "测试一(非正常户)",
-                    "ggrq": "2012-08-01",
-                    "recordId": "sw_1403038D44D0"
-                },
-                {
-                    "bt": "测试一(非正常户)2",
-                    "ggrq": "2012-08-01",
-                    "recordId": "sw_1403039D44D1"
-                },
-                {
-                    "bt": "测试一(非正常户)3",
-                    "ggrq": "2012-08-01",
-                    "recordId": "sw_1403037D44D2"
-                }
-            ],
-                "sxs": [
-                {
-                    "bt": "测试一(失信被执行人)",
-                    "fbrq": "2014-12-17",
-                    "larq": "2009-02-03",
-                    "recordId": "sx_6877415D42D0"
-                },
-                {
-                    "bt": "测试一(失信被执行人)2",
-                    "fbrq": "2014-12-17",
-                    "larq": "2009-02-03",
-                    "recordId": "sx_6877416D42D1"
-                },
-                {
-                    "bt": "测试一(失信被执行人)3",
-                    "fbrq": "2014-12-17",
-                    "larq": "2009-02-03",
-                    "recordId": "sx_6877417D42D2"
-                }
-            ],
-                "wdyqs": [
-                {
-                    "bt": "测试一",
-                    "fbrq": "2013-07-16",
-                    "recordId": "wdyq_4558264D46D0"
-                },
-                {
-                    "bt": "测试一2",
-                    "fbrq": "2013-07-16",
-                    "recordId": "wdyq_4558265D46D1"
-                },
-                {
-                    "bt": "测试一3",
-                    "fbrq": "2013-07-16",
-                    "recordId": "wdyq_4558266D46D2"
-                }
-            ],
-                "zxs": [
-                {
-                    "bt": "被执行人测试一一1",
-                    "larq": "2009-02-06",
-                    "recordId": "zx_4436174D43D0",
-                    "zxbd": "118200"
-                },
-                {
-                    "bt": "被执行人测试一一2",
-                    "larq": "2009-02-06",
-                    "recordId": "zx_4436175D43D1",
-                    "zxbd": "118200"
-                },
-                {
-                    "bt": "被执行人测试一一3",
-                    "larq": "2009-02-06",
-                    "recordId": "zx_4436176D43D2",
-                    "zxbd": "118200"
-                }
-            ]
-        },
-        "treatResult": "1"
-    },
-    "queryConditions": [
-        {
-            "caption": "被查询者姓名",
-            "name": "name",
-            "value": "测试一"
-        },
-        {
-            "caption": "被查询者证件号码",
-            "name": "documentNo",
-            "value": "110000199001011112"
-        },
-        {
-            "caption": "手机号码",
-            "name": "phone",
-            "value": "13712345670"
-        }
-    ],
-        "queryReasonID": "101",
-        "refID": "1224234",
-        "reportID": "2019050616000474",
-        "subReportTypes": "96043",
-        "subReportTypesShortCaption": "1、个人反欺诈分析报告(96043)",
-        "treatResult": "1"
-    }
-            ],
-            "queryCount": "1",
-                "queryUserID": "jlrzwsqueryn",
-                "receiveTime": "20190506 16:32:20",
-                "subOrgan": "技术部",
-                "unitName": "浙江吉磊融资租赁有限公司"
-            },
-            "status": "1"
-    }
 
-    var data=json.returnValue;
-
+    var customerId='${RequestParameters.customerId!-1}';
+    var evaluateId='${RequestParameters.evaluateId!-1}';
     var newViewModel = kendo.observable({
         model: {
         }
     });
-
+    var data;
+    $.ajax({
+        url: '${base.contextPath}/afd/customer/evaluate/query?customerId='+customerId+'&evaluateId='+evaluateId,
+        type: "get",
+        dataType: "json",
+        contentType: "application/json",
+        async: false,
+        success: function (res) {
+            data= $.parseJSON( res.rows[0].remark );
+        },
+        error: function (error) {
+            kendo.ui.showInfoDialog({
+                message: error.message
+            });
+        }
+    });
     for (var k in data) {
         newViewModel.model.set(k, data[k]);
     }
@@ -573,6 +289,7 @@
 <body>
 
 <div class="container" id="container">
+    <h2 class="title">个人信息报告</h2>
     <div class="report-tit clear">
         <div class="buildEndTime">查询时间：<span data-bind="text:model.cisReport[0].buildEndTime"></span></div>
         <div class="batNo">报告编号：<span data-bind="text:model.batNo"></span></div>
@@ -603,7 +320,7 @@
                 <div class="scoreLevel">
                     <span class=" score-low ">低</span>
                     <span class=" score-middle ">中</span>
-                    <span class=" score-high scoreLevel-active">高</span>
+                    <span class=" score-high ">高</span>
                 </div>
                 <div class="scoreNum">
                     <span class="scoreNum0">0</span>
@@ -614,7 +331,9 @@
             </div>
             <div class="hit">
                 <div class="hit-tit">命中</div>
-                <div class="hitTypes" id="hitTypes" data-bind="html:model.cisReport[0].personAntiSpoofingInfo.hitTypes"></div>
+                <div class="hitTypes" id="hitTypes" >
+                    <p data-bind="html:model.cisReport[0].personAntiSpoofingInfo.hitTypes"></p>
+                </div>
             </div>
             <div class="risk-prompt">
                 <p>提示信息：</p>
@@ -894,14 +613,13 @@
     kendo.bind($('#container'), newViewModel);
 
     var riskScore = newViewModel.model.cisReport[0].personAntiSpoofingInfo.riskScore;
-    $(".scoreLevel span").removeClass("scoreLevel-active");
     if(riskScore>-1 && riskScore<101){
         if(riskScore<50 || riskScore==50 ){
-            $(".scoreLevel .score-low").addClass("scoreLevel-active");
+            $(".scoreLevel .score-low").css("background-color","green");
         }else if(riskScore>75){
-            $(".scoreLevel .score-high").addClass("scoreLevel-active");
+            $(".scoreLevel .score-high").css("background-color","red");
         }else{
-            $(".scoreLevel .score-middle").addClass("scoreLevel-active");
+            $(".scoreLevel .score-middle").css("background-color","blue");
         }
     }
 

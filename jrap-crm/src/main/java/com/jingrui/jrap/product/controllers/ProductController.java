@@ -70,7 +70,7 @@ public class ProductController extends BaseController {
         //设置查询条件
         dto.setCompanyId(requestContext.getCompanyId());
         Criteria criteria = new Criteria(dto);
-        criteria.where(new WhereField(ItemModel.FIELD_MODEL_ID));
+        criteria.where(new WhereField(ItemModel.FIELD_MODEL_ID), new WhereField(dto.FIELD_BUSINESS_TYPE));
         return new ResponseData(service.selectOptions(requestContext, dto, criteria, page, pageSize));
     }
 

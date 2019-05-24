@@ -1,6 +1,4 @@
 <#include "../include/header.html">
-<script src="${base.contextPath}/common/code?businessTypeData=BUSINESS.TYPE"
-        type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?orderStatusData=ORDER.STATUS"
         type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?orderLestData=ORDER.LEASETIMES"
@@ -9,6 +7,18 @@
         type="text/javascript"></script>
 <script type="text/javascript">
   var viewModel = Jrap.createGridViewModel("#grid");
+  var businessTypeData = [];
+  //业务类型
+  $.ajax({
+    url: _basePath + '/pro/business/type/query',
+    dataType: "json",
+    type: "POST",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      businessTypeData = data.rows;
+    }
+  });
 </script>
 <style>
   .k-textbox.k-combobox .k-icon.k-i-close {
@@ -19,7 +29,10 @@
 <div id="orderedit" style="display: none"></div>
 <div id="page-content">
   <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
-    <span data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
+    <span class="btn btn-success k-grid-save-changes" onclick="orderCheckApply()"
+          style="float:right;margin-left:5px;"><@spring.message "订单审核申请"/></span>
   </div>
   <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
   <div class="pull-right" id="query-form" style="padding-bottom:10px;">
@@ -28,7 +41,7 @@
            data-bind="value:model.orderCode" class="k-textbox">
     <input type="text" id="bussinesstype" data-role="maskedtextbox"
            style="float:left;width:150px;margin-right:5px;"
-           placeholder='<@spring.message "Order.businessType"/>'
+           placeholder='<@spring.message "businesstype.businesstype"/>'
            data-bind="value:model.businessType">
     <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query"
           type="submit"><@spring.message "jrap.query"/></span>
@@ -36,13 +49,13 @@
   </div>
   <script>
     $("#bussinesstype").kendoComboBox({
-      dataTextField: "meaning",
-      dataValueField: "value",
+      dataTextField: "description",
+      dataValueField: "businessType",
       valuePrimitive: true,
       dataSource: businessTypeData
     });
+    kendo.bind($('#query-form'), viewModel);
   </script>
-  <script>kendo.bind($('#query-form'), viewModel);</script>
   <div style="clear:both">
     <div id="grid"></div>
   </div>
@@ -56,6 +69,11 @@
   var unitData = [];
   var employeeData = [];
   var productData = [];
+  var customerClass;
+  var lineCode;
+  var orderViewModel = kendo.observable({
+    model: {},
+  });
   $.ajax({
     url: '${base.contextPath}/afd/customer/query',
     type: "POST",
@@ -156,7 +174,7 @@
     }
   });
 
-  $("#grid").kendoGrid({
+  var pgrid = $("#grid").kendoGrid({
     dataSource: dataSource,
     resizable: true,
     scrollable: true,
@@ -180,7 +198,7 @@
         template: function (rowdata) {
           if (rowdata.orderId && rowdata.customerId && rowdata.itemId) {
             return Jrap.createAnchor(rowdata.orderCode, newData, rowdata.orderId,
-                rowdata.customerId, rowdata.itemId);
+                rowdata.customerId, rowdata.itemId, rowdata.productCode);
           }
           return '';
         },
@@ -195,16 +213,11 @@
         title: '<@spring.message "order.customerid"/>',
         width: 120,
         template: function (dataItem) {
-          var v = dataItem.customerId ? dataItem.customerId : "";
-          $.each(customerData, function (i, n) {
-            if ((n.customerId || '') == (v || '')) {
-              v = n.customerName;
-              return v;
-            }
-          });
+          var v = dataItem.customerName ? dataItem.customerName : "";
           return v;
         },
       },
+
       {
         field: "productCode",
         title: '<@spring.message "order.productcode"/>',
@@ -226,13 +239,7 @@
         title: '<@spring.message "order.itemid"/>',
         width: 140,
         template: function (dataItem) {
-          var v = dataItem.itemId ? dataItem.itemId : "";
-          $.each(itemData, function (i, n) {
-            if ((n.itemId || '') == (v || '')) {
-              v = n.itemCode;
-              return v;
-            }
-          });
+          var v = dataItem.itemCode ? dataItem.itemCode : "";
           return v;
         },
       },
@@ -283,13 +290,13 @@
       },
       {
         field: "businessType",
-        title: '<@spring.message "order.businesstype"/>',
+        title: '<@spring.message "businesstype.businesstype"/>',
         width: 120,
         template: function (dataItem) {
           var v = dataItem.businessType;
           $.each(businessTypeData, function (i, n) {
-            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
-              v = n.meaning;
+            if ((n.value || '') == (v || '')) {
+              v = n.description;
               return v;
             }
           })
@@ -490,12 +497,81 @@
       },
     ],
     editable: false
-  });
+  }).data("kendoGrid");
+
+  //获取客户类型
+  function getCT(customerId) {
+    $.ajax({
+      url: '${base.contextPath}/afd/customer/query?customerId=' + customerId,
+      type: "POST",
+      dataType: "json",
+      async: false,
+      contentType: "application/json",
+      success: function (data) {
+        if (data.rows[0] == 'undefined') {
+          return;
+        } else {
+          customerClass = data.rows[0].customerClass;
+        }
+      }
+    });
+  }
+
+  //通过code查找到租赁物id
+  function getLingcode(productCode) {
+    $.ajax({
+      url: '${base.contextPath}/pro/product/query?productCode=' + productCode,
+      success: function (args) {
+        if (typeof (args.rows[0]) == 'undefined') {
+          return;
+        } else {
+          lineCode = args.rows[0].lineCode;
+        }
+      }
+    })
+  }
+
+  //获取orderviewmodel
+  function queryorder(orderId, customreclass) {
+    $.ajax({
+      url: '${base.contextPath}/con/order/query?orderId=' + orderId,
+      success: function (args) {
+        var a0 = args.rows[0] || {};
+        for (var k in a0) {
+          orderViewModel.model.set(k, a0[k]);
+        }
+        if (customreclass = 'NP') {
+          naturalApply(orderViewModel.model);
+        } else {
+          lawApply(orderViewModel.model);
+        }
+      }
+    });
+  }
 
   //订单编辑页面
-  function newData(orderId, customerId, itemId) {
-    url = "${base.contextPath}/order/order_edit.html?isedit=1&orderId=" + orderId + '&customerId='
-        + customerId + '&itemId=' + itemId;
+  function newData(orderId, customerId, itemId, productCode) {
+    getCT(customerId);
+    getLingcode(productCode);
+    if (customerClass == 'ORG') {
+      if (lineCode == 10) {
+        url = "${base.contextPath}/order/order_lawnewedit.html?isedit=1&orderId=" + orderId
+            + '&customerId=' + customerId + '&itemId=' + itemId;
+      } else {
+        url = "${base.contextPath}/order/order_lawedit.html?isedit=1&orderId=" + orderId
+            + '&customerId=' + customerId + '&itemId=' + itemId;
+      }
+    } else {
+      if (lineCode == 10) {
+        url = "${base.contextPath}/order/order_newedit.html?isedit=1&orderId=" + orderId
+            + '&customerId='
+            + customerId + '&itemId=' + itemId;
+      } else {
+        url = "${base.contextPath}/order/order_edit.html?isedit=1&orderId=" + orderId
+            + '&customerId='
+            + customerId + '&itemId=' + itemId;
+      }
+    }
     Jrap.createWindow('#orderedit', {
       width: 600,
       height: 400,
@@ -511,7 +587,103 @@
       var win = $("#orderedit").data("kendoWindow");
       win.center().maximize().open();
     }
+  }
 
+  //产品发布
+  function orderCheckApply() {
+    var checked = pgrid.selectedDataItems();
+    if (checked.length) {
+      if (checked.length > 1) {
+        kendo.ui.showInfoDialog({
+          title: "提示",
+          message: "只能选择一行数据",
+          iconClass: "fa fa-times-circle", // 提示图标
+          dialogClass: "k-dialog-error" // 图标类型
+        });
+      } else {
+        var orderId;
+        var customerId;
+        var orderstatus;
+        $.each(checked, function (i, v) {
+          customerId = v.customerId;
+          orderId = v.orderId;
+          orderstatus = v.orderStatus;
+        });
+        if (orderstatus != 'NEW') {
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "无法提交",
+            iconClass: "fa fa-times-circle", // 提示图标
+            dialogClass: "k-dialog-error" // 图标类型
+          });
+        } else {
+          getCT(customerId);
+          if (customerClass == 'ORG') {
+            queryorder(orderId, customerClass);
+          } else {
+            queryorder(orderId, customerClass);
+          }
+        }
+      }
+    } else {
+      kendo.ui.showInfoDialog({
+        title: "提示",
+        message: "请至少选择一行数据",
+        iconClass: "fa fa-times-circle", // 提示图标
+        dialogClass: "k-dialog-error" // 图标类型
+      });
+    }
+
+  }
+
+  function naturalApply(vmodel) {
+    $.ajax({
+      url: '${base.contextPath}/wfl/runtime/processInstances/natuorder/check',
+      type: "POST",
+      dataType: "json",
+      contentType: "application/json",
+      data: kendo.stringify(vmodel),
+      success: function (args) {
+        if (args.success === false) {
+          kendo.ui.showErrorDialog({
+            title: $l('jrap.error'),
+            message: args.message
+          });
+        } else {
+          kendo.ui.showInfoDialog({
+            title: $l('jrap.tip.info'),
+            message: $l('jrap.tip.success')
+          }).done(function (e) {
+            dataSource.page(1);
+          })
+        }
+      }
+    });
+  }
+
+  function lawApply(vmodel) {
+    $.ajax({
+      url: '${base.contextPath}/wfl/runtime/processInstances/laworder/check',
+      type: "POST",
+      dataType: "json",
+      contentType: "application/json",
+      data: kendo.stringify(vmodel),
+      success: function (args) {
+        if (args.success === false) {
+          kendo.ui.showErrorDialog({
+            title: $l('jrap.error'),
+            message: args.message
+          });
+        } else {
+          kendo.ui.showInfoDialog({
+            title: $l('jrap.tip.info'),
+            message: $l('jrap.tip.success')
+          }).done(function (e) {
+            dataSource.page(1);
+          })
+        }
+      }
+    });
   }
 
 </script>

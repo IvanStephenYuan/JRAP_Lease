@@ -3,16 +3,20 @@
     var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <body>
+<script src="${base.contextPath}/common/code?STATUS=ALLOCATE.STATUS" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?typeData=STOCK.TYPE" type="text/javascript"></script>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
         <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
-        <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
     <div class="pull-right" id="query-form" style="padding-bottom:10px;">
-            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "ItemStock.stockType"/>'
-                   data-bind="value:model.stockType" class="k-textbox">
+        <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+               placeholder='<@spring.message "ItemStock.stockType"/>'
+               data-bind="value:model.stockType" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
         <div style="clear:both"></div>
     </div>
@@ -64,7 +68,10 @@
             total: 'total',
             model: {
                 id: "stockId",
-                fields: {}
+                fields: {
+                    stockDate:{type:'date',defaultValue:null},
+                    enabledFlag:{defaultValue: 'N', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
@@ -87,59 +94,135 @@
         },
         columns: [
             {
-                field: "stockId",
-                title: '<@spring.message "itemstock.stockid"/>',
-                width: 120
-            },
-                    {
                 field: "itemId",
                 title: '<@spring.message "itemstock.itemid"/>',
-                width: 120
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['itemCode'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input  name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_ITEM"/>, {
+                        query: function (e) {
+                            // e.param['status'] = '';
+                        },
+                        textField: 'itemCode',
+                        valueField:'itemId',
+                        model: options.model
+                    }));
+                }
             },
-                    {
+            {
                 field: "stockType",
                 title: '<@spring.message "itemstock.stocktype"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.stockType ? dataItem.stockType : "";
+                    $.each(typeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: typeData
+                        });
+                }
             },
-                    {
+            {
                 field: "status",
                 title: '<@spring.message "itemstock.status"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.status ? dataItem.status : "";
+                    $.each(STATUS, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: STATUS
+                        });
+                }
             },
-                    {
+            {
                 field: "stockDate",
                 title: '<@spring.message "itemstock.stockdate"/>',
-                width: 120
+                width: 120,
+                nullable:true,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                format: "{0:yyyy-MM-dd}",
+                editor: function (container, options) {
+                    var opts = {
+                        format: "yyyy-MM-dd"
+                    };
+
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDatePicker(opts);
+                },
+                sortable: false
             },
-                    {
+            {
                 field: "stockman",
                 title: '<@spring.message "itemstock.stockman"/>',
                 width: 120
             },
-                    {
+            {
                 field: "employeeId",
-                title: '<@spring.message "itemstock.employeeid"/>',
-                width: 120
+                title: '<@spring.message "purchase.employeeid"/>',
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['employeeCode'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input  name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_EMPLOYEE"/>, {
+                        query: function (e) {
+                            // e.param['status'] = '';
+                        },
+                        textField: 'employeeCode',
+                        valueField:'employeeId',
+                        model: options.model
+                    }));
+                }
             },
-                    {
+            {
                 field: "remark",
-                title: '<@spring.message "itemstock.remark"/>',
+                title: '<@spring.message "transaction.remark"/>',
                 width: 120
             },
-                    {
+            {
                 field: "enabledFlag",
-                title: '<@spring.message "itemstock.enabledflag"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "itemstock.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "itemstock.programupdatedate"/>',
-                width: 120
+                title: '<@spring.message "companylimit.enabledflag"/>',
+                width: 120,
+                headerAttributes: {
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                sortable: false
             },
         ],
         editable: true

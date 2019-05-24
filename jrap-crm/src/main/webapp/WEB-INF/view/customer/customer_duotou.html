@@ -1,5 +1,9 @@
 <#include "../include/header.html">
 <style type="text/css">
+    .title{
+        text-align: center;
+        margin-bottom: 50px;
+    }
     .container{
         font-size: 14px;
         margin-bottom: 50px;
@@ -83,144 +87,13 @@
 
 </style>
 <script type="text/javascript">
-    var json={
-        "batNo":"2019050717000011",
-        "unitName":"查询单位名称",
-        "subOrgan":"分支机构名称",
-        "queryUserID":"登录名",
-        "queryCount":"10000",
-        "receiveTime":"2019-05-07 17:18:13",
-        "cisReport":[
-            {
-                "reportID":"2019050717000011",
-                "buildEndTime":"2019-05-07 17:18:13",
-                "queryReasonID":"101",
-                "subReportTypes":"101,101,101",
-                "subReportTypesShortCaption":"查询的收费子报告id简称，多个简称之间用空格分隔",
-                "treatResult":"暂无特殊含义，可忽略",
-                "refID":"1224234",
-                "hasSystemError":"false",
-                "isFrozen":"false",
-                "queryConditions":[
-                    {
-                        "caption": "被查询者姓名",
-                        "name": "name",
-                        "value": "测试一"
-                    },
-                    {
-                        "caption": "被查询者证件号码",
-                        "name": "documentNo",
-                        "value": "110000199001011112"
-                    },
-                    {
-                        "caption": "手机号码",
-                        "name": "phone",
-                        "value": "13712345670"
-                    }
-                ],
-                "creditReportInfo":{
-                    "subReportType":"13207",
-                    "subReportTypeCost":"13207",
-                    "treatResult":"1",
-                    "treatErrorCode":"",
-                    "errorMessage":"",
-                    "infoDate":"20190507",
-                    "applyMonitorInfo":{
-                        "last1MthsQueryCnt": "8",
-                        "last3MthsQueryCnt": "9",
-                        "last6MthsQueryCnt": "10",
-                        "latestQueryTime": "",
-                        "queryFinclOrgCnt": "21",
-                        "queryNetLoanOrgCnt": "23",
-                        "queryOrgCnt": "38",
-                        "queryOtherOrgCnt": "0",
-                        "totalQueryCnt": "41"
-                    },
-                    "behaviorMonitorInfo": {
-                        "creditLoanDur": "26",
-                        "last1MthsLoanCnt": "19",
-                        "last3MthsLoanCnt": "20",
-                        "last6MthsLoanCnt": "21",
-                        "latestLoanTime": "",
-                        "loanClosedCnt": "14",
-                        "loanFinclOrgCnt": "17",
-                        "loanNetLoanOrgCnt": "18",
-                        "loanOrderCnt": "13",
-                        "loanOrgCnt": "16",
-                        "loanOverdueCnt": "15"
-                    },
-                    "creditStatusInfo": {
-                        "finclOrgAvgCredits": "37.373737",
-                        "finclOrgMaxCredits": "36.363636",
-                        "inUseFinclOrgCnt": "34",
-                        "netLoanOrgAvgCredits": "33.333333",
-                        "netLoanOrgCnt": "30",
-                        "netLoanOrgMaxCredits": "32.323232"
-                    }
-                },
-                "overdueReportInfo":{
-                    "subReportType":"13208",
-                    "subReportTypeCost":"13207",
-                    "treatResult":"1",
-                    "treatErrorCode":"",
-                    "errorMessage":"",
-                    "infoDate":"20190812",
-                    "overdueStat":{
-                        "debtAmount": "1000000",
-                        "orderCount": "7",
-                        "orgCount": "4"
-                    },
-                    "overdueDetails":[
-                        {
-                            "amount": "100000-200000",
-                            "overdueDate": "201710",
-                            "overdueDays": "M12",
-                            "settlement": "未结清"
-                        },
-                        {
-                            "amount": "200000-300000",
-                            "overdueDate": "201709",
-                            "overdueDays": "M12",
-                            "settlement": "未结清"
-                        },
-                        {
-                            "amount": "400000-500000",
-                            "overdueDate": "201708",
-                            "overdueDays": "M12",
-                            "settlement": "未结清"
-                        },
-                        {
-                            "amount": "100000-200000",
-                            "overdueDate": "201708",
-                            "overdueDays": "M12",
-                            "settlement": "未结清"
-                        },
-                        {
-                            "amount": "100000-200000",
-                            "overdueDate": "201707",
-                            "overdueDays": "M12",
-                            "settlement": "未结清"
-                        },
-                        {
-                            "amount": "100000-200000",
-                            "overdueDate": "201705",
-                            "overdueDays": "M12",
-                            "settlement": "未结清"
-                        },
-                        {
-                            "amount": "100000-200000",
-                            "overdueDate": "201705",
-                            "overdueDays": "M12",
-                            "settlement": "未结清"
-                        }
-                    ]
-                }
-            }
-        ]
-    };
-    var customerId=${RequestParameters.customerId!-1}
-    var evaluateId=${RequestParameters.evaluateId!-1}
-
+    var customerId='${RequestParameters.customerId!-1}';
+    var evaluateId='${RequestParameters.evaluateId!-1}';
+    var newViewModel = kendo.observable({
+        model: {
+        }
+    });
+    var data;
     $.ajax({
         url: '${base.contextPath}/afd/customer/evaluate/query?customerId='+customerId+'&evaluateId='+evaluateId,
         type: "get",
@@ -228,8 +101,7 @@
         contentType: "application/json",
         async: false,
         success: function (res) {
-            console.log(res.remark)
-
+            data= $.parseJSON( res.rows[0].remark );
         },
         error: function (error) {
             kendo.ui.showInfoDialog({
@@ -237,25 +109,21 @@
             });
         }
     });
-    var data=json;
-    var newViewModel = kendo.observable({
-        model: {
-        }
-    });
     for (var k in data) {
         newViewModel.model.set(k, data[k]);
     }
+
 
 
 </script>
 <body>
 
 <div class="container" id="container">
+    <h2 class="title">个人信息报告</h2>
     <div class="report-tit clear">
         <div class="buildEndTime">查询时间：<span data-bind="text:model.receiveTime"></span></div>
         <div class="batNo">报告编号：<span data-bind="text:model.batNo"></span></div>
     </div>
-
     <div class="info-container">
         <div class="info-tit clear">
             <span class="info-tit-line">|</span>
@@ -264,25 +132,26 @@
         <div class="info-line"></div>
         <div id="creditReportInfo" class="creditReportInfo info-con" >
             <div class="applyMonitor-table table-con">
-                <p>疑似多头申请</p>
+                <p>查询机构</p>
                 <table border="1" width="100%" align="center">
                     <tr>
-                        <th width="20%" height="40px" valign="middle" class="tdTit" nowrap>查询机构总数</th>
-                        <td colspan="5" style="color: red" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryOrgCnt"></td>
-                    </tr>
-                    <tr>
                         <th width="20%" height="40px" valign="middle" class="tdTit" nowrap>网络贷款类机构查询数</th>
-                        <td width="16%" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryNetLoanOrgCnt"></td>
-                        <th width="16%" class="tdTit">消费金融类机构查询数</th>
-                        <td width="16%" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryFinclOrgCnt"></td>
-                        <th width="16%" class="tdTit">其他机构查询数</th>
-                        <td width="16%" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryOtherOrgCnt"></td>
+                        <th width="20%" class="tdTit">消费金融类机构查询数</th>
+                        <th width="20%" class="tdTit">其他机构查询数</th>
+                        <th width="20%" class="tdTit" nowrap>近12个月总查询笔数</th>
+                        <th width="20%" class="tdTit">最近一次查询时间</th>
+
                     </tr>
                     <tr>
-                        <th width="20%" height="40px" valign="middle" class="tdTit" nowrap>近12个月总查询笔数</th>
-                        <td colspan="2" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.totalQueryCnt"> </td>
-                        <th class="tdTit">最近一次查询时间</th>
-                        <td colspan="2" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.latestQueryTime"></td>
+                        <td height="40px" valign="middle" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryNetLoanOrgCnt"></td>
+                        <td  data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryFinclOrgCnt"></td>
+                        <td  data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryOtherOrgCnt"></td>
+                        <td  data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.totalQueryCnt"> </td>
+                        <td  data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.latestQueryTime"></td>
+                    </tr>
+                    <tr>
+                        <th width="20%" height="40px" valign="middle" class="tdTit" nowrap>查询机构总数</th>
+                        <td colspan="4" style="color: red" data-bind="text:model.cisReport[0].creditReportInfo.applyMonitorInfo.queryOrgCnt"></td>
                     </tr>
                 </table>
             </div>
@@ -456,10 +325,11 @@
 
 <script type="text/javascript">
     kendo.bind($('#container'), newViewModel);
+    //console.log("newViewModel.model",newViewModel.model);
 
-    var overdueDetails = newViewModel.model.cisReport[0].overdueReportInfo.overdueDetails;
-    if(!overdueDetails){
-        $("#overdueDetails").html("<p style='text-align: center'>暂无数据</p>");
+    var overdueReportInfo = newViewModel.model.cisReport[0].overdueReportInfo;
+    if(!overdueReportInfo){
+        $("#overdueReportInfo").html("<p style='text-align: center'>暂无数据</p>");
     }else{
         var str1="";
         for(var i=0,len=overdueDetails.length;i<len;i++){

@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import java.util.ArrayList;
 import java.util.Map;
 import com.alibaba.fastjson.JSON;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import com.jingrui.jrap.system.controllers.BaseController;
 import com.jingrui.jrap.core.IRequest;
@@ -25,6 +26,7 @@ import com.jingrui.jrap.order.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
@@ -88,6 +90,7 @@ public class OrderController extends BaseController {
     //定义订单的集合
     List<Order> listorder = new ArrayList<>();
     //先进行客户信息的插入
+    Object customerId = cm.get("customerId");
     Object customerCode = cm.get("customerCode");
     Object employeeId = cm.get("employeeId");
     Object companyId = cm.get("companyId");
@@ -98,23 +101,7 @@ public class OrderController extends BaseController {
     String cstatus = cm.get("__status").toString();
     String ostatus = order.get("__status").toString();
     String istatus = item.get("__status").toString();
-    if (customerCode == null) {
-      try {
-        String ruleCode = null;
-        if (customerCategory != null && customerType != null) {
-          ruleCode = documentTypeService
-              .getDocumentCodeRule(customerCategory.toString(), customerType.toString());
-        }
-        if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
-          ruleCode = OrderController.CUSTOMER_RULE_CODE;
-        }
-        customerCode = codeRuleProcessService.getRuleCode(ruleCode);
-        cm.put("customerCode", customerCode);
-
-      } catch (CodeRuleException e) {
-        e.printStackTrace();
-      }
-    }
+    Customer customer=null;
     //设置默认商户
     if (companyId == null) {
       companyId = requestCtx.getCompanyId();
@@ -130,9 +117,32 @@ public class OrderController extends BaseController {
       customerSource = "MANUAL";
       cm.put("customerSource", customerSource);
     }
-    // 将map转为Customer对象
-    Customer customer = JSON.parseObject(JSON.toJSONString(cm), Customer.class);
-    customer.set__status(cstatus);
+    if(customerId==null) {
+      if (customerCode == null) {
+        try {
+          String ruleCode = null;
+          if (customerCategory != null && customerType != null) {
+            ruleCode = documentTypeService
+                    .getDocumentCodeRule(customerCategory.toString(), customerType.toString());
+          }
+          if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
+            ruleCode = OrderController.CUSTOMER_RULE_CODE;
+          }
+          customerCode = codeRuleProcessService.getRuleCode(ruleCode);
+          cm.put("customerCode", customerCode);
+
+        } catch (CodeRuleException e) {
+          e.printStackTrace();
+        }
+      }
+      // 将map转为Customer对象
+      customer = JSON.parseObject(JSON.toJSONString(cm), Customer.class);
+      customer.set__status(cstatus);
+    }else{
+      // 将map转为Customer对象
+      customer = JSON.parseObject(JSON.toJSONString(cm), Customer.class);
+      customer.set__status("update");
+    }
     //将对象放在集合中
     listcustomer.add(customer);
     //客户插入返回结果
@@ -201,7 +211,6 @@ public class OrderController extends BaseController {
         if (oemployeeId == null) {
           order.put("employeeId", requestCtx.getEmployeeId());
         }
-
         //如果商机id有值，则将其状态改变
         if (ochangeId != null && ostatus.equals("add")) {
           Change querychange = new Change();
@@ -230,6 +239,30 @@ public class OrderController extends BaseController {
   @ResponseBody
   public ResponseData delete(HttpServletRequest request, @RequestBody List<Order> dto) {
     service.batchDelete(dto);
+    return new ResponseData();
+  }
+
+  /*
+   * 自然人订单审核启动工作流
+   * */
+  @RequestMapping(value = "/wfl/runtime/processInstances/natuorder/check", method = RequestMethod.POST, produces = "application/json")
+  @ResponseBody
+  public ResponseData createVacationProcessInstance(@RequestBody Order order,
+      HttpServletRequest httpRequest, HttpServletResponse response) {
+    IRequest iRequest = createRequestContext(httpRequest);
+    service.createVacationInstance(iRequest, order);
+    return new ResponseData();
+  }
+
+  /*
+   * 法人订单审核启动工作流
+   * */
+  @RequestMapping(value = "/wfl/runtime/processInstances/laworder/check", method = RequestMethod.POST, produces = "application/json")
+  @ResponseBody
+  public ResponseData createVacationLawProcessInstance(@RequestBody Order order,
+      HttpServletRequest httpRequest, HttpServletResponse response) {
+    IRequest iRequest = createRequestContext(httpRequest);
+    service.createVacationLawInstance(iRequest, order);
     return new ResponseData();
   }
 }
