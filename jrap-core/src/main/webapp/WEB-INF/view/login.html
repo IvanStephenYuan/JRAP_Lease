@@ -11,7 +11,6 @@
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <link href="${base.contextPath}/lib/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="${base.contextPath}/lib/font-awesome-4.6.3/css/font-awesome.css" rel="stylesheet" type="text/css"/>
-    <link href="${base.contextPath}/lib/swiper/css/swiper.min.css" rel="stylesheet" type="text/css"/>
     <#include "include/components_css.html">
     <link href="${base.contextPath}/resources/css/login.css" rel="stylesheet" type="text/css" />
     <script src="${base.contextPath}/lib/assets/global/plugins/jquery.min.js" type="text/javascript"></script>
@@ -55,33 +54,41 @@
 
 
     <!--导航栏-->
-    <nav class="nav  ">
-        <div class="navCenter container clear">
-            <div class="logo">
-                <img class="login-logo" src="${base.contextPath}/resources/upload/logo.png" />
+    <nav class="nav container">
+        <div class="container">
+            <div class="navbar-header">
+                <button id="navbarToggle" type="button" class="navbar-toggle" data-toggle="collapse" >
+                </button>
+                <a href="#" class="navbar-brand">
+                    <img class="login-logo" src="${base.contextPath}/resources/upload/logo2.png" alt="">
+                    <p>${SYS_TITLE!'JingRui Application Platform'}</p>
+                </a>
             </div>
-            <ul class="nav-header clear">
-                <li class="active">
-                    <a  href="#">首页</a>
-                    <div class="activeLine"></div>
-                </li>
-                <li><a href="#feature">特点</a> <div class="activeLine"></div></li>
-                <li><a href="#achievement">成果</a> <div class="activeLine"></div></li>
-                <li><a href="#news">动态</a> <div class="activeLine"></div></li>
-                <li><a href="#news">帮助中心</a> <div class="activeLine"></div></li>
-            </ul>
+            <div id="nav-list" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right nav-header">
+                    <li class="activeNav">
+                        <a  href="#">首页</a>
+                        <div class="activeLine"></div>
+                    </li>
+                    <li><a href="#feature">特点</a> </li>
+                    <li><a href="#achievement">成果</a> </li>
+                    <li><a href="#news">动态</a> </li>
+                    <li><a href="#">帮助中心</a> </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <div class="top-index">
-
-        <p class="bigData"><img src="${base.contextPath}/resources/images/login/bigdata.png"></p>
-        <p class="pingtai"><img src="${base.contextPath}/resources/images/login/pingtai.png"></p>
-        <p class="keji"><img src="${base.contextPath}/resources/images/login/keji.png"></p>
+    <div class="top-index container ">
+        <div class="top-img col-lg-8  col-md-8 col-sm-8   co1-xs-12">
+            <p class="bigData"><img src="${base.contextPath}/resources/images/login/bigdata.png"></p>
+            <p class="pingtai"><img src="${base.contextPath}/resources/images/login/pingtai.png"></p>
+            <p class="keji"><img src="${base.contextPath}/resources/images/login/keji.png"></p>
+        </div>
 
         <!--登录框-->
-        <div class="log-index ">
-            <p class="log_txt">用户登录</p>
+        <div class="log-index col-sm-4 col-md-4 col-xs-12">
+            <p class="log_txt">${SYS_TITLE!'JingRui Application Platform'} Login</p>
             <form class="login-form" action="login" method="post" autocomplete="off">
                 <div class="input-group">
                     <span class="glyphicon glyphicon-user" ></span>
@@ -93,7 +100,7 @@
                     <span class="glyphicon glyphicon-lock " ></span>
                     <input id="password" type="password" autocomplete="new-password" name="password"
                            class=" placeholder-no-fix <#if code! == "LOGIN_NOT_MATCH">error</#if>"
-                    placeholder="<@spring.message "user.password"/>"   />
+                           placeholder="<@spring.message "user.password"/>"   />
                 </div>
 
                 <!--<div class="clear ">
@@ -101,8 +108,8 @@
                 </div>-->
                 <#if ENABLE_CAPTCHA >
                 <div class="input-group ver-code">
-                    <span class="glyphicon glyphicon-lock " ></span
-                    ><input class="  placeholder-no-fix <#if code! == 'CAPTCHA_INVALID'>error</#if>"  placeholder="<@spring.message 'user.verifiCode'/>" type="text" name="verifiCode" /
+                    <span class="glyphicon glyphicon-lock " ></span>
+                    <input class="  placeholder-no-fix <#if code! == 'CAPTCHA_INVALID'>error</#if>"  placeholder="<@spring.message 'user.verifiCode'/>" type="text" name="verifiCode" /
                     ><div class="verImg">
                     <img id="imgObj" title="<@spring.message 'sys.login.refreshverificationcode'/>" src="${base.contextPath}/verifiCode"  onclick="changeCaptchaCode()" /></div>
 
@@ -126,26 +133,26 @@
                 <div class="title-line"></div>
                 <p class="title-txt">为有需要的企业提供供应链金融解决方案</p>
             </div>
-            <ul class="fea-content clear" >
-                <li>
+            <ul class="fea-content clear container" >
+                <li class="col-xs-12 col-sm-6 col-md-3">
                     <p class="fea-img"> <img src="${base.contextPath}/resources/images/login/fea1.png"></p>
                     <p class="fea-tit">风险管控</p>
                     <p class="fea-text">根据订单实时更新和管理融资额度
                     </p>
                 </li>
-                <li>
+                <li class="col-xs-12 col-sm-6 col-md-3">
                     <p class="fea-img"> <img src="${base.contextPath}/resources/images/login/fea2.png"></p>
                     <p class="fea-tit">物流监控</p>
                     <p class="fea-text">根据订单实时更新和管理融资额度
                     </p>
                 </li>
-                <li>
+                <li class="col-xs-12 col-sm-6 col-md-3">
                     <p class="fea-img"> <img src="${base.contextPath}/resources/images/login/fea3.png"></p>
                     <p class="fea-tit">资金管理</p>
                     <p class="fea-text">根据订单实时更新和管理融资额度
                     </p>
                 </li>
-                <li>
+                <li class="col-xs-12 col-sm-6 col-md-3">
                     <p class="fea-img"> <img src="${base.contextPath}/resources/images/login/feature4.png"></p>
                     <p class="fea-tit">流程管理</p>
                     <p class="fea-text">根据订单实时更新和管理融资额度
@@ -163,9 +170,9 @@
             <div class="title-line"></div>
             <p class="title-txt">供应链金融平台业务发展地区占比成果</p>
         </div>
-        <div class="ach-content">
-            <div id="mapBox" class="mapBox"></div>
-            <div id="pieBox" class="pieBox"></div>
+       <div class="ach-content container">
+            <div id="mapBox" class="mapBox col-xs-12 col-sm-9 col-md-8"></div>
+            <div id="pieBox" class="pieBox col-xs-12 col-sm-3 col-md-4"></div>
         </div>
     </div>
 </div>
@@ -173,63 +180,20 @@
     <!--动态-->
     <div id="news">
         <div class="container">
-
             <div class="con-head ">
                 <h3 class="title">动态</h3>
                 <div class="title-line"></div>
                 <p class="title-txt">供应链金融行业新闻动态</p>
             </div>
-            <div class="news-content">
-                <div class="news-cover">
+            <div class="news-content container">
+                <div class="news-cover col-xs-12 col-sm-4 col-md-4">
                     <img src="${base.contextPath}/resources/images/login/news_cover.png">
                     <p class="cover_title">签约项目正式落户辽宁自贸区</p>
                     <p class="cover_article">5月9日-10日，由政府主办，辽宁自贸区片区管委会、新区管委会承办的中国辽宁自由贸易试验区大连片区经济合作推介会在银帆宾馆举行。</p>
                 </div>
-                <div class="news-list">
+                <div class="news-list col-xs-12 col-sm-8 col-md-8">
                     <ul>
-                        <li>
-                           <div class="news_left">
-                                <p  class="news_order">01</p>  <!--href="javascript:void(0)"-->
-                                <p class="news_time">2019-05-06</p>
-                            </div>
-                            <div class="news_right">
-                                <p class="news_tit"> <a href="javascript:void(0)">消费金融和供应链金融有什么不同？哪家平台做的好点？ </a></p>
-                                <p class="news_con">消费金融面向个人，典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析，
-                                    典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析</p>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="news_left">
-                                <p  class="news_order">01</p>  <!--href="javascript:void(0)"-->
-                                <p class="news_time">2019-05-06</p>
-                            </div>
-                            <div class="news_right">
-                                <p class="news_tit"> <a href="javascript:void(0)">消费金融和供应链金融有什么不同？哪家平台做的好点？ </a></p>
-                                <p class="news_con">消费金融面向个人，典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析，典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析</p>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="news_left">
-                                <p  class="news_order">01</p>  <!--href="javascript:void(0)"-->
-                                <p class="news_time">2019-05-06</p>
-                            </div>
-                            <div class="news_right">
-                                <p class="news_tit"> <a href="javascript:void(0)">消费金融和供应链金融有什么不同？哪家平台做的好点？ </a></p>
-                                <p class="news_con">消费金融面向个人，典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析，
-                                    典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析</p>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="news_left">
-                                <p  class="news_order">01</p>  <!--href="javascript:void(0)"-->
-                                <p class="news_time">2019-05-06</p>
-                            </div>
-                            <div class="news_right">
-                                <p class="news_tit"> <a href="javascript:void(0)">消费金融和供应链金融有什么不同？哪家平台做的好点？ </a></p>
-                                <p class="news_con">消费金融面向个人，典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析，
-                                    典型模式是 “在线、无抵押”，依赖平台积累的用户行为史和大数据分析</p>
-                            </div>
-                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -237,14 +201,14 @@
     </div>
 
     <div id="footer">
-    <div class="row bs-reset">
-        <div class="col-xs-12 bs-reset">
-            <div class="login-copyright text-center">
-                <p>  Copyright © 2017 浙江景瑞信息科技有限公司.</p>
+        <div class="row bs-reset">
+            <div class="col-xs-12 bs-reset">
+                <div class="login-copyright text-center">
+                    <p>  Copyright © 2017 浙江景瑞信息科技有限公司.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 </div>
 
@@ -269,7 +233,6 @@
 <script src="${base.contextPath}/lib/assets/global/plugins/excanvas.min.js"></script>
 <![endif]-->
 <script src="${base.contextPath}/lib//assets/global/plugins/backstretch/jquery.backstretch.min.js" type="text/javascript"></script>
-<script src="${base.contextPath}/lib/swiper/js/swiper.min.js"></script>
 <script src="${base.contextPath}/lib/eCharts/echarts.min.js"></script>
 <script src="${base.contextPath}/resources/js/login/shopPoint.js"></script>
 <script src="${base.contextPath}/resources/js/login/login.js" type="text/javascript"></script>
