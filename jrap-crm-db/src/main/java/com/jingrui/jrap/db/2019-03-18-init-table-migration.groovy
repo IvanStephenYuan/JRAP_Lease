@@ -857,6 +857,9 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"ITEM_CODE",type:"varchar(200)",remarks:"租赁物编码"){
     constraints(nullable:"false")
    }
+   
+   column(name:"STATUS",type:"varchar(60)",remarks:"状态")
+   
    column(name:"DOCUMENT_CATEGORY",type:"varchar(60)",remarks:"单据类别"){
     constraints(nullable:"false")
    }
@@ -1211,6 +1214,7 @@ databaseChangeLog(logicalFilePath:"2019-03-18-init-table-migration.groovy"){
    column(name:"APPROVED_DATE",type:"datetime",remarks:"通过日期")
    column(name:"REFUSE_DATE",type:"datetime",remarks:"拒绝日期")
    column(name:"CUSTOMER_ID",type:"bigint",remarks:"客户ID")
+   column(name:"MODEL_ID",type:"bigint",remarks:"新车ID")
    column(name:"CUSTOMER_NAME",type:"varchar(200)",remarks:"客户姓名")
    column(name:"CELLPHONE",type:"varchar(30)",remarks:"手机号")
    column(name:"CELLPHONE02",type:"varchar(30)",remarks:"手机号02")

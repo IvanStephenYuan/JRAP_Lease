@@ -22,7 +22,6 @@ databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
         }
     }
 
-
     changeSet(author: "ivan", id: "20190428-crm-init-data-xlsx", runAlways: "true") {
         customChange(class: ExcelDataLoader.class.name) {
             param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/20190428-init-data.xlsx"))
@@ -32,6 +31,18 @@ databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
     changeSet(author: "ivan", id: "20190430-crm-init-data-xlsx", runAlways: "true") {
         customChange(class: ExcelDataLoader.class.name) {
             param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/20190430-init-data.xlsx"))
+        }
+    }
+	
+	changeSet(author: "ivan", id: "20190430-crm-init-data-xlsx", runAlways: "true") {
+        customChange(class: ExcelDataLoader.class.name) {
+            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/201900505-init-data.xlsx"))
+        }
+    }
+	
+	changeSet(author: "ivan", id: "20190430-crm-init-data-xlsx", runAlways: "true") {
+        customChange(class: ExcelDataLoader.class.name) {
+            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/201900507-init-data.xlsx"))
         }
     }
 
