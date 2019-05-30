@@ -266,6 +266,25 @@
                 <artifactId>jrap-crm-db</artifactId>
                 <version>${project.build.version}</version>
             </dependency>
+
+            <!-- settle -->
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-settle</artifactId>
+                <version>${project.build.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-settle</artifactId>
+                <version>${project.build.version}</version>
+                <classifier>classes</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.jingrui</groupId>
+                <artifactId>jrap-settle-db</artifactId>
+                <version>${project.build.version}</version>
+            </dependency>
             <!-- jrap模块依赖结束 -->
 
             <!-- 时间操作组件 -->
