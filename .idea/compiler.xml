@@ -24,6 +24,8 @@
         <module name="jrap-oauth2-db" />
         <module name="jrap-report" />
         <module name="jrap-report-db" />
+        <module name="jrap-settle" />
+        <module name="jrap-settle-db" />
         <module name="jrap-task" />
         <module name="jrap-task-db" />
         <module name="jrap-workflow" />

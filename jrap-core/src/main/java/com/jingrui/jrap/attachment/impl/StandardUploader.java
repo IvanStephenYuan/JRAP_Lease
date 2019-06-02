@@ -168,6 +168,21 @@ public class StandardUploader implements Uploader {
         return fileInfos;
     }
 
+    /**
+     * 从HttpServletRequest中获取文件项列表.
+     *
+     * @param request       HttpServletRequest
+     * @param parameterName request参数名称
+     * @return 文件项列表或null.
+     */
+    public List<FileItem> getMultipartFileItem(HttpServletRequest request, String parameterName) {
+        MultipartFile multipartFile = ((MultipartHttpServletRequest) request).getFile(parameterName);
+        if (multipartFile != null) {
+            return Collections.singletonList(new MultipartFiledByFileItem((multipartFile)));
+        }
+        return null;
+    }
+
 
     /**
      * 验证文件是否符合上传规范.

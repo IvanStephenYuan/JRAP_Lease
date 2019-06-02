@@ -11,7 +11,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
            createSequence(sequenceName: 'HR_EMPLOYEE_S', startValue:"10001")
         }
         createTable(tableName: "HR_EMPLOYEE") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(autoIncrement: "true", startWith:"10001", name: "EMPLOYEE_ID", type: "BIGINT", remarks: "员工ID") {
                     constraints(nullable: "false", primaryKey: "true" ,primaryKeyName:"HR_EMPLOYEE_PK")
                 }
@@ -68,7 +68,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
            createSequence(sequenceName: 'HR_ORG_UNIT_B_S', startValue:"10001")
         }
         createTable(tableName: "HR_ORG_UNIT_B") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true", startWith:"10001", name: "UNIT_ID", type: "BIGINT", remarks: "组织ID") {
                     constraints(nullable: "false", primaryKey: "true")
                 }
@@ -120,7 +120,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
            createSequence(sequenceName: 'HR_ORG_POSITION_B_S',startValue:"10001")
         }
         createTable(tableName: "HR_ORG_POSITION_B") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true",startWith:"10001", name: "POSITION_ID", type: "BIGINT", remarks: "岗位ID") {
                     constraints(nullable: "false", primaryKey: "true")
                 }
@@ -173,7 +173,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
            createSequence(sequenceName: 'HR_EMPLOYEE_ASSIGN_S',startValue:"10001")
         }
         createTable(tableName: "HR_EMPLOYEE_ASSIGN") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true", startWith:"10001", name: "ASSIGN_ID", type: "BIGINT", remarks: "ID") {
                     constraints(nullable: "false", primaryKey: "true")
                 }
@@ -213,7 +213,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
            createSequence(sequenceName: 'SYS_DASHBOARD_B_S',startValue:"10001")
         }
         createTable(tableName: "SYS_DASHBOARD_B") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true", startWith:"10001", name: "DASHBOARD_ID", type: "BIGINT", remarks: "ID") {
                     constraints(nullable: "false", primaryKey: "true")
                 }
@@ -275,7 +275,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
            createSequence(sequenceName: 'SYS_USER_DASHBOARD_S',startValue:"10001")
         }
         createTable(tableName: "SYS_USER_DASHBOARD") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true", startWith:"10001", name: "USER_DASHBOARD_ID", type: "BIGINT", remarks: "ID") {
                     constraints(nullable: "false", primaryKey: "true")
                 }
@@ -307,7 +307,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
            createSequence(sequenceName: 'SYS_USER_DEMO_B_S',startValue:"10001")
         }
         createTable(tableName:"SYS_USER_DEMO_B"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true",startWith: "10001",name: "USER_ID",type: "BIGINT", remarks: "pk") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_USER_DEMO_B_PK")
                 }
@@ -381,7 +381,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
         }
 
         createTable(tableName:"SYS_RESOURCE_CUSTOMIZATION"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"RESOURCE_CUSTOMIZATION_ID",type:"bigint",autoIncrement: "true", remarks:"表ID，主键，供其他表做外键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_RESOURCE_CUSTOMIZATION_PK")
                 }
@@ -427,7 +427,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
         }
 
         createTable(tableName:"SYS_IF_INVOKE_INBOUND"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true",startWith: "10001", name: "INBOUND_ID", type: "BIGINT", remarks: "pk") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_IF_INVOKE_INBOUND_PK")
                 }
@@ -480,7 +480,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
         }
 
         createTable(tableName:"SYS_IF_INVOKE_OUTBOUND"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(autoIncrement: "true",startWith: "10001", name: "OUTBOUND_ID", type: "BIGINT", remarks: "pk") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_IF_INVOKE_OUTBOUND_PK")
                 }

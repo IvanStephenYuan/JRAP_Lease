@@ -592,7 +592,7 @@ public class SqlUtil implements Constant {
     public static List<String> getPermissionTables(String sql){
         List<String>tables=msPermissionMap.get(sql);
         if(tables==null){
-            tables=new ArrayList<>();
+            tables=new Vector<>();
             msPermissionMap.put(sql,tables);
         }
         return tables;

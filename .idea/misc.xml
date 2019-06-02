@@ -12,6 +12,7 @@
     <file type="web" url="file://$PROJECT_DIR$/jrap-mail" />
     <file type="web" url="file://$PROJECT_DIR$/jrap-oauth2" />
     <file type="web" url="file://$PROJECT_DIR$/jrap-report" />
+    <file type="web" url="file://$PROJECT_DIR$/jrap-settle" />
     <file type="web" url="file://$PROJECT_DIR$/jrap-task" />
     <file type="web" url="file://$PROJECT_DIR$/jrap-workflow" />
   </component>
@@ -19,6 +20,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/jrap-settle/pom.xml" />
+        <option value="$PROJECT_DIR$/jrap-settle-db/pom.xml" />
       </list>
     </option>
   </component>

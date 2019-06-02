@@ -12,7 +12,7 @@ databaseChangeLog(logicalFilePath:"2017-10-12-init-migration.groovy"){
             createSequence(sequenceName: 'API_CONFIG_SERVER_S', startValue: "10001")
         }
         createTable(tableName:"API_CONFIG_SERVER",remarks: "服务注册功能-服务配置表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "SERVER_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"API_CONFIG_SERVER_PK")
                 }
@@ -97,7 +97,7 @@ databaseChangeLog(logicalFilePath:"2017-10-12-init-migration.groovy"){
         }
 
         createTable(tableName:"API_CONFIG_INTERFACE",remarks: "服务注册功能-接口配置表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "INTERFACE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"API_CONFIG_INTERFACE_PK")
                 }
@@ -153,7 +153,7 @@ databaseChangeLog(logicalFilePath:"2017-10-12-init-migration.groovy"){
         }
 
         createTable(tableName:"API_CONFIG_APPLICATION",remarks: "服务注册功能-应用配置表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "APPLICATION_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"API_CONFIG_APPLICATION_PK")
                 }
@@ -203,7 +203,7 @@ databaseChangeLog(logicalFilePath:"2017-10-12-init-migration.groovy"){
             createSequence(sequenceName: 'API_CLIENT_INTERFACE_LIMIT_S', startValue: "10001")
         }
         createTable(tableName:"API_CLIENT_INTERFACE_LIMIT",remarks: "服务访问次数限制表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"API_CLIENT_INTERFACE_LIMIT_PK")
                 }
@@ -246,7 +246,7 @@ databaseChangeLog(logicalFilePath:"2017-10-12-init-migration.groovy"){
             createSequence(sequenceName: 'API_INVOKE_RECORD_S', startValue: "10001")
         }
         createTable(tableName:"API_INVOKE_RECORD",remarks: "服务注册功能-服务调用记录表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "RECORD_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"API_INVOKE_RECORD_PK")
                 }
@@ -300,7 +300,7 @@ databaseChangeLog(logicalFilePath:"2017-10-12-init-migration.groovy"){
         }
 
         createTable(tableName:"API_INVOKE_RECORD_DETAILS",remarks: "服务注册功能-服务调用记录详情表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "RECORD_DETAILS_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"API_INVOKE_RECORD_DETAILS_PK")
                 }

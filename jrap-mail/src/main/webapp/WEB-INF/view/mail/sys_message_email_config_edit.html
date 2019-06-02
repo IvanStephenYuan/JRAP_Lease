@@ -232,7 +232,7 @@
         $("#port").kendoNumericTextBox({
             min: 0,
             step: 1,
-            format: "n0"
+            format: "0"
         });
         $("#tryTimes").kendoNumericTextBox({
             min: 0,
@@ -426,7 +426,6 @@
             var validator = $("#mainform").data("kendoValidator");
             if (validator.validate()) {
                 viewModel.model.__status = <#if RequestParameters.configId??> 'update' <#else> 'add' </#if>;
-                viewModel.model.port = kendo.toString(viewModel.model.port, "n0");
                 viewModel.model.emailAccounts = $("#Grid").data("kendoGrid").dataSource.data();
                 viewModel.model.whiteLists = $("#secondGrid").data("kendoGrid").dataSource.data();
                 viewModel.model.propertyLists = $("#propertyGrid").data("kendoGrid").dataSource.data();

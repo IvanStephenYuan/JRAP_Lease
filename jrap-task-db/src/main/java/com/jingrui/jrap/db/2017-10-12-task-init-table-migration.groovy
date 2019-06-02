@@ -12,7 +12,7 @@ databaseChangeLog(logicalFilePath: "2017-10-12-init-migration.groovy") {
             createSequence(sequenceName: 'SYS_TASK_DETAIL_S', startValue: "10001")
         }
         createTable(tableName:"SYS_TASK_DETAIL",remarks: "并发任务-任务表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "TASK_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_TASK_DETAIL_PK")
                 }
@@ -63,7 +63,7 @@ databaseChangeLog(logicalFilePath: "2017-10-12-init-migration.groovy") {
             createSequence(sequenceName: 'SYS_TASK_ASSIGN_S', startValue: "10001")
         }
         createTable(tableName:"SYS_TASK_ASSIGN",remarks: "并发任务-任务授权表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "TASK_ASSIGN_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_TASK_ASSIGN_PK")
                 }
@@ -106,7 +106,7 @@ databaseChangeLog(logicalFilePath: "2017-10-12-init-migration.groovy") {
             createSequence(sequenceName: 'SYS_TASK_EXECUTION_S', startValue: "10001")
         }
         createTable(tableName:"SYS_TASK_EXECUTION",remarks: "并发任务-任务执行情况表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "EXECUTION_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_TASK_EXECUTION_PK")
                 }
@@ -150,7 +150,7 @@ databaseChangeLog(logicalFilePath: "2017-10-12-init-migration.groovy") {
             createSequence(sequenceName: 'SYS_TASK_EXECUTION_DETAIL_S', startValue: "10001")
         }
         createTable(tableName:"SYS_TASK_EXECUTION_DETAIL",remarks: "并发任务-任务执行情况详情表"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "EXECUTION_DETAIL_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_TASK_EXECUTION_DETAIL_PK")
                 }

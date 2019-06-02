@@ -18,21 +18,24 @@ public enum DbType {
     POSTGRE_SQL("postgresql", false, true);
 
     private final String value;
-    private final  boolean suppportAutoIncrement;
+    private final boolean supportAutoIncrement;
     private final boolean supportSequence;
 
     DbType(String value, boolean supportAutoIncrement, boolean supportSequence) {
         this.value = value;
-        this.suppportAutoIncrement = supportAutoIncrement;
+        this.supportAutoIncrement = supportAutoIncrement;
         this.supportSequence = supportSequence;
     }
 
     public String getValue() {
         return value;
     }
-    public boolean isSuppportAutoIncrement() {
-        return suppportAutoIncrement;
+
+    @Deprecated
+    public boolean isSupportAutoIncrement() {
+        return supportAutoIncrement;
     }
+
     public boolean isSupportSequence() {
         return supportSequence;
     }

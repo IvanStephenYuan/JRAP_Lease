@@ -13,7 +13,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
         }
 
         createTable (tableName: "WFL_APPROVE_CANDIDATE_RULE", remarks: "候选人审批规则") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "CANDIDATE_RULE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"WFL_APPROVE_CANDIDATE_PK")
                 }
@@ -58,7 +58,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
            createSequence(sequenceName: 'WFL_APPROVE_STRATEGY_S',startValue:"10001")
         }
         createTable (tableName: "WFL_APPROVE_STRATEGY", remarks: "审批策略") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "APPROVE_STRATEGY_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"WFL_APPROVE_STRATEGY_PK")
                 }
@@ -102,7 +102,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
            createSequence(sequenceName: 'WFL_BUSINESS_RULE_HEADER_S',startValue:"10001")
         }
         createTable (tableName: "WFL_BUSINESS_RULE_HEADER", remarks: "审批权限规则 头表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "BUSINESS_RULE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"WFL_BUSINESS_RULE_HEADER_PK")
                 }
@@ -146,7 +146,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
            createSequence(sequenceName: 'WFL_BUSINESS_RULE_LINE_S',startValue:"10001")
         }
         createTable (tableName: "WFL_BUSINESS_RULE_LINE", remarks: "审批权限规则 行表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "BUSINESS_RULE_LINE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"WFL_BUSINESS_RULE_LINE_PK")
                 }

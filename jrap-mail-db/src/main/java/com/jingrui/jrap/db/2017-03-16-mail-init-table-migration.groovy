@@ -11,7 +11,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_EMAIL_PROPERTY_S',startValue:"10001")
         }
         createTable (tableName: "SYS_MESSAGE_EMAIL_PROPERTY", remarks: "邮件消息属性") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "PROPERTY_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_MESSAGE_EMAIL_PROPERTY_PK")
                 }

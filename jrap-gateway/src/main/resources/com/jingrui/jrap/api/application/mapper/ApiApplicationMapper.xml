@@ -39,10 +39,10 @@
           ON APP.CLI_ID = AUTH.ID
        <where>
            <if test="null != code">
-               APP.CODE LIKE '%${code}%'
+               APP.CODE LIKE concat('%',concat(#{code,jdbcType=VARCHAR},'%'))
            </if>
            <if test="null != name">
-               AND APP.NAME LIKE '%${name}%'
+               AND APP.NAME LIKE concat('%',concat(#{name,jdbcType=VARCHAR},'%'))
            </if>
            <if test="null != clientId">
                AUTH.CLIENT_ID = #{clientId}

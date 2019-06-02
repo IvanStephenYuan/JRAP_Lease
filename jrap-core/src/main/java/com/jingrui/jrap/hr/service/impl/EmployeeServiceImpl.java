@@ -78,7 +78,7 @@ public class EmployeeServiceImpl extends BaseServiceImpl<Employee> implements IE
                     self().insertSelective(request, employee);
                     break;
                 case DTOStatus.UPDATE:
-                    self().updateByPrimaryKeyOptions(request, employee, null);
+                    self().updateByPrimaryKeyOptions(request, employee, criteria);
                     break;
                 case DTOStatus.DELETE:
                     self().deleteByPrimaryKey(employee);

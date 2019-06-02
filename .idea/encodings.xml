@@ -18,9 +18,10 @@
     <file url="file://$PROJECT_DIR$/jrap-mail-db" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jrap-oauth2" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jrap-oauth2-db" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/jrap-pom" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jrap-report" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jrap-report-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-settle" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jrap-settle-db" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jrap-task" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jrap-task-db" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jrap-workflow" charset="UTF-8" />

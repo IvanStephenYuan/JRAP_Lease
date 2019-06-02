@@ -12,7 +12,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
             createSequence(sequenceName: 'SYS_OAUTH_CLIENT_DETAILS_S', startValue: "10001")
         }
         createTable(tableName: "SYS_OAUTH_CLIENT_DETAILS") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "表ID，主键，供其他表做外键") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_OAUTH_CLIENT_DETAILS_PK")
                 }

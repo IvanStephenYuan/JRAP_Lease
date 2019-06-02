@@ -35,6 +35,10 @@ public class MonitorInterceptor extends HandlerInterceptorAdapter {
 
     public static final ThreadLocal<Object> REST_INVOKE_HANDLER = new ThreadLocal<>();
 
+    public static final String USER_ID = "userId";
+    public static final String REQUEST_ID = "requestId";
+    public static final String SESSION_ID = "sessionId";
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
@@ -59,10 +63,10 @@ public class MonitorInterceptor extends HandlerInterceptorAdapter {
             Long userId = (Long) session.getAttribute(User.FIELD_USER_ID);
             String uuid = UUID.randomUUID().toString().replace("-", "");
             if (userId != null) {
-                MDC.put("userId", userId.toString());
+                MDC.put(USER_ID, userId.toString());
             }
-            MDC.put("requestId", uuid);
-            MDC.put("sessionId", session.getId());
+            MDC.put(REQUEST_ID, uuid);
+            MDC.put(SESSION_ID, session.getId());
         }
     }
 
@@ -92,6 +96,9 @@ public class MonitorInterceptor extends HandlerInterceptorAdapter {
         holder.remove();
         SecurityTokenInterceptor.LOCAL_SECURITY_KEY.remove();
         REST_INVOKE_HANDLER.remove();
+        removeMDC(USER_ID);
+        removeMDC(REQUEST_ID);
+        removeMDC(SESSION_ID);
     }
 
     /**
@@ -100,5 +107,11 @@ public class MonitorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public void afterConcurrentHandlingStarted(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
+    }
+
+    private void removeMDC(String key) {
+        if (MDC.get(key) != null) {
+            MDC.remove(key);
+        }
     }
 }

@@ -33,4 +33,10 @@ databaseChangeLog(logicalFilePath:"patch.groovy"){
         }
     }
 
+    changeSet(author: "qiang.zeng", id: "20190111-qiangzeng-1") {
+        if(mhi.getDbType().isSupportSequence()){
+            dropSequence(sequenceName: 'SYS_TASK_DETAIL_S')
+            createSequence(sequenceName: 'SYS_TASK_DETAIL_B_S', startValue: "10001")
+        }
+    }
 }

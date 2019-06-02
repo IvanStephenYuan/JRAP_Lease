@@ -1,6 +1,5 @@
 package com.jingrui.jrap.message.websocket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jingrui.jrap.message.IMessageConsumer;
 import com.jingrui.jrap.message.TopicMonitor;
@@ -34,9 +33,9 @@ public class WebSocketSessionManager implements IMessageConsumer<CommandMessage>
 
 
     public void addSession(WebSocketSession session) {
-        String userName = session.getPrincipal().getName();
+        String userName = getPrincipalName(session);
         if (!StringUtils.isEmpty(userName)) {
-            List<WebSocketSession> sessions = webSocketSessionMap.get(userName);
+            List<WebSocketSession> sessions = webSocketSessionMap.computeIfAbsent(userName, k -> new ArrayList<>());
             if (sessions == null) {
                 sessions = new ArrayList<>();
                 webSocketSessionMap.put(userName, sessions);
@@ -51,7 +50,7 @@ public class WebSocketSessionManager implements IMessageConsumer<CommandMessage>
 
 
     public void removeSession(WebSocketSession session) {
-        String userName = session.getPrincipal().getName();
+        String userName = getPrincipalName(session);
         if (!StringUtils.isEmpty(userName)) {
             List<WebSocketSession> sessions = webSocketSessionMap.get(userName);
             if (sessions != null) {
@@ -86,5 +85,13 @@ public class WebSocketSessionManager implements IMessageConsumer<CommandMessage>
                  this.sendCommandMessage(webSocketSession,commandMessage);
              });
         }
+    }
+
+    public String getPrincipalName(WebSocketSession session) {
+        if (session == null || session.getPrincipal() == null) {
+            logger.error("WebSocket session principal is null,the handler has expired");
+            return null;
+        }
+        return session.getPrincipal().getName();
     }
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jingrui.jrap.account.mapper.UserMapper">
-    <resultMap id="BaseResultMap" type="com.jingrui.jrap.account.dto.User" extends="com.jingrui.jrap.mapper.StdMapper.STD">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.account.dto.User"
+               extends="com.jingrui.jrap.mapper.StdMapper.STD">
         <id column="USER_ID" property="userId" jdbcType="DECIMAL"/>
         <result column="USER_NAME" property="userName" jdbcType="VARCHAR"/>
         <result column="USER_TYPE" property="userType" jdbcType="VARCHAR"/>
@@ -26,6 +27,16 @@
         </collection>
     </resultMap>
 
+
+    <resultMap id="HomeResultMap" type="com.jingrui.jrap.account.dto.User" extends="BaseResultMap">
+        <result column="ROLE_NAME" property="roleName" jdbcType="VARCHAR"/>
+        <result column="unit_name" property="unitName" jdbcType="VARCHAR"/>
+        <result column="order_number" property="orderNumber" jdbcType="VARCHAR"/>
+        <result column="unit_rank" property="unitRank" jdbcType="VARCHAR"/>
+        <result column="unit_emp_total" property="unitEmpTotal" jdbcType="VARCHAR"/>
+        <result column="group_rank" property="groupRank" jdbcType="VARCHAR"/>
+        <result column="group_emp_total" property="groupEmpTotal" jdbcType="VARCHAR"/>
+    </resultMap>
 
     <sql id="Base_Column_List">
         SU.USER_ID, SU.USER_NAME, SU.USER_TYPE, SU.PASSWORD_ENCRYPTED, SU.EMAIL, SU.PHONE, SU.START_ACTIVE_DATE,
@@ -187,5 +198,124 @@
         <if test="sortname ==null">
             ORDER BY SU.USER_NAME ASC
         </if>
+    </select>
+
+    <select id="selectHomePageInfo" resultMap="HomeResultMap" parameterType="com.jingrui.jrap.account.dto.User">
+            SELECT
+            u.ROLE_NAME,
+            u.unit_name,
+          (
+                SELECT
+                    COUNT(EMPLOYEE_ID) AS order_number
+                FROM
+                    con_order con
+            WHERE con.EMPLOYEE_ID = #{employeeId}
+            ) as order_number,
+          (
+                SELECT
+                    CASE
+                WHEN @last_numer = u.numer THEN
+                    @unit_rank
+                WHEN @last_numer := u.numer THEN
+                    @unit_rank := @unit_rank + 1
+                END AS unit_rank
+                FROM
+                    (
+                        SELECT
+                            e.EMPLOYEE_ID,
+                            e.numer
+                        FROM
+                            (
+                                SELECT
+                                    con.EMPLOYEE_ID,
+                                    COUNT(con.EMPLOYEE_ID) AS numer
+                                FROM
+                                    con_order con
+                                INNER JOIN hr_employee_assign hea ON hea.EMPLOYEE_ID = con.EMPLOYEE_ID
+                                INNER JOIN hr_org_position_b hop ON hop.POSITION_ID = hea.POSITION_ID
+                                INNER JOIN hr_org_unit_b hou ON hou.UNIT_ID = hop.UNIT_ID
+                                GROUP BY
+                                    hou.UNIT_ID,
+                                    con.EMPLOYEE_ID
+                            ) e
+                        ORDER BY
+                            e.numer DESC
+                    ) u,
+                    (
+                        SELECT
+                            @unit_rank := 0,
+                            @last_numer := NULL
+                    ) r
+              WHERE u.EMPLOYEE_ID = #{employeeId}
+            ) AS unit_rank,
+
+            (
+                SELECT
+                    COUNT(DISTINCT he.EMPLOYEE_ID)
+                FROM
+                    hr_employee he
+                INNER JOIN hr_employee_assign hea ON hea.EMPLOYEE_ID = he.EMPLOYEE_ID
+                INNER JOIN hr_org_position_b hop ON hop.POSITION_ID = hea.POSITION_ID
+                INNER JOIN hr_org_unit_b hou ON hou.UNIT_ID = hop.UNIT_ID
+            WHERE he.EMPLOYEE_ID = #{employeeId}
+                GROUP BY hou.UNIT_ID
+
+            ) as unit_emp_total,
+          (
+                SELECT
+                    CASE
+                WHEN @last_numer = u.numer THEN
+                    @group_rank
+                WHEN @last_numer := u.numer THEN
+                    @group_rank := @group_rank + 1
+                END AS group_rank
+                FROM
+                    (
+                        SELECT
+                            e.EMPLOYEE_ID,
+                            e.numer
+                        FROM
+                            (
+                                SELECT
+                                    EMPLOYEE_ID,
+                                    COUNT(EMPLOYEE_ID) AS numer
+                                FROM
+                                    con_order
+                                GROUP BY
+                                    EMPLOYEE_ID
+                            ) e
+                        ORDER BY
+                            e.numer DESC
+                    ) u,
+                    (
+                        SELECT
+                            @group_rank := 0,
+                            @last_numer := NULL
+                    ) r
+            WHERE u.EMPLOYEE_ID = #{employeeId}
+            ) as group_rank,
+         (
+                SELECT
+                    COUNT(*)
+                FROM
+                    hr_employee he
+            ) AS group_emp_total
+        FROM
+            (
+                SELECT
+                    he.EMPLOYEE_ID,
+                    hou.`NAME` AS unit_name,
+                    srb.ROLE_NAME
+                FROM
+                    hr_employee  he
+                INNER JOIN hr_employee_assign hea ON hea.EMPLOYEE_ID = he.EMPLOYEE_ID
+                INNER JOIN hr_org_position_b hop ON hop.POSITION_ID = hea.POSITION_ID
+                INNER JOIN hr_org_unit_b hou ON hou.UNIT_ID = hop.UNIT_ID
+                INNER JOIN sys_user su ON su.EMPLOYEE_ID = he.EMPLOYEE_ID
+                INNER JOIN sys_user_role sur ON sur.USER_ID = su.USER_ID
+                INNER JOIN sys_role_b srb ON srb.ROLE_ID = sur.ROLE_ID
+            WHERE he.EMPLOYEE_ID = #{employeeId}
+            LIMIT 0,1
+            ) u
     </select>
 </mapper>

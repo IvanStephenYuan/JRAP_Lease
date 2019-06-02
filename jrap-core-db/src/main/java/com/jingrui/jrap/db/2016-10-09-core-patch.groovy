@@ -610,7 +610,7 @@ databaseChangeLog(logicalFilePath:"patch.groovy"){
             createSequence(sequenceName: 'SYS_FORMS_S', startValue:"10001")
         }
         createTable(tableName: "SYS_FORMS"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"FORM_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks:"表单ID"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "FORM_BUILDER_PK")
                 }
@@ -665,7 +665,7 @@ databaseChangeLog(logicalFilePath:"patch.groovy"){
             createSequence(sequenceName: 'SYS_HOTKEY_B_S',startValue:"10001")
         }
         createTable (tableName: "SYS_HOTKEY_B", remarks: "系统热键") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "HOTKEY_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_HOTKEY_PK")
                 }

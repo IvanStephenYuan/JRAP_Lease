@@ -156,7 +156,7 @@
                        style="text-align: right"><@spring.message "change.idtype"/></label>
                 <div class="col-xs-8">
                   <input id="idType" type="text" data-bind="value:model.idType"
-                         style="width: 100%;">
+                         style="width: 100%;" disabled>
                   <script>
                     $("#idType").kendoComboBox({
                       dataSource: card_type,
@@ -176,15 +176,103 @@
                 <div class="col-xs-8">
                   <input id="idNumber" type="text" data-bind="value:model.idNumber"
                          class="k-textbox"
-                         style="width: 100%;">
+                         style="width: 100%;background-color: #ededed;" disabled>
                   <script>kendo.bind($('#idNumber'), newViewModel);</script>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "item.license"/></label>
+                <div class="col-xs-8">
+                  <input id="license" type="text" data-bind="value:model.license"
+                         style="width: 100%;">
+                  <script>
+                    $("#license").kendoLov(
+                        $.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_ITEM")},
+                            {
+                              query: function (e) {
+                                e.param['status'] = 'STOCK';
+                              },
+                              textField: 'license',
+                              valueField: 'itemId',
+                              select: function (e) {
+                                var item = e.item;
+                                newViewModel.set("model.modelId", item.itemId);
+                                newViewModel.set("model.model", item.model);
+                                newViewModel.set("model.vin", item.vin);
+                                newViewModel.set("model.outsideColor", item.outsideColor);
+                                $("#carModel").attr('disabled', 'disabled');
+                                $("#carLicense").attr('disabled', 'disabled');
+                                $("#indicativeAmount").attr('disabled', 'disabled');
+                              }
+                            }))
+                    kendo.bind($('#license'), newViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4 control-label"
+                       style="text-align: right"><@spring.message "item.model"/></label>
+                <div class="col-xs-8">
+                  <input id="model" type="text" data-bind="value:model.model"
+                         style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                  <script>
+                    kendo.bind($('#model'), newViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4   control-label"
+                       style="text-align: right"><@spring.message "item.vin"/></label>
+                <div class="col-xs-8">
+                  <input id="vin" type="text" data-bind="value:model.vin"
+                         style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                  <script>
+                    kendo.bind($('#vin'), newViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4   control-label"
+                       style="text-align: right"><@spring.message "item.outsidecolor"/></label>
+                <div class="col-xs-8">
+                  <input id="outsideColor" type="text" data-bind="value:model.outsideColor"
+                         style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                  <script>
+                    kendo.bind($('#outsideColor'), newViewModel);
+                  </script>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="col-xs-12">
+
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label class="col-xs-4   control-label"
+                       style="text-align: right"><@spring.message "change.carmodel"/></label>
+                <div class="col-xs-8">
+                  <input id="carModel" type="text" data-bind="value:model.carModel"
+                         class="k-textbox"
+                         style="width: 100%;" onblur="removeAttr()">
+                  <script>kendo.bind($('#carModel'), newViewModel);</script>
+                </div>
+              </div>
+            </div>
             <div class="col-xs-6">
               <div class="form-group">
                 <label class="col-xs-4 control-label"
@@ -197,21 +285,9 @@
                 </div>
               </div>
             </div>
-            <div class="col-xs-6">
-              <div class="form-group">
-                <label class="col-xs-4   control-label"
-                       style="text-align: right"><@spring.message "change.carmodel"/></label>
-                <div class="col-xs-8">
-                  <input id="carModel" type="text" data-bind="value:model.carModel"
-                         class="k-textbox"
-                         style="width: 100%;">
-                  <script>kendo.bind($('#carModel'), newViewModel);</script>
-                </div>
-              </div>
-            </div>
           </div>
-
           <div class="col-xs-12">
+
             <div class="col-xs-6">
               <div class="form-group">
                 <label class="col-xs-4 control-label"
@@ -288,6 +364,7 @@
   });
 
   $("#saveGrid").click(function () {
+    console.log(newViewModel.model.modelId);
     if (validator.validate()) {
       newViewModel.model.__status = isedit ? 'update' : 'add';
       Jrap.submitForm({
@@ -442,9 +519,39 @@
     }
   }
 
+  function removeAttr() {
+    alert(1);
+    $("#license").attr('disabled', 'disabled');
+    /* $("#carModel").attr('disabled', 'disabled');
+     $("#carLicense").attr('disabled', 'disabled');
+     $("#indicativeAmount").attr('disabled', 'disabled');*/
+  }
+
   function createorder() {
     var changeId = newViewModel.model.changeId;
     var customerId = newViewModel.model.customerId;
+    var idType = newViewModel.model.idType;
+    var modelId = newViewModel.model.modelId;
+    var url;
+    alert(idType);
+    alert(modelId);
+    /*if (idType == 'BL') {
+      if (modelId == null) {
+        //法人二手车
+        url = '${base.contextPath}/order/order_lawedit.html?isedit=0&changeId=' + changeId+'&customerId=' + customerId;
+      } else {
+        //法人新车
+        url = '${base.contextPath}/order/order_lawnewedit.html?isedit=0&changeId=' + changeId+'&customerId=' + customerId;
+      }
+    } else {
+      if (modelId == null) {
+        //自然人二手车
+        url = '${base.contextPath}/order/order_edit.html?isedit=0&changeId=' + changeId+'&customerId=' + customerId;
+      } else {
+        //自然人新车
+        url = '${base.contextPath}/order/order_newedit.html?isedit=0&changeId=' + changeId+'&customerId=' + customerId;
+      }
+    }
     var win = $("#orderedit").kendoWindow({
       actions: ["Close"],
       title: '生成订单',
@@ -453,12 +560,11 @@
       width: 900,
       height: 400,
       iframe: true,
-      content: '${base.contextPath}/order/order_edit.html?isedit=0&changeId=' + changeId
-      + '&customerId=' + customerId,
+      content:url,
       close: function (e) {
       }
     }).data("kendoWindow");
-    win.center().maximize().open();
+    win.center().maximize().open();*/
 
   }
 </script>

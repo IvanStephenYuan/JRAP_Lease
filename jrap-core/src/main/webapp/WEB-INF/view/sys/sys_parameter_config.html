@@ -532,6 +532,7 @@
         if (extra != null) {
             if(code != 'TASK'){
                 reloadCascadeFromField(extra.cascadeFromField);
+                codeValueField = extra.codeValueField || '';
             }
             if ("datePicker" == displayType) {
                 var datePickerFrom = $("#datePickerFrom").data("kendoDatePicker");
@@ -652,7 +653,7 @@
     }
 
     function getCodeValueField(){
-        if("comboBox" == displayType && 'CODE' == sourceType){
+        if("comboBox" == displayType && 'CODE' == sourceType && code != 'TASK'){
             return "&codeValueField=" + codeValueField;
         }
         return '';

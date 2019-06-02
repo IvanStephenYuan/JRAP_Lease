@@ -30,6 +30,8 @@
         <module>jrap-workflow-db</module>
         <module>jrap-crm</module>
         <module>jrap-crm-db</module>
+        <module>jrap-settle</module>
+        <module>jrap-settle-db</module>
     </modules>
     <name>jrap parent</name>
     <url>http://maven.apache.org</url>
@@ -298,7 +300,7 @@
             <dependency>
                 <groupId>com.bstek.ureport</groupId>
                 <artifactId>ureport2-console</artifactId>
-                <version>2.2</version>
+                <version>2.2.9</version>
             </dependency>
 
 

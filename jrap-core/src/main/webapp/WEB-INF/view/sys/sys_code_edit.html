@@ -177,11 +177,6 @@
         invalidMessageType : "tooltip"
     }).data("kendoValidator");
 
-    <#if RequestParameters.type?? &&  RequestParameters.type == 'SYSTEM'>
-        document.getElementById("deleteGrid").style.display="none";
-        document.getElementById("addGrid").style.display="none";
-    </#if>
-
     var crudServiceBaseUrl = "${base.contextPath}/sys/codevalue";
     dataSource = new kendo.data.DataSource({
         transport: {

@@ -13,7 +13,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_CODE_B_S', startValue:"10001")
         }
         createTable(tableName: "SYS_CODE_B"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"CODE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks:"代码ID"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_CODE_B_PK")
                 }
@@ -105,7 +105,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
         }
         createTable(tableName: "SYS_CODE_VALUE_B"){
 
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"CODE_VALUE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_CODE_VALUE_B_PK")
                 }
@@ -198,7 +198,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
         }
         createTable(tableName: "SYS_FUNCTION_B"){
 
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"FUNCTION_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_FUNCTION_B_PK")
                 }
@@ -301,7 +301,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
         }
         createTable(tableName: "SYS_FUNCTION_RESOURCE"){
 
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"FUNC_SRC_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks:"表ID，主键，供其他表做外键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_FUNCTION_RESOURCE_PK")
                 }
@@ -354,7 +354,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
         }
         createTable(tableName: "SYS_JOB_RUNNING_INFO"){
 
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"JOB_RUNNING_INFO_ID",type:"bigint",autoIncrement: "true", startWith:"10001"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_JOB_RUNNING_INFO_PK")
                 }
@@ -468,7 +468,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_LOV_S', startValue:"10001")
         }
         createTable(tableName: "SYS_LOV"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"LOV_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_LOV_PK")
                 }
@@ -537,7 +537,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_LOV_ITEM_S', startValue:"10001")
         }
         createTable(tableName: "SYS_LOV_ITEM"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"LOV_ITEM_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_LOV_ITEM_PK")
                 }
@@ -603,7 +603,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_PROFILE_S', startValue:"10001")
         }
         createTable(tableName: "SYS_PROFILE"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"PROFILE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_PROFILE_PK")
                 }
@@ -659,7 +659,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_PROFILE_VALUE_S', startValue:"10001")
         }
         createTable(tableName: "SYS_PROFILE_VALUE"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"PROFILE_VALUE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_PROFILE_VALUE_PK")
                 }
@@ -712,7 +712,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_PROMPTS_S', startValue:"10001")
         }
         createTable(tableName: "SYS_PROMPTS"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"PROMPT_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_PROMPTS_PK")
                 }
@@ -765,7 +765,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_RESOURCE_B_S', startValue:"10001")
         }
         createTable(tableName: "SYS_RESOURCE_B"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"RESOURCE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_RESOURCE_B_PK")
                 }
@@ -860,7 +860,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_RESOURCE_ITEM_B_S', startValue:"10001")
         }
         createTable(tableName: "SYS_RESOURCE_ITEM_B"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"RESOURCE_ITEM_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_RESOURCE_ITEM_B_PK")
                 }
@@ -952,7 +952,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_ROLE_B_S', startValue:"10001")
         }
         createTable(tableName: "SYS_ROLE_B"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"ROLE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_ROLE_B_PK")
                 }
@@ -1049,7 +1049,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_ROLE_FUNCTION_S', startValue:"10001")
         }
         createTable(tableName: "SYS_ROLE_FUNCTION"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"SRF_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_ROLE_FUNCTION_PK")
                 }
@@ -1101,7 +1101,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_ROLE_RESOURCE_ITEM_S', startValue:"10001")
         }
         createTable(tableName: "SYS_ROLE_RESOURCE_ITEM"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"RSI_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_ROLE_RESOURCE_ITEM_PK")
                 }
@@ -1154,7 +1154,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_USER_S', startValue:"10001")
         }
         createTable(tableName: "SYS_USER"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"USER_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_USER_PK")
                 }
@@ -1217,7 +1217,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_USER_ROLE_S', startValue:"10001")
         }
         createTable(tableName: "SYS_USER_ROLE"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"SUR_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_USER_ROLE_PK")
                 }
@@ -1269,7 +1269,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_ATTACH_CATEGORY_B_S', startValue:"10001")
         }
         createTable(tableName: "SYS_ATTACH_CATEGORY_B"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"CATEGORY_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_ATTACH_CATEGORY_B_PK")
                 }
@@ -1358,7 +1358,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_ATTACHMENT_S', startValue:"10001")
         }
         createTable(tableName: "SYS_ATTACHMENT"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"ATTACHMENT_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_ATTACHMENT_PK")
                 }
@@ -1413,7 +1413,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_FILE_S', startValue:"10001")
         }
         createTable(tableName: "SYS_FILE"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"FILE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_FILE_PK")
                 }
@@ -1464,7 +1464,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_PREFERENCES_S', startValue:"10001")
         }
         createTable(tableName: "SYS_PREFERENCES"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"PREFERENCES_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_PREFERENCES_PK")
                 }
@@ -1516,7 +1516,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_ACCOUNT_RETRIEVE_S', startValue:"10001")
         }
         createTable(tableName: "SYS_ACCOUNT_RETRIEVE") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "USER_ID", type: "bigint", autoIncrement: "true", startWith: "10001", remarks: "表ID，主键") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_ACCOUNT_RETRIEVE_PK")
                 }
@@ -1545,7 +1545,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_CONFIG_S',startValue:"10001")
         }
         createTable(tableName:"SYS_CONFIG"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(autoIncrement: "true",startWith: "10001", name: "CONFIG_ID", type: "BIGINT", remarks: "pk") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_CONFIG_PK")
                 }
@@ -1587,7 +1587,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'FND_COMPANY_B_S',startValue:"10001")
         }
         createTable(tableName:"FND_COMPANY_B"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(autoIncrement: "true",startWith: "10001", name: "company_id", type: "BIGINT", remarks: "pk") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"FND_COMPANY_B_PK")
                 }
@@ -1659,7 +1659,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
            createSequence(sequenceName: 'SYS_USER_LOGIN_S',startValue:"10001")
         }
         createTable(tableName:"SYS_USER_LOGIN"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(autoIncrement: "true",startWith: "10001", name: "LOGIN_ID", type: "BIGINT", remarks: "pk") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"SYS_USER_LOGIN_PK")
                 }

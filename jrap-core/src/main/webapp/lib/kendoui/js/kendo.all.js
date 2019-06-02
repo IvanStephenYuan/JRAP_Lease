@@ -10484,6 +10484,253 @@
     (a3 || a2)();
 }));
 (function (f, define) {
+    define('kendo.dom', ['kendo.core'], f);
+}(function () {
+    var __meta__ = {
+        id: 'dom',
+        name: 'Virtual DOM',
+        category: 'framework',
+        depends: ['core'],
+        advanced: true
+    };
+    (function (kendo) {
+        function Node() {
+            this.node = null;
+        }
+        Node.prototype = {
+            remove: function () {
+                this.node.parentNode.removeChild(this.node);
+                this.attr = {};
+            },
+            attr: {},
+            text: function () {
+                return '';
+            }
+        };
+        function NullNode() {
+        }
+        NullNode.prototype = {
+            nodeName: '#null',
+            attr: { style: {} },
+            children: [],
+            remove: function () {
+            }
+        };
+        var NULL_NODE = new NullNode();
+        function Element(nodeName, attr, children) {
+            this.nodeName = nodeName;
+            this.attr = attr || {};
+            this.children = children || [];
+        }
+        Element.prototype = new Node();
+        Element.prototype.appendTo = function (parent) {
+            var node = document.createElement(this.nodeName);
+            var children = this.children;
+            for (var index = 0; index < children.length; index++) {
+                children[index].render(node, NULL_NODE);
+            }
+            parent.appendChild(node);
+            return node;
+        };
+        Element.prototype.render = function (parent, cached) {
+            var node;
+            if (cached.nodeName !== this.nodeName) {
+                cached.remove();
+                node = this.appendTo(parent);
+            } else {
+                node = cached.node;
+                var index;
+                var children = this.children;
+                var length = children.length;
+                var cachedChildren = cached.children;
+                var cachedLength = cachedChildren.length;
+                if (Math.abs(cachedLength - length) > 2) {
+                    this.render({
+                        appendChild: function (node) {
+                            parent.replaceChild(node, cached.node);
+                        }
+                    }, NULL_NODE);
+                    return;
+                }
+                for (index = 0; index < length; index++) {
+                    children[index].render(node, cachedChildren[index] || NULL_NODE);
+                }
+                for (index = length; index < cachedLength; index++) {
+                    cachedChildren[index].remove();
+                }
+            }
+            this.node = node;
+            this.syncAttributes(cached.attr);
+            this.removeAttributes(cached.attr);
+        };
+        Element.prototype.syncAttributes = function (cachedAttr) {
+            var attr = this.attr;
+            for (var name in attr) {
+                var value = attr[name];
+                var cachedValue = cachedAttr[name];
+                if (name === 'style') {
+                    this.setStyle(value, cachedValue);
+                } else if (value !== cachedValue) {
+                    this.setAttribute(name, value, cachedValue);
+                }
+            }
+        };
+        Element.prototype.setStyle = function (style, cachedValue) {
+            var node = this.node;
+            var key;
+            if (cachedValue) {
+                for (key in style) {
+                    if (style[key] !== cachedValue[key]) {
+                        node.style[key] = style[key];
+                    }
+                }
+            } else {
+                for (key in style) {
+                    node.style[key] = style[key];
+                }
+            }
+        };
+        Element.prototype.removeStyle = function (cachedStyle) {
+            var style = this.attr.style || {};
+            var node = this.node;
+            for (var key in cachedStyle) {
+                if (style[key] === undefined) {
+                    node.style[key] = '';
+                }
+            }
+        };
+        Element.prototype.removeAttributes = function (cachedAttr) {
+            var attr = this.attr;
+            for (var name in cachedAttr) {
+                if (name === 'style') {
+                    this.removeStyle(cachedAttr.style);
+                } else if (attr[name] === undefined) {
+                    this.removeAttribute(name);
+                }
+            }
+        };
+        Element.prototype.removeAttribute = function (name) {
+            var node = this.node;
+            if (name === 'style') {
+                node.style.cssText = '';
+            } else if (name === 'className') {
+                node.className = '';
+            } else {
+                node.removeAttribute(name);
+            }
+        };
+        Element.prototype.setAttribute = function (name, value) {
+            var node = this.node;
+            if (node[name] !== undefined) {
+                node[name] = value;
+            } else {
+                node.setAttribute(name, value);
+            }
+        };
+        Element.prototype.text = function () {
+            var str = '';
+            for (var i = 0; i < this.children.length; ++i) {
+                str += this.children[i].text();
+            }
+            return str;
+        };
+        function TextNode(nodeValue) {
+            this.nodeValue = nodeValue;
+        }
+        TextNode.prototype = new Node();
+        TextNode.prototype.nodeName = '#text';
+        TextNode.prototype.render = function (parent, cached) {
+            var node;
+            if (cached.nodeName !== this.nodeName) {
+                cached.remove();
+                node = document.createTextNode(this.nodeValue);
+                parent.appendChild(node);
+            } else {
+                node = cached.node;
+                if (this.nodeValue !== cached.nodeValue) {
+                    node.nodeValue = this.nodeValue;
+                }
+            }
+            this.node = node;
+        };
+        TextNode.prototype.text = function () {
+            return this.nodeValue;
+        };
+        function HtmlNode(html) {
+            this.html = html;
+        }
+        HtmlNode.prototype = {
+            nodeName: '#html',
+            attr: {},
+            remove: function () {
+                for (var index = 0; index < this.nodes.length; index++) {
+                    this.nodes[index].parentNode.removeChild(this.nodes[index]);
+                }
+            },
+            render: function (parent, cached) {
+                if (cached.nodeName !== this.nodeName || cached.html !== this.html) {
+                    cached.remove();
+                    var lastChild = parent.lastChild;
+                    insertHtml(parent, this.html);
+                    this.nodes = [];
+                    for (var child = lastChild ? lastChild.nextSibling : parent.firstChild; child; child = child.nextSibling) {
+                        this.nodes.push(child);
+                    }
+                } else {
+                    this.nodes = cached.nodes.slice(0);
+                }
+            }
+        };
+        var HTML_CONTAINER = document.createElement('div');
+        function insertHtml(node, html) {
+            HTML_CONTAINER.innerHTML = html;
+            while (HTML_CONTAINER.firstChild) {
+                node.appendChild(HTML_CONTAINER.firstChild);
+            }
+        }
+        function html(value) {
+            return new HtmlNode(value);
+        }
+        function element(nodeName, attrs, children) {
+            return new Element(nodeName, attrs, children);
+        }
+        function text(value) {
+            return new TextNode(value);
+        }
+        function Tree(root) {
+            this.root = root;
+            this.children = [];
+        }
+        Tree.prototype = {
+            html: html,
+            element: element,
+            text: text,
+            render: function (children) {
+                var cachedChildren = this.children;
+                var index;
+                var length;
+                for (index = 0, length = children.length; index < length; index++) {
+                    children[index].render(this.root, cachedChildren[index] || NULL_NODE);
+                }
+                for (index = length; index < cachedChildren.length; index++) {
+                    cachedChildren[index].remove();
+                }
+                this.children = children;
+            }
+        };
+        kendo.dom = {
+            html: html,
+            text: text,
+            element: element,
+            Tree: Tree,
+            Node: Node
+        };
+    }(window.kendo));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('kendo.ooxml', ['kendo.core'], f);
 }(function () {
     var __meta__ = {
@@ -11447,248 +11694,79 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.dom', ['kendo.core'], f);
+    define('kendo.data.signalr', ['kendo.data'], f);
 }(function () {
     var __meta__ = {
-        id: 'dom',
-        name: 'Virtual DOM',
+        id: 'data.signalr',
+        name: 'SignalR',
         category: 'framework',
-        depends: ['core'],
-        advanced: true
+        depends: ['data'],
+        hidden: true
     };
-    (function (kendo) {
-        function Node() {
-            this.node = null;
-        }
-        Node.prototype = {
-            remove: function () {
-                this.node.parentNode.removeChild(this.node);
-                this.attr = {};
+    (function ($) {
+        var transport = kendo.data.RemoteTransport.extend({
+            init: function (options) {
+                var signalr = options && options.signalr ? options.signalr : {};
+                var promise = signalr.promise;
+                if (!promise) {
+                    throw new Error('The "promise" option must be set.');
+                }
+                if (typeof promise.done != 'function' || typeof promise.fail != 'function') {
+                    throw new Error('The "promise" option must be a Promise.');
+                }
+                this.promise = promise;
+                var hub = signalr.hub;
+                if (!hub) {
+                    throw new Error('The "hub" option must be set.');
+                }
+                if (typeof hub.on != 'function' || typeof hub.invoke != 'function') {
+                    throw new Error('The "hub" option is not a valid SignalR hub proxy.');
+                }
+                this.hub = hub;
+                kendo.data.RemoteTransport.fn.init.call(this, options);
             },
-            attr: {},
-            text: function () {
-                return '';
-            }
-        };
-        function NullNode() {
-        }
-        NullNode.prototype = {
-            nodeName: '#null',
-            attr: { style: {} },
-            children: [],
-            remove: function () {
-            }
-        };
-        var NULL_NODE = new NullNode();
-        function Element(nodeName, attr, children) {
-            this.nodeName = nodeName;
-            this.attr = attr || {};
-            this.children = children || [];
-        }
-        Element.prototype = new Node();
-        Element.prototype.appendTo = function (parent) {
-            var node = document.createElement(this.nodeName);
-            var children = this.children;
-            for (var index = 0; index < children.length; index++) {
-                children[index].render(node, NULL_NODE);
-            }
-            parent.appendChild(node);
-            return node;
-        };
-        Element.prototype.render = function (parent, cached) {
-            var node;
-            if (cached.nodeName !== this.nodeName) {
-                cached.remove();
-                node = this.appendTo(parent);
-            } else {
-                node = cached.node;
-                var index;
-                var children = this.children;
-                var length = children.length;
-                var cachedChildren = cached.children;
-                var cachedLength = cachedChildren.length;
-                if (Math.abs(cachedLength - length) > 2) {
-                    this.render({
-                        appendChild: function (node) {
-                            parent.replaceChild(node, cached.node);
-                        }
-                    }, NULL_NODE);
-                    return;
+            push: function (callbacks) {
+                var client = this.options.signalr.client || {};
+                if (client.create) {
+                    this.hub.on(client.create, callbacks.pushCreate);
                 }
-                for (index = 0; index < length; index++) {
-                    children[index].render(node, cachedChildren[index] || NULL_NODE);
+                if (client.update) {
+                    this.hub.on(client.update, callbacks.pushUpdate);
                 }
-                for (index = length; index < cachedLength; index++) {
-                    cachedChildren[index].remove();
-                }
-            }
-            this.node = node;
-            this.syncAttributes(cached.attr);
-            this.removeAttributes(cached.attr);
-        };
-        Element.prototype.syncAttributes = function (cachedAttr) {
-            var attr = this.attr;
-            for (var name in attr) {
-                var value = attr[name];
-                var cachedValue = cachedAttr[name];
-                if (name === 'style') {
-                    this.setStyle(value, cachedValue);
-                } else if (value !== cachedValue) {
-                    this.setAttribute(name, value, cachedValue);
-                }
-            }
-        };
-        Element.prototype.setStyle = function (style, cachedValue) {
-            var node = this.node;
-            var key;
-            if (cachedValue) {
-                for (key in style) {
-                    if (style[key] !== cachedValue[key]) {
-                        node.style[key] = style[key];
-                    }
-                }
-            } else {
-                for (key in style) {
-                    node.style[key] = style[key];
-                }
-            }
-        };
-        Element.prototype.removeStyle = function (cachedStyle) {
-            var style = this.attr.style || {};
-            var node = this.node;
-            for (var key in cachedStyle) {
-                if (style[key] === undefined) {
-                    node.style[key] = '';
-                }
-            }
-        };
-        Element.prototype.removeAttributes = function (cachedAttr) {
-            var attr = this.attr;
-            for (var name in cachedAttr) {
-                if (name === 'style') {
-                    this.removeStyle(cachedAttr.style);
-                } else if (attr[name] === undefined) {
-                    this.removeAttribute(name);
-                }
-            }
-        };
-        Element.prototype.removeAttribute = function (name) {
-            var node = this.node;
-            if (name === 'style') {
-                node.style.cssText = '';
-            } else if (name === 'className') {
-                node.className = '';
-            } else {
-                node.removeAttribute(name);
-            }
-        };
-        Element.prototype.setAttribute = function (name, value) {
-            var node = this.node;
-            if (node[name] !== undefined) {
-                node[name] = value;
-            } else {
-                node.setAttribute(name, value);
-            }
-        };
-        Element.prototype.text = function () {
-            var str = '';
-            for (var i = 0; i < this.children.length; ++i) {
-                str += this.children[i].text();
-            }
-            return str;
-        };
-        function TextNode(nodeValue) {
-            this.nodeValue = nodeValue;
-        }
-        TextNode.prototype = new Node();
-        TextNode.prototype.nodeName = '#text';
-        TextNode.prototype.render = function (parent, cached) {
-            var node;
-            if (cached.nodeName !== this.nodeName) {
-                cached.remove();
-                node = document.createTextNode(this.nodeValue);
-                parent.appendChild(node);
-            } else {
-                node = cached.node;
-                if (this.nodeValue !== cached.nodeValue) {
-                    node.nodeValue = this.nodeValue;
-                }
-            }
-            this.node = node;
-        };
-        TextNode.prototype.text = function () {
-            return this.nodeValue;
-        };
-        function HtmlNode(html) {
-            this.html = html;
-        }
-        HtmlNode.prototype = {
-            nodeName: '#html',
-            attr: {},
-            remove: function () {
-                for (var index = 0; index < this.nodes.length; index++) {
-                    this.nodes[index].parentNode.removeChild(this.nodes[index]);
+                if (client.destroy) {
+                    this.hub.on(client.destroy, callbacks.pushDestroy);
                 }
             },
-            render: function (parent, cached) {
-                if (cached.nodeName !== this.nodeName || cached.html !== this.html) {
-                    cached.remove();
-                    var lastChild = parent.lastChild;
-                    insertHtml(parent, this.html);
-                    this.nodes = [];
-                    for (var child = lastChild ? lastChild.nextSibling : parent.firstChild; child; child = child.nextSibling) {
-                        this.nodes.push(child);
-                    }
-                } else {
-                    this.nodes = cached.nodes.slice(0);
+            _crud: function (options, type) {
+                var hub = this.hub;
+                var server = this.options.signalr.server;
+                if (!server || !server[type]) {
+                    throw new Error(kendo.format('The "server.{0}" option must be set.', type));
                 }
-            }
-        };
-        var HTML_CONTAINER = document.createElement('div');
-        function insertHtml(node, html) {
-            HTML_CONTAINER.innerHTML = html;
-            while (HTML_CONTAINER.firstChild) {
-                node.appendChild(HTML_CONTAINER.firstChild);
-            }
-        }
-        function html(value) {
-            return new HtmlNode(value);
-        }
-        function element(nodeName, attrs, children) {
-            return new Element(nodeName, attrs, children);
-        }
-        function text(value) {
-            return new TextNode(value);
-        }
-        function Tree(root) {
-            this.root = root;
-            this.children = [];
-        }
-        Tree.prototype = {
-            html: html,
-            element: element,
-            text: text,
-            render: function (children) {
-                var cachedChildren = this.children;
-                var index;
-                var length;
-                for (index = 0, length = children.length; index < length; index++) {
-                    children[index].render(this.root, cachedChildren[index] || NULL_NODE);
+                var args = [server[type]];
+                var data = this.parameterMap(options.data, type);
+                if (!$.isEmptyObject(data)) {
+                    args.push(data);
                 }
-                for (index = length; index < cachedChildren.length; index++) {
-                    cachedChildren[index].remove();
-                }
-                this.children = children;
+                this.promise.done(function () {
+                    hub.invoke.apply(hub, args).done(options.success).fail(options.error);
+                });
+            },
+            read: function (options) {
+                this._crud(options, 'read');
+            },
+            create: function (options) {
+                this._crud(options, 'create');
+            },
+            update: function (options) {
+                this._crud(options, 'update');
+            },
+            destroy: function (options) {
+                this._crud(options, 'destroy');
             }
-        };
-        kendo.dom = {
-            html: html,
-            text: text,
-            element: element,
-            Tree: Tree,
-            Node: Node
-        };
-    }(window.kendo));
+        });
+        $.extend(true, kendo.data, { transports: { signalr: transport } });
+    }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -12071,84 +12149,6 @@
             }
         });
         kendo.ui.plugin(Validator);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.data.signalr', ['kendo.data'], f);
-}(function () {
-    var __meta__ = {
-        id: 'data.signalr',
-        name: 'SignalR',
-        category: 'framework',
-        depends: ['data'],
-        hidden: true
-    };
-    (function ($) {
-        var transport = kendo.data.RemoteTransport.extend({
-            init: function (options) {
-                var signalr = options && options.signalr ? options.signalr : {};
-                var promise = signalr.promise;
-                if (!promise) {
-                    throw new Error('The "promise" option must be set.');
-                }
-                if (typeof promise.done != 'function' || typeof promise.fail != 'function') {
-                    throw new Error('The "promise" option must be a Promise.');
-                }
-                this.promise = promise;
-                var hub = signalr.hub;
-                if (!hub) {
-                    throw new Error('The "hub" option must be set.');
-                }
-                if (typeof hub.on != 'function' || typeof hub.invoke != 'function') {
-                    throw new Error('The "hub" option is not a valid SignalR hub proxy.');
-                }
-                this.hub = hub;
-                kendo.data.RemoteTransport.fn.init.call(this, options);
-            },
-            push: function (callbacks) {
-                var client = this.options.signalr.client || {};
-                if (client.create) {
-                    this.hub.on(client.create, callbacks.pushCreate);
-                }
-                if (client.update) {
-                    this.hub.on(client.update, callbacks.pushUpdate);
-                }
-                if (client.destroy) {
-                    this.hub.on(client.destroy, callbacks.pushDestroy);
-                }
-            },
-            _crud: function (options, type) {
-                var hub = this.hub;
-                var server = this.options.signalr.server;
-                if (!server || !server[type]) {
-                    throw new Error(kendo.format('The "server.{0}" option must be set.', type));
-                }
-                var args = [server[type]];
-                var data = this.parameterMap(options.data, type);
-                if (!$.isEmptyObject(data)) {
-                    args.push(data);
-                }
-                this.promise.done(function () {
-                    hub.invoke.apply(hub, args).done(options.success).fail(options.error);
-                });
-            },
-            read: function (options) {
-                this._crud(options, 'read');
-            },
-            create: function (options) {
-                this._crud(options, 'create');
-            },
-            update: function (options) {
-                this._crud(options, 'update');
-            },
-            destroy: function (options) {
-                this._crud(options, 'destroy');
-            }
-        });
-        $.extend(true, kendo.data, { transports: { signalr: transport } });
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -14775,6 +14775,139 @@
     (a3 || a2)();
 }));
 (function (f, define) {
+    define('kendo.button', ['kendo.core'], f);
+}(function () {
+    var __meta__ = {
+        id: 'button',
+        name: 'Button',
+        category: 'web',
+        description: 'The Button widget displays styled buttons.',
+        depends: ['core']
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, keys = kendo.keys, CLICK = 'click', KBUTTON = 'k-button', KBUTTONICON = 'k-button-icon', KBUTTONICONTEXT = 'k-button-icontext', NS = '.kendoButton', DISABLED = 'disabled', DISABLEDSTATE = 'k-state-disabled', FOCUSEDSTATE = 'k-state-focused', SELECTEDSTATE = 'k-state-selected';
+        var Button = Widget.extend({
+            init: function (element, options) {
+                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
+                    $(element).remove();
+                    return;
+                }
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                element = that.wrapper = that.element;
+                options = that.options;
+                element.addClass(KBUTTON).attr('role', 'button');
+                options.enable = options.enable && !element.attr(DISABLED);
+                that.enable(options.enable);
+                that._tabindex();
+                that._graphics();
+                element.on(CLICK + NS, proxy(that._click, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('keydown' + NS, proxy(that._keydown, that)).on('keyup' + NS, proxy(that._keyup, that));
+                kendo.notify(that);
+            },
+            destroy: function () {
+                var that = this;
+                that.wrapper.off(NS);
+                Widget.fn.destroy.call(that);
+            },
+            events: [CLICK],
+            options: {
+                name: 'Button',
+                icon: '',
+                spriteCssClass: '',
+                imageUrl: '',
+                enable: true
+            },
+            _isNativeButton: function () {
+                return this.element.prop('tagName').toLowerCase() == 'button';
+            },
+            _click: function (e) {
+                if (this.options.enable) {
+                    if (this.trigger(CLICK, { event: e })) {
+                        e.preventDefault();
+                    }
+                }
+            },
+            _focus: function () {
+                if (this.options.enable) {
+                    this.element.addClass(FOCUSEDSTATE);
+                }
+            },
+            _blur: function () {
+                this.element.removeClass(FOCUSEDSTATE);
+            },
+            _keydown: function (e) {
+                var that = this;
+                if (!that._isNativeButton()) {
+                    if (e.keyCode == keys.ENTER || e.keyCode == keys.SPACEBAR) {
+                        if (e.keyCode == keys.SPACEBAR) {
+                            e.preventDefault();
+                            if (that.options.enable) {
+                                that.element.addClass(SELECTEDSTATE);
+                            }
+                        }
+                        that._click(e);
+                    }
+                }
+            },
+            _keyup: function () {
+                this.element.removeClass(SELECTEDSTATE);
+            },
+            _graphics: function () {
+                var that = this, element = that.element, options = that.options, icon = options.icon, spriteCssClass = options.spriteCssClass, imageUrl = options.imageUrl, span, img, isEmpty;
+                if (spriteCssClass || imageUrl || icon) {
+                    isEmpty = true;
+                    element.contents().not('span.k-sprite').not('span.k-icon').not('img.k-image').each(function (idx, el) {
+                        if (el.nodeType == 1 || el.nodeType == 3 && $.trim(el.nodeValue).length > 0) {
+                            isEmpty = false;
+                        }
+                    });
+                    if (isEmpty) {
+                        element.addClass(KBUTTONICON);
+                    } else {
+                        element.addClass(KBUTTONICONTEXT);
+                    }
+                }
+                if (icon) {
+                    span = element.children('span.k-icon').first();
+                    if (!span[0]) {
+                        span = $('<span class="k-icon"></span>').prependTo(element);
+                    }
+                    span.addClass('k-i-' + icon);
+                } else if (spriteCssClass) {
+                    span = element.children('span.k-sprite').first();
+                    if (!span[0]) {
+                        span = $('<span class="k-sprite"></span>').prependTo(element);
+                    }
+                    span.addClass(spriteCssClass);
+                } else if (imageUrl) {
+                    img = element.children('img.k-image').first();
+                    if (!img[0]) {
+                        img = $('<img alt="icon" class="k-image" />').prependTo(element);
+                    }
+                    img.attr('src', imageUrl);
+                }
+            },
+            enable: function (enable) {
+                var that = this, element = that.element;
+                if (enable === undefined) {
+                    enable = true;
+                }
+                enable = !!enable;
+                that.options.enable = enable;
+                element.toggleClass(DISABLEDSTATE, !enable).attr('aria-disabled', !enable).attr(DISABLED, !enable);
+                try {
+                    element.blur();
+                } catch (err) {
+                }
+            }
+        });
+        kendo.ui.plugin(Button);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('kendo.pager', ['kendo.data'], f);
 }(function () {
     var __meta__ = {
@@ -15060,139 +15193,6 @@
             }
         });
         ui.plugin(Pager);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.button', ['kendo.core'], f);
-}(function () {
-    var __meta__ = {
-        id: 'button',
-        name: 'Button',
-        category: 'web',
-        description: 'The Button widget displays styled buttons.',
-        depends: ['core']
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, keys = kendo.keys, CLICK = 'click', KBUTTON = 'k-button', KBUTTONICON = 'k-button-icon', KBUTTONICONTEXT = 'k-button-icontext', NS = '.kendoButton', DISABLED = 'disabled', DISABLEDSTATE = 'k-state-disabled', FOCUSEDSTATE = 'k-state-focused', SELECTEDSTATE = 'k-state-selected';
-        var Button = Widget.extend({
-            init: function (element, options) {
-                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
-                    $(element).remove();
-                    return;
-                }
-                var that = this;
-                Widget.fn.init.call(that, element, options);
-                element = that.wrapper = that.element;
-                options = that.options;
-                element.addClass(KBUTTON).attr('role', 'button');
-                options.enable = options.enable && !element.attr(DISABLED);
-                that.enable(options.enable);
-                that._tabindex();
-                that._graphics();
-                element.on(CLICK + NS, proxy(that._click, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('keydown' + NS, proxy(that._keydown, that)).on('keyup' + NS, proxy(that._keyup, that));
-                kendo.notify(that);
-            },
-            destroy: function () {
-                var that = this;
-                that.wrapper.off(NS);
-                Widget.fn.destroy.call(that);
-            },
-            events: [CLICK],
-            options: {
-                name: 'Button',
-                icon: '',
-                spriteCssClass: '',
-                imageUrl: '',
-                enable: true
-            },
-            _isNativeButton: function () {
-                return this.element.prop('tagName').toLowerCase() == 'button';
-            },
-            _click: function (e) {
-                if (this.options.enable) {
-                    if (this.trigger(CLICK, { event: e })) {
-                        e.preventDefault();
-                    }
-                }
-            },
-            _focus: function () {
-                if (this.options.enable) {
-                    this.element.addClass(FOCUSEDSTATE);
-                }
-            },
-            _blur: function () {
-                this.element.removeClass(FOCUSEDSTATE);
-            },
-            _keydown: function (e) {
-                var that = this;
-                if (!that._isNativeButton()) {
-                    if (e.keyCode == keys.ENTER || e.keyCode == keys.SPACEBAR) {
-                        if (e.keyCode == keys.SPACEBAR) {
-                            e.preventDefault();
-                            if (that.options.enable) {
-                                that.element.addClass(SELECTEDSTATE);
-                            }
-                        }
-                        that._click(e);
-                    }
-                }
-            },
-            _keyup: function () {
-                this.element.removeClass(SELECTEDSTATE);
-            },
-            _graphics: function () {
-                var that = this, element = that.element, options = that.options, icon = options.icon, spriteCssClass = options.spriteCssClass, imageUrl = options.imageUrl, span, img, isEmpty;
-                if (spriteCssClass || imageUrl || icon) {
-                    isEmpty = true;
-                    element.contents().not('span.k-sprite').not('span.k-icon').not('img.k-image').each(function (idx, el) {
-                        if (el.nodeType == 1 || el.nodeType == 3 && $.trim(el.nodeValue).length > 0) {
-                            isEmpty = false;
-                        }
-                    });
-                    if (isEmpty) {
-                        element.addClass(KBUTTONICON);
-                    } else {
-                        element.addClass(KBUTTONICONTEXT);
-                    }
-                }
-                if (icon) {
-                    span = element.children('span.k-icon').first();
-                    if (!span[0]) {
-                        span = $('<span class="k-icon"></span>').prependTo(element);
-                    }
-                    span.addClass('k-i-' + icon);
-                } else if (spriteCssClass) {
-                    span = element.children('span.k-sprite').first();
-                    if (!span[0]) {
-                        span = $('<span class="k-sprite"></span>').prependTo(element);
-                    }
-                    span.addClass(spriteCssClass);
-                } else if (imageUrl) {
-                    img = element.children('img.k-image').first();
-                    if (!img[0]) {
-                        img = $('<img alt="icon" class="k-image" />').prependTo(element);
-                    }
-                    img.attr('src', imageUrl);
-                }
-            },
-            enable: function (enable) {
-                var that = this, element = that.element;
-                if (enable === undefined) {
-                    enable = true;
-                }
-                enable = !!enable;
-                that.options.enable = enable;
-                element.toggleClass(DISABLEDSTATE, !enable).attr('aria-disabled', !enable).attr(DISABLED, !enable);
-                try {
-                    element.blur();
-                } catch (err) {
-                }
-            }
-        });
-        kendo.ui.plugin(Button);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -15636,6 +15636,703 @@
             }
         });
         ui.plugin(Popup);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.notification', [
+        'kendo.core',
+        'kendo.popup'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'notification',
+        name: 'Notification',
+        category: 'web',
+        description: 'The Notification widget displays user alerts.',
+        depends: [
+            'core',
+            'popup'
+        ]
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, extend = $.extend, setTimeout = window.setTimeout, CLICK = 'click', SHOW = 'show', HIDE = 'hide', KNOTIFICATION = 'k-notification', KICLOSE = '.k-notification-wrap .k-i-close', KHIDING = 'k-hiding', INFO = 'info', SUCCESS = 'success', WARNING = 'warning', ERROR = 'error', TOP = 'top', LEFT = 'left', BOTTOM = 'bottom', RIGHT = 'right', UP = 'up', NS = '.kendoNotification', WRAPPER = '<div class="k-widget k-notification"></div>', TEMPLATE = '<div class="k-notification-wrap">' + '<span class="k-icon k-i-note">#=typeIcon#</span>' + '#=content#' + '<span class="k-icon k-i-close">Hide</span>' + '</div>', SAFE_TEMPLATE = TEMPLATE.replace('#=content#', '#:content#');
+        var Notification = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                options = that.options;
+                if (!options.appendTo || !$(options.appendTo).is(element)) {
+                    that.element.hide();
+                }
+                that._compileTemplates(options.templates);
+                that._guid = '_' + kendo.guid();
+                that._isRtl = kendo.support.isRtl(element);
+                that._compileStacking(options.stacking, options.position.top, options.position.left);
+                kendo.notify(that);
+            },
+            events: [
+                SHOW,
+                HIDE
+            ],
+            options: {
+                name: 'Notification',
+                position: {
+                    pinned: true,
+                    top: null,
+                    left: null,
+                    bottom: 20,
+                    right: 20
+                },
+                stacking: 'default',
+                hideOnClick: true,
+                button: false,
+                allowHideAfter: 0,
+                autoHideAfter: 5000,
+                appendTo: null,
+                width: null,
+                height: null,
+                templates: [],
+                animation: {
+                    open: {
+                        effects: 'fade:in',
+                        duration: 300
+                    },
+                    close: {
+                        effects: 'fade:out',
+                        duration: 600,
+                        hide: true
+                    }
+                }
+            },
+            _compileTemplates: function (templates) {
+                var that = this;
+                var kendoTemplate = kendo.template;
+                that._compiled = {};
+                $.each(templates, function (key, value) {
+                    that._compiled[value.type] = kendoTemplate(value.template || $('#' + value.templateId).html());
+                });
+                that._defaultCompiled = kendoTemplate(TEMPLATE);
+                that._safeCompiled = kendoTemplate(SAFE_TEMPLATE);
+            },
+            _getCompiled: function (type, safe) {
+                var defaultCompiled = safe ? this._safeCompiled : this._defaultCompiled;
+                return type ? this._compiled[type] || defaultCompiled : defaultCompiled;
+            },
+            _compileStacking: function (stacking, top, left) {
+                var that = this, paddings = {
+                        paddingTop: 0,
+                        paddingRight: 0,
+                        paddingBottom: 0,
+                        paddingLeft: 0
+                    }, horizontalAlignment = left !== null ? LEFT : RIGHT, origin, position;
+                switch (stacking) {
+                case 'down':
+                    origin = BOTTOM + ' ' + horizontalAlignment;
+                    position = TOP + ' ' + horizontalAlignment;
+                    delete paddings.paddingBottom;
+                    break;
+                case RIGHT:
+                    origin = TOP + ' ' + RIGHT;
+                    position = TOP + ' ' + LEFT;
+                    delete paddings.paddingRight;
+                    break;
+                case LEFT:
+                    origin = TOP + ' ' + LEFT;
+                    position = TOP + ' ' + RIGHT;
+                    delete paddings.paddingLeft;
+                    break;
+                case UP:
+                    origin = TOP + ' ' + horizontalAlignment;
+                    position = BOTTOM + ' ' + horizontalAlignment;
+                    delete paddings.paddingTop;
+                    break;
+                default:
+                    if (top !== null) {
+                        origin = BOTTOM + ' ' + horizontalAlignment;
+                        position = TOP + ' ' + horizontalAlignment;
+                        delete paddings.paddingBottom;
+                    } else {
+                        origin = TOP + ' ' + horizontalAlignment;
+                        position = BOTTOM + ' ' + horizontalAlignment;
+                        delete paddings.paddingTop;
+                    }
+                    break;
+                }
+                that._popupOrigin = origin;
+                that._popupPosition = position;
+                that._popupPaddings = paddings;
+            },
+            _attachPopupEvents: function (options, popup) {
+                var that = this, allowHideAfter = options.allowHideAfter, attachDelay = !isNaN(allowHideAfter) && allowHideAfter > 0, closeIcon;
+                function attachClick(target) {
+                    target.on(CLICK + NS, function () {
+                        that._hidePopup(popup);
+                    });
+                }
+                if (popup.options.anchor !== document.body && popup.options.origin.indexOf(RIGHT) > 0) {
+                    popup.bind('open', function () {
+                        var shadows = kendo.getShadows(popup.element);
+                        setTimeout(function () {
+                            popup.wrapper.css('left', parseFloat(popup.wrapper.css('left')) + shadows.left + shadows.right);
+                        });
+                    });
+                }
+                if (options.hideOnClick) {
+                    popup.bind('activate', function () {
+                        if (attachDelay) {
+                            setTimeout(function () {
+                                attachClick(popup.element);
+                            }, allowHideAfter);
+                        } else {
+                            attachClick(popup.element);
+                        }
+                    });
+                } else if (options.button) {
+                    closeIcon = popup.element.find(KICLOSE);
+                    if (attachDelay) {
+                        setTimeout(function () {
+                            attachClick(closeIcon);
+                        }, allowHideAfter);
+                    } else {
+                        attachClick(closeIcon);
+                    }
+                }
+            },
+            _showPopup: function (wrapper, options) {
+                var that = this, autoHideAfter = options.autoHideAfter, x = options.position.left, y = options.position.top, popup, openPopup;
+                openPopup = $('.' + that._guid + ':not(.' + KHIDING + ')').last();
+                popup = new kendo.ui.Popup(wrapper, {
+                    anchor: openPopup[0] ? openPopup : document.body,
+                    origin: that._popupOrigin,
+                    position: that._popupPosition,
+                    animation: options.animation,
+                    modal: true,
+                    collision: '',
+                    isRtl: that._isRtl,
+                    close: function () {
+                        that._triggerHide(this.element);
+                    },
+                    deactivate: function (e) {
+                        e.sender.element.off(NS);
+                        e.sender.element.find(KICLOSE).off(NS);
+                        e.sender.destroy();
+                    }
+                });
+                that._attachPopupEvents(options, popup);
+                if (openPopup[0]) {
+                    popup.open();
+                } else {
+                    if (x === null) {
+                        x = $(window).width() - wrapper.width() - options.position.right;
+                    }
+                    if (y === null) {
+                        y = $(window).height() - wrapper.height() - options.position.bottom;
+                    }
+                    popup.open(x, y);
+                }
+                popup.wrapper.addClass(that._guid).css(extend({ margin: 0 }, that._popupPaddings));
+                if (options.position.pinned) {
+                    popup.wrapper.css('position', 'fixed');
+                    if (openPopup[0]) {
+                        that._togglePin(popup.wrapper, true);
+                    }
+                } else if (!openPopup[0]) {
+                    that._togglePin(popup.wrapper, false);
+                }
+                if (autoHideAfter > 0) {
+                    setTimeout(function () {
+                        that._hidePopup(popup);
+                    }, autoHideAfter);
+                }
+            },
+            _hidePopup: function (popup) {
+                popup.wrapper.addClass(KHIDING);
+                popup.close();
+            },
+            _togglePin: function (wrapper, pin) {
+                var win = $(window), sign = pin ? -1 : 1;
+                wrapper.css({
+                    top: parseInt(wrapper.css(TOP), 10) + sign * win.scrollTop(),
+                    left: parseInt(wrapper.css(LEFT), 10) + sign * win.scrollLeft()
+                });
+            },
+            _attachStaticEvents: function (options, wrapper) {
+                var that = this, allowHideAfter = options.allowHideAfter, attachDelay = !isNaN(allowHideAfter) && allowHideAfter > 0;
+                function attachClick(target) {
+                    target.on(CLICK + NS, proxy(that._hideStatic, that, wrapper));
+                }
+                if (options.hideOnClick) {
+                    if (attachDelay) {
+                        setTimeout(function () {
+                            attachClick(wrapper);
+                        }, allowHideAfter);
+                    } else {
+                        attachClick(wrapper);
+                    }
+                } else if (options.button) {
+                    if (attachDelay) {
+                        setTimeout(function () {
+                            attachClick(wrapper.find(KICLOSE));
+                        }, allowHideAfter);
+                    } else {
+                        attachClick(wrapper.find(KICLOSE));
+                    }
+                }
+            },
+            _showStatic: function (wrapper, options) {
+                var that = this, autoHideAfter = options.autoHideAfter, animation = options.animation, insertionMethod = options.stacking == UP || options.stacking == LEFT ? 'prependTo' : 'appendTo';
+                wrapper.addClass(that._guid)[insertionMethod](options.appendTo).hide().kendoAnimate(animation.open || false);
+                that._attachStaticEvents(options, wrapper);
+                if (autoHideAfter > 0) {
+                    setTimeout(function () {
+                        that._hideStatic(wrapper);
+                    }, autoHideAfter);
+                }
+            },
+            _hideStatic: function (wrapper) {
+                wrapper.kendoAnimate(extend(this.options.animation.close || false, {
+                    complete: function () {
+                        wrapper.off(NS).find(KICLOSE).off(NS);
+                        wrapper.remove();
+                    }
+                }));
+                this._triggerHide(wrapper);
+            },
+            _triggerHide: function (element) {
+                this.trigger(HIDE, { element: element });
+                this.angular('cleanup', function () {
+                    return { elements: element };
+                });
+            },
+            show: function (content, type, safe) {
+                var that = this, options = that.options, wrapper = $(WRAPPER), args, defaultArgs;
+                if (!type) {
+                    type = INFO;
+                }
+                if (content !== null && content !== undefined && content !== '') {
+                    if (kendo.isFunction(content)) {
+                        content = content();
+                    }
+                    defaultArgs = {
+                        typeIcon: type,
+                        content: ''
+                    };
+                    if ($.isPlainObject(content)) {
+                        args = extend(defaultArgs, content);
+                    } else {
+                        args = extend(defaultArgs, { content: content });
+                    }
+                    wrapper.addClass(KNOTIFICATION + '-' + type).toggleClass(KNOTIFICATION + '-button', options.button).attr('data-role', 'alert').css({
+                        width: options.width,
+                        height: options.height
+                    }).append(that._getCompiled(type, safe)(args));
+                    that.angular('compile', function () {
+                        return {
+                            elements: wrapper,
+                            data: [{ dataItem: args }]
+                        };
+                    });
+                    if ($(options.appendTo)[0]) {
+                        that._showStatic(wrapper, options);
+                    } else {
+                        that._showPopup(wrapper, options);
+                    }
+                    that.trigger(SHOW, { element: wrapper });
+                }
+                return that;
+            },
+            showText: function (content, type) {
+                this.show(content, type, true);
+            },
+            info: function (content) {
+                return this.show(content, INFO);
+            },
+            success: function (content) {
+                return this.show(content, SUCCESS);
+            },
+            warning: function (content) {
+                return this.show(content, WARNING);
+            },
+            error: function (content) {
+                return this.show(content, ERROR);
+            },
+            hide: function () {
+                var that = this, openedNotifications = that.getNotifications();
+                if (that.options.appendTo) {
+                    openedNotifications.each(function (idx, element) {
+                        that._hideStatic($(element));
+                    });
+                } else {
+                    openedNotifications.each(function (idx, element) {
+                        var popup = $(element).data('kendoPopup');
+                        if (popup) {
+                            that._hidePopup(popup);
+                        }
+                    });
+                }
+                return that;
+            },
+            getNotifications: function () {
+                var that = this, guidElements = $('.' + that._guid + ':not(.' + KHIDING + ')');
+                if (that.options.appendTo) {
+                    return guidElements;
+                } else {
+                    return guidElements.children('.' + KNOTIFICATION);
+                }
+            },
+            setOptions: function (newOptions) {
+                var that = this, options;
+                Widget.fn.setOptions.call(that, newOptions);
+                options = that.options;
+                if (newOptions.templates !== undefined) {
+                    that._compileTemplates(options.templates);
+                }
+                if (newOptions.stacking !== undefined || newOptions.position !== undefined) {
+                    that._compileStacking(options.stacking, options.position.top, options.position.left);
+                }
+            },
+            destroy: function () {
+                Widget.fn.destroy.call(this);
+                this.getNotifications().off(NS).find(KICLOSE).off(NS);
+            }
+        });
+        kendo.ui.plugin(Notification);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.tooltip', [
+        'kendo.core',
+        'kendo.popup'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'tooltip',
+        name: 'Tooltip',
+        category: 'web',
+        description: 'The Tooltip widget displays a popup hint for a given html element.',
+        depends: [
+            'core',
+            'popup'
+        ]
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, Popup = kendo.ui.Popup, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, extend = $.extend, proxy = $.proxy, DOCUMENT = $(document), isLocalUrl = kendo.isLocalUrl, ARIAIDSUFFIX = '_tt_active', DESCRIBEDBY = 'aria-describedby', SHOW = 'show', HIDE = 'hide', ERROR = 'error', CONTENTLOAD = 'contentLoad', REQUESTSTART = 'requestStart', KCONTENTFRAME = 'k-content-frame', TEMPLATE = '<div role="tooltip" class="k-widget k-tooltip#if (!autoHide) {# k-tooltip-closable#}#">#if (!autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div> #}#' + '<div class="k-tooltip-content"></div>' + '#if (callout){ #<div class="k-callout k-callout-#=dir#"></div>#}#' + '</div>', IFRAMETEMPLATE = kendo.template('<iframe frameborder=\'0\' class=\'' + KCONTENTFRAME + '\' ' + 'src=\'#= content.url #\'>' + 'This page requires frames in order to show content' + '</iframe>'), NS = '.kendoTooltip', POSITIONS = {
+                bottom: {
+                    origin: 'bottom center',
+                    position: 'top center'
+                },
+                top: {
+                    origin: 'top center',
+                    position: 'bottom center'
+                },
+                left: {
+                    origin: 'center left',
+                    position: 'center right',
+                    collision: 'fit flip'
+                },
+                right: {
+                    origin: 'center right',
+                    position: 'center left',
+                    collision: 'fit flip'
+                },
+                center: {
+                    position: 'center center',
+                    origin: 'center center'
+                }
+            }, REVERSE = {
+                'top': 'bottom',
+                'bottom': 'top',
+                'left': 'right',
+                'right': 'left',
+                'center': 'center'
+            }, DIRCLASSES = {
+                bottom: 'n',
+                top: 's',
+                left: 'e',
+                right: 'w',
+                center: 'n'
+            }, DIMENSIONS = {
+                'horizontal': {
+                    offset: 'top',
+                    size: 'outerHeight'
+                },
+                'vertical': {
+                    offset: 'left',
+                    size: 'outerWidth'
+                }
+            }, DEFAULTCONTENT = function (e) {
+                return e.target.data(kendo.ns + 'title');
+            };
+        function restoreTitle(element) {
+            while (element.length) {
+                restoreTitleAttributeForElement(element);
+                element = element.parent();
+            }
+        }
+        function restoreTitleAttributeForElement(element) {
+            var title = element.data(kendo.ns + 'title');
+            if (title) {
+                element.attr('title', title);
+                element.removeData(kendo.ns + 'title');
+            }
+        }
+        function saveTitleAttributeForElement(element) {
+            var title = element.attr('title');
+            if (title) {
+                element.data(kendo.ns + 'title', title);
+                element.attr('title', '');
+            }
+        }
+        function saveTitleAttributes(element) {
+            while (element.length && !element.is('body')) {
+                saveTitleAttributeForElement(element);
+                element = element.parent();
+            }
+        }
+        var Tooltip = Widget.extend({
+            init: function (element, options) {
+                var that = this, axis;
+                Widget.fn.init.call(that, element, options);
+                axis = that.options.position.match(/left|right/) ? 'horizontal' : 'vertical';
+                that.dimensions = DIMENSIONS[axis];
+                that._documentKeyDownHandler = proxy(that._documentKeyDown, that);
+                that.element.on(that.options.showOn + NS, that.options.filter, proxy(that._showOn, that)).on('mouseenter' + NS, that.options.filter, proxy(that._mouseenter, that));
+                if (this.options.autoHide) {
+                    that.element.on('mouseleave' + NS, that.options.filter, proxy(that._mouseleave, that));
+                }
+            },
+            options: {
+                name: 'Tooltip',
+                filter: '',
+                content: DEFAULTCONTENT,
+                showAfter: 100,
+                callout: true,
+                position: 'bottom',
+                showOn: 'mouseenter',
+                autoHide: true,
+                width: null,
+                height: null,
+                animation: {
+                    open: {
+                        effects: 'fade:in',
+                        duration: 0
+                    },
+                    close: {
+                        effects: 'fade:out',
+                        duration: 40,
+                        hide: true
+                    }
+                }
+            },
+            events: [
+                SHOW,
+                HIDE,
+                CONTENTLOAD,
+                ERROR,
+                REQUESTSTART
+            ],
+            _mouseenter: function (e) {
+                saveTitleAttributes($(e.currentTarget));
+            },
+            _showOn: function (e) {
+                var that = this;
+                var currentTarget = $(e.currentTarget);
+                if (that.options.showOn && that.options.showOn.match(/click|focus/)) {
+                    that._show(currentTarget);
+                } else {
+                    clearTimeout(that.timeout);
+                    that.timeout = setTimeout(function () {
+                        that._show(currentTarget);
+                    }, that.options.showAfter);
+                }
+            },
+            _appendContent: function (target) {
+                var that = this, contentOptions = that.options.content, element = that.content, showIframe = that.options.iframe, iframe;
+                if (isPlainObject(contentOptions) && contentOptions.url) {
+                    if (!('iframe' in that.options)) {
+                        showIframe = !isLocalUrl(contentOptions.url);
+                    }
+                    that.trigger(REQUESTSTART, {
+                        options: contentOptions,
+                        target: target
+                    });
+                    if (!showIframe) {
+                        element.empty();
+                        kendo.ui.progress(element, true);
+                        that._ajaxRequest(contentOptions);
+                    } else {
+                        element.hide();
+                        iframe = element.find('.' + KCONTENTFRAME)[0];
+                        if (iframe) {
+                            iframe.src = contentOptions.url || iframe.src;
+                        } else {
+                            element.html(IFRAMETEMPLATE({ content: contentOptions }));
+                        }
+                        element.find('.' + KCONTENTFRAME).off('load' + NS).on('load' + NS, function () {
+                            that.trigger(CONTENTLOAD);
+                            element.show();
+                        });
+                    }
+                } else if (contentOptions && isFunction(contentOptions)) {
+                    contentOptions = contentOptions({
+                        sender: this,
+                        target: target
+                    });
+                    element.html(contentOptions || '');
+                } else {
+                    element.html(contentOptions);
+                }
+                that.angular('compile', function () {
+                    return { elements: element };
+                });
+            },
+            _ajaxRequest: function (options) {
+                var that = this;
+                jQuery.ajax(extend({
+                    type: 'GET',
+                    dataType: 'html',
+                    cache: false,
+                    error: function (xhr, status) {
+                        kendo.ui.progress(that.content, false);
+                        that.trigger(ERROR, {
+                            status: status,
+                            xhr: xhr
+                        });
+                    },
+                    success: proxy(function (data) {
+                        kendo.ui.progress(that.content, false);
+                        that.content.html(data);
+                        that.trigger(CONTENTLOAD);
+                    }, that)
+                }, options));
+            },
+            _documentKeyDown: function (e) {
+                if (e.keyCode === kendo.keys.ESC) {
+                    this.hide();
+                }
+            },
+            refresh: function () {
+                var that = this, popup = that.popup;
+                if (popup && popup.options.anchor) {
+                    that._appendContent(popup.options.anchor);
+                }
+            },
+            hide: function () {
+                if (this.popup) {
+                    this.popup.close();
+                }
+            },
+            show: function (target) {
+                target = target || this.element;
+                saveTitleAttributes(target);
+                this._show(target);
+            },
+            _show: function (target) {
+                var that = this, current = that.target();
+                if (!that.popup) {
+                    that._initPopup();
+                }
+                if (current && current[0] != target[0]) {
+                    that.popup.close();
+                    that.popup.element.kendoStop(true, true);
+                }
+                if (!current || current[0] != target[0]) {
+                    that._appendContent(target);
+                    that.popup.options.anchor = target;
+                }
+                that.popup.one('deactivate', function () {
+                    restoreTitle(target);
+                    target.removeAttr(DESCRIBEDBY);
+                    this.element.removeAttr('id').attr('aria-hidden', true);
+                    DOCUMENT.off('keydown' + NS, that._documentKeyDownHandler);
+                });
+                that.popup.open();
+            },
+            _initPopup: function () {
+                var that = this, options = that.options, wrapper = $(kendo.template(TEMPLATE)({
+                        callout: options.callout && options.position !== 'center',
+                        dir: DIRCLASSES[options.position],
+                        autoHide: options.autoHide
+                    }));
+                that.popup = new Popup(wrapper, extend({
+                    activate: function () {
+                        var anchor = this.options.anchor, ariaId = anchor[0].id || that.element[0].id;
+                        if (ariaId) {
+                            anchor.attr(DESCRIBEDBY, ariaId + ARIAIDSUFFIX);
+                            this.element.attr('id', ariaId + ARIAIDSUFFIX);
+                        }
+                        if (options.callout) {
+                            that._positionCallout();
+                        }
+                        this.element.removeAttr('aria-hidden');
+                        DOCUMENT.on('keydown' + NS, that._documentKeyDownHandler);
+                        that.trigger(SHOW);
+                    },
+                    close: function () {
+                        that.trigger(HIDE);
+                    },
+                    copyAnchorStyles: false,
+                    animation: options.animation
+                }, POSITIONS[options.position]));
+                wrapper.css({
+                    width: options.width,
+                    height: options.height
+                });
+                that.content = wrapper.find('.k-tooltip-content');
+                that.arrow = wrapper.find('.k-callout');
+                if (options.autoHide) {
+                    wrapper.on('mouseleave' + NS, proxy(that._mouseleave, that));
+                } else {
+                    wrapper.on('click' + NS, '.k-tooltip-button', proxy(that._closeButtonClick, that));
+                }
+            },
+            _closeButtonClick: function (e) {
+                e.preventDefault();
+                this.hide();
+            },
+            _mouseleave: function (e) {
+                if (this.popup) {
+                    var element = $(e.currentTarget), offset = element.offset(), pageX = e.pageX, pageY = e.pageY;
+                    offset.right = offset.left + element.outerWidth();
+                    offset.bottom = offset.top + element.outerHeight();
+                    if (pageX > offset.left && pageX < offset.right && pageY > offset.top && pageY < offset.bottom) {
+                        return;
+                    }
+                    this.popup.close();
+                } else {
+                    restoreTitle($(e.currentTarget));
+                }
+                clearTimeout(this.timeout);
+            },
+            _positionCallout: function () {
+                var that = this, position = that.options.position, dimensions = that.dimensions, offset = dimensions.offset, popup = that.popup, anchor = popup.options.anchor, anchorOffset = $(anchor).offset(), arrowBorder = parseInt(that.arrow.css('border-top-width'), 10), elementOffset = $(popup.element).offset(), cssClass = DIRCLASSES[popup.flipped ? REVERSE[position] : position], offsetAmount = anchorOffset[offset] - elementOffset[offset] + $(anchor)[dimensions.size]() / 2 - arrowBorder;
+                that.arrow.removeClass('k-callout-n k-callout-s k-callout-w k-callout-e').addClass('k-callout-' + cssClass).css(offset, offsetAmount);
+            },
+            target: function () {
+                if (this.popup) {
+                    return this.popup.options.anchor;
+                }
+                return null;
+            },
+            destroy: function () {
+                var popup = this.popup;
+                if (popup) {
+                    popup.element.off(NS);
+                    popup.destroy();
+                }
+                clearTimeout(this.timeout);
+                this.element.off(NS);
+                DOCUMENT.off('keydown' + NS, this._documentKeyDownHandler);
+                Widget.fn.destroy.call(this);
+            }
+        });
+        kendo.ui.plugin(Tooltip);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -17428,703 +18125,6 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.tooltip', [
-        'kendo.core',
-        'kendo.popup'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'tooltip',
-        name: 'Tooltip',
-        category: 'web',
-        description: 'The Tooltip widget displays a popup hint for a given html element.',
-        depends: [
-            'core',
-            'popup'
-        ]
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, Popup = kendo.ui.Popup, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, extend = $.extend, proxy = $.proxy, DOCUMENT = $(document), isLocalUrl = kendo.isLocalUrl, ARIAIDSUFFIX = '_tt_active', DESCRIBEDBY = 'aria-describedby', SHOW = 'show', HIDE = 'hide', ERROR = 'error', CONTENTLOAD = 'contentLoad', REQUESTSTART = 'requestStart', KCONTENTFRAME = 'k-content-frame', TEMPLATE = '<div role="tooltip" class="k-widget k-tooltip#if (!autoHide) {# k-tooltip-closable#}#">#if (!autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div> #}#' + '<div class="k-tooltip-content"></div>' + '#if (callout){ #<div class="k-callout k-callout-#=dir#"></div>#}#' + '</div>', IFRAMETEMPLATE = kendo.template('<iframe frameborder=\'0\' class=\'' + KCONTENTFRAME + '\' ' + 'src=\'#= content.url #\'>' + 'This page requires frames in order to show content' + '</iframe>'), NS = '.kendoTooltip', POSITIONS = {
-                bottom: {
-                    origin: 'bottom center',
-                    position: 'top center'
-                },
-                top: {
-                    origin: 'top center',
-                    position: 'bottom center'
-                },
-                left: {
-                    origin: 'center left',
-                    position: 'center right',
-                    collision: 'fit flip'
-                },
-                right: {
-                    origin: 'center right',
-                    position: 'center left',
-                    collision: 'fit flip'
-                },
-                center: {
-                    position: 'center center',
-                    origin: 'center center'
-                }
-            }, REVERSE = {
-                'top': 'bottom',
-                'bottom': 'top',
-                'left': 'right',
-                'right': 'left',
-                'center': 'center'
-            }, DIRCLASSES = {
-                bottom: 'n',
-                top: 's',
-                left: 'e',
-                right: 'w',
-                center: 'n'
-            }, DIMENSIONS = {
-                'horizontal': {
-                    offset: 'top',
-                    size: 'outerHeight'
-                },
-                'vertical': {
-                    offset: 'left',
-                    size: 'outerWidth'
-                }
-            }, DEFAULTCONTENT = function (e) {
-                return e.target.data(kendo.ns + 'title');
-            };
-        function restoreTitle(element) {
-            while (element.length) {
-                restoreTitleAttributeForElement(element);
-                element = element.parent();
-            }
-        }
-        function restoreTitleAttributeForElement(element) {
-            var title = element.data(kendo.ns + 'title');
-            if (title) {
-                element.attr('title', title);
-                element.removeData(kendo.ns + 'title');
-            }
-        }
-        function saveTitleAttributeForElement(element) {
-            var title = element.attr('title');
-            if (title) {
-                element.data(kendo.ns + 'title', title);
-                element.attr('title', '');
-            }
-        }
-        function saveTitleAttributes(element) {
-            while (element.length && !element.is('body')) {
-                saveTitleAttributeForElement(element);
-                element = element.parent();
-            }
-        }
-        var Tooltip = Widget.extend({
-            init: function (element, options) {
-                var that = this, axis;
-                Widget.fn.init.call(that, element, options);
-                axis = that.options.position.match(/left|right/) ? 'horizontal' : 'vertical';
-                that.dimensions = DIMENSIONS[axis];
-                that._documentKeyDownHandler = proxy(that._documentKeyDown, that);
-                that.element.on(that.options.showOn + NS, that.options.filter, proxy(that._showOn, that)).on('mouseenter' + NS, that.options.filter, proxy(that._mouseenter, that));
-                if (this.options.autoHide) {
-                    that.element.on('mouseleave' + NS, that.options.filter, proxy(that._mouseleave, that));
-                }
-            },
-            options: {
-                name: 'Tooltip',
-                filter: '',
-                content: DEFAULTCONTENT,
-                showAfter: 100,
-                callout: true,
-                position: 'bottom',
-                showOn: 'mouseenter',
-                autoHide: true,
-                width: null,
-                height: null,
-                animation: {
-                    open: {
-                        effects: 'fade:in',
-                        duration: 0
-                    },
-                    close: {
-                        effects: 'fade:out',
-                        duration: 40,
-                        hide: true
-                    }
-                }
-            },
-            events: [
-                SHOW,
-                HIDE,
-                CONTENTLOAD,
-                ERROR,
-                REQUESTSTART
-            ],
-            _mouseenter: function (e) {
-                saveTitleAttributes($(e.currentTarget));
-            },
-            _showOn: function (e) {
-                var that = this;
-                var currentTarget = $(e.currentTarget);
-                if (that.options.showOn && that.options.showOn.match(/click|focus/)) {
-                    that._show(currentTarget);
-                } else {
-                    clearTimeout(that.timeout);
-                    that.timeout = setTimeout(function () {
-                        that._show(currentTarget);
-                    }, that.options.showAfter);
-                }
-            },
-            _appendContent: function (target) {
-                var that = this, contentOptions = that.options.content, element = that.content, showIframe = that.options.iframe, iframe;
-                if (isPlainObject(contentOptions) && contentOptions.url) {
-                    if (!('iframe' in that.options)) {
-                        showIframe = !isLocalUrl(contentOptions.url);
-                    }
-                    that.trigger(REQUESTSTART, {
-                        options: contentOptions,
-                        target: target
-                    });
-                    if (!showIframe) {
-                        element.empty();
-                        kendo.ui.progress(element, true);
-                        that._ajaxRequest(contentOptions);
-                    } else {
-                        element.hide();
-                        iframe = element.find('.' + KCONTENTFRAME)[0];
-                        if (iframe) {
-                            iframe.src = contentOptions.url || iframe.src;
-                        } else {
-                            element.html(IFRAMETEMPLATE({ content: contentOptions }));
-                        }
-                        element.find('.' + KCONTENTFRAME).off('load' + NS).on('load' + NS, function () {
-                            that.trigger(CONTENTLOAD);
-                            element.show();
-                        });
-                    }
-                } else if (contentOptions && isFunction(contentOptions)) {
-                    contentOptions = contentOptions({
-                        sender: this,
-                        target: target
-                    });
-                    element.html(contentOptions || '');
-                } else {
-                    element.html(contentOptions);
-                }
-                that.angular('compile', function () {
-                    return { elements: element };
-                });
-            },
-            _ajaxRequest: function (options) {
-                var that = this;
-                jQuery.ajax(extend({
-                    type: 'GET',
-                    dataType: 'html',
-                    cache: false,
-                    error: function (xhr, status) {
-                        kendo.ui.progress(that.content, false);
-                        that.trigger(ERROR, {
-                            status: status,
-                            xhr: xhr
-                        });
-                    },
-                    success: proxy(function (data) {
-                        kendo.ui.progress(that.content, false);
-                        that.content.html(data);
-                        that.trigger(CONTENTLOAD);
-                    }, that)
-                }, options));
-            },
-            _documentKeyDown: function (e) {
-                if (e.keyCode === kendo.keys.ESC) {
-                    this.hide();
-                }
-            },
-            refresh: function () {
-                var that = this, popup = that.popup;
-                if (popup && popup.options.anchor) {
-                    that._appendContent(popup.options.anchor);
-                }
-            },
-            hide: function () {
-                if (this.popup) {
-                    this.popup.close();
-                }
-            },
-            show: function (target) {
-                target = target || this.element;
-                saveTitleAttributes(target);
-                this._show(target);
-            },
-            _show: function (target) {
-                var that = this, current = that.target();
-                if (!that.popup) {
-                    that._initPopup();
-                }
-                if (current && current[0] != target[0]) {
-                    that.popup.close();
-                    that.popup.element.kendoStop(true, true);
-                }
-                if (!current || current[0] != target[0]) {
-                    that._appendContent(target);
-                    that.popup.options.anchor = target;
-                }
-                that.popup.one('deactivate', function () {
-                    restoreTitle(target);
-                    target.removeAttr(DESCRIBEDBY);
-                    this.element.removeAttr('id').attr('aria-hidden', true);
-                    DOCUMENT.off('keydown' + NS, that._documentKeyDownHandler);
-                });
-                that.popup.open();
-            },
-            _initPopup: function () {
-                var that = this, options = that.options, wrapper = $(kendo.template(TEMPLATE)({
-                        callout: options.callout && options.position !== 'center',
-                        dir: DIRCLASSES[options.position],
-                        autoHide: options.autoHide
-                    }));
-                that.popup = new Popup(wrapper, extend({
-                    activate: function () {
-                        var anchor = this.options.anchor, ariaId = anchor[0].id || that.element[0].id;
-                        if (ariaId) {
-                            anchor.attr(DESCRIBEDBY, ariaId + ARIAIDSUFFIX);
-                            this.element.attr('id', ariaId + ARIAIDSUFFIX);
-                        }
-                        if (options.callout) {
-                            that._positionCallout();
-                        }
-                        this.element.removeAttr('aria-hidden');
-                        DOCUMENT.on('keydown' + NS, that._documentKeyDownHandler);
-                        that.trigger(SHOW);
-                    },
-                    close: function () {
-                        that.trigger(HIDE);
-                    },
-                    copyAnchorStyles: false,
-                    animation: options.animation
-                }, POSITIONS[options.position]));
-                wrapper.css({
-                    width: options.width,
-                    height: options.height
-                });
-                that.content = wrapper.find('.k-tooltip-content');
-                that.arrow = wrapper.find('.k-callout');
-                if (options.autoHide) {
-                    wrapper.on('mouseleave' + NS, proxy(that._mouseleave, that));
-                } else {
-                    wrapper.on('click' + NS, '.k-tooltip-button', proxy(that._closeButtonClick, that));
-                }
-            },
-            _closeButtonClick: function (e) {
-                e.preventDefault();
-                this.hide();
-            },
-            _mouseleave: function (e) {
-                if (this.popup) {
-                    var element = $(e.currentTarget), offset = element.offset(), pageX = e.pageX, pageY = e.pageY;
-                    offset.right = offset.left + element.outerWidth();
-                    offset.bottom = offset.top + element.outerHeight();
-                    if (pageX > offset.left && pageX < offset.right && pageY > offset.top && pageY < offset.bottom) {
-                        return;
-                    }
-                    this.popup.close();
-                } else {
-                    restoreTitle($(e.currentTarget));
-                }
-                clearTimeout(this.timeout);
-            },
-            _positionCallout: function () {
-                var that = this, position = that.options.position, dimensions = that.dimensions, offset = dimensions.offset, popup = that.popup, anchor = popup.options.anchor, anchorOffset = $(anchor).offset(), arrowBorder = parseInt(that.arrow.css('border-top-width'), 10), elementOffset = $(popup.element).offset(), cssClass = DIRCLASSES[popup.flipped ? REVERSE[position] : position], offsetAmount = anchorOffset[offset] - elementOffset[offset] + $(anchor)[dimensions.size]() / 2 - arrowBorder;
-                that.arrow.removeClass('k-callout-n k-callout-s k-callout-w k-callout-e').addClass('k-callout-' + cssClass).css(offset, offsetAmount);
-            },
-            target: function () {
-                if (this.popup) {
-                    return this.popup.options.anchor;
-                }
-                return null;
-            },
-            destroy: function () {
-                var popup = this.popup;
-                if (popup) {
-                    popup.element.off(NS);
-                    popup.destroy();
-                }
-                clearTimeout(this.timeout);
-                this.element.off(NS);
-                DOCUMENT.off('keydown' + NS, this._documentKeyDownHandler);
-                Widget.fn.destroy.call(this);
-            }
-        });
-        kendo.ui.plugin(Tooltip);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.notification', [
-        'kendo.core',
-        'kendo.popup'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'notification',
-        name: 'Notification',
-        category: 'web',
-        description: 'The Notification widget displays user alerts.',
-        depends: [
-            'core',
-            'popup'
-        ]
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, extend = $.extend, setTimeout = window.setTimeout, CLICK = 'click', SHOW = 'show', HIDE = 'hide', KNOTIFICATION = 'k-notification', KICLOSE = '.k-notification-wrap .k-i-close', KHIDING = 'k-hiding', INFO = 'info', SUCCESS = 'success', WARNING = 'warning', ERROR = 'error', TOP = 'top', LEFT = 'left', BOTTOM = 'bottom', RIGHT = 'right', UP = 'up', NS = '.kendoNotification', WRAPPER = '<div class="k-widget k-notification"></div>', TEMPLATE = '<div class="k-notification-wrap">' + '<span class="k-icon k-i-note">#=typeIcon#</span>' + '#=content#' + '<span class="k-icon k-i-close">Hide</span>' + '</div>', SAFE_TEMPLATE = TEMPLATE.replace('#=content#', '#:content#');
-        var Notification = Widget.extend({
-            init: function (element, options) {
-                var that = this;
-                Widget.fn.init.call(that, element, options);
-                options = that.options;
-                if (!options.appendTo || !$(options.appendTo).is(element)) {
-                    that.element.hide();
-                }
-                that._compileTemplates(options.templates);
-                that._guid = '_' + kendo.guid();
-                that._isRtl = kendo.support.isRtl(element);
-                that._compileStacking(options.stacking, options.position.top, options.position.left);
-                kendo.notify(that);
-            },
-            events: [
-                SHOW,
-                HIDE
-            ],
-            options: {
-                name: 'Notification',
-                position: {
-                    pinned: true,
-                    top: null,
-                    left: null,
-                    bottom: 20,
-                    right: 20
-                },
-                stacking: 'default',
-                hideOnClick: true,
-                button: false,
-                allowHideAfter: 0,
-                autoHideAfter: 5000,
-                appendTo: null,
-                width: null,
-                height: null,
-                templates: [],
-                animation: {
-                    open: {
-                        effects: 'fade:in',
-                        duration: 300
-                    },
-                    close: {
-                        effects: 'fade:out',
-                        duration: 600,
-                        hide: true
-                    }
-                }
-            },
-            _compileTemplates: function (templates) {
-                var that = this;
-                var kendoTemplate = kendo.template;
-                that._compiled = {};
-                $.each(templates, function (key, value) {
-                    that._compiled[value.type] = kendoTemplate(value.template || $('#' + value.templateId).html());
-                });
-                that._defaultCompiled = kendoTemplate(TEMPLATE);
-                that._safeCompiled = kendoTemplate(SAFE_TEMPLATE);
-            },
-            _getCompiled: function (type, safe) {
-                var defaultCompiled = safe ? this._safeCompiled : this._defaultCompiled;
-                return type ? this._compiled[type] || defaultCompiled : defaultCompiled;
-            },
-            _compileStacking: function (stacking, top, left) {
-                var that = this, paddings = {
-                        paddingTop: 0,
-                        paddingRight: 0,
-                        paddingBottom: 0,
-                        paddingLeft: 0
-                    }, horizontalAlignment = left !== null ? LEFT : RIGHT, origin, position;
-                switch (stacking) {
-                case 'down':
-                    origin = BOTTOM + ' ' + horizontalAlignment;
-                    position = TOP + ' ' + horizontalAlignment;
-                    delete paddings.paddingBottom;
-                    break;
-                case RIGHT:
-                    origin = TOP + ' ' + RIGHT;
-                    position = TOP + ' ' + LEFT;
-                    delete paddings.paddingRight;
-                    break;
-                case LEFT:
-                    origin = TOP + ' ' + LEFT;
-                    position = TOP + ' ' + RIGHT;
-                    delete paddings.paddingLeft;
-                    break;
-                case UP:
-                    origin = TOP + ' ' + horizontalAlignment;
-                    position = BOTTOM + ' ' + horizontalAlignment;
-                    delete paddings.paddingTop;
-                    break;
-                default:
-                    if (top !== null) {
-                        origin = BOTTOM + ' ' + horizontalAlignment;
-                        position = TOP + ' ' + horizontalAlignment;
-                        delete paddings.paddingBottom;
-                    } else {
-                        origin = TOP + ' ' + horizontalAlignment;
-                        position = BOTTOM + ' ' + horizontalAlignment;
-                        delete paddings.paddingTop;
-                    }
-                    break;
-                }
-                that._popupOrigin = origin;
-                that._popupPosition = position;
-                that._popupPaddings = paddings;
-            },
-            _attachPopupEvents: function (options, popup) {
-                var that = this, allowHideAfter = options.allowHideAfter, attachDelay = !isNaN(allowHideAfter) && allowHideAfter > 0, closeIcon;
-                function attachClick(target) {
-                    target.on(CLICK + NS, function () {
-                        that._hidePopup(popup);
-                    });
-                }
-                if (popup.options.anchor !== document.body && popup.options.origin.indexOf(RIGHT) > 0) {
-                    popup.bind('open', function () {
-                        var shadows = kendo.getShadows(popup.element);
-                        setTimeout(function () {
-                            popup.wrapper.css('left', parseFloat(popup.wrapper.css('left')) + shadows.left + shadows.right);
-                        });
-                    });
-                }
-                if (options.hideOnClick) {
-                    popup.bind('activate', function () {
-                        if (attachDelay) {
-                            setTimeout(function () {
-                                attachClick(popup.element);
-                            }, allowHideAfter);
-                        } else {
-                            attachClick(popup.element);
-                        }
-                    });
-                } else if (options.button) {
-                    closeIcon = popup.element.find(KICLOSE);
-                    if (attachDelay) {
-                        setTimeout(function () {
-                            attachClick(closeIcon);
-                        }, allowHideAfter);
-                    } else {
-                        attachClick(closeIcon);
-                    }
-                }
-            },
-            _showPopup: function (wrapper, options) {
-                var that = this, autoHideAfter = options.autoHideAfter, x = options.position.left, y = options.position.top, popup, openPopup;
-                openPopup = $('.' + that._guid + ':not(.' + KHIDING + ')').last();
-                popup = new kendo.ui.Popup(wrapper, {
-                    anchor: openPopup[0] ? openPopup : document.body,
-                    origin: that._popupOrigin,
-                    position: that._popupPosition,
-                    animation: options.animation,
-                    modal: true,
-                    collision: '',
-                    isRtl: that._isRtl,
-                    close: function () {
-                        that._triggerHide(this.element);
-                    },
-                    deactivate: function (e) {
-                        e.sender.element.off(NS);
-                        e.sender.element.find(KICLOSE).off(NS);
-                        e.sender.destroy();
-                    }
-                });
-                that._attachPopupEvents(options, popup);
-                if (openPopup[0]) {
-                    popup.open();
-                } else {
-                    if (x === null) {
-                        x = $(window).width() - wrapper.width() - options.position.right;
-                    }
-                    if (y === null) {
-                        y = $(window).height() - wrapper.height() - options.position.bottom;
-                    }
-                    popup.open(x, y);
-                }
-                popup.wrapper.addClass(that._guid).css(extend({ margin: 0 }, that._popupPaddings));
-                if (options.position.pinned) {
-                    popup.wrapper.css('position', 'fixed');
-                    if (openPopup[0]) {
-                        that._togglePin(popup.wrapper, true);
-                    }
-                } else if (!openPopup[0]) {
-                    that._togglePin(popup.wrapper, false);
-                }
-                if (autoHideAfter > 0) {
-                    setTimeout(function () {
-                        that._hidePopup(popup);
-                    }, autoHideAfter);
-                }
-            },
-            _hidePopup: function (popup) {
-                popup.wrapper.addClass(KHIDING);
-                popup.close();
-            },
-            _togglePin: function (wrapper, pin) {
-                var win = $(window), sign = pin ? -1 : 1;
-                wrapper.css({
-                    top: parseInt(wrapper.css(TOP), 10) + sign * win.scrollTop(),
-                    left: parseInt(wrapper.css(LEFT), 10) + sign * win.scrollLeft()
-                });
-            },
-            _attachStaticEvents: function (options, wrapper) {
-                var that = this, allowHideAfter = options.allowHideAfter, attachDelay = !isNaN(allowHideAfter) && allowHideAfter > 0;
-                function attachClick(target) {
-                    target.on(CLICK + NS, proxy(that._hideStatic, that, wrapper));
-                }
-                if (options.hideOnClick) {
-                    if (attachDelay) {
-                        setTimeout(function () {
-                            attachClick(wrapper);
-                        }, allowHideAfter);
-                    } else {
-                        attachClick(wrapper);
-                    }
-                } else if (options.button) {
-                    if (attachDelay) {
-                        setTimeout(function () {
-                            attachClick(wrapper.find(KICLOSE));
-                        }, allowHideAfter);
-                    } else {
-                        attachClick(wrapper.find(KICLOSE));
-                    }
-                }
-            },
-            _showStatic: function (wrapper, options) {
-                var that = this, autoHideAfter = options.autoHideAfter, animation = options.animation, insertionMethod = options.stacking == UP || options.stacking == LEFT ? 'prependTo' : 'appendTo';
-                wrapper.addClass(that._guid)[insertionMethod](options.appendTo).hide().kendoAnimate(animation.open || false);
-                that._attachStaticEvents(options, wrapper);
-                if (autoHideAfter > 0) {
-                    setTimeout(function () {
-                        that._hideStatic(wrapper);
-                    }, autoHideAfter);
-                }
-            },
-            _hideStatic: function (wrapper) {
-                wrapper.kendoAnimate(extend(this.options.animation.close || false, {
-                    complete: function () {
-                        wrapper.off(NS).find(KICLOSE).off(NS);
-                        wrapper.remove();
-                    }
-                }));
-                this._triggerHide(wrapper);
-            },
-            _triggerHide: function (element) {
-                this.trigger(HIDE, { element: element });
-                this.angular('cleanup', function () {
-                    return { elements: element };
-                });
-            },
-            show: function (content, type, safe) {
-                var that = this, options = that.options, wrapper = $(WRAPPER), args, defaultArgs;
-                if (!type) {
-                    type = INFO;
-                }
-                if (content !== null && content !== undefined && content !== '') {
-                    if (kendo.isFunction(content)) {
-                        content = content();
-                    }
-                    defaultArgs = {
-                        typeIcon: type,
-                        content: ''
-                    };
-                    if ($.isPlainObject(content)) {
-                        args = extend(defaultArgs, content);
-                    } else {
-                        args = extend(defaultArgs, { content: content });
-                    }
-                    wrapper.addClass(KNOTIFICATION + '-' + type).toggleClass(KNOTIFICATION + '-button', options.button).attr('data-role', 'alert').css({
-                        width: options.width,
-                        height: options.height
-                    }).append(that._getCompiled(type, safe)(args));
-                    that.angular('compile', function () {
-                        return {
-                            elements: wrapper,
-                            data: [{ dataItem: args }]
-                        };
-                    });
-                    if ($(options.appendTo)[0]) {
-                        that._showStatic(wrapper, options);
-                    } else {
-                        that._showPopup(wrapper, options);
-                    }
-                    that.trigger(SHOW, { element: wrapper });
-                }
-                return that;
-            },
-            showText: function (content, type) {
-                this.show(content, type, true);
-            },
-            info: function (content) {
-                return this.show(content, INFO);
-            },
-            success: function (content) {
-                return this.show(content, SUCCESS);
-            },
-            warning: function (content) {
-                return this.show(content, WARNING);
-            },
-            error: function (content) {
-                return this.show(content, ERROR);
-            },
-            hide: function () {
-                var that = this, openedNotifications = that.getNotifications();
-                if (that.options.appendTo) {
-                    openedNotifications.each(function (idx, element) {
-                        that._hideStatic($(element));
-                    });
-                } else {
-                    openedNotifications.each(function (idx, element) {
-                        var popup = $(element).data('kendoPopup');
-                        if (popup) {
-                            that._hidePopup(popup);
-                        }
-                    });
-                }
-                return that;
-            },
-            getNotifications: function () {
-                var that = this, guidElements = $('.' + that._guid + ':not(.' + KHIDING + ')');
-                if (that.options.appendTo) {
-                    return guidElements;
-                } else {
-                    return guidElements.children('.' + KNOTIFICATION);
-                }
-            },
-            setOptions: function (newOptions) {
-                var that = this, options;
-                Widget.fn.setOptions.call(that, newOptions);
-                options = that.options;
-                if (newOptions.templates !== undefined) {
-                    that._compileTemplates(options.templates);
-                }
-                if (newOptions.stacking !== undefined || newOptions.position !== undefined) {
-                    that._compileStacking(options.stacking, options.position.top, options.position.left);
-                }
-            },
-            destroy: function () {
-                Widget.fn.destroy.call(this);
-                this.getNotifications().off(NS).find(KICLOSE).off(NS);
-            }
-        });
-        kendo.ui.plugin(Notification);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
     define('kendo.calendar', ['kendo.core'], f);
 }(function () {
     var __meta__ = {
@@ -19614,6 +19614,2845 @@
             }
         });
         ui.plugin(DatePicker);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.mobile.scroller', [
+        'kendo.fx',
+        'kendo.draganddrop'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'mobile.scroller',
+        name: 'Scroller',
+        category: 'mobile',
+        description: 'The Kendo Mobile Scroller widget enables touch friendly kinetic scrolling for the contents of a given DOM element.',
+        depends: [
+            'fx',
+            'draganddrop'
+        ]
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, mobile = kendo.mobile, fx = kendo.effects, ui = mobile.ui, proxy = $.proxy, extend = $.extend, Widget = ui.Widget, Class = kendo.Class, Movable = kendo.ui.Movable, Pane = kendo.ui.Pane, PaneDimensions = kendo.ui.PaneDimensions, Transition = fx.Transition, Animation = fx.Animation, abs = Math.abs, SNAPBACK_DURATION = 500, SCROLLBAR_OPACITY = 0.7, FRICTION = 0.96, VELOCITY_MULTIPLIER = 10, MAX_VELOCITY = 55, OUT_OF_BOUNDS_FRICTION = 0.5, ANIMATED_SCROLLER_PRECISION = 5, RELEASECLASS = 'km-scroller-release', REFRESHCLASS = 'km-scroller-refresh', PULL = 'pull', CHANGE = 'change', RESIZE = 'resize', SCROLL = 'scroll', MOUSE_WHEEL_ID = 2;
+        var ZoomSnapBack = Animation.extend({
+            init: function (options) {
+                var that = this;
+                Animation.fn.init.call(that);
+                extend(that, options);
+                that.userEvents.bind('gestureend', proxy(that.start, that));
+                that.tapCapture.bind('press', proxy(that.cancel, that));
+            },
+            enabled: function () {
+                return this.movable.scale < this.dimensions.minScale;
+            },
+            done: function () {
+                return this.dimensions.minScale - this.movable.scale < 0.01;
+            },
+            tick: function () {
+                var movable = this.movable;
+                movable.scaleWith(1.1);
+                this.dimensions.rescale(movable.scale);
+            },
+            onEnd: function () {
+                var movable = this.movable;
+                movable.scaleTo(this.dimensions.minScale);
+                this.dimensions.rescale(movable.scale);
+            }
+        });
+        var DragInertia = Animation.extend({
+            init: function (options) {
+                var that = this;
+                Animation.fn.init.call(that);
+                extend(that, options, {
+                    transition: new Transition({
+                        axis: options.axis,
+                        movable: options.movable,
+                        onEnd: function () {
+                            that._end();
+                        }
+                    })
+                });
+                that.tapCapture.bind('press', function () {
+                    that.cancel();
+                });
+                that.userEvents.bind('end', proxy(that.start, that));
+                that.userEvents.bind('gestureend', proxy(that.start, that));
+                that.userEvents.bind('tap', proxy(that.onEnd, that));
+            },
+            onCancel: function () {
+                this.transition.cancel();
+            },
+            freeze: function (location) {
+                var that = this;
+                that.cancel();
+                that._moveTo(location);
+            },
+            onEnd: function () {
+                var that = this;
+                if (that.paneAxis.outOfBounds()) {
+                    that._snapBack();
+                } else {
+                    that._end();
+                }
+            },
+            done: function () {
+                return abs(this.velocity) < 1;
+            },
+            start: function (e) {
+                var that = this, velocity;
+                if (!that.dimension.enabled) {
+                    return;
+                }
+                if (that.paneAxis.outOfBounds()) {
+                    that._snapBack();
+                } else {
+                    velocity = e.touch.id === MOUSE_WHEEL_ID ? 0 : e.touch[that.axis].velocity;
+                    that.velocity = Math.max(Math.min(velocity * that.velocityMultiplier, MAX_VELOCITY), -MAX_VELOCITY);
+                    that.tapCapture.captureNext();
+                    Animation.fn.start.call(that);
+                }
+            },
+            tick: function () {
+                var that = this, dimension = that.dimension, friction = that.paneAxis.outOfBounds() ? OUT_OF_BOUNDS_FRICTION : that.friction, delta = that.velocity *= friction, location = that.movable[that.axis] + delta;
+                if (!that.elastic && dimension.outOfBounds(location)) {
+                    location = Math.max(Math.min(location, dimension.max), dimension.min);
+                    that.velocity = 0;
+                }
+                that.movable.moveAxis(that.axis, location);
+            },
+            _end: function () {
+                this.tapCapture.cancelCapture();
+                this.end();
+            },
+            _snapBack: function () {
+                var that = this, dimension = that.dimension, snapBack = that.movable[that.axis] > dimension.max ? dimension.max : dimension.min;
+                that._moveTo(snapBack);
+            },
+            _moveTo: function (location) {
+                this.transition.moveTo({
+                    location: location,
+                    duration: SNAPBACK_DURATION,
+                    ease: Transition.easeOutExpo
+                });
+            }
+        });
+        var AnimatedScroller = Animation.extend({
+            init: function (options) {
+                var that = this;
+                kendo.effects.Animation.fn.init.call(this);
+                extend(that, options, {
+                    origin: {},
+                    destination: {},
+                    offset: {}
+                });
+            },
+            tick: function () {
+                this._updateCoordinates();
+                this.moveTo(this.origin);
+            },
+            done: function () {
+                return abs(this.offset.y) < ANIMATED_SCROLLER_PRECISION && abs(this.offset.x) < ANIMATED_SCROLLER_PRECISION;
+            },
+            onEnd: function () {
+                this.moveTo(this.destination);
+                if (this.callback) {
+                    this.callback.call();
+                }
+            },
+            setCoordinates: function (from, to) {
+                this.offset = {};
+                this.origin = from;
+                this.destination = to;
+            },
+            setCallback: function (callback) {
+                if (callback && kendo.isFunction(callback)) {
+                    this.callback = callback;
+                } else {
+                    callback = undefined;
+                }
+            },
+            _updateCoordinates: function () {
+                this.offset = {
+                    x: (this.destination.x - this.origin.x) / 4,
+                    y: (this.destination.y - this.origin.y) / 4
+                };
+                this.origin = {
+                    y: this.origin.y + this.offset.y,
+                    x: this.origin.x + this.offset.x
+                };
+            }
+        });
+        var ScrollBar = Class.extend({
+            init: function (options) {
+                var that = this, horizontal = options.axis === 'x', element = $('<div class="km-touch-scrollbar km-' + (horizontal ? 'horizontal' : 'vertical') + '-scrollbar" />');
+                extend(that, options, {
+                    element: element,
+                    elementSize: 0,
+                    movable: new Movable(element),
+                    scrollMovable: options.movable,
+                    alwaysVisible: options.alwaysVisible,
+                    size: horizontal ? 'width' : 'height'
+                });
+                that.scrollMovable.bind(CHANGE, proxy(that.refresh, that));
+                that.container.append(element);
+                if (options.alwaysVisible) {
+                    that.show();
+                }
+            },
+            refresh: function () {
+                var that = this, axis = that.axis, dimension = that.dimension, paneSize = dimension.size, scrollMovable = that.scrollMovable, sizeRatio = paneSize / dimension.total, position = Math.round(-scrollMovable[axis] * sizeRatio), size = Math.round(paneSize * sizeRatio);
+                if (sizeRatio >= 1) {
+                    this.element.css('display', 'none');
+                } else {
+                    this.element.css('display', '');
+                }
+                if (position + size > paneSize) {
+                    size = paneSize - position;
+                } else if (position < 0) {
+                    size += position;
+                    position = 0;
+                }
+                if (that.elementSize != size) {
+                    that.element.css(that.size, size + 'px');
+                    that.elementSize = size;
+                }
+                that.movable.moveAxis(axis, position);
+            },
+            show: function () {
+                this.element.css({
+                    opacity: SCROLLBAR_OPACITY,
+                    visibility: 'visible'
+                });
+            },
+            hide: function () {
+                if (!this.alwaysVisible) {
+                    this.element.css({ opacity: 0 });
+                }
+            }
+        });
+        var Scroller = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                element = that.element;
+                that._native = that.options.useNative && kendo.support.hasNativeScrolling;
+                if (that._native) {
+                    element.addClass('km-native-scroller').prepend('<div class="km-scroll-header"/>');
+                    extend(that, {
+                        scrollElement: element,
+                        fixedContainer: element.children().first()
+                    });
+                    return;
+                }
+                element.css('overflow', 'hidden').addClass('km-scroll-wrapper').wrapInner('<div class="km-scroll-container"/>').prepend('<div class="km-scroll-header"/>');
+                var inner = element.children().eq(1), tapCapture = new kendo.TapCapture(element), movable = new Movable(inner), dimensions = new PaneDimensions({
+                        element: inner,
+                        container: element,
+                        forcedEnabled: that.options.zoom
+                    }), avoidScrolling = this.options.avoidScrolling, userEvents = new kendo.UserEvents(element, {
+                        touchAction: 'pan-y',
+                        fastTap: true,
+                        allowSelection: true,
+                        preventDragEvent: true,
+                        captureUpIfMoved: true,
+                        multiTouch: that.options.zoom,
+                        start: function (e) {
+                            dimensions.refresh();
+                            var velocityX = abs(e.x.velocity), velocityY = abs(e.y.velocity), horizontalSwipe = velocityX * 2 >= velocityY, originatedFromFixedContainer = $.contains(that.fixedContainer[0], e.event.target), verticalSwipe = velocityY * 2 >= velocityX;
+                            if (!originatedFromFixedContainer && !avoidScrolling(e) && that.enabled && (dimensions.x.enabled && horizontalSwipe || dimensions.y.enabled && verticalSwipe)) {
+                                userEvents.capture();
+                            } else {
+                                userEvents.cancel();
+                            }
+                        }
+                    }), pane = new Pane({
+                        movable: movable,
+                        dimensions: dimensions,
+                        userEvents: userEvents,
+                        elastic: that.options.elastic
+                    }), zoomSnapBack = new ZoomSnapBack({
+                        movable: movable,
+                        dimensions: dimensions,
+                        userEvents: userEvents,
+                        tapCapture: tapCapture
+                    }), animatedScroller = new AnimatedScroller({
+                        moveTo: function (coordinates) {
+                            that.scrollTo(coordinates.x, coordinates.y);
+                        }
+                    });
+                movable.bind(CHANGE, function () {
+                    that.scrollTop = -movable.y;
+                    that.scrollLeft = -movable.x;
+                    that.trigger(SCROLL, {
+                        scrollTop: that.scrollTop,
+                        scrollLeft: that.scrollLeft
+                    });
+                });
+                if (that.options.mousewheelScrolling) {
+                    element.on('DOMMouseScroll mousewheel', proxy(this, '_wheelScroll'));
+                }
+                extend(that, {
+                    movable: movable,
+                    dimensions: dimensions,
+                    zoomSnapBack: zoomSnapBack,
+                    animatedScroller: animatedScroller,
+                    userEvents: userEvents,
+                    pane: pane,
+                    tapCapture: tapCapture,
+                    pulled: false,
+                    enabled: true,
+                    scrollElement: inner,
+                    scrollTop: 0,
+                    scrollLeft: 0,
+                    fixedContainer: element.children().first()
+                });
+                that._initAxis('x');
+                that._initAxis('y');
+                that._wheelEnd = function () {
+                    that._wheel = false;
+                    that.userEvents.end(0, that._wheelY);
+                };
+                dimensions.refresh();
+                if (that.options.pullToRefresh) {
+                    that._initPullToRefresh();
+                }
+            },
+            _wheelScroll: function (e) {
+                if (!this._wheel) {
+                    this._wheel = true;
+                    this._wheelY = 0;
+                    this.userEvents.press(0, this._wheelY);
+                }
+                clearTimeout(this._wheelTimeout);
+                this._wheelTimeout = setTimeout(this._wheelEnd, 50);
+                var delta = kendo.wheelDeltaY(e);
+                if (delta) {
+                    this._wheelY += delta;
+                    this.userEvents.move(0, this._wheelY);
+                }
+                e.preventDefault();
+            },
+            makeVirtual: function () {
+                this.dimensions.y.makeVirtual();
+            },
+            virtualSize: function (min, max) {
+                this.dimensions.y.virtualSize(min, max);
+            },
+            height: function () {
+                return this.dimensions.y.size;
+            },
+            scrollHeight: function () {
+                return this.scrollElement[0].scrollHeight;
+            },
+            scrollWidth: function () {
+                return this.scrollElement[0].scrollWidth;
+            },
+            options: {
+                name: 'Scroller',
+                zoom: false,
+                pullOffset: 140,
+                visibleScrollHints: false,
+                elastic: true,
+                useNative: false,
+                mousewheelScrolling: true,
+                avoidScrolling: function () {
+                    return false;
+                },
+                pullToRefresh: false,
+                messages: {
+                    pullTemplate: 'Pull to refresh',
+                    releaseTemplate: 'Release to refresh',
+                    refreshTemplate: 'Refreshing'
+                }
+            },
+            events: [
+                PULL,
+                SCROLL,
+                RESIZE
+            ],
+            _resize: function () {
+                if (!this._native) {
+                    this.contentResized();
+                }
+            },
+            setOptions: function (options) {
+                var that = this;
+                Widget.fn.setOptions.call(that, options);
+                if (options.pullToRefresh) {
+                    that._initPullToRefresh();
+                }
+            },
+            reset: function () {
+                if (this._native) {
+                    this.scrollElement.scrollTop(0);
+                } else {
+                    this.movable.moveTo({
+                        x: 0,
+                        y: 0
+                    });
+                    this._scale(1);
+                }
+            },
+            contentResized: function () {
+                this.dimensions.refresh();
+                if (this.pane.x.outOfBounds()) {
+                    this.movable.moveAxis('x', this.dimensions.x.min);
+                }
+                if (this.pane.y.outOfBounds()) {
+                    this.movable.moveAxis('y', this.dimensions.y.min);
+                }
+            },
+            zoomOut: function () {
+                var dimensions = this.dimensions;
+                dimensions.refresh();
+                this._scale(dimensions.fitScale);
+                this.movable.moveTo(dimensions.centerCoordinates());
+            },
+            enable: function () {
+                this.enabled = true;
+            },
+            disable: function () {
+                this.enabled = false;
+            },
+            scrollTo: function (x, y) {
+                if (this._native) {
+                    this.scrollElement.scrollLeft(abs(x));
+                    this.scrollElement.scrollTop(abs(y));
+                } else {
+                    this.dimensions.refresh();
+                    this.movable.moveTo({
+                        x: x,
+                        y: y
+                    });
+                }
+            },
+            animatedScrollTo: function (x, y, callback) {
+                var from, to;
+                if (this._native) {
+                    this.scrollTo(x, y);
+                } else {
+                    from = {
+                        x: this.movable.x,
+                        y: this.movable.y
+                    };
+                    to = {
+                        x: x,
+                        y: y
+                    };
+                    this.animatedScroller.setCoordinates(from, to);
+                    this.animatedScroller.setCallback(callback);
+                    this.animatedScroller.start();
+                }
+            },
+            pullHandled: function () {
+                var that = this;
+                that.refreshHint.removeClass(REFRESHCLASS);
+                that.hintContainer.html(that.pullTemplate({}));
+                that.yinertia.onEnd();
+                that.xinertia.onEnd();
+                that.userEvents.cancel();
+            },
+            destroy: function () {
+                Widget.fn.destroy.call(this);
+                if (this.userEvents) {
+                    this.userEvents.destroy();
+                }
+            },
+            _scale: function (scale) {
+                this.dimensions.rescale(scale);
+                this.movable.scaleTo(scale);
+            },
+            _initPullToRefresh: function () {
+                var that = this;
+                that.dimensions.y.forceEnabled();
+                that.pullTemplate = kendo.template(that.options.messages.pullTemplate);
+                that.releaseTemplate = kendo.template(that.options.messages.releaseTemplate);
+                that.refreshTemplate = kendo.template(that.options.messages.refreshTemplate);
+                that.scrollElement.prepend('<span class="km-scroller-pull"><span class="km-icon"></span><span class="km-loading-left"></span><span class="km-loading-right"></span><span class="km-template">' + that.pullTemplate({}) + '</span></span>');
+                that.refreshHint = that.scrollElement.children().first();
+                that.hintContainer = that.refreshHint.children('.km-template');
+                that.pane.y.bind('change', proxy(that._paneChange, that));
+                that.userEvents.bind('end', proxy(that._dragEnd, that));
+            },
+            _dragEnd: function () {
+                var that = this;
+                if (!that.pulled) {
+                    return;
+                }
+                that.pulled = false;
+                that.refreshHint.removeClass(RELEASECLASS).addClass(REFRESHCLASS);
+                that.hintContainer.html(that.refreshTemplate({}));
+                that.yinertia.freeze(that.options.pullOffset / 2);
+                that.trigger('pull');
+            },
+            _paneChange: function () {
+                var that = this;
+                if (that.movable.y / OUT_OF_BOUNDS_FRICTION > that.options.pullOffset) {
+                    if (!that.pulled) {
+                        that.pulled = true;
+                        that.refreshHint.removeClass(REFRESHCLASS).addClass(RELEASECLASS);
+                        that.hintContainer.html(that.releaseTemplate({}));
+                    }
+                } else if (that.pulled) {
+                    that.pulled = false;
+                    that.refreshHint.removeClass(RELEASECLASS);
+                    that.hintContainer.html(that.pullTemplate({}));
+                }
+            },
+            _initAxis: function (axis) {
+                var that = this, movable = that.movable, dimension = that.dimensions[axis], tapCapture = that.tapCapture, paneAxis = that.pane[axis], scrollBar = new ScrollBar({
+                        axis: axis,
+                        movable: movable,
+                        dimension: dimension,
+                        container: that.element,
+                        alwaysVisible: that.options.visibleScrollHints
+                    });
+                dimension.bind(CHANGE, function () {
+                    scrollBar.refresh();
+                });
+                paneAxis.bind(CHANGE, function () {
+                    scrollBar.show();
+                });
+                that[axis + 'inertia'] = new DragInertia({
+                    axis: axis,
+                    paneAxis: paneAxis,
+                    movable: movable,
+                    tapCapture: tapCapture,
+                    userEvents: that.userEvents,
+                    dimension: dimension,
+                    elastic: that.options.elastic,
+                    friction: that.options.friction || FRICTION,
+                    velocityMultiplier: that.options.velocityMultiplier || VELOCITY_MULTIPLIER,
+                    end: function () {
+                        scrollBar.hide();
+                        that.trigger('scrollEnd', {
+                            axis: axis,
+                            scrollTop: that.scrollTop,
+                            scrollLeft: that.scrollLeft
+                        });
+                    }
+                });
+            }
+        });
+        ui.plugin(Scroller);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.autocomplete', [
+        'kendo.list',
+        'kendo.mobile.scroller'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'autocomplete',
+        name: 'AutoComplete',
+        category: 'web',
+        description: 'The AutoComplete widget provides suggestions depending on the typed text.It also allows multiple value entries.',
+        depends: ['list'],
+        features: [
+            {
+                id: 'mobile-scroller',
+                name: 'Mobile scroller',
+                description: 'Support for kinetic scrolling in mobile device',
+                depends: ['mobile.scroller']
+            },
+            {
+                id: 'virtualization',
+                name: 'VirtualList',
+                description: 'Support for virtualization',
+                depends: ['virtuallist']
+            }
+        ]
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, support = kendo.support, caret = kendo.caret, activeElement = kendo._activeElement, placeholderSupported = support.placeholder, ui = kendo.ui, List = ui.List, keys = kendo.keys, DataSource = kendo.data.DataSource, ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', CHANGE = 'change', DEFAULT = 'k-state-default', DISABLED = 'disabled', READONLY = 'readonly', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', ns = '.kendoAutoComplete', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, proxy = $.proxy;
+        function indexOfWordAtCaret(caretIdx, text, separator) {
+            return separator ? text.substring(0, caretIdx).split(separator).length - 1 : 0;
+        }
+        function wordAtCaret(caretIdx, text, separator) {
+            return text.split(separator)[indexOfWordAtCaret(caretIdx, text, separator)];
+        }
+        function replaceWordAtCaret(caretIdx, text, word, separator, defaultSeparator) {
+            var words = text.split(separator);
+            words.splice(indexOfWordAtCaret(caretIdx, text, separator), 1, word);
+            if (separator && words[words.length - 1] !== '') {
+                words.push('');
+            }
+            return words.join(defaultSeparator);
+        }
+        var AutoComplete = List.extend({
+            init: function (element, options) {
+                var that = this, wrapper, disabled;
+                that.ns = ns;
+                options = $.isArray(options) ? { dataSource: options } : options;
+                List.fn.init.call(that, element, options);
+                element = that.element;
+                options = that.options;
+                options.placeholder = options.placeholder || element.attr('placeholder');
+                if (placeholderSupported) {
+                    element.attr('placeholder', options.placeholder);
+                }
+                that._wrapper();
+                that._loader();
+                that._clearButton();
+                that._dataSource();
+                that._ignoreCase();
+                element[0].type = 'text';
+                wrapper = that.wrapper;
+                that._popup();
+                element.addClass('k-input').on('keydown' + ns, proxy(that._keydown, that)).on('keypress' + ns, proxy(that._keypress, that)).on('paste' + ns, proxy(that._search, that)).on('focus' + ns, function () {
+                    that._prev = that._accessor();
+                    that._oldText = that._prev;
+                    that._placeholder(false);
+                    wrapper.addClass(FOCUSED);
+                }).on('focusout' + ns, function () {
+                    that._change();
+                    that._placeholder();
+                    wrapper.removeClass(FOCUSED);
+                }).attr({
+                    autocomplete: 'off',
+                    role: 'textbox',
+                    'aria-haspopup': true
+                });
+                that._clear.on('click' + ns, proxy(that._clearValue, that));
+                that._enable();
+                that._old = that._accessor();
+                if (element[0].id) {
+                    element.attr('aria-owns', that.ul[0].id);
+                }
+                that._aria();
+                that._placeholder();
+                that._initList();
+                disabled = $(that.element).parents('fieldset').is(':disabled');
+                if (disabled) {
+                    that.enable(false);
+                }
+                that.listView.bind('click', function (e) {
+                    e.preventDefault();
+                });
+                that._resetFocusItemHandler = $.proxy(that._resetFocusItem, that);
+                kendo.notify(that);
+            },
+            options: {
+                name: 'AutoComplete',
+                enabled: true,
+                suggest: false,
+                template: '',
+                groupTemplate: '#:data#',
+                fixedGroupTemplate: '#:data#',
+                dataTextField: '',
+                minLength: 1,
+                enforceMinLength: false,
+                delay: 200,
+                height: 200,
+                filter: 'startswith',
+                ignoreCase: true,
+                highlightFirst: false,
+                separator: null,
+                placeholder: '',
+                animation: {},
+                virtual: false,
+                value: null,
+                clearButton: true
+            },
+            _dataSource: function () {
+                var that = this;
+                if (that.dataSource && that._refreshHandler) {
+                    that._unbindDataSource();
+                } else {
+                    that._progressHandler = proxy(that._showBusy, that);
+                    that._errorHandler = proxy(that._hideBusy, that);
+                }
+                that.dataSource = DataSource.create(that.options.dataSource).bind('progress', that._progressHandler).bind('error', that._errorHandler);
+            },
+            setDataSource: function (dataSource) {
+                this.options.dataSource = dataSource;
+                this._dataSource();
+                this.listView.setDataSource(this.dataSource);
+            },
+            events: [
+                'open',
+                'close',
+                CHANGE,
+                'select',
+                'filtering',
+                'dataBinding',
+                'dataBound'
+            ],
+            setOptions: function (options) {
+                var listOptions = this._listOptions(options);
+                List.fn.setOptions.call(this, options);
+                this.listView.setOptions(listOptions);
+                this._accessors();
+                this._aria();
+            },
+            _listOptions: function (options) {
+                var listOptions = List.fn._listOptions.call(this, $.extend(options, { skipUpdateOnBind: true }));
+                listOptions.dataValueField = listOptions.dataTextField;
+                listOptions.selectedItemChange = null;
+                return listOptions;
+            },
+            _editable: function (options) {
+                var that = this, element = that.element, wrapper = that.wrapper.off(ns), readonly = options.readonly, disable = options.disable;
+                if (!readonly && !disable) {
+                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
+                    element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false).attr(ARIA_READONLY, false);
+                } else {
+                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
+                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable).attr(ARIA_READONLY, readonly);
+                }
+            },
+            close: function () {
+                var that = this;
+                var current = that.listView.focus();
+                if (current) {
+                    current.removeClass(SELECTED);
+                }
+                that.popup.close();
+            },
+            destroy: function () {
+                var that = this;
+                that.element.off(ns);
+                that._clear.off(ns);
+                that.wrapper.off(ns);
+                List.fn.destroy.call(that);
+            },
+            refresh: function () {
+                this.listView.refresh();
+            },
+            select: function (li) {
+                this._select(li);
+            },
+            search: function (word) {
+                var that = this, options = that.options, ignoreCase = options.ignoreCase, separator = that._separator(), length;
+                word = word || that._accessor();
+                clearTimeout(that._typingTimeout);
+                if (separator) {
+                    word = wordAtCaret(caret(that.element)[0], word, separator);
+                }
+                length = word.length;
+                if (!options.enforceMinLength && !length || length >= options.minLength) {
+                    that._open = true;
+                    that._mute(function () {
+                        this.listView.value([]);
+                    });
+                    that._filterSource({
+                        value: ignoreCase ? word.toLowerCase() : word,
+                        operator: options.filter,
+                        field: options.dataTextField,
+                        ignoreCase: ignoreCase
+                    });
+                    that.one('close', $.proxy(that._unifySeparators, that));
+                }
+            },
+            suggest: function (word) {
+                var that = this, key = that._last, value = that._accessor(), element = that.element[0], caretIdx = caret(element)[0], separator = that._separator(), words = value.split(separator), wordIndex = indexOfWordAtCaret(caretIdx, value, separator), selectionEnd = caretIdx, idx;
+                if (key == keys.BACKSPACE || key == keys.DELETE) {
+                    that._last = undefined;
+                    return;
+                }
+                word = word || '';
+                if (typeof word !== 'string') {
+                    if (word[0]) {
+                        word = that.dataSource.view()[List.inArray(word[0], that.ul[0])];
+                    }
+                    word = word ? that._text(word) : '';
+                }
+                if (caretIdx <= 0) {
+                    caretIdx = value.toLowerCase().indexOf(word.toLowerCase()) + 1;
+                }
+                idx = value.substring(0, caretIdx).lastIndexOf(separator);
+                idx = idx > -1 ? caretIdx - (idx + separator.length) : caretIdx;
+                value = words[wordIndex].substring(0, idx);
+                if (word) {
+                    word = word.toString();
+                    idx = word.toLowerCase().indexOf(value.toLowerCase());
+                    if (idx > -1) {
+                        word = word.substring(idx + value.length);
+                        selectionEnd = caretIdx + word.length;
+                        value += word;
+                    }
+                    if (separator && words[words.length - 1] !== '') {
+                        words.push('');
+                    }
+                }
+                words[wordIndex] = value;
+                that._accessor(words.join(separator || ''));
+                if (element === activeElement()) {
+                    caret(element, caretIdx, selectionEnd);
+                }
+            },
+            value: function (value) {
+                if (value !== undefined) {
+                    this.listView.value(value);
+                    this._accessor(value);
+                    this._old = this._accessor();
+                    this._oldText = this._accessor();
+                } else {
+                    return this._accessor();
+                }
+            },
+            _click: function (e) {
+                var item = e.item;
+                var that = this;
+                var element = that.element;
+                var dataItem = that.listView.dataItemByIndex(that.listView.getElementIndex(item));
+                e.preventDefault();
+                that._active = true;
+                if (that.trigger('select', {
+                        dataItem: dataItem,
+                        item: item
+                    })) {
+                    that.close();
+                    return;
+                }
+                that._oldText = element.val();
+                that._select(item).done(function () {
+                    that._blur();
+                    caret(element, element.val().length);
+                });
+            },
+            _clearText: $.noop,
+            _resetFocusItem: function () {
+                var index = this.options.highlightFirst ? 0 : -1;
+                if (this.options.virtual) {
+                    this.listView.scrollTo(0);
+                }
+                this.listView.focus(index);
+            },
+            _listBound: function () {
+                var that = this;
+                var popup = that.popup;
+                var options = that.options;
+                var data = that.dataSource.flatView();
+                var length = data.length;
+                var isActive = that.element[0] === activeElement();
+                var action;
+                that._renderFooter();
+                that._renderNoData();
+                that._toggleNoData(!data.length);
+                that._resizePopup();
+                popup.position();
+                if (length) {
+                    if (options.suggest && isActive) {
+                        that.suggest(data[0]);
+                    }
+                }
+                if (that._open) {
+                    that._open = false;
+                    action = that._allowOpening() ? 'open' : 'close';
+                    if (that._typingTimeout && !isActive) {
+                        action = 'close';
+                    }
+                    if (length) {
+                        that._resetFocusItem();
+                        if (options.virtual) {
+                            that.popup.unbind('activate', that._resetFocusItemHandler).one('activate', that._resetFocusItemHandler);
+                        }
+                    }
+                    popup[action]();
+                    that._typingTimeout = undefined;
+                }
+                if (that._touchScroller) {
+                    that._touchScroller.reset();
+                }
+                that._hideBusy();
+                that._makeUnselectable();
+                that.trigger('dataBound');
+            },
+            _mute: function (callback) {
+                this._muted = true;
+                callback.call(this);
+                this._muted = false;
+            },
+            _listChange: function () {
+                var isActive = this._active || this.element[0] === activeElement();
+                if (isActive && !this._muted) {
+                    this._selectValue(this.listView.selectedDataItems()[0]);
+                }
+            },
+            _selectValue: function (dataItem) {
+                var separator = this._separator();
+                var text = '';
+                if (dataItem) {
+                    text = this._text(dataItem);
+                }
+                if (text === null) {
+                    text = '';
+                }
+                if (separator) {
+                    text = replaceWordAtCaret(caret(this.element)[0], this._accessor(), text, separator, this._defaultSeparator());
+                }
+                this._prev = text;
+                this._accessor(text);
+                this._placeholder();
+            },
+            _unifySeparators: function () {
+                this._accessor(this.value().split(this._separator()).join(this._defaultSeparator()));
+                return this;
+            },
+            _change: function () {
+                var that = this;
+                var value = that._unifySeparators().value();
+                var trigger = value !== List.unifyType(that._old, typeof value);
+                var valueUpdated = trigger && !that._typing;
+                var itemSelected = that._oldText !== value;
+                that._old = value;
+                that._oldText = value;
+                if (valueUpdated || itemSelected) {
+                    that.element.trigger(CHANGE);
+                }
+                if (trigger) {
+                    that.trigger(CHANGE);
+                }
+                that.typing = false;
+            },
+            _accessor: function (value) {
+                var that = this, element = that.element[0];
+                if (value !== undefined) {
+                    element.value = value === null ? '' : value;
+                    that._placeholder();
+                } else {
+                    value = element.value;
+                    if (element.className.indexOf('k-readonly') > -1) {
+                        if (value === that.options.placeholder) {
+                            return '';
+                        } else {
+                            return value;
+                        }
+                    }
+                    return value;
+                }
+            },
+            _keydown: function (e) {
+                var that = this;
+                var key = e.keyCode;
+                var listView = that.listView;
+                var visible = that.popup.visible();
+                var current = listView.focus();
+                that._last = key;
+                if (key === keys.DOWN) {
+                    if (visible) {
+                        this._move(current ? 'focusNext' : 'focusFirst');
+                    } else {
+                        that.search();
+                        that._open = true;
+                        that.refresh();
+                    }
+                    e.preventDefault();
+                } else if (key === keys.UP) {
+                    if (visible) {
+                        this._move(current ? 'focusPrev' : 'focusLast');
+                    }
+                    e.preventDefault();
+                } else if (key === keys.ENTER || key === keys.TAB) {
+                    if (key === keys.ENTER && visible) {
+                        e.preventDefault();
+                    }
+                    if (visible && current) {
+                        var dataItem = listView.dataItemByIndex(listView.getElementIndex(current));
+                        if (that.trigger('select', {
+                                dataItem: dataItem,
+                                item: current
+                            })) {
+                            return;
+                        }
+                        this._select(current);
+                    }
+                    this._blur();
+                } else if (key === keys.ESC) {
+                    if (visible) {
+                        e.preventDefault();
+                    }
+                    that.close();
+                } else if (that.popup.visible() && (key === keys.PAGEDOWN || key === keys.PAGEUP)) {
+                    e.preventDefault();
+                    var direction = key === keys.PAGEDOWN ? 1 : -1;
+                    listView.scrollWith(direction * listView.screenHeight());
+                } else {
+                    that._search();
+                }
+            },
+            _keypress: function () {
+                this._oldText = this.element.val();
+                this._typing = true;
+            },
+            _move: function (action) {
+                this.listView[action]();
+                if (this.options.suggest) {
+                    this.suggest(this.listView.focus());
+                }
+            },
+            _hideBusy: function () {
+                var that = this;
+                clearTimeout(that._busy);
+                that._loading.hide();
+                that.element.attr('aria-busy', false);
+                that._busy = null;
+                that._showClear();
+            },
+            _showBusy: function () {
+                var that = this;
+                if (that._busy) {
+                    return;
+                }
+                that._busy = setTimeout(function () {
+                    that.element.attr('aria-busy', true);
+                    that._loading.show();
+                    that._hideClear();
+                }, 100);
+            },
+            _placeholder: function (show) {
+                if (placeholderSupported) {
+                    return;
+                }
+                var that = this, element = that.element, placeholder = that.options.placeholder, value;
+                if (placeholder) {
+                    value = element.val();
+                    if (show === undefined) {
+                        show = !value;
+                    }
+                    if (!show) {
+                        if (value !== placeholder) {
+                            placeholder = value;
+                        } else {
+                            placeholder = '';
+                        }
+                    }
+                    if (value === that._old && !show) {
+                        return;
+                    }
+                    element.toggleClass('k-readonly', show).val(placeholder);
+                    if (!placeholder && element[0] === document.activeElement) {
+                        caret(element[0], 0, 0);
+                    }
+                }
+            },
+            _separator: function () {
+                var separator = this.options.separator;
+                if (separator instanceof Array) {
+                    return new RegExp(separator.join('|'), 'gi');
+                }
+                return separator;
+            },
+            _defaultSeparator: function () {
+                var separator = this.options.separator;
+                if (separator instanceof Array) {
+                    return separator[0];
+                }
+                return separator;
+            },
+            _inputValue: function () {
+                return this.element.val();
+            },
+            _search: function () {
+                var that = this;
+                clearTimeout(that._typingTimeout);
+                that._typingTimeout = setTimeout(function () {
+                    if (that._prev !== that._accessor()) {
+                        that._prev = that._accessor();
+                        that.search();
+                    }
+                }, that.options.delay);
+            },
+            _select: function (candidate) {
+                var that = this;
+                that._active = true;
+                return that.listView.select(candidate).done(function () {
+                    that._active = false;
+                });
+            },
+            _loader: function () {
+                this._loading = $('<span class="k-icon k-i-loading" style="display:none"></span>').insertAfter(this.element);
+            },
+            _clearButton: function () {
+                this._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
+                    'role': 'button',
+                    'tabIndex': -1
+                });
+                if (this.options.clearButton) {
+                    this._clear.insertAfter(this.element);
+                }
+            },
+            _toggleHover: function (e) {
+                $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
+            },
+            _wrapper: function () {
+                var that = this, element = that.element, DOMelement = element[0], wrapper;
+                wrapper = element.parent();
+                if (!wrapper.is('span.k-widget')) {
+                    wrapper = element.wrap('<span />').parent();
+                }
+                wrapper.attr('tabindex', -1);
+                wrapper.attr('role', 'presentation');
+                wrapper[0].style.cssText = DOMelement.style.cssText;
+                element.css({
+                    width: '100%',
+                    height: DOMelement.style.height
+                });
+                that._focused = that.element;
+                that.wrapper = wrapper.addClass('k-widget k-autocomplete k-header').addClass(DOMelement.className);
+            }
+        });
+        ui.plugin(AutoComplete);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.dropdownlist', [
+        'kendo.list',
+        'kendo.mobile.scroller'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'dropdownlist',
+        name: 'DropDownList',
+        category: 'web',
+        description: 'The DropDownList widget displays a list of values and allows the selection of a single value from the list.',
+        depends: ['list'],
+        features: [
+            {
+                id: 'mobile-scroller',
+                name: 'Mobile scroller',
+                description: 'Support for kinetic scrolling in mobile device',
+                depends: ['mobile.scroller']
+            },
+            {
+                id: 'virtualization',
+                name: 'VirtualList',
+                description: 'Support for virtualization',
+                depends: ['virtuallist']
+            }
+        ]
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, support = kendo.support, activeElement = kendo._activeElement, ObservableObject = kendo.data.ObservableObject, keys = kendo.keys, ns = '.kendoDropDownList', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', FOCUSED = 'k-state-focused', DEFAULT = 'k-state-default', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', MSG_INVALID_OPTION_LABEL = 'The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel', proxy = $.proxy;
+        var DropDownList = Select.extend({
+            init: function (element, options) {
+                var that = this;
+                var index = options && options.index;
+                var optionLabel, text, disabled;
+                that.ns = ns;
+                options = $.isArray(options) ? { dataSource: options } : options;
+                Select.fn.init.call(that, element, options);
+                options = that.options;
+                element = that.element.on('focus' + ns, proxy(that._focusHandler, that));
+                that._focusInputHandler = $.proxy(that._focusInput, that);
+                that.optionLabel = $();
+                that._optionLabel();
+                that._inputTemplate();
+                that._reset();
+                that._prev = '';
+                that._word = '';
+                that._wrapper();
+                that._tabindex();
+                that.wrapper.data(TABINDEX, that.wrapper.attr(TABINDEX));
+                that._span();
+                that._popup();
+                that._mobile();
+                that._dataSource();
+                that._ignoreCase();
+                that._filterHeader();
+                that._aria();
+                that._enable();
+                that._oldIndex = that.selectedIndex = -1;
+                if (index !== undefined) {
+                    options.index = index;
+                }
+                that._initialIndex = options.index;
+                that.requireValueMapper(that.options);
+                that._initList();
+                that._cascade();
+                if (options.autoBind) {
+                    that.dataSource.fetch();
+                } else if (that.selectedIndex === -1) {
+                    text = options.text || '';
+                    if (!text) {
+                        optionLabel = options.optionLabel;
+                        if (optionLabel && options.index === 0) {
+                            text = optionLabel;
+                        } else if (that._isSelect) {
+                            text = element.children(':selected').text();
+                        }
+                    }
+                    that._textAccessor(text);
+                }
+                disabled = $(that.element).parents('fieldset').is(':disabled');
+                if (disabled) {
+                    that.enable(false);
+                }
+                that.listView.bind('click', function (e) {
+                    e.preventDefault();
+                });
+                kendo.notify(that);
+            },
+            options: {
+                name: 'DropDownList',
+                enabled: true,
+                autoBind: true,
+                index: 0,
+                text: null,
+                value: null,
+                delay: 500,
+                height: 200,
+                dataTextField: '',
+                dataValueField: '',
+                optionLabel: '',
+                cascadeFrom: '',
+                cascadeFromField: '',
+                ignoreCase: true,
+                animation: {},
+                filter: 'none',
+                minLength: 1,
+                enforceMinLength: false,
+                virtual: false,
+                template: null,
+                valueTemplate: null,
+                optionLabelTemplate: null,
+                groupTemplate: '#:data#',
+                fixedGroupTemplate: '#:data#'
+            },
+            events: [
+                'open',
+                'close',
+                CHANGE,
+                'select',
+                'filtering',
+                'dataBinding',
+                'dataBound',
+                'cascade',
+                'set'
+            ],
+            setOptions: function (options) {
+                Select.fn.setOptions.call(this, options);
+                this.listView.setOptions(this._listOptions(options));
+                this._optionLabel();
+                this._inputTemplate();
+                this._accessors();
+                this._filterHeader();
+                this._enable();
+                this._aria();
+                if (!this.value() && this.hasOptionLabel()) {
+                    this.select(0);
+                }
+            },
+            destroy: function () {
+                var that = this;
+                Select.fn.destroy.call(that);
+                that.wrapper.off(ns);
+                that.element.off(ns);
+                that._inputWrapper.off(ns);
+                that._arrow.off();
+                that._arrow = null;
+                that.optionLabel.off();
+            },
+            open: function () {
+                var that = this;
+                if (that.popup.visible()) {
+                    return;
+                }
+                if (!that.listView.bound() || that._state === STATE_ACCEPT) {
+                    that._open = true;
+                    that._state = 'rebind';
+                    if (that.filterInput) {
+                        that.filterInput.val('');
+                        that._prev = '';
+                    }
+                    if (that.filterInput && that.options.minLength !== 1) {
+                        that.refresh();
+                        that.popup.one('activate', that._focusInputHandler);
+                        that.popup.open();
+                        that._resizeFilterInput();
+                    } else {
+                        that._filterSource();
+                    }
+                } else if (that._allowOpening()) {
+                    that.popup.one('activate', that._focusInputHandler);
+                    that.popup.open();
+                    that._resizeFilterInput();
+                    that._focusItem();
+                }
+            },
+            _focusInput: function () {
+                this._focusElement(this.filterInput);
+            },
+            _resizeFilterInput: function () {
+                var filterInput = this.filterInput;
+                var originalPrevent = this._prevent;
+                if (!filterInput) {
+                    return;
+                }
+                var isInputActive = this.filterInput[0] === activeElement();
+                var caret = kendo.caret(this.filterInput[0])[0];
+                this._prevent = true;
+                filterInput.css('display', 'none').css('width', this.popup.element.css('width')).css('display', 'inline-block');
+                if (isInputActive) {
+                    filterInput.focus();
+                    kendo.caret(filterInput[0], caret);
+                }
+                this._prevent = originalPrevent;
+            },
+            _allowOpening: function () {
+                return this.hasOptionLabel() || this.filterInput || Select.fn._allowOpening.call(this);
+            },
+            toggle: function (toggle) {
+                this._toggle(toggle, true);
+            },
+            current: function (candidate) {
+                var current;
+                if (candidate === undefined) {
+                    current = this.listView.focus();
+                    if (!current && this.selectedIndex === 0 && this.hasOptionLabel()) {
+                        return this.optionLabel;
+                    }
+                    return current;
+                }
+                this._focus(candidate);
+            },
+            dataItem: function (index) {
+                var that = this;
+                var dataItem = null;
+                if (index === null) {
+                    return index;
+                }
+                if (index === undefined) {
+                    dataItem = that.listView.selectedDataItems()[0];
+                } else {
+                    if (typeof index !== 'number') {
+                        if (that.options.virtual) {
+                            return that.dataSource.getByUid($(index).data('uid'));
+                        }
+                        if (index.hasClass('k-list-optionlabel')) {
+                            index = -1;
+                        } else {
+                            index = $(that.items()).index(index);
+                        }
+                    } else if (that.hasOptionLabel()) {
+                        index -= 1;
+                    }
+                    dataItem = that.dataSource.flatView()[index];
+                }
+                if (!dataItem) {
+                    dataItem = that._optionLabelDataItem();
+                }
+                return dataItem;
+            },
+            refresh: function () {
+                this.listView.refresh();
+            },
+            text: function (text) {
+                var that = this;
+                var loweredText;
+                var ignoreCase = that.options.ignoreCase;
+                text = text === null ? '' : text;
+                if (text !== undefined) {
+                    if (typeof text !== 'string') {
+                        that._textAccessor(text);
+                        return;
+                    }
+                    loweredText = ignoreCase ? text.toLowerCase() : text;
+                    that._select(function (data) {
+                        data = that._text(data);
+                        if (ignoreCase) {
+                            data = (data + '').toLowerCase();
+                        }
+                        return data === loweredText;
+                    }).done(function () {
+                        that._textAccessor(that.dataItem() || text);
+                    });
+                } else {
+                    return that._textAccessor();
+                }
+            },
+            _clearFilter: function () {
+                $(this.filterInput).val('');
+                Select.fn._clearFilter.call(this);
+            },
+            value: function (value) {
+                var that = this;
+                var listView = that.listView;
+                var dataSource = that.dataSource;
+                if (value === undefined) {
+                    value = that._accessor() || that.listView.value()[0];
+                    return value === undefined || value === null ? '' : value;
+                }
+                that.requireValueMapper(that.options, value);
+                if (value || !that.hasOptionLabel()) {
+                    that._initialIndex = null;
+                }
+                this.trigger('set', { value: value });
+                if (that._request && that.options.cascadeFrom && that.listView.bound()) {
+                    if (that._valueSetter) {
+                        dataSource.unbind(CHANGE, that._valueSetter);
+                    }
+                    that._valueSetter = proxy(function () {
+                        that.value(value);
+                    }, that);
+                    dataSource.one(CHANGE, that._valueSetter);
+                    return;
+                }
+                if (that._isFilterEnabled() && listView.bound() && listView.isFiltered()) {
+                    that._clearFilter();
+                } else {
+                    that._fetchData();
+                }
+                listView.value(value).done(function () {
+                    if (that.selectedIndex === -1 && that.text()) {
+                        that.text('');
+                        that._accessor('', -1);
+                    }
+                    that._old = that._accessor();
+                    that._oldIndex = that.selectedIndex;
+                });
+            },
+            hasOptionLabel: function () {
+                return this.optionLabel && !!this.optionLabel[0];
+            },
+            _optionLabel: function () {
+                var that = this;
+                var options = that.options;
+                var optionLabel = options.optionLabel;
+                var template = options.optionLabelTemplate;
+                if (!optionLabel) {
+                    that.optionLabel.off().remove();
+                    that.optionLabel = $();
+                    return;
+                }
+                if (!template) {
+                    template = '#:';
+                    if (typeof optionLabel === 'string') {
+                        template += 'data';
+                    } else {
+                        template += kendo.expr(options.dataTextField, 'data');
+                    }
+                    template += '#';
+                }
+                if (typeof template !== 'function') {
+                    template = kendo.template(template);
+                }
+                that.optionLabelTemplate = template;
+                if (!that.hasOptionLabel()) {
+                    that.optionLabel = $('<div class="k-list-optionlabel"></div>').prependTo(that.list);
+                }
+                that.optionLabel.html(template(optionLabel)).off().click(proxy(that._click, that)).on(HOVEREVENTS, that._toggleHover);
+                that.angular('compile', function () {
+                    return {
+                        elements: that.optionLabel,
+                        data: [{ dataItem: that._optionLabelDataItem() }]
+                    };
+                });
+            },
+            _optionLabelText: function () {
+                var optionLabel = this.options.optionLabel;
+                return typeof optionLabel === 'string' ? optionLabel : this._text(optionLabel);
+            },
+            _optionLabelDataItem: function () {
+                var that = this;
+                var optionLabel = that.options.optionLabel;
+                if (that.hasOptionLabel()) {
+                    return $.isPlainObject(optionLabel) ? new ObservableObject(optionLabel) : that._assignInstance(that._optionLabelText(), '');
+                }
+                return null;
+            },
+            _buildOptions: function (data) {
+                var that = this;
+                if (!that._isSelect) {
+                    return;
+                }
+                var value = that.listView.value()[0];
+                var optionLabel = that._optionLabelDataItem();
+                var optionLabelValue = optionLabel && that._value(optionLabel);
+                if (value === undefined || value === null) {
+                    value = '';
+                }
+                if (optionLabel) {
+                    if (optionLabelValue === undefined || optionLabelValue === null) {
+                        optionLabelValue = '';
+                    }
+                    optionLabel = '<option value="' + optionLabelValue + '">' + that._text(optionLabel) + '</option>';
+                }
+                that._options(data, optionLabel, value);
+                if (value !== List.unifyType(that._accessor(), typeof value)) {
+                    that._customOption = null;
+                    that._custom(value);
+                }
+            },
+            _listBound: function () {
+                var that = this;
+                var initialIndex = that._initialIndex;
+                var filtered = that._state === STATE_FILTER;
+                var data = that.dataSource.flatView();
+                var dataItem;
+                that._presetValue = false;
+                that._renderFooter();
+                that._renderNoData();
+                that._toggleNoData(!data.length);
+                that._resizePopup(true);
+                that.popup.position();
+                that._buildOptions(data);
+                that._makeUnselectable();
+                if (!filtered) {
+                    if (that._open) {
+                        that.toggle(that._allowOpening());
+                    }
+                    that._open = false;
+                    if (!that._fetch) {
+                        if (data.length) {
+                            if (!that.listView.value().length && initialIndex > -1 && initialIndex !== null) {
+                                that.select(initialIndex);
+                            }
+                            that._initialIndex = null;
+                            dataItem = that.listView.selectedDataItems()[0];
+                            if (dataItem && that.text() !== that._text(dataItem)) {
+                                that._selectValue(dataItem);
+                            }
+                        } else if (that._textAccessor() !== that._optionLabelText()) {
+                            that.listView.value('');
+                            that._selectValue(null);
+                            that._oldIndex = that.selectedIndex;
+                        }
+                    }
+                }
+                that._hideBusy();
+                that.trigger('dataBound');
+            },
+            _listChange: function () {
+                this._selectValue(this.listView.selectedDataItems()[0]);
+                if (this._presetValue || this._old && this._oldIndex === -1) {
+                    this._oldIndex = this.selectedIndex;
+                }
+            },
+            _filterPaste: function () {
+                this._search();
+            },
+            _focusHandler: function () {
+                this.wrapper.focus();
+            },
+            _focusinHandler: function () {
+                this._inputWrapper.addClass(FOCUSED);
+                this._prevent = false;
+            },
+            _focusoutHandler: function () {
+                var that = this;
+                var filtered = that._state === STATE_FILTER;
+                var isIFrame = window.self !== window.top;
+                var focusedItem = that._focus();
+                var dataItem = that._getElementDataItem(focusedItem);
+                var shouldTrigger;
+                if (!that._prevent) {
+                    clearTimeout(that._typingTimeout);
+                    var done = function () {
+                        if (support.mobileOS.ios && isIFrame) {
+                            that._change();
+                        } else {
+                            that._blur();
+                        }
+                        that._inputWrapper.removeClass(FOCUSED);
+                        that._prevent = true;
+                        that._open = false;
+                        that.element.blur();
+                    };
+                    shouldTrigger = !filtered && focusedItem && that._value(dataItem) !== that.value();
+                    if (shouldTrigger && !that.trigger('select', {
+                            dataItem: dataItem,
+                            item: focusedItem
+                        })) {
+                        that._select(focusedItem, !that.dataSource.view().length).done(done);
+                    } else {
+                        done();
+                    }
+                }
+            },
+            _wrapperMousedown: function () {
+                this._prevent = !!this.filterInput;
+            },
+            _wrapperClick: function (e) {
+                e.preventDefault();
+                this.popup.unbind('activate', this._focusInputHandler);
+                this._focused = this.wrapper;
+                this._toggle();
+            },
+            _editable: function (options) {
+                var that = this;
+                var element = that.element;
+                var disable = options.disable;
+                var readonly = options.readonly;
+                var wrapper = that.wrapper.add(that.filterInput).off(ns);
+                var dropDownWrapper = that._inputWrapper.off(HOVEREVENTS);
+                if (!readonly && !disable) {
+                    element.removeAttr(DISABLED).removeAttr(READONLY);
+                    dropDownWrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
+                    wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that)).on('mousedown' + ns, proxy(that._wrapperMousedown, that)).on('paste' + ns, proxy(that._filterPaste, that));
+                    that.wrapper.on('click' + ns, proxy(that._wrapperClick, that));
+                    if (!that.filterInput) {
+                        wrapper.on('keypress' + ns, proxy(that._keypress, that));
+                    }
+                } else if (disable) {
+                    wrapper.removeAttr(TABINDEX);
+                    dropDownWrapper.addClass(STATEDISABLED).removeClass(DEFAULT);
+                } else {
+                    dropDownWrapper.addClass(DEFAULT).removeClass(STATEDISABLED);
+                    wrapper.on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
+                }
+                element.attr(DISABLED, disable).attr(READONLY, readonly);
+                wrapper.attr(ARIA_DISABLED, disable);
+            },
+            _keydown: function (e) {
+                var that = this;
+                var key = e.keyCode;
+                var altKey = e.altKey;
+                var isInputActive;
+                var handled;
+                var isPopupVisible = that.popup.visible();
+                if (that.filterInput) {
+                    isInputActive = that.filterInput[0] === activeElement();
+                }
+                if (key === keys.LEFT) {
+                    key = keys.UP;
+                    handled = true;
+                } else if (key === keys.RIGHT) {
+                    key = keys.DOWN;
+                    handled = true;
+                }
+                if (handled && isInputActive) {
+                    return;
+                }
+                e.keyCode = key;
+                if (altKey && key === keys.UP || key === keys.ESC) {
+                    that._focusElement(that.wrapper);
+                }
+                if (that._state === STATE_FILTER && key === keys.ESC) {
+                    that._clearFilter();
+                }
+                if (key === keys.ENTER && that._typingTimeout && that.filterInput && isPopupVisible) {
+                    e.preventDefault();
+                    return;
+                }
+                handled = that._move(e);
+                if (handled) {
+                    return;
+                }
+                if (!isPopupVisible || !that.filterInput) {
+                    var current = that._focus();
+                    if (key === keys.HOME) {
+                        handled = true;
+                        that._firstItem();
+                    } else if (key === keys.END) {
+                        handled = true;
+                        that._lastItem();
+                    }
+                    if (handled) {
+                        if (that.trigger('select', {
+                                dataItem: that._getElementDataItem(that._focus()),
+                                item: that._focus()
+                            })) {
+                            that._focus(current);
+                            return;
+                        }
+                        that._select(that._focus(), true).done(function () {
+                            if (!isPopupVisible) {
+                                that._blur();
+                            }
+                        });
+                    }
+                }
+                if (!altKey && !handled && that.filterInput) {
+                    that._search();
+                }
+            },
+            _matchText: function (text, word) {
+                var ignoreCase = this.options.ignoreCase;
+                if (text === undefined || text === null) {
+                    return false;
+                }
+                text = text + '';
+                if (ignoreCase) {
+                    text = text.toLowerCase();
+                }
+                return text.indexOf(word) === 0;
+            },
+            _shuffleData: function (data, splitIndex) {
+                var optionDataItem = this._optionLabelDataItem();
+                if (optionDataItem) {
+                    data = [optionDataItem].concat(data);
+                }
+                return data.slice(splitIndex).concat(data.slice(0, splitIndex));
+            },
+            _selectNext: function () {
+                var that = this;
+                var data = that.dataSource.flatView();
+                var dataLength = data.length + (that.hasOptionLabel() ? 1 : 0);
+                var isInLoop = sameCharsOnly(that._word, that._last);
+                var startIndex = that.selectedIndex;
+                var oldFocusedItem;
+                var text;
+                if (startIndex === -1) {
+                    startIndex = 0;
+                } else {
+                    startIndex += isInLoop ? 1 : 0;
+                    startIndex = normalizeIndex(startIndex, dataLength);
+                }
+                data = data.toJSON ? data.toJSON() : data.slice();
+                data = that._shuffleData(data, startIndex);
+                for (var idx = 0; idx < dataLength; idx++) {
+                    text = that._text(data[idx]);
+                    if (isInLoop && that._matchText(text, that._last)) {
+                        break;
+                    } else if (that._matchText(text, that._word)) {
+                        break;
+                    }
+                }
+                if (idx !== dataLength) {
+                    oldFocusedItem = that._focus();
+                    that._select(normalizeIndex(startIndex + idx, dataLength)).done(function () {
+                        var done = function () {
+                            if (!that.popup.visible()) {
+                                that._change();
+                            }
+                        };
+                        if (that.trigger('select', {
+                                dataItem: that._getElementDataItem(that._focus()),
+                                item: that._focus()
+                            })) {
+                            that._select(oldFocusedItem).done(done);
+                        } else {
+                            done();
+                        }
+                    });
+                }
+            },
+            _keypress: function (e) {
+                var that = this;
+                if (e.which === 0 || e.keyCode === kendo.keys.ENTER) {
+                    return;
+                }
+                var character = String.fromCharCode(e.charCode || e.keyCode);
+                if (that.options.ignoreCase) {
+                    character = character.toLowerCase();
+                }
+                if (character === ' ') {
+                    e.preventDefault();
+                }
+                that._word += character;
+                that._last = character;
+                that._search();
+            },
+            _popupOpen: function () {
+                var popup = this.popup;
+                popup.wrapper = kendo.wrap(popup.element);
+                if (popup.element.closest('.km-root')[0]) {
+                    popup.wrapper.addClass('km-popup km-widget');
+                    this.wrapper.addClass('km-widget');
+                }
+            },
+            _popup: function () {
+                Select.fn._popup.call(this);
+                this.popup.one('open', proxy(this._popupOpen, this));
+            },
+            _getElementDataItem: function (element) {
+                if (!element || !element[0]) {
+                    return null;
+                }
+                if (element[0] === this.optionLabel[0]) {
+                    return this._optionLabelDataItem();
+                }
+                return this.listView.dataItemByIndex(this.listView.getElementIndex(element));
+            },
+            _click: function (e) {
+                var that = this;
+                var item = e.item || $(e.currentTarget);
+                e.preventDefault();
+                if (that.trigger('select', {
+                        dataItem: that._getElementDataItem(item),
+                        item: item
+                    })) {
+                    that.close();
+                    return;
+                }
+                that._userTriggered = true;
+                that._select(item).done(function () {
+                    that._focusElement(that.wrapper);
+                    that._blur();
+                });
+            },
+            _focusElement: function (element) {
+                var active = activeElement();
+                var wrapper = this.wrapper;
+                var filterInput = this.filterInput;
+                var compareElement = element === filterInput ? wrapper : filterInput;
+                var touchEnabled = support.mobileOS && (support.touch || support.MSPointers || support.pointers);
+                if (filterInput && filterInput[0] === element[0] && touchEnabled) {
+                    return;
+                }
+                if (filterInput && compareElement[0] === active) {
+                    this._prevent = true;
+                    this._focused = element.focus();
+                }
+            },
+            _searchByWord: function (word) {
+                if (!word) {
+                    return;
+                }
+                var that = this;
+                var ignoreCase = that.options.ignoreCase;
+                if (ignoreCase) {
+                    word = word.toLowerCase();
+                }
+                that._select(function (dataItem) {
+                    return that._matchText(that._text(dataItem), word);
+                });
+            },
+            _inputValue: function () {
+                return this.text();
+            },
+            _search: function () {
+                var that = this;
+                var dataSource = that.dataSource;
+                clearTimeout(that._typingTimeout);
+                if (that._isFilterEnabled()) {
+                    that._typingTimeout = setTimeout(function () {
+                        var value = that.filterInput.val();
+                        if (that._prev !== value) {
+                            that._prev = value;
+                            that.search(value);
+                            that._resizeFilterInput();
+                        }
+                        that._typingTimeout = null;
+                    }, that.options.delay);
+                } else {
+                    that._typingTimeout = setTimeout(function () {
+                        that._word = '';
+                    }, that.options.delay);
+                    if (!that.listView.bound()) {
+                        dataSource.fetch().done(function () {
+                            that._selectNext();
+                        });
+                        return;
+                    }
+                    that._selectNext();
+                }
+            },
+            _get: function (candidate) {
+                var data, found, idx;
+                var isFunction = typeof candidate === 'function';
+                var jQueryCandidate = !isFunction ? $(candidate) : $();
+                if (this.hasOptionLabel()) {
+                    if (typeof candidate === 'number') {
+                        if (candidate > -1) {
+                            candidate -= 1;
+                        }
+                    } else if (jQueryCandidate.hasClass('k-list-optionlabel')) {
+                        candidate = -1;
+                    }
+                }
+                if (isFunction) {
+                    data = this.dataSource.flatView();
+                    for (idx = 0; idx < data.length; idx++) {
+                        if (candidate(data[idx])) {
+                            candidate = idx;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        candidate = -1;
+                    }
+                }
+                return candidate;
+            },
+            _firstItem: function () {
+                if (this.hasOptionLabel()) {
+                    this._focus(this.optionLabel);
+                } else {
+                    this.listView.focusFirst();
+                }
+            },
+            _lastItem: function () {
+                this._resetOptionLabel();
+                this.listView.focusLast();
+            },
+            _nextItem: function () {
+                if (this.optionLabel.hasClass('k-state-focused')) {
+                    this._resetOptionLabel();
+                    this.listView.focusFirst();
+                } else {
+                    this.listView.focusNext();
+                }
+            },
+            _prevItem: function () {
+                if (this.optionLabel.hasClass('k-state-focused')) {
+                    return;
+                }
+                this.listView.focusPrev();
+                if (!this.listView.focus()) {
+                    this._focus(this.optionLabel);
+                }
+            },
+            _focusItem: function () {
+                var listView = this.listView;
+                var focusedItem = listView.focus();
+                var index = listView.select();
+                index = index[index.length - 1];
+                if (index === undefined && this.options.highlightFirst && !focusedItem) {
+                    index = 0;
+                }
+                if (index !== undefined) {
+                    listView.focus(index);
+                } else {
+                    if (this.options.optionLabel) {
+                        this._focus(this.optionLabel);
+                        this._select(this.optionLabel);
+                    } else {
+                        listView.scrollToIndex(0);
+                    }
+                }
+            },
+            _resetOptionLabel: function (additionalClass) {
+                this.optionLabel.removeClass('k-state-focused' + (additionalClass || '')).removeAttr('id');
+            },
+            _focus: function (candidate) {
+                var listView = this.listView;
+                var optionLabel = this.optionLabel;
+                if (candidate === undefined) {
+                    candidate = listView.focus();
+                    if (!candidate && optionLabel.hasClass('k-state-focused')) {
+                        candidate = optionLabel;
+                    }
+                    return candidate;
+                }
+                this._resetOptionLabel();
+                candidate = this._get(candidate);
+                listView.focus(candidate);
+                if (candidate === -1) {
+                    optionLabel.addClass('k-state-focused').attr('id', listView._optionID);
+                    this._focused.add(this.filterInput).removeAttr('aria-activedescendant').attr('aria-activedescendant', listView._optionID);
+                }
+            },
+            _select: function (candidate, keepState) {
+                var that = this;
+                candidate = that._get(candidate);
+                return that.listView.select(candidate).done(function () {
+                    if (!keepState && that._state === STATE_FILTER) {
+                        that._state = STATE_ACCEPT;
+                    }
+                    if (candidate === -1) {
+                        that._selectValue(null);
+                    }
+                });
+            },
+            _selectValue: function (dataItem) {
+                var that = this;
+                var optionLabel = that.options.optionLabel;
+                var idx = that.listView.select();
+                var value = '';
+                var text = '';
+                idx = idx[idx.length - 1];
+                if (idx === undefined) {
+                    idx = -1;
+                }
+                this._resetOptionLabel(' k-state-selected');
+                if (dataItem) {
+                    text = dataItem;
+                    value = that._dataValue(dataItem);
+                    if (optionLabel) {
+                        idx += 1;
+                    }
+                } else if (optionLabel) {
+                    that._focus(that.optionLabel.addClass('k-state-selected'));
+                    text = that._optionLabelText();
+                    if (typeof optionLabel === 'string') {
+                        value = '';
+                    } else {
+                        value = that._value(optionLabel);
+                    }
+                    idx = 0;
+                }
+                that.selectedIndex = idx;
+                if (value === null) {
+                    value = '';
+                }
+                that._textAccessor(text);
+                that._accessor(value, idx);
+                that._triggerCascade();
+            },
+            _mobile: function () {
+                var that = this, popup = that.popup, mobileOS = support.mobileOS, root = popup.element.parents('.km-root').eq(0);
+                if (root.length && mobileOS) {
+                    popup.options.animation.open.effects = mobileOS.android || mobileOS.meego ? 'fadeIn' : mobileOS.ios || mobileOS.wp ? 'slideIn:up' : popup.options.animation.open.effects;
+                }
+            },
+            _filterHeader: function () {
+                var icon;
+                if (this.filterInput) {
+                    this.filterInput.off(ns).parent().remove();
+                    this.filterInput = null;
+                }
+                if (this._isFilterEnabled()) {
+                    icon = '<span class="k-icon k-i-search"></span>';
+                    this.filterInput = $('<input class="k-textbox"/>').attr({
+                        placeholder: this.element.attr('placeholder'),
+                        title: this.element.attr('title'),
+                        role: 'listbox',
+                        'aria-haspopup': true,
+                        'aria-expanded': false
+                    });
+                    this.list.prepend($('<span class="k-list-filter" />').append(this.filterInput.add(icon)));
+                }
+            },
+            _span: function () {
+                var that = this, wrapper = that.wrapper, SELECTOR = 'span.k-input', span;
+                span = wrapper.find(SELECTOR);
+                if (!span[0]) {
+                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-s"></span></span></span>').append(that.element);
+                    span = wrapper.find(SELECTOR);
+                }
+                that.span = span;
+                that._inputWrapper = $(wrapper[0].firstChild);
+                that._arrow = wrapper.find('.k-icon');
+            },
+            _wrapper: function () {
+                var that = this, element = that.element, DOMelement = element[0], wrapper;
+                wrapper = element.parent();
+                if (!wrapper.is('span.k-widget')) {
+                    wrapper = element.wrap('<span />').parent();
+                    wrapper[0].style.cssText = DOMelement.style.cssText;
+                    wrapper[0].title = DOMelement.title;
+                }
+                that._focused = that.wrapper = wrapper.addClass('k-widget k-dropdown k-header').addClass(DOMelement.className).css('display', '').attr({
+                    accesskey: element.attr('accesskey'),
+                    unselectable: 'on',
+                    role: 'listbox',
+                    'aria-haspopup': true,
+                    'aria-expanded': false
+                });
+                if (that.element.attr('required')) {
+                    wrapper.addClass('k-state-required');
+                }
+                element.hide().removeAttr('accesskey');
+            },
+            _clearSelection: function (parent) {
+                this.select(parent.value() ? 0 : -1);
+            },
+            _inputTemplate: function () {
+                var that = this, template = that.options.valueTemplate;
+                if (!template) {
+                    template = $.proxy(kendo.template('#:this._text(data)#', { useWithBlock: false }), that);
+                } else {
+                    template = kendo.template(template);
+                }
+                that.valueTemplate = template;
+                if (that.hasOptionLabel() && !that.options.optionLabelTemplate) {
+                    try {
+                        that.valueTemplate(that._optionLabelDataItem());
+                    } catch (e) {
+                        throw new Error(MSG_INVALID_OPTION_LABEL);
+                    }
+                }
+            },
+            _textAccessor: function (text) {
+                var dataItem = null;
+                var template = this.valueTemplate;
+                var optionLabelText = this._optionLabelText();
+                var span = this.span;
+                if (text === undefined) {
+                    return span.text();
+                }
+                if ($.isPlainObject(text) || text instanceof ObservableObject) {
+                    dataItem = text;
+                } else if (optionLabelText && optionLabelText === text) {
+                    dataItem = this.options.optionLabel;
+                }
+                if (!dataItem) {
+                    dataItem = this._assignInstance(text, this._accessor());
+                }
+                if (this.hasOptionLabel()) {
+                    if (dataItem === optionLabelText || this._text(dataItem) === optionLabelText) {
+                        template = this.optionLabelTemplate;
+                        if (typeof this.options.optionLabel === 'string' && !this.options.optionLabelTemplate) {
+                            dataItem = optionLabelText;
+                        }
+                    }
+                }
+                var getElements = function () {
+                    return {
+                        elements: span.get(),
+                        data: [{ dataItem: dataItem }]
+                    };
+                };
+                this.angular('cleanup', getElements);
+                try {
+                    span.html(template(dataItem));
+                } catch (e) {
+                    span.html('');
+                }
+                this.angular('compile', getElements);
+            },
+            _preselect: function (value, text) {
+                if (!value && !text) {
+                    text = this._optionLabelText();
+                }
+                this._accessor(value);
+                this._textAccessor(text);
+                this._old = this._accessor();
+                this._oldIndex = this.selectedIndex;
+                this.listView.setValue(value);
+                this._initialIndex = null;
+                this._presetValue = true;
+            },
+            _assignInstance: function (text, value) {
+                var dataTextField = this.options.dataTextField;
+                var dataItem = {};
+                if (dataTextField) {
+                    assign(dataItem, dataTextField.split('.'), text);
+                    assign(dataItem, this.options.dataValueField.split('.'), value);
+                    dataItem = new ObservableObject(dataItem);
+                } else {
+                    dataItem = text;
+                }
+                return dataItem;
+            }
+        });
+        function assign(instance, fields, value) {
+            var idx = 0, lastIndex = fields.length - 1, field;
+            for (; idx < lastIndex; ++idx) {
+                field = fields[idx];
+                if (!(field in instance)) {
+                    instance[field] = {};
+                }
+                instance = instance[field];
+            }
+            instance[fields[lastIndex]] = value;
+        }
+        function normalizeIndex(index, length) {
+            if (index >= length) {
+                index -= length;
+            }
+            return index;
+        }
+        function sameCharsOnly(word, character) {
+            for (var idx = 0; idx < word.length; idx++) {
+                if (word.charAt(idx) !== character) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        ui.plugin(DropDownList);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.combobox', [
+        'kendo.list',
+        'kendo.mobile.scroller'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'combobox',
+        name: 'ComboBox',
+        category: 'web',
+        description: 'The ComboBox widget allows the selection from pre-defined values or entering a new value.',
+        depends: ['list'],
+        features: [
+            {
+                id: 'mobile-scroller',
+                name: 'Mobile scroller',
+                description: 'Support for kinetic scrolling in mobile device',
+                depends: ['mobile.scroller']
+            },
+            {
+                id: 'virtualization',
+                name: 'VirtualList',
+                description: 'Support for virtualization',
+                depends: ['virtuallist']
+            }
+        ]
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, caret = kendo.caret, support = kendo.support, placeholderSupported = support.placeholder, activeElement = kendo._activeElement, keys = kendo.keys, ns = '.kendoComboBox', CLICK = 'click' + ns, MOUSEDOWN = 'mousedown' + ns, DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', STATE_REBIND = 'rebind', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, proxy = $.proxy;
+        var ComboBox = Select.extend({
+            init: function (element, options) {
+                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
+                    $(element).remove();
+                    element.id && $('label[for=' + element.id + ']').remove();
+                    return;
+                }
+                var that = this, text, disabled;
+                that.ns = ns;
+                options = $.isArray(options) ? { dataSource: options } : options;
+                Select.fn.init.call(that, element, options);
+                options = that.options;
+                element = that.element.on('focus' + ns, proxy(that._focusHandler, that));
+                options.placeholder = options.placeholder || element.attr('placeholder');
+                that._reset();
+                that._wrapper();
+                that._input();
+                that._clearButton();
+                that._tabindex(that.input);
+                that._popup();
+                that._dataSource();
+                that._ignoreCase();
+                that._enable();
+                that._oldIndex = that.selectedIndex = -1;
+                that._aria();
+                that._initialIndex = options.index;
+                that.requireValueMapper(that.options);
+                that._initList();
+                that._cascade();
+                if (options.autoBind) {
+                    that._filterSource();
+                } else {
+                    text = options.text;
+                    if (!text && that._isSelect) {
+                        text = element.children(':selected').text();
+                    }
+                    if (text) {
+                        that._setText(text);
+                    }
+                }
+                if (!text) {
+                    that._placeholder();
+                }
+                disabled = $(that.element).parents('fieldset').is(':disabled');
+                if (disabled) {
+                    that.enable(false);
+                }
+                kendo.notify(that);
+            },
+            options: {
+                name: 'ComboBox',
+                enabled: true,
+                index: -1,
+                text: null,
+                value: null,
+                autoBind: true,
+                delay: 200,
+                dataTextField: '',
+                dataValueField: '',
+                minLength: 1,
+                enforceMinLength: false,
+                height: 200,
+                highlightFirst: true,
+                filter: 'none',
+                placeholder: '',
+                suggest: false,
+                cascadeFrom: '',
+                cascadeFromField: '',
+                ignoreCase: true,
+                animation: {},
+                virtual: false,
+                template: null,
+                groupTemplate: '#:data#',
+                fixedGroupTemplate: '#:data#',
+                clearButton: true,
+                clearNoData: true
+            },
+            events: [
+                'open',
+                'close',
+                CHANGE,
+                'select',
+                'filtering',
+                'dataBinding',
+                'dataBound',
+                'cascade',
+                'set'
+            ],
+            setOptions: function (options) {
+                Select.fn.setOptions.call(this, options);
+                this.listView.setOptions(options);
+                this._accessors();
+                this._aria();
+            },
+            destroy: function () {
+                var that = this;
+                that.input.off(ns);
+                that.element.off(ns);
+                that._inputWrapper.off(ns);
+                clearTimeout(that._pasteTimeout);
+                that._arrow.off(CLICK + ' ' + MOUSEDOWN);
+                that._clear.off(CLICK + ' ' + MOUSEDOWN);
+                Select.fn.destroy.call(that);
+            },
+            _focusHandler: function () {
+                this.input.focus();
+            },
+            _arrowClick: function () {
+                this._toggle();
+            },
+            _inputFocus: function () {
+                this._inputWrapper.addClass(FOCUSED);
+                this._placeholder(false);
+            },
+            _inputFocusout: function () {
+                var that = this, options = that.options;
+                var value = that.value();
+                that._inputWrapper.removeClass(FOCUSED);
+                clearTimeout(that._typingTimeout);
+                that._typingTimeout = null;
+                that.text(that.text());
+                var item = that._focus();
+                var dataItem = this.listView.dataItemByIndex(this.listView.getElementIndex(item));
+                if (value !== that.value() && that.trigger('select', {
+                        dataItem: dataItem,
+                        item: item
+                    })) {
+                    that.value(value);
+                    return;
+                }
+                that._placeholder();
+                that._blur();
+                that.element.blur();
+            },
+            _inputPaste: function () {
+                var that = this;
+                clearTimeout(that._pasteTimeout);
+                that._pasteTimeout = null;
+                that._pasteTimeout = setTimeout(function () {
+                    that.search();
+                });
+            },
+            _editable: function (options) {
+                var that = this, disable = options.disable, readonly = options.readonly, wrapper = that._inputWrapper.off(ns), input = that.element.add(that.input.off(ns)), arrow = that._arrow.off(CLICK + ' ' + MOUSEDOWN), clear = that._clear;
+                if (!readonly && !disable) {
+                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
+                    input.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false);
+                    arrow.on(CLICK, proxy(that._arrowClick, that)).on(MOUSEDOWN, function (e) {
+                        e.preventDefault();
+                    });
+                    clear.on(CLICK, proxy(that._clearValue, that)).on(MOUSEDOWN, function (e) {
+                        e.preventDefault();
+                    });
+                    that.input.on('keydown' + ns, proxy(that._keydown, that)).on('focus' + ns, proxy(that._inputFocus, that)).on('focusout' + ns, proxy(that._inputFocusout, that)).on('paste' + ns, proxy(that._inputPaste, that));
+                } else {
+                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
+                    input.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
+                }
+            },
+            open: function () {
+                var that = this;
+                var state = that._state;
+                if (that.popup.visible()) {
+                    return;
+                }
+                if (!that.listView.bound() && state !== STATE_FILTER || state === STATE_ACCEPT) {
+                    that._open = true;
+                    that._state = STATE_REBIND;
+                    if (that.options.minLength !== 1) {
+                        that.refresh();
+                        that._openPopup();
+                    } else {
+                        that._filterSource();
+                    }
+                } else if (that._allowOpening()) {
+                    that._openPopup();
+                    that._focusItem();
+                }
+            },
+            _scrollToFocusedItem: function () {
+                var listView = this.listView;
+                listView.scrollToIndex(listView.getElementIndex(listView.focus()));
+            },
+            _openPopup: function () {
+                this.popup.one('activate', proxy(this._scrollToFocusedItem, this));
+                this.popup.open();
+            },
+            _updateSelectionState: function () {
+                var that = this;
+                var text = that.options.text;
+                var value = that.options.value;
+                if (that.listView.isFiltered()) {
+                    return;
+                }
+                if (that.selectedIndex === -1) {
+                    if (text === undefined || text === null) {
+                        text = value;
+                    }
+                    that._accessor(value);
+                    that.input.val(text || that.input.val());
+                    that._placeholder();
+                } else if (that._oldIndex === -1) {
+                    that._oldIndex = that.selectedIndex;
+                }
+            },
+            _buildOptions: function (data) {
+                var that = this;
+                if (!that._isSelect) {
+                    return;
+                }
+                var custom = that._customOption;
+                if (that._state === STATE_REBIND) {
+                    that._state = '';
+                }
+                that._customOption = undefined;
+                that._options(data, '', that.value());
+                if (custom && custom[0].selected) {
+                    that._custom(custom.val());
+                }
+            },
+            _updateSelection: function () {
+                var that = this;
+                var listView = that.listView;
+                var initialIndex = that._initialIndex;
+                var hasInitialIndex = initialIndex !== null && initialIndex > -1;
+                var filtered = that._state === STATE_FILTER;
+                if (filtered) {
+                    $(listView.focus()).removeClass('k-state-selected');
+                    return;
+                }
+                if (that._fetch) {
+                    return;
+                }
+                if (!listView.value().length) {
+                    if (hasInitialIndex) {
+                        that.select(initialIndex);
+                    } else if (that._accessor()) {
+                        listView.value(that._accessor());
+                    }
+                }
+                that._initialIndex = null;
+                var dataItem = listView.selectedDataItems()[0];
+                if (!dataItem) {
+                    return;
+                }
+                if (that._value(dataItem) !== that.value()) {
+                    that._custom(that._value(dataItem));
+                }
+                if (that.text() && that.text() !== that._text(dataItem)) {
+                    that._selectValue(dataItem);
+                }
+            },
+            _updateItemFocus: function () {
+                var listView = this.listView;
+                if (!this.options.highlightFirst) {
+                    listView.focus(-1);
+                } else if (!listView.focus() && !listView.focusIndex()) {
+                    listView.focus(0);
+                }
+            },
+            _listBound: function () {
+                var that = this;
+                var isActive = that.input[0] === activeElement();
+                var data = that.dataSource.flatView();
+                var skip = that.listView.skip();
+                var isFirstPage = skip === undefined || skip === 0;
+                that._presetValue = false;
+                that._renderFooter();
+                that._renderNoData();
+                that._toggleNoData(!data.length);
+                that._resizePopup();
+                that.popup.position();
+                that._buildOptions(data);
+                that._makeUnselectable();
+                that._updateSelection();
+                if (data.length && isFirstPage) {
+                    that._updateItemFocus();
+                    if (that.options.suggest && isActive && that.input.val()) {
+                        that.suggest(data[0]);
+                    }
+                }
+                if (that._open) {
+                    that._open = false;
+                    if (that._typingTimeout && !isActive) {
+                        that.popup.close();
+                    } else {
+                        that.toggle(that._allowOpening());
+                    }
+                    that._typingTimeout = null;
+                }
+                that._hideBusy();
+                that.trigger('dataBound');
+            },
+            _listChange: function () {
+                this._selectValue(this.listView.selectedDataItems()[0]);
+                if (this._presetValue) {
+                    this._oldIndex = this.selectedIndex;
+                }
+            },
+            _get: function (candidate) {
+                var data, found, idx;
+                if (typeof candidate === 'function') {
+                    data = this.dataSource.flatView();
+                    for (idx = 0; idx < data.length; idx++) {
+                        if (candidate(data[idx])) {
+                            candidate = idx;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        candidate = -1;
+                    }
+                }
+                return candidate;
+            },
+            _select: function (candidate, keepState) {
+                var that = this;
+                candidate = that._get(candidate);
+                if (candidate === -1) {
+                    that.input[0].value = '';
+                    that._accessor('');
+                }
+                return that.listView.select(candidate).done(function () {
+                    if (!keepState && that._state === STATE_FILTER) {
+                        that._state = STATE_ACCEPT;
+                    }
+                });
+            },
+            _selectValue: function (dataItem) {
+                var idx = this.listView.select();
+                var value = '';
+                var text = '';
+                idx = idx[idx.length - 1];
+                if (idx === undefined) {
+                    idx = -1;
+                }
+                this.selectedIndex = idx;
+                if (idx === -1 && !dataItem) {
+                    value = text = this.input[0].value;
+                    this.listView.focus(-1);
+                } else {
+                    if (dataItem) {
+                        value = this._dataValue(dataItem);
+                        text = this._text(dataItem);
+                    }
+                    if (value === null) {
+                        value = '';
+                    }
+                }
+                this._prev = this.input[0].value = text;
+                this._accessor(value !== undefined ? value : text, idx);
+                this._placeholder();
+                this._triggerCascade();
+            },
+            refresh: function () {
+                this.listView.refresh();
+            },
+            suggest: function (word) {
+                var that = this;
+                var element = that.input[0];
+                var value = that.text();
+                var caretIdx = caret(element)[0];
+                var key = that._last;
+                var idx;
+                if (key == keys.BACKSPACE || key == keys.DELETE) {
+                    that._last = undefined;
+                    return;
+                }
+                word = word || '';
+                if (typeof word !== 'string') {
+                    if (word[0]) {
+                        word = that.dataSource.view()[List.inArray(word[0], that.ul[0])];
+                    }
+                    word = word ? that._text(word) : '';
+                }
+                if (caretIdx <= 0) {
+                    caretIdx = value.toLowerCase().indexOf(word.toLowerCase()) + 1;
+                }
+                if (word) {
+                    word = word.toString();
+                    idx = word.toLowerCase().indexOf(value.toLowerCase());
+                    if (idx > -1) {
+                        value += word.substring(idx + value.length);
+                    }
+                } else {
+                    value = value.substring(0, caretIdx);
+                }
+                if (value.length !== caretIdx || !word) {
+                    element.value = value;
+                    if (element === activeElement()) {
+                        caret(element, caretIdx, value.length);
+                    }
+                }
+            },
+            text: function (text) {
+                text = text === null ? '' : text;
+                var that = this;
+                var input = that.input[0];
+                var ignoreCase = that.options.ignoreCase;
+                var loweredText = text;
+                var dataItem;
+                var value;
+                if (text === undefined) {
+                    return input.value;
+                }
+                if (that.options.autoBind === false && !that.listView.bound()) {
+                    that._setText(text);
+                    return;
+                }
+                dataItem = that.dataItem();
+                if (dataItem && that._text(dataItem) === text) {
+                    value = that._value(dataItem);
+                    if (value === List.unifyType(that._old, typeof value)) {
+                        that._triggerCascade();
+                        return;
+                    }
+                }
+                if (ignoreCase) {
+                    loweredText = loweredText.toLowerCase();
+                }
+                that._select(function (data) {
+                    data = that._text(data);
+                    if (ignoreCase) {
+                        data = (data + '').toLowerCase();
+                    }
+                    return data === loweredText;
+                }).done(function () {
+                    if (that.selectedIndex < 0 && !that.options.clearNoData) {
+                        that._accessor(text);
+                        input.value = text;
+                        that._triggerCascade();
+                    }
+                    that._prev = input.value;
+                });
+            },
+            toggle: function (toggle) {
+                this._toggle(toggle, true);
+            },
+            value: function (value) {
+                var that = this;
+                var options = that.options;
+                var listView = that.listView;
+                if (value === undefined) {
+                    value = that._accessor() || that.listView.value()[0];
+                    return value === undefined || value === null ? '' : value;
+                }
+                that.requireValueMapper(that.options, value);
+                that.trigger('set', { value: value });
+                if (value === options.value && that.input.val() === options.text) {
+                    return;
+                }
+                that._accessor(value);
+                if (that._isFilterEnabled() && listView.bound() && listView.isFiltered()) {
+                    that._clearFilter();
+                } else {
+                    that._fetchData();
+                }
+                listView.value(value).done(function () {
+                    if (that.selectedIndex === -1) {
+                        that._accessor(value);
+                        that.input.val(value);
+                        that._placeholder(true);
+                    }
+                    that._old = that._accessor();
+                    that._oldIndex = that.selectedIndex;
+                    that._prev = that.input.val();
+                    if (that._state === STATE_FILTER) {
+                        that._state = STATE_ACCEPT;
+                    }
+                });
+            },
+            _click: function (e) {
+                var that = this;
+                var item = e.item;
+                var dataItem = that.listView.dataItemByIndex(that.listView.getElementIndex(item));
+                e.preventDefault();
+                if (that.trigger('select', {
+                        dataItem: dataItem,
+                        item: item
+                    })) {
+                    that.close();
+                    return;
+                }
+                that._userTriggered = true;
+                that._select(item).done(function () {
+                    that._blur();
+                });
+            },
+            _inputValue: function () {
+                return this.text();
+            },
+            _searchByWord: function (word) {
+                var that = this;
+                var options = that.options;
+                var dataSource = that.dataSource;
+                var ignoreCase = options.ignoreCase;
+                var predicate = function (dataItem) {
+                    var text = that._text(dataItem);
+                    if (text !== undefined) {
+                        text = text + '';
+                        if (text !== '' && word === '') {
+                            return false;
+                        }
+                        if (ignoreCase) {
+                            text = text.toLowerCase();
+                        }
+                        return text.indexOf(word) === 0;
+                    }
+                };
+                if (ignoreCase) {
+                    word = word.toLowerCase();
+                }
+                if (!that.ul[0].firstChild) {
+                    dataSource.one(CHANGE, function () {
+                        if (dataSource.view()[0]) {
+                            that.search(word);
+                        }
+                    }).fetch();
+                    return;
+                }
+                this.listView.focus(this._get(predicate));
+                var current = this.listView.focus();
+                if (current) {
+                    if (options.suggest) {
+                        that.suggest(current);
+                    }
+                    this.open();
+                }
+                if (this.options.highlightFirst && !word) {
+                    this.listView.focusFirst();
+                }
+            },
+            _input: function () {
+                var that = this, element = that.element.removeClass('k-input')[0], accessKey = element.accessKey, wrapper = that.wrapper, SELECTOR = 'input.k-input', name = element.name || '', input, maxLength;
+                if (name) {
+                    name = 'name="' + name + '_input" ';
+                }
+                input = wrapper.find(SELECTOR);
+                if (!input[0]) {
+                    wrapper.append('<span tabindex="-1" unselectable="on" class="k-dropdown-wrap k-state-default"><input ' + name + 'class="k-input" type="text" autocomplete="off"/><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-s"></span></span></span>').append(that.element);
+                    input = wrapper.find(SELECTOR);
+                }
+                if (that.element.attr('required')) {
+                    wrapper.addClass('k-state-required');
+                }
+                input[0].style.cssText = element.style.cssText;
+                input[0].title = element.title;
+                maxLength = parseInt(this.element.prop('maxlength') || this.element.attr('maxlength'), 10);
+                if (maxLength > -1) {
+                    input[0].maxLength = maxLength;
+                }
+                input.addClass(element.className).css({
+                    width: '100%',
+                    height: element.style.height
+                }).attr({
+                    'role': 'combobox',
+                    'aria-expanded': false
+                }).show();
+                if (placeholderSupported) {
+                    input.attr('placeholder', that.options.placeholder);
+                }
+                if (accessKey) {
+                    element.accessKey = '';
+                    input[0].accessKey = accessKey;
+                }
+                that._focused = that.input = input;
+                if (!input[0].id && element.id) {
+                    var id = kendo.guid();
+                    input[0].id = id;
+                    $('label[for=' + element.id + ']').attr('for', id);
+                }
+                that._inputWrapper = $(wrapper[0].firstChild);
+                that._arrow = wrapper.find('.k-select').attr({
+                    'role': 'button',
+                    'tabIndex': -1
+                });
+                if (element.id) {
+                    that._arrow.attr('aria-controls', that.ul[0].id);
+                }
+            },
+            _clearButton: function () {
+                this._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
+                    'role': 'button',
+                    'tabIndex': -1
+                });
+                if (this.options.clearButton) {
+                    this._clear.insertAfter(this.input);
+                }
+            },
+            _keydown: function (e) {
+                var that = this, key = e.keyCode;
+                that._last = key;
+                clearTimeout(that._typingTimeout);
+                that._typingTimeout = null;
+                if (key != keys.TAB && !that._move(e)) {
+                    that._search();
+                }
+            },
+            _placeholder: function (show) {
+                if (placeholderSupported) {
+                    return;
+                }
+                var that = this, input = that.input, placeholder = that.options.placeholder, value;
+                if (placeholder) {
+                    value = that.value();
+                    if (show === undefined) {
+                        show = !value;
+                    }
+                    input.toggleClass('k-readonly', show);
+                    if (!show) {
+                        if (!value) {
+                            placeholder = '';
+                        } else {
+                            return;
+                        }
+                    }
+                    input.val(placeholder);
+                    if (!placeholder && input[0] === activeElement()) {
+                        caret(input[0], 0, 0);
+                    }
+                }
+            },
+            _search: function () {
+                var that = this;
+                that._typingTimeout = setTimeout(function () {
+                    var value = that.text();
+                    if (that._prev !== value) {
+                        that._prev = value;
+                        if (that.options.filter === 'none') {
+                            that.listView.select(-1);
+                        }
+                        that.search(value);
+                    }
+                    that._typingTimeout = null;
+                }, that.options.delay);
+            },
+            _setText: function (text) {
+                this.input.val(text);
+                this._prev = text;
+            },
+            _wrapper: function () {
+                var that = this, element = that.element, wrapper = element.parent();
+                if (!wrapper.is('span.k-widget')) {
+                    wrapper = element.hide().wrap('<span />').parent();
+                    wrapper[0].style.cssText = element[0].style.cssText;
+                }
+                that.wrapper = wrapper.addClass('k-widget k-combobox k-header').addClass(element[0].className).css('display', '');
+            },
+            _clearSelection: function (parent, isFiltered) {
+                var that = this;
+                var hasValue = parent.value();
+                var custom = hasValue && parent.selectedIndex === -1;
+                if (this.selectedIndex == -1 && this.value()) {
+                    return;
+                }
+                if (isFiltered || !hasValue || custom) {
+                    that.options.value = '';
+                    that.value('');
+                }
+            },
+            _preselect: function (value, text) {
+                this.input.val(text);
+                this._accessor(value);
+                this._old = this._accessor();
+                this._oldIndex = this.selectedIndex;
+                this.listView.setValue(value);
+                this._placeholder();
+                this._initialIndex = null;
+                this._presetValue = true;
+            }
+        });
+        ui.plugin(ComboBox);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -21521,1575 +24360,6 @@
             }
         });
         ui.plugin(Editable);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.mobile.scroller', [
-        'kendo.fx',
-        'kendo.draganddrop'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'mobile.scroller',
-        name: 'Scroller',
-        category: 'mobile',
-        description: 'The Kendo Mobile Scroller widget enables touch friendly kinetic scrolling for the contents of a given DOM element.',
-        depends: [
-            'fx',
-            'draganddrop'
-        ]
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, mobile = kendo.mobile, fx = kendo.effects, ui = mobile.ui, proxy = $.proxy, extend = $.extend, Widget = ui.Widget, Class = kendo.Class, Movable = kendo.ui.Movable, Pane = kendo.ui.Pane, PaneDimensions = kendo.ui.PaneDimensions, Transition = fx.Transition, Animation = fx.Animation, abs = Math.abs, SNAPBACK_DURATION = 500, SCROLLBAR_OPACITY = 0.7, FRICTION = 0.96, VELOCITY_MULTIPLIER = 10, MAX_VELOCITY = 55, OUT_OF_BOUNDS_FRICTION = 0.5, ANIMATED_SCROLLER_PRECISION = 5, RELEASECLASS = 'km-scroller-release', REFRESHCLASS = 'km-scroller-refresh', PULL = 'pull', CHANGE = 'change', RESIZE = 'resize', SCROLL = 'scroll', MOUSE_WHEEL_ID = 2;
-        var ZoomSnapBack = Animation.extend({
-            init: function (options) {
-                var that = this;
-                Animation.fn.init.call(that);
-                extend(that, options);
-                that.userEvents.bind('gestureend', proxy(that.start, that));
-                that.tapCapture.bind('press', proxy(that.cancel, that));
-            },
-            enabled: function () {
-                return this.movable.scale < this.dimensions.minScale;
-            },
-            done: function () {
-                return this.dimensions.minScale - this.movable.scale < 0.01;
-            },
-            tick: function () {
-                var movable = this.movable;
-                movable.scaleWith(1.1);
-                this.dimensions.rescale(movable.scale);
-            },
-            onEnd: function () {
-                var movable = this.movable;
-                movable.scaleTo(this.dimensions.minScale);
-                this.dimensions.rescale(movable.scale);
-            }
-        });
-        var DragInertia = Animation.extend({
-            init: function (options) {
-                var that = this;
-                Animation.fn.init.call(that);
-                extend(that, options, {
-                    transition: new Transition({
-                        axis: options.axis,
-                        movable: options.movable,
-                        onEnd: function () {
-                            that._end();
-                        }
-                    })
-                });
-                that.tapCapture.bind('press', function () {
-                    that.cancel();
-                });
-                that.userEvents.bind('end', proxy(that.start, that));
-                that.userEvents.bind('gestureend', proxy(that.start, that));
-                that.userEvents.bind('tap', proxy(that.onEnd, that));
-            },
-            onCancel: function () {
-                this.transition.cancel();
-            },
-            freeze: function (location) {
-                var that = this;
-                that.cancel();
-                that._moveTo(location);
-            },
-            onEnd: function () {
-                var that = this;
-                if (that.paneAxis.outOfBounds()) {
-                    that._snapBack();
-                } else {
-                    that._end();
-                }
-            },
-            done: function () {
-                return abs(this.velocity) < 1;
-            },
-            start: function (e) {
-                var that = this, velocity;
-                if (!that.dimension.enabled) {
-                    return;
-                }
-                if (that.paneAxis.outOfBounds()) {
-                    that._snapBack();
-                } else {
-                    velocity = e.touch.id === MOUSE_WHEEL_ID ? 0 : e.touch[that.axis].velocity;
-                    that.velocity = Math.max(Math.min(velocity * that.velocityMultiplier, MAX_VELOCITY), -MAX_VELOCITY);
-                    that.tapCapture.captureNext();
-                    Animation.fn.start.call(that);
-                }
-            },
-            tick: function () {
-                var that = this, dimension = that.dimension, friction = that.paneAxis.outOfBounds() ? OUT_OF_BOUNDS_FRICTION : that.friction, delta = that.velocity *= friction, location = that.movable[that.axis] + delta;
-                if (!that.elastic && dimension.outOfBounds(location)) {
-                    location = Math.max(Math.min(location, dimension.max), dimension.min);
-                    that.velocity = 0;
-                }
-                that.movable.moveAxis(that.axis, location);
-            },
-            _end: function () {
-                this.tapCapture.cancelCapture();
-                this.end();
-            },
-            _snapBack: function () {
-                var that = this, dimension = that.dimension, snapBack = that.movable[that.axis] > dimension.max ? dimension.max : dimension.min;
-                that._moveTo(snapBack);
-            },
-            _moveTo: function (location) {
-                this.transition.moveTo({
-                    location: location,
-                    duration: SNAPBACK_DURATION,
-                    ease: Transition.easeOutExpo
-                });
-            }
-        });
-        var AnimatedScroller = Animation.extend({
-            init: function (options) {
-                var that = this;
-                kendo.effects.Animation.fn.init.call(this);
-                extend(that, options, {
-                    origin: {},
-                    destination: {},
-                    offset: {}
-                });
-            },
-            tick: function () {
-                this._updateCoordinates();
-                this.moveTo(this.origin);
-            },
-            done: function () {
-                return abs(this.offset.y) < ANIMATED_SCROLLER_PRECISION && abs(this.offset.x) < ANIMATED_SCROLLER_PRECISION;
-            },
-            onEnd: function () {
-                this.moveTo(this.destination);
-                if (this.callback) {
-                    this.callback.call();
-                }
-            },
-            setCoordinates: function (from, to) {
-                this.offset = {};
-                this.origin = from;
-                this.destination = to;
-            },
-            setCallback: function (callback) {
-                if (callback && kendo.isFunction(callback)) {
-                    this.callback = callback;
-                } else {
-                    callback = undefined;
-                }
-            },
-            _updateCoordinates: function () {
-                this.offset = {
-                    x: (this.destination.x - this.origin.x) / 4,
-                    y: (this.destination.y - this.origin.y) / 4
-                };
-                this.origin = {
-                    y: this.origin.y + this.offset.y,
-                    x: this.origin.x + this.offset.x
-                };
-            }
-        });
-        var ScrollBar = Class.extend({
-            init: function (options) {
-                var that = this, horizontal = options.axis === 'x', element = $('<div class="km-touch-scrollbar km-' + (horizontal ? 'horizontal' : 'vertical') + '-scrollbar" />');
-                extend(that, options, {
-                    element: element,
-                    elementSize: 0,
-                    movable: new Movable(element),
-                    scrollMovable: options.movable,
-                    alwaysVisible: options.alwaysVisible,
-                    size: horizontal ? 'width' : 'height'
-                });
-                that.scrollMovable.bind(CHANGE, proxy(that.refresh, that));
-                that.container.append(element);
-                if (options.alwaysVisible) {
-                    that.show();
-                }
-            },
-            refresh: function () {
-                var that = this, axis = that.axis, dimension = that.dimension, paneSize = dimension.size, scrollMovable = that.scrollMovable, sizeRatio = paneSize / dimension.total, position = Math.round(-scrollMovable[axis] * sizeRatio), size = Math.round(paneSize * sizeRatio);
-                if (sizeRatio >= 1) {
-                    this.element.css('display', 'none');
-                } else {
-                    this.element.css('display', '');
-                }
-                if (position + size > paneSize) {
-                    size = paneSize - position;
-                } else if (position < 0) {
-                    size += position;
-                    position = 0;
-                }
-                if (that.elementSize != size) {
-                    that.element.css(that.size, size + 'px');
-                    that.elementSize = size;
-                }
-                that.movable.moveAxis(axis, position);
-            },
-            show: function () {
-                this.element.css({
-                    opacity: SCROLLBAR_OPACITY,
-                    visibility: 'visible'
-                });
-            },
-            hide: function () {
-                if (!this.alwaysVisible) {
-                    this.element.css({ opacity: 0 });
-                }
-            }
-        });
-        var Scroller = Widget.extend({
-            init: function (element, options) {
-                var that = this;
-                Widget.fn.init.call(that, element, options);
-                element = that.element;
-                that._native = that.options.useNative && kendo.support.hasNativeScrolling;
-                if (that._native) {
-                    element.addClass('km-native-scroller').prepend('<div class="km-scroll-header"/>');
-                    extend(that, {
-                        scrollElement: element,
-                        fixedContainer: element.children().first()
-                    });
-                    return;
-                }
-                element.css('overflow', 'hidden').addClass('km-scroll-wrapper').wrapInner('<div class="km-scroll-container"/>').prepend('<div class="km-scroll-header"/>');
-                var inner = element.children().eq(1), tapCapture = new kendo.TapCapture(element), movable = new Movable(inner), dimensions = new PaneDimensions({
-                        element: inner,
-                        container: element,
-                        forcedEnabled: that.options.zoom
-                    }), avoidScrolling = this.options.avoidScrolling, userEvents = new kendo.UserEvents(element, {
-                        touchAction: 'pan-y',
-                        fastTap: true,
-                        allowSelection: true,
-                        preventDragEvent: true,
-                        captureUpIfMoved: true,
-                        multiTouch: that.options.zoom,
-                        start: function (e) {
-                            dimensions.refresh();
-                            var velocityX = abs(e.x.velocity), velocityY = abs(e.y.velocity), horizontalSwipe = velocityX * 2 >= velocityY, originatedFromFixedContainer = $.contains(that.fixedContainer[0], e.event.target), verticalSwipe = velocityY * 2 >= velocityX;
-                            if (!originatedFromFixedContainer && !avoidScrolling(e) && that.enabled && (dimensions.x.enabled && horizontalSwipe || dimensions.y.enabled && verticalSwipe)) {
-                                userEvents.capture();
-                            } else {
-                                userEvents.cancel();
-                            }
-                        }
-                    }), pane = new Pane({
-                        movable: movable,
-                        dimensions: dimensions,
-                        userEvents: userEvents,
-                        elastic: that.options.elastic
-                    }), zoomSnapBack = new ZoomSnapBack({
-                        movable: movable,
-                        dimensions: dimensions,
-                        userEvents: userEvents,
-                        tapCapture: tapCapture
-                    }), animatedScroller = new AnimatedScroller({
-                        moveTo: function (coordinates) {
-                            that.scrollTo(coordinates.x, coordinates.y);
-                        }
-                    });
-                movable.bind(CHANGE, function () {
-                    that.scrollTop = -movable.y;
-                    that.scrollLeft = -movable.x;
-                    that.trigger(SCROLL, {
-                        scrollTop: that.scrollTop,
-                        scrollLeft: that.scrollLeft
-                    });
-                });
-                if (that.options.mousewheelScrolling) {
-                    element.on('DOMMouseScroll mousewheel', proxy(this, '_wheelScroll'));
-                }
-                extend(that, {
-                    movable: movable,
-                    dimensions: dimensions,
-                    zoomSnapBack: zoomSnapBack,
-                    animatedScroller: animatedScroller,
-                    userEvents: userEvents,
-                    pane: pane,
-                    tapCapture: tapCapture,
-                    pulled: false,
-                    enabled: true,
-                    scrollElement: inner,
-                    scrollTop: 0,
-                    scrollLeft: 0,
-                    fixedContainer: element.children().first()
-                });
-                that._initAxis('x');
-                that._initAxis('y');
-                that._wheelEnd = function () {
-                    that._wheel = false;
-                    that.userEvents.end(0, that._wheelY);
-                };
-                dimensions.refresh();
-                if (that.options.pullToRefresh) {
-                    that._initPullToRefresh();
-                }
-            },
-            _wheelScroll: function (e) {
-                if (!this._wheel) {
-                    this._wheel = true;
-                    this._wheelY = 0;
-                    this.userEvents.press(0, this._wheelY);
-                }
-                clearTimeout(this._wheelTimeout);
-                this._wheelTimeout = setTimeout(this._wheelEnd, 50);
-                var delta = kendo.wheelDeltaY(e);
-                if (delta) {
-                    this._wheelY += delta;
-                    this.userEvents.move(0, this._wheelY);
-                }
-                e.preventDefault();
-            },
-            makeVirtual: function () {
-                this.dimensions.y.makeVirtual();
-            },
-            virtualSize: function (min, max) {
-                this.dimensions.y.virtualSize(min, max);
-            },
-            height: function () {
-                return this.dimensions.y.size;
-            },
-            scrollHeight: function () {
-                return this.scrollElement[0].scrollHeight;
-            },
-            scrollWidth: function () {
-                return this.scrollElement[0].scrollWidth;
-            },
-            options: {
-                name: 'Scroller',
-                zoom: false,
-                pullOffset: 140,
-                visibleScrollHints: false,
-                elastic: true,
-                useNative: false,
-                mousewheelScrolling: true,
-                avoidScrolling: function () {
-                    return false;
-                },
-                pullToRefresh: false,
-                messages: {
-                    pullTemplate: 'Pull to refresh',
-                    releaseTemplate: 'Release to refresh',
-                    refreshTemplate: 'Refreshing'
-                }
-            },
-            events: [
-                PULL,
-                SCROLL,
-                RESIZE
-            ],
-            _resize: function () {
-                if (!this._native) {
-                    this.contentResized();
-                }
-            },
-            setOptions: function (options) {
-                var that = this;
-                Widget.fn.setOptions.call(that, options);
-                if (options.pullToRefresh) {
-                    that._initPullToRefresh();
-                }
-            },
-            reset: function () {
-                if (this._native) {
-                    this.scrollElement.scrollTop(0);
-                } else {
-                    this.movable.moveTo({
-                        x: 0,
-                        y: 0
-                    });
-                    this._scale(1);
-                }
-            },
-            contentResized: function () {
-                this.dimensions.refresh();
-                if (this.pane.x.outOfBounds()) {
-                    this.movable.moveAxis('x', this.dimensions.x.min);
-                }
-                if (this.pane.y.outOfBounds()) {
-                    this.movable.moveAxis('y', this.dimensions.y.min);
-                }
-            },
-            zoomOut: function () {
-                var dimensions = this.dimensions;
-                dimensions.refresh();
-                this._scale(dimensions.fitScale);
-                this.movable.moveTo(dimensions.centerCoordinates());
-            },
-            enable: function () {
-                this.enabled = true;
-            },
-            disable: function () {
-                this.enabled = false;
-            },
-            scrollTo: function (x, y) {
-                if (this._native) {
-                    this.scrollElement.scrollLeft(abs(x));
-                    this.scrollElement.scrollTop(abs(y));
-                } else {
-                    this.dimensions.refresh();
-                    this.movable.moveTo({
-                        x: x,
-                        y: y
-                    });
-                }
-            },
-            animatedScrollTo: function (x, y, callback) {
-                var from, to;
-                if (this._native) {
-                    this.scrollTo(x, y);
-                } else {
-                    from = {
-                        x: this.movable.x,
-                        y: this.movable.y
-                    };
-                    to = {
-                        x: x,
-                        y: y
-                    };
-                    this.animatedScroller.setCoordinates(from, to);
-                    this.animatedScroller.setCallback(callback);
-                    this.animatedScroller.start();
-                }
-            },
-            pullHandled: function () {
-                var that = this;
-                that.refreshHint.removeClass(REFRESHCLASS);
-                that.hintContainer.html(that.pullTemplate({}));
-                that.yinertia.onEnd();
-                that.xinertia.onEnd();
-                that.userEvents.cancel();
-            },
-            destroy: function () {
-                Widget.fn.destroy.call(this);
-                if (this.userEvents) {
-                    this.userEvents.destroy();
-                }
-            },
-            _scale: function (scale) {
-                this.dimensions.rescale(scale);
-                this.movable.scaleTo(scale);
-            },
-            _initPullToRefresh: function () {
-                var that = this;
-                that.dimensions.y.forceEnabled();
-                that.pullTemplate = kendo.template(that.options.messages.pullTemplate);
-                that.releaseTemplate = kendo.template(that.options.messages.releaseTemplate);
-                that.refreshTemplate = kendo.template(that.options.messages.refreshTemplate);
-                that.scrollElement.prepend('<span class="km-scroller-pull"><span class="km-icon"></span><span class="km-loading-left"></span><span class="km-loading-right"></span><span class="km-template">' + that.pullTemplate({}) + '</span></span>');
-                that.refreshHint = that.scrollElement.children().first();
-                that.hintContainer = that.refreshHint.children('.km-template');
-                that.pane.y.bind('change', proxy(that._paneChange, that));
-                that.userEvents.bind('end', proxy(that._dragEnd, that));
-            },
-            _dragEnd: function () {
-                var that = this;
-                if (!that.pulled) {
-                    return;
-                }
-                that.pulled = false;
-                that.refreshHint.removeClass(RELEASECLASS).addClass(REFRESHCLASS);
-                that.hintContainer.html(that.refreshTemplate({}));
-                that.yinertia.freeze(that.options.pullOffset / 2);
-                that.trigger('pull');
-            },
-            _paneChange: function () {
-                var that = this;
-                if (that.movable.y / OUT_OF_BOUNDS_FRICTION > that.options.pullOffset) {
-                    if (!that.pulled) {
-                        that.pulled = true;
-                        that.refreshHint.removeClass(REFRESHCLASS).addClass(RELEASECLASS);
-                        that.hintContainer.html(that.releaseTemplate({}));
-                    }
-                } else if (that.pulled) {
-                    that.pulled = false;
-                    that.refreshHint.removeClass(RELEASECLASS);
-                    that.hintContainer.html(that.pullTemplate({}));
-                }
-            },
-            _initAxis: function (axis) {
-                var that = this, movable = that.movable, dimension = that.dimensions[axis], tapCapture = that.tapCapture, paneAxis = that.pane[axis], scrollBar = new ScrollBar({
-                        axis: axis,
-                        movable: movable,
-                        dimension: dimension,
-                        container: that.element,
-                        alwaysVisible: that.options.visibleScrollHints
-                    });
-                dimension.bind(CHANGE, function () {
-                    scrollBar.refresh();
-                });
-                paneAxis.bind(CHANGE, function () {
-                    scrollBar.show();
-                });
-                that[axis + 'inertia'] = new DragInertia({
-                    axis: axis,
-                    paneAxis: paneAxis,
-                    movable: movable,
-                    tapCapture: tapCapture,
-                    userEvents: that.userEvents,
-                    dimension: dimension,
-                    elastic: that.options.elastic,
-                    friction: that.options.friction || FRICTION,
-                    velocityMultiplier: that.options.velocityMultiplier || VELOCITY_MULTIPLIER,
-                    end: function () {
-                        scrollBar.hide();
-                        that.trigger('scrollEnd', {
-                            axis: axis,
-                            scrollTop: that.scrollTop,
-                            scrollLeft: that.scrollLeft
-                        });
-                    }
-                });
-            }
-        });
-        ui.plugin(Scroller);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.dropdownlist', [
-        'kendo.list',
-        'kendo.mobile.scroller'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'dropdownlist',
-        name: 'DropDownList',
-        category: 'web',
-        description: 'The DropDownList widget displays a list of values and allows the selection of a single value from the list.',
-        depends: ['list'],
-        features: [
-            {
-                id: 'mobile-scroller',
-                name: 'Mobile scroller',
-                description: 'Support for kinetic scrolling in mobile device',
-                depends: ['mobile.scroller']
-            },
-            {
-                id: 'virtualization',
-                name: 'VirtualList',
-                description: 'Support for virtualization',
-                depends: ['virtuallist']
-            }
-        ]
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, support = kendo.support, activeElement = kendo._activeElement, ObservableObject = kendo.data.ObservableObject, keys = kendo.keys, ns = '.kendoDropDownList', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', FOCUSED = 'k-state-focused', DEFAULT = 'k-state-default', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', MSG_INVALID_OPTION_LABEL = 'The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel', proxy = $.proxy;
-        var DropDownList = Select.extend({
-            init: function (element, options) {
-                var that = this;
-                var index = options && options.index;
-                var optionLabel, text, disabled;
-                that.ns = ns;
-                options = $.isArray(options) ? { dataSource: options } : options;
-                Select.fn.init.call(that, element, options);
-                options = that.options;
-                element = that.element.on('focus' + ns, proxy(that._focusHandler, that));
-                that._focusInputHandler = $.proxy(that._focusInput, that);
-                that.optionLabel = $();
-                that._optionLabel();
-                that._inputTemplate();
-                that._reset();
-                that._prev = '';
-                that._word = '';
-                that._wrapper();
-                that._tabindex();
-                that.wrapper.data(TABINDEX, that.wrapper.attr(TABINDEX));
-                that._span();
-                that._popup();
-                that._mobile();
-                that._dataSource();
-                that._ignoreCase();
-                that._filterHeader();
-                that._aria();
-                that._enable();
-                that._oldIndex = that.selectedIndex = -1;
-                if (index !== undefined) {
-                    options.index = index;
-                }
-                that._initialIndex = options.index;
-                that.requireValueMapper(that.options);
-                that._initList();
-                that._cascade();
-                if (options.autoBind) {
-                    that.dataSource.fetch();
-                } else if (that.selectedIndex === -1) {
-                    text = options.text || '';
-                    if (!text) {
-                        optionLabel = options.optionLabel;
-                        if (optionLabel && options.index === 0) {
-                            text = optionLabel;
-                        } else if (that._isSelect) {
-                            text = element.children(':selected').text();
-                        }
-                    }
-                    that._textAccessor(text);
-                }
-                disabled = $(that.element).parents('fieldset').is(':disabled');
-                if (disabled) {
-                    that.enable(false);
-                }
-                that.listView.bind('click', function (e) {
-                    e.preventDefault();
-                });
-                kendo.notify(that);
-            },
-            options: {
-                name: 'DropDownList',
-                enabled: true,
-                autoBind: true,
-                index: 0,
-                text: null,
-                value: null,
-                delay: 500,
-                height: 200,
-                dataTextField: '',
-                dataValueField: '',
-                optionLabel: '',
-                cascadeFrom: '',
-                cascadeFromField: '',
-                ignoreCase: true,
-                animation: {},
-                filter: 'none',
-                minLength: 1,
-                enforceMinLength: false,
-                virtual: false,
-                template: null,
-                valueTemplate: null,
-                optionLabelTemplate: null,
-                groupTemplate: '#:data#',
-                fixedGroupTemplate: '#:data#'
-            },
-            events: [
-                'open',
-                'close',
-                CHANGE,
-                'select',
-                'filtering',
-                'dataBinding',
-                'dataBound',
-                'cascade',
-                'set'
-            ],
-            setOptions: function (options) {
-                Select.fn.setOptions.call(this, options);
-                this.listView.setOptions(this._listOptions(options));
-                this._optionLabel();
-                this._inputTemplate();
-                this._accessors();
-                this._filterHeader();
-                this._enable();
-                this._aria();
-                if (!this.value() && this.hasOptionLabel()) {
-                    this.select(0);
-                }
-            },
-            destroy: function () {
-                var that = this;
-                Select.fn.destroy.call(that);
-                that.wrapper.off(ns);
-                that.element.off(ns);
-                that._inputWrapper.off(ns);
-                that._arrow.off();
-                that._arrow = null;
-                that.optionLabel.off();
-            },
-            open: function () {
-                var that = this;
-                if (that.popup.visible()) {
-                    return;
-                }
-                if (!that.listView.bound() || that._state === STATE_ACCEPT) {
-                    that._open = true;
-                    that._state = 'rebind';
-                    if (that.filterInput) {
-                        that.filterInput.val('');
-                        that._prev = '';
-                    }
-                    if (that.filterInput && that.options.minLength !== 1) {
-                        that.refresh();
-                        that.popup.one('activate', that._focusInputHandler);
-                        that.popup.open();
-                        that._resizeFilterInput();
-                    } else {
-                        that._filterSource();
-                    }
-                } else if (that._allowOpening()) {
-                    that.popup.one('activate', that._focusInputHandler);
-                    that.popup.open();
-                    that._resizeFilterInput();
-                    that._focusItem();
-                }
-            },
-            _focusInput: function () {
-                this._focusElement(this.filterInput);
-            },
-            _resizeFilterInput: function () {
-                var filterInput = this.filterInput;
-                var originalPrevent = this._prevent;
-                if (!filterInput) {
-                    return;
-                }
-                var isInputActive = this.filterInput[0] === activeElement();
-                var caret = kendo.caret(this.filterInput[0])[0];
-                this._prevent = true;
-                filterInput.css('display', 'none').css('width', this.popup.element.css('width')).css('display', 'inline-block');
-                if (isInputActive) {
-                    filterInput.focus();
-                    kendo.caret(filterInput[0], caret);
-                }
-                this._prevent = originalPrevent;
-            },
-            _allowOpening: function () {
-                return this.hasOptionLabel() || this.filterInput || Select.fn._allowOpening.call(this);
-            },
-            toggle: function (toggle) {
-                this._toggle(toggle, true);
-            },
-            current: function (candidate) {
-                var current;
-                if (candidate === undefined) {
-                    current = this.listView.focus();
-                    if (!current && this.selectedIndex === 0 && this.hasOptionLabel()) {
-                        return this.optionLabel;
-                    }
-                    return current;
-                }
-                this._focus(candidate);
-            },
-            dataItem: function (index) {
-                var that = this;
-                var dataItem = null;
-                if (index === null) {
-                    return index;
-                }
-                if (index === undefined) {
-                    dataItem = that.listView.selectedDataItems()[0];
-                } else {
-                    if (typeof index !== 'number') {
-                        if (that.options.virtual) {
-                            return that.dataSource.getByUid($(index).data('uid'));
-                        }
-                        if (index.hasClass('k-list-optionlabel')) {
-                            index = -1;
-                        } else {
-                            index = $(that.items()).index(index);
-                        }
-                    } else if (that.hasOptionLabel()) {
-                        index -= 1;
-                    }
-                    dataItem = that.dataSource.flatView()[index];
-                }
-                if (!dataItem) {
-                    dataItem = that._optionLabelDataItem();
-                }
-                return dataItem;
-            },
-            refresh: function () {
-                this.listView.refresh();
-            },
-            text: function (text) {
-                var that = this;
-                var loweredText;
-                var ignoreCase = that.options.ignoreCase;
-                text = text === null ? '' : text;
-                if (text !== undefined) {
-                    if (typeof text !== 'string') {
-                        that._textAccessor(text);
-                        return;
-                    }
-                    loweredText = ignoreCase ? text.toLowerCase() : text;
-                    that._select(function (data) {
-                        data = that._text(data);
-                        if (ignoreCase) {
-                            data = (data + '').toLowerCase();
-                        }
-                        return data === loweredText;
-                    }).done(function () {
-                        that._textAccessor(that.dataItem() || text);
-                    });
-                } else {
-                    return that._textAccessor();
-                }
-            },
-            _clearFilter: function () {
-                $(this.filterInput).val('');
-                Select.fn._clearFilter.call(this);
-            },
-            value: function (value) {
-                var that = this;
-                var listView = that.listView;
-                var dataSource = that.dataSource;
-                if (value === undefined) {
-                    value = that._accessor() || that.listView.value()[0];
-                    return value === undefined || value === null ? '' : value;
-                }
-                that.requireValueMapper(that.options, value);
-                if (value || !that.hasOptionLabel()) {
-                    that._initialIndex = null;
-                }
-                this.trigger('set', { value: value });
-                if (that._request && that.options.cascadeFrom && that.listView.bound()) {
-                    if (that._valueSetter) {
-                        dataSource.unbind(CHANGE, that._valueSetter);
-                    }
-                    that._valueSetter = proxy(function () {
-                        that.value(value);
-                    }, that);
-                    dataSource.one(CHANGE, that._valueSetter);
-                    return;
-                }
-                if (that._isFilterEnabled() && listView.bound() && listView.isFiltered()) {
-                    that._clearFilter();
-                } else {
-                    that._fetchData();
-                }
-                listView.value(value).done(function () {
-                    if (that.selectedIndex === -1 && that.text()) {
-                        that.text('');
-                        that._accessor('', -1);
-                    }
-                    that._old = that._accessor();
-                    that._oldIndex = that.selectedIndex;
-                });
-            },
-            hasOptionLabel: function () {
-                return this.optionLabel && !!this.optionLabel[0];
-            },
-            _optionLabel: function () {
-                var that = this;
-                var options = that.options;
-                var optionLabel = options.optionLabel;
-                var template = options.optionLabelTemplate;
-                if (!optionLabel) {
-                    that.optionLabel.off().remove();
-                    that.optionLabel = $();
-                    return;
-                }
-                if (!template) {
-                    template = '#:';
-                    if (typeof optionLabel === 'string') {
-                        template += 'data';
-                    } else {
-                        template += kendo.expr(options.dataTextField, 'data');
-                    }
-                    template += '#';
-                }
-                if (typeof template !== 'function') {
-                    template = kendo.template(template);
-                }
-                that.optionLabelTemplate = template;
-                if (!that.hasOptionLabel()) {
-                    that.optionLabel = $('<div class="k-list-optionlabel"></div>').prependTo(that.list);
-                }
-                that.optionLabel.html(template(optionLabel)).off().click(proxy(that._click, that)).on(HOVEREVENTS, that._toggleHover);
-                that.angular('compile', function () {
-                    return {
-                        elements: that.optionLabel,
-                        data: [{ dataItem: that._optionLabelDataItem() }]
-                    };
-                });
-            },
-            _optionLabelText: function () {
-                var optionLabel = this.options.optionLabel;
-                return typeof optionLabel === 'string' ? optionLabel : this._text(optionLabel);
-            },
-            _optionLabelDataItem: function () {
-                var that = this;
-                var optionLabel = that.options.optionLabel;
-                if (that.hasOptionLabel()) {
-                    return $.isPlainObject(optionLabel) ? new ObservableObject(optionLabel) : that._assignInstance(that._optionLabelText(), '');
-                }
-                return null;
-            },
-            _buildOptions: function (data) {
-                var that = this;
-                if (!that._isSelect) {
-                    return;
-                }
-                var value = that.listView.value()[0];
-                var optionLabel = that._optionLabelDataItem();
-                var optionLabelValue = optionLabel && that._value(optionLabel);
-                if (value === undefined || value === null) {
-                    value = '';
-                }
-                if (optionLabel) {
-                    if (optionLabelValue === undefined || optionLabelValue === null) {
-                        optionLabelValue = '';
-                    }
-                    optionLabel = '<option value="' + optionLabelValue + '">' + that._text(optionLabel) + '</option>';
-                }
-                that._options(data, optionLabel, value);
-                if (value !== List.unifyType(that._accessor(), typeof value)) {
-                    that._customOption = null;
-                    that._custom(value);
-                }
-            },
-            _listBound: function () {
-                var that = this;
-                var initialIndex = that._initialIndex;
-                var filtered = that._state === STATE_FILTER;
-                var data = that.dataSource.flatView();
-                var dataItem;
-                that._presetValue = false;
-                that._renderFooter();
-                that._renderNoData();
-                that._toggleNoData(!data.length);
-                that._resizePopup(true);
-                that.popup.position();
-                that._buildOptions(data);
-                that._makeUnselectable();
-                if (!filtered) {
-                    if (that._open) {
-                        that.toggle(that._allowOpening());
-                    }
-                    that._open = false;
-                    if (!that._fetch) {
-                        if (data.length) {
-                            if (!that.listView.value().length && initialIndex > -1 && initialIndex !== null) {
-                                that.select(initialIndex);
-                            }
-                            that._initialIndex = null;
-                            dataItem = that.listView.selectedDataItems()[0];
-                            if (dataItem && that.text() !== that._text(dataItem)) {
-                                that._selectValue(dataItem);
-                            }
-                        } else if (that._textAccessor() !== that._optionLabelText()) {
-                            that.listView.value('');
-                            that._selectValue(null);
-                            that._oldIndex = that.selectedIndex;
-                        }
-                    }
-                }
-                that._hideBusy();
-                that.trigger('dataBound');
-            },
-            _listChange: function () {
-                this._selectValue(this.listView.selectedDataItems()[0]);
-                if (this._presetValue || this._old && this._oldIndex === -1) {
-                    this._oldIndex = this.selectedIndex;
-                }
-            },
-            _filterPaste: function () {
-                this._search();
-            },
-            _focusHandler: function () {
-                this.wrapper.focus();
-            },
-            _focusinHandler: function () {
-                this._inputWrapper.addClass(FOCUSED);
-                this._prevent = false;
-            },
-            _focusoutHandler: function () {
-                var that = this;
-                var filtered = that._state === STATE_FILTER;
-                var isIFrame = window.self !== window.top;
-                var focusedItem = that._focus();
-                var dataItem = that._getElementDataItem(focusedItem);
-                var shouldTrigger;
-                if (!that._prevent) {
-                    clearTimeout(that._typingTimeout);
-                    var done = function () {
-                        if (support.mobileOS.ios && isIFrame) {
-                            that._change();
-                        } else {
-                            that._blur();
-                        }
-                        that._inputWrapper.removeClass(FOCUSED);
-                        that._prevent = true;
-                        that._open = false;
-                        that.element.blur();
-                    };
-                    shouldTrigger = !filtered && focusedItem && that._value(dataItem) !== that.value();
-                    if (shouldTrigger && !that.trigger('select', {
-                            dataItem: dataItem,
-                            item: focusedItem
-                        })) {
-                        that._select(focusedItem, !that.dataSource.view().length).done(done);
-                    } else {
-                        done();
-                    }
-                }
-            },
-            _wrapperMousedown: function () {
-                this._prevent = !!this.filterInput;
-            },
-            _wrapperClick: function (e) {
-                e.preventDefault();
-                this.popup.unbind('activate', this._focusInputHandler);
-                this._focused = this.wrapper;
-                this._toggle();
-            },
-            _editable: function (options) {
-                var that = this;
-                var element = that.element;
-                var disable = options.disable;
-                var readonly = options.readonly;
-                var wrapper = that.wrapper.add(that.filterInput).off(ns);
-                var dropDownWrapper = that._inputWrapper.off(HOVEREVENTS);
-                if (!readonly && !disable) {
-                    element.removeAttr(DISABLED).removeAttr(READONLY);
-                    dropDownWrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
-                    wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that)).on('mousedown' + ns, proxy(that._wrapperMousedown, that)).on('paste' + ns, proxy(that._filterPaste, that));
-                    that.wrapper.on('click' + ns, proxy(that._wrapperClick, that));
-                    if (!that.filterInput) {
-                        wrapper.on('keypress' + ns, proxy(that._keypress, that));
-                    }
-                } else if (disable) {
-                    wrapper.removeAttr(TABINDEX);
-                    dropDownWrapper.addClass(STATEDISABLED).removeClass(DEFAULT);
-                } else {
-                    dropDownWrapper.addClass(DEFAULT).removeClass(STATEDISABLED);
-                    wrapper.on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
-                }
-                element.attr(DISABLED, disable).attr(READONLY, readonly);
-                wrapper.attr(ARIA_DISABLED, disable);
-            },
-            _keydown: function (e) {
-                var that = this;
-                var key = e.keyCode;
-                var altKey = e.altKey;
-                var isInputActive;
-                var handled;
-                var isPopupVisible = that.popup.visible();
-                if (that.filterInput) {
-                    isInputActive = that.filterInput[0] === activeElement();
-                }
-                if (key === keys.LEFT) {
-                    key = keys.UP;
-                    handled = true;
-                } else if (key === keys.RIGHT) {
-                    key = keys.DOWN;
-                    handled = true;
-                }
-                if (handled && isInputActive) {
-                    return;
-                }
-                e.keyCode = key;
-                if (altKey && key === keys.UP || key === keys.ESC) {
-                    that._focusElement(that.wrapper);
-                }
-                if (that._state === STATE_FILTER && key === keys.ESC) {
-                    that._clearFilter();
-                }
-                if (key === keys.ENTER && that._typingTimeout && that.filterInput && isPopupVisible) {
-                    e.preventDefault();
-                    return;
-                }
-                handled = that._move(e);
-                if (handled) {
-                    return;
-                }
-                if (!isPopupVisible || !that.filterInput) {
-                    var current = that._focus();
-                    if (key === keys.HOME) {
-                        handled = true;
-                        that._firstItem();
-                    } else if (key === keys.END) {
-                        handled = true;
-                        that._lastItem();
-                    }
-                    if (handled) {
-                        if (that.trigger('select', {
-                                dataItem: that._getElementDataItem(that._focus()),
-                                item: that._focus()
-                            })) {
-                            that._focus(current);
-                            return;
-                        }
-                        that._select(that._focus(), true).done(function () {
-                            if (!isPopupVisible) {
-                                that._blur();
-                            }
-                        });
-                    }
-                }
-                if (!altKey && !handled && that.filterInput) {
-                    that._search();
-                }
-            },
-            _matchText: function (text, word) {
-                var ignoreCase = this.options.ignoreCase;
-                if (text === undefined || text === null) {
-                    return false;
-                }
-                text = text + '';
-                if (ignoreCase) {
-                    text = text.toLowerCase();
-                }
-                return text.indexOf(word) === 0;
-            },
-            _shuffleData: function (data, splitIndex) {
-                var optionDataItem = this._optionLabelDataItem();
-                if (optionDataItem) {
-                    data = [optionDataItem].concat(data);
-                }
-                return data.slice(splitIndex).concat(data.slice(0, splitIndex));
-            },
-            _selectNext: function () {
-                var that = this;
-                var data = that.dataSource.flatView();
-                var dataLength = data.length + (that.hasOptionLabel() ? 1 : 0);
-                var isInLoop = sameCharsOnly(that._word, that._last);
-                var startIndex = that.selectedIndex;
-                var oldFocusedItem;
-                var text;
-                if (startIndex === -1) {
-                    startIndex = 0;
-                } else {
-                    startIndex += isInLoop ? 1 : 0;
-                    startIndex = normalizeIndex(startIndex, dataLength);
-                }
-                data = data.toJSON ? data.toJSON() : data.slice();
-                data = that._shuffleData(data, startIndex);
-                for (var idx = 0; idx < dataLength; idx++) {
-                    text = that._text(data[idx]);
-                    if (isInLoop && that._matchText(text, that._last)) {
-                        break;
-                    } else if (that._matchText(text, that._word)) {
-                        break;
-                    }
-                }
-                if (idx !== dataLength) {
-                    oldFocusedItem = that._focus();
-                    that._select(normalizeIndex(startIndex + idx, dataLength)).done(function () {
-                        var done = function () {
-                            if (!that.popup.visible()) {
-                                that._change();
-                            }
-                        };
-                        if (that.trigger('select', {
-                                dataItem: that._getElementDataItem(that._focus()),
-                                item: that._focus()
-                            })) {
-                            that._select(oldFocusedItem).done(done);
-                        } else {
-                            done();
-                        }
-                    });
-                }
-            },
-            _keypress: function (e) {
-                var that = this;
-                if (e.which === 0 || e.keyCode === kendo.keys.ENTER) {
-                    return;
-                }
-                var character = String.fromCharCode(e.charCode || e.keyCode);
-                if (that.options.ignoreCase) {
-                    character = character.toLowerCase();
-                }
-                if (character === ' ') {
-                    e.preventDefault();
-                }
-                that._word += character;
-                that._last = character;
-                that._search();
-            },
-            _popupOpen: function () {
-                var popup = this.popup;
-                popup.wrapper = kendo.wrap(popup.element);
-                if (popup.element.closest('.km-root')[0]) {
-                    popup.wrapper.addClass('km-popup km-widget');
-                    this.wrapper.addClass('km-widget');
-                }
-            },
-            _popup: function () {
-                Select.fn._popup.call(this);
-                this.popup.one('open', proxy(this._popupOpen, this));
-            },
-            _getElementDataItem: function (element) {
-                if (!element || !element[0]) {
-                    return null;
-                }
-                if (element[0] === this.optionLabel[0]) {
-                    return this._optionLabelDataItem();
-                }
-                return this.listView.dataItemByIndex(this.listView.getElementIndex(element));
-            },
-            _click: function (e) {
-                var that = this;
-                var item = e.item || $(e.currentTarget);
-                e.preventDefault();
-                if (that.trigger('select', {
-                        dataItem: that._getElementDataItem(item),
-                        item: item
-                    })) {
-                    that.close();
-                    return;
-                }
-                that._userTriggered = true;
-                that._select(item).done(function () {
-                    that._focusElement(that.wrapper);
-                    that._blur();
-                });
-            },
-            _focusElement: function (element) {
-                var active = activeElement();
-                var wrapper = this.wrapper;
-                var filterInput = this.filterInput;
-                var compareElement = element === filterInput ? wrapper : filterInput;
-                var touchEnabled = support.mobileOS && (support.touch || support.MSPointers || support.pointers);
-                if (filterInput && filterInput[0] === element[0] && touchEnabled) {
-                    return;
-                }
-                if (filterInput && compareElement[0] === active) {
-                    this._prevent = true;
-                    this._focused = element.focus();
-                }
-            },
-            _searchByWord: function (word) {
-                if (!word) {
-                    return;
-                }
-                var that = this;
-                var ignoreCase = that.options.ignoreCase;
-                if (ignoreCase) {
-                    word = word.toLowerCase();
-                }
-                that._select(function (dataItem) {
-                    return that._matchText(that._text(dataItem), word);
-                });
-            },
-            _inputValue: function () {
-                return this.text();
-            },
-            _search: function () {
-                var that = this;
-                var dataSource = that.dataSource;
-                clearTimeout(that._typingTimeout);
-                if (that._isFilterEnabled()) {
-                    that._typingTimeout = setTimeout(function () {
-                        var value = that.filterInput.val();
-                        if (that._prev !== value) {
-                            that._prev = value;
-                            that.search(value);
-                            that._resizeFilterInput();
-                        }
-                        that._typingTimeout = null;
-                    }, that.options.delay);
-                } else {
-                    that._typingTimeout = setTimeout(function () {
-                        that._word = '';
-                    }, that.options.delay);
-                    if (!that.listView.bound()) {
-                        dataSource.fetch().done(function () {
-                            that._selectNext();
-                        });
-                        return;
-                    }
-                    that._selectNext();
-                }
-            },
-            _get: function (candidate) {
-                var data, found, idx;
-                var isFunction = typeof candidate === 'function';
-                var jQueryCandidate = !isFunction ? $(candidate) : $();
-                if (this.hasOptionLabel()) {
-                    if (typeof candidate === 'number') {
-                        if (candidate > -1) {
-                            candidate -= 1;
-                        }
-                    } else if (jQueryCandidate.hasClass('k-list-optionlabel')) {
-                        candidate = -1;
-                    }
-                }
-                if (isFunction) {
-                    data = this.dataSource.flatView();
-                    for (idx = 0; idx < data.length; idx++) {
-                        if (candidate(data[idx])) {
-                            candidate = idx;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        candidate = -1;
-                    }
-                }
-                return candidate;
-            },
-            _firstItem: function () {
-                if (this.hasOptionLabel()) {
-                    this._focus(this.optionLabel);
-                } else {
-                    this.listView.focusFirst();
-                }
-            },
-            _lastItem: function () {
-                this._resetOptionLabel();
-                this.listView.focusLast();
-            },
-            _nextItem: function () {
-                if (this.optionLabel.hasClass('k-state-focused')) {
-                    this._resetOptionLabel();
-                    this.listView.focusFirst();
-                } else {
-                    this.listView.focusNext();
-                }
-            },
-            _prevItem: function () {
-                if (this.optionLabel.hasClass('k-state-focused')) {
-                    return;
-                }
-                this.listView.focusPrev();
-                if (!this.listView.focus()) {
-                    this._focus(this.optionLabel);
-                }
-            },
-            _focusItem: function () {
-                var listView = this.listView;
-                var focusedItem = listView.focus();
-                var index = listView.select();
-                index = index[index.length - 1];
-                if (index === undefined && this.options.highlightFirst && !focusedItem) {
-                    index = 0;
-                }
-                if (index !== undefined) {
-                    listView.focus(index);
-                } else {
-                    if (this.options.optionLabel) {
-                        this._focus(this.optionLabel);
-                        this._select(this.optionLabel);
-                    } else {
-                        listView.scrollToIndex(0);
-                    }
-                }
-            },
-            _resetOptionLabel: function (additionalClass) {
-                this.optionLabel.removeClass('k-state-focused' + (additionalClass || '')).removeAttr('id');
-            },
-            _focus: function (candidate) {
-                var listView = this.listView;
-                var optionLabel = this.optionLabel;
-                if (candidate === undefined) {
-                    candidate = listView.focus();
-                    if (!candidate && optionLabel.hasClass('k-state-focused')) {
-                        candidate = optionLabel;
-                    }
-                    return candidate;
-                }
-                this._resetOptionLabel();
-                candidate = this._get(candidate);
-                listView.focus(candidate);
-                if (candidate === -1) {
-                    optionLabel.addClass('k-state-focused').attr('id', listView._optionID);
-                    this._focused.add(this.filterInput).removeAttr('aria-activedescendant').attr('aria-activedescendant', listView._optionID);
-                }
-            },
-            _select: function (candidate, keepState) {
-                var that = this;
-                candidate = that._get(candidate);
-                return that.listView.select(candidate).done(function () {
-                    if (!keepState && that._state === STATE_FILTER) {
-                        that._state = STATE_ACCEPT;
-                    }
-                    if (candidate === -1) {
-                        that._selectValue(null);
-                    }
-                });
-            },
-            _selectValue: function (dataItem) {
-                var that = this;
-                var optionLabel = that.options.optionLabel;
-                var idx = that.listView.select();
-                var value = '';
-                var text = '';
-                idx = idx[idx.length - 1];
-                if (idx === undefined) {
-                    idx = -1;
-                }
-                this._resetOptionLabel(' k-state-selected');
-                if (dataItem) {
-                    text = dataItem;
-                    value = that._dataValue(dataItem);
-                    if (optionLabel) {
-                        idx += 1;
-                    }
-                } else if (optionLabel) {
-                    that._focus(that.optionLabel.addClass('k-state-selected'));
-                    text = that._optionLabelText();
-                    if (typeof optionLabel === 'string') {
-                        value = '';
-                    } else {
-                        value = that._value(optionLabel);
-                    }
-                    idx = 0;
-                }
-                that.selectedIndex = idx;
-                if (value === null) {
-                    value = '';
-                }
-                that._textAccessor(text);
-                that._accessor(value, idx);
-                that._triggerCascade();
-            },
-            _mobile: function () {
-                var that = this, popup = that.popup, mobileOS = support.mobileOS, root = popup.element.parents('.km-root').eq(0);
-                if (root.length && mobileOS) {
-                    popup.options.animation.open.effects = mobileOS.android || mobileOS.meego ? 'fadeIn' : mobileOS.ios || mobileOS.wp ? 'slideIn:up' : popup.options.animation.open.effects;
-                }
-            },
-            _filterHeader: function () {
-                var icon;
-                if (this.filterInput) {
-                    this.filterInput.off(ns).parent().remove();
-                    this.filterInput = null;
-                }
-                if (this._isFilterEnabled()) {
-                    icon = '<span class="k-icon k-i-search"></span>';
-                    this.filterInput = $('<input class="k-textbox"/>').attr({
-                        placeholder: this.element.attr('placeholder'),
-                        title: this.element.attr('title'),
-                        role: 'listbox',
-                        'aria-haspopup': true,
-                        'aria-expanded': false
-                    });
-                    this.list.prepend($('<span class="k-list-filter" />').append(this.filterInput.add(icon)));
-                }
-            },
-            _span: function () {
-                var that = this, wrapper = that.wrapper, SELECTOR = 'span.k-input', span;
-                span = wrapper.find(SELECTOR);
-                if (!span[0]) {
-                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-s"></span></span></span>').append(that.element);
-                    span = wrapper.find(SELECTOR);
-                }
-                that.span = span;
-                that._inputWrapper = $(wrapper[0].firstChild);
-                that._arrow = wrapper.find('.k-icon');
-            },
-            _wrapper: function () {
-                var that = this, element = that.element, DOMelement = element[0], wrapper;
-                wrapper = element.parent();
-                if (!wrapper.is('span.k-widget')) {
-                    wrapper = element.wrap('<span />').parent();
-                    wrapper[0].style.cssText = DOMelement.style.cssText;
-                    wrapper[0].title = DOMelement.title;
-                }
-                that._focused = that.wrapper = wrapper.addClass('k-widget k-dropdown k-header').addClass(DOMelement.className).css('display', '').attr({
-                    accesskey: element.attr('accesskey'),
-                    unselectable: 'on',
-                    role: 'listbox',
-                    'aria-haspopup': true,
-                    'aria-expanded': false
-                });
-                if (that.element.attr('required')) {
-                    wrapper.addClass('k-state-required');
-                }
-                element.hide().removeAttr('accesskey');
-            },
-            _clearSelection: function (parent) {
-                this.select(parent.value() ? 0 : -1);
-            },
-            _inputTemplate: function () {
-                var that = this, template = that.options.valueTemplate;
-                if (!template) {
-                    template = $.proxy(kendo.template('#:this._text(data)#', { useWithBlock: false }), that);
-                } else {
-                    template = kendo.template(template);
-                }
-                that.valueTemplate = template;
-                if (that.hasOptionLabel() && !that.options.optionLabelTemplate) {
-                    try {
-                        that.valueTemplate(that._optionLabelDataItem());
-                    } catch (e) {
-                        throw new Error(MSG_INVALID_OPTION_LABEL);
-                    }
-                }
-            },
-            _textAccessor: function (text) {
-                var dataItem = null;
-                var template = this.valueTemplate;
-                var optionLabelText = this._optionLabelText();
-                var span = this.span;
-                if (text === undefined) {
-                    return span.text();
-                }
-                if ($.isPlainObject(text) || text instanceof ObservableObject) {
-                    dataItem = text;
-                } else if (optionLabelText && optionLabelText === text) {
-                    dataItem = this.options.optionLabel;
-                }
-                if (!dataItem) {
-                    dataItem = this._assignInstance(text, this._accessor());
-                }
-                if (this.hasOptionLabel()) {
-                    if (dataItem === optionLabelText || this._text(dataItem) === optionLabelText) {
-                        template = this.optionLabelTemplate;
-                        if (typeof this.options.optionLabel === 'string' && !this.options.optionLabelTemplate) {
-                            dataItem = optionLabelText;
-                        }
-                    }
-                }
-                var getElements = function () {
-                    return {
-                        elements: span.get(),
-                        data: [{ dataItem: dataItem }]
-                    };
-                };
-                this.angular('cleanup', getElements);
-                try {
-                    span.html(template(dataItem));
-                } catch (e) {
-                    span.html('');
-                }
-                this.angular('compile', getElements);
-            },
-            _preselect: function (value, text) {
-                if (!value && !text) {
-                    text = this._optionLabelText();
-                }
-                this._accessor(value);
-                this._textAccessor(text);
-                this._old = this._accessor();
-                this._oldIndex = this.selectedIndex;
-                this.listView.setValue(value);
-                this._initialIndex = null;
-                this._presetValue = true;
-            },
-            _assignInstance: function (text, value) {
-                var dataTextField = this.options.dataTextField;
-                var dataItem = {};
-                if (dataTextField) {
-                    assign(dataItem, dataTextField.split('.'), text);
-                    assign(dataItem, this.options.dataValueField.split('.'), value);
-                    dataItem = new ObservableObject(dataItem);
-                } else {
-                    dataItem = text;
-                }
-                return dataItem;
-            }
-        });
-        function assign(instance, fields, value) {
-            var idx = 0, lastIndex = fields.length - 1, field;
-            for (; idx < lastIndex; ++idx) {
-                field = fields[idx];
-                if (!(field in instance)) {
-                    instance[field] = {};
-                }
-                instance = instance[field];
-            }
-            instance[fields[lastIndex]] = value;
-        }
-        function normalizeIndex(index, length) {
-            if (index >= length) {
-                index -= length;
-            }
-            return index;
-        }
-        function sameCharsOnly(word, character) {
-            for (var idx = 0; idx < word.length; idx++) {
-                if (word.charAt(idx) !== character) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        ui.plugin(DropDownList);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -46833,7 +48103,7 @@
                 var that = this, settings = extend({}, kendo.Template, that.options.templateSettings), idx, length = columns.length, template, state = {
                         storage: {},
                         count: 0
-                    }, column, type, hasDetails = that._hasDetails(), className = [], groups = that._groups();
+                    }, column, type, hasDetails = that._hasDetails(), className = [], groups = that._groups(), paramName = settings.paramName;
                 if (!rowTemplate) {
                     rowTemplate = '<tr';
                     if (alt) {
@@ -46846,7 +48116,7 @@
                         rowTemplate += ' class="' + className.join(' ') + '"';
                     }
                     if (length) {
-                        rowTemplate += ' ' + kendo.attr('uid') + '="#=' + kendo.expr('uid', settings.paramName) + '#"';
+                        rowTemplate += ' ' + kendo.attr('uid') + '="#=' + kendo.expr('uid', paramName) + '#"';
                     }
                     rowTemplate += ' role=\'row\'>';
                     if (groups > 0 && !skipGroupCells) {
@@ -46859,7 +48129,8 @@
                         column = columns[idx];
                         template = column.template;
                         type = typeof template;
-                        rowTemplate += '<td' + stringifyAttributes(column.attributes) + ' role=\'gridcell\'>';
+                        var dirtyCell = '#= ' + paramName + ' && ' + paramName + '.dirty && ' + paramName + '.dirtyFields && ' + paramName + '.dirtyFields[\'' + column.field + '\'] ? \' class="k-dirty-cell"\' : \'\' #';
+                        rowTemplate += '<td' + dirtyCell + stringifyAttributes(column.attributes) + ' role=\'gridcell\'>';
                         rowTemplate += that._cellTmpl(column, state);
                         rowTemplate += '</td>';
                     }
@@ -49109,1276 +50380,6 @@
             }
         });
         ui.plugin(Lov);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.autocomplete', [
-        'kendo.list',
-        'kendo.mobile.scroller'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'autocomplete',
-        name: 'AutoComplete',
-        category: 'web',
-        description: 'The AutoComplete widget provides suggestions depending on the typed text.It also allows multiple value entries.',
-        depends: ['list'],
-        features: [
-            {
-                id: 'mobile-scroller',
-                name: 'Mobile scroller',
-                description: 'Support for kinetic scrolling in mobile device',
-                depends: ['mobile.scroller']
-            },
-            {
-                id: 'virtualization',
-                name: 'VirtualList',
-                description: 'Support for virtualization',
-                depends: ['virtuallist']
-            }
-        ]
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, caret = kendo.caret, activeElement = kendo._activeElement, placeholderSupported = support.placeholder, ui = kendo.ui, List = ui.List, keys = kendo.keys, DataSource = kendo.data.DataSource, ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', CHANGE = 'change', DEFAULT = 'k-state-default', DISABLED = 'disabled', READONLY = 'readonly', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', ns = '.kendoAutoComplete', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, proxy = $.proxy;
-        function indexOfWordAtCaret(caretIdx, text, separator) {
-            return separator ? text.substring(0, caretIdx).split(separator).length - 1 : 0;
-        }
-        function wordAtCaret(caretIdx, text, separator) {
-            return text.split(separator)[indexOfWordAtCaret(caretIdx, text, separator)];
-        }
-        function replaceWordAtCaret(caretIdx, text, word, separator, defaultSeparator) {
-            var words = text.split(separator);
-            words.splice(indexOfWordAtCaret(caretIdx, text, separator), 1, word);
-            if (separator && words[words.length - 1] !== '') {
-                words.push('');
-            }
-            return words.join(defaultSeparator);
-        }
-        var AutoComplete = List.extend({
-            init: function (element, options) {
-                var that = this, wrapper, disabled;
-                that.ns = ns;
-                options = $.isArray(options) ? { dataSource: options } : options;
-                List.fn.init.call(that, element, options);
-                element = that.element;
-                options = that.options;
-                options.placeholder = options.placeholder || element.attr('placeholder');
-                if (placeholderSupported) {
-                    element.attr('placeholder', options.placeholder);
-                }
-                that._wrapper();
-                that._loader();
-                that._clearButton();
-                that._dataSource();
-                that._ignoreCase();
-                element[0].type = 'text';
-                wrapper = that.wrapper;
-                that._popup();
-                element.addClass('k-input').on('keydown' + ns, proxy(that._keydown, that)).on('keypress' + ns, proxy(that._keypress, that)).on('paste' + ns, proxy(that._search, that)).on('focus' + ns, function () {
-                    that._prev = that._accessor();
-                    that._oldText = that._prev;
-                    that._placeholder(false);
-                    wrapper.addClass(FOCUSED);
-                }).on('focusout' + ns, function () {
-                    that._change();
-                    that._placeholder();
-                    wrapper.removeClass(FOCUSED);
-                }).attr({
-                    autocomplete: 'off',
-                    role: 'textbox',
-                    'aria-haspopup': true
-                });
-                that._clear.on('click' + ns, proxy(that._clearValue, that));
-                that._enable();
-                that._old = that._accessor();
-                if (element[0].id) {
-                    element.attr('aria-owns', that.ul[0].id);
-                }
-                that._aria();
-                that._placeholder();
-                that._initList();
-                disabled = $(that.element).parents('fieldset').is(':disabled');
-                if (disabled) {
-                    that.enable(false);
-                }
-                that.listView.bind('click', function (e) {
-                    e.preventDefault();
-                });
-                that._resetFocusItemHandler = $.proxy(that._resetFocusItem, that);
-                kendo.notify(that);
-            },
-            options: {
-                name: 'AutoComplete',
-                enabled: true,
-                suggest: false,
-                template: '',
-                groupTemplate: '#:data#',
-                fixedGroupTemplate: '#:data#',
-                dataTextField: '',
-                minLength: 1,
-                enforceMinLength: false,
-                delay: 200,
-                height: 200,
-                filter: 'startswith',
-                ignoreCase: true,
-                highlightFirst: false,
-                separator: null,
-                placeholder: '',
-                animation: {},
-                virtual: false,
-                value: null,
-                clearButton: true
-            },
-            _dataSource: function () {
-                var that = this;
-                if (that.dataSource && that._refreshHandler) {
-                    that._unbindDataSource();
-                } else {
-                    that._progressHandler = proxy(that._showBusy, that);
-                    that._errorHandler = proxy(that._hideBusy, that);
-                }
-                that.dataSource = DataSource.create(that.options.dataSource).bind('progress', that._progressHandler).bind('error', that._errorHandler);
-            },
-            setDataSource: function (dataSource) {
-                this.options.dataSource = dataSource;
-                this._dataSource();
-                this.listView.setDataSource(this.dataSource);
-            },
-            events: [
-                'open',
-                'close',
-                CHANGE,
-                'select',
-                'filtering',
-                'dataBinding',
-                'dataBound'
-            ],
-            setOptions: function (options) {
-                var listOptions = this._listOptions(options);
-                List.fn.setOptions.call(this, options);
-                this.listView.setOptions(listOptions);
-                this._accessors();
-                this._aria();
-            },
-            _listOptions: function (options) {
-                var listOptions = List.fn._listOptions.call(this, $.extend(options, { skipUpdateOnBind: true }));
-                listOptions.dataValueField = listOptions.dataTextField;
-                listOptions.selectedItemChange = null;
-                return listOptions;
-            },
-            _editable: function (options) {
-                var that = this, element = that.element, wrapper = that.wrapper.off(ns), readonly = options.readonly, disable = options.disable;
-                if (!readonly && !disable) {
-                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
-                    element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false).attr(ARIA_READONLY, false);
-                } else {
-                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
-                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable).attr(ARIA_READONLY, readonly);
-                }
-            },
-            close: function () {
-                var that = this;
-                var current = that.listView.focus();
-                if (current) {
-                    current.removeClass(SELECTED);
-                }
-                that.popup.close();
-            },
-            destroy: function () {
-                var that = this;
-                that.element.off(ns);
-                that._clear.off(ns);
-                that.wrapper.off(ns);
-                List.fn.destroy.call(that);
-            },
-            refresh: function () {
-                this.listView.refresh();
-            },
-            select: function (li) {
-                this._select(li);
-            },
-            search: function (word) {
-                var that = this, options = that.options, ignoreCase = options.ignoreCase, separator = that._separator(), length;
-                word = word || that._accessor();
-                clearTimeout(that._typingTimeout);
-                if (separator) {
-                    word = wordAtCaret(caret(that.element)[0], word, separator);
-                }
-                length = word.length;
-                if (!options.enforceMinLength && !length || length >= options.minLength) {
-                    that._open = true;
-                    that._mute(function () {
-                        this.listView.value([]);
-                    });
-                    that._filterSource({
-                        value: ignoreCase ? word.toLowerCase() : word,
-                        operator: options.filter,
-                        field: options.dataTextField,
-                        ignoreCase: ignoreCase
-                    });
-                    that.one('close', $.proxy(that._unifySeparators, that));
-                }
-            },
-            suggest: function (word) {
-                var that = this, key = that._last, value = that._accessor(), element = that.element[0], caretIdx = caret(element)[0], separator = that._separator(), words = value.split(separator), wordIndex = indexOfWordAtCaret(caretIdx, value, separator), selectionEnd = caretIdx, idx;
-                if (key == keys.BACKSPACE || key == keys.DELETE) {
-                    that._last = undefined;
-                    return;
-                }
-                word = word || '';
-                if (typeof word !== 'string') {
-                    if (word[0]) {
-                        word = that.dataSource.view()[List.inArray(word[0], that.ul[0])];
-                    }
-                    word = word ? that._text(word) : '';
-                }
-                if (caretIdx <= 0) {
-                    caretIdx = value.toLowerCase().indexOf(word.toLowerCase()) + 1;
-                }
-                idx = value.substring(0, caretIdx).lastIndexOf(separator);
-                idx = idx > -1 ? caretIdx - (idx + separator.length) : caretIdx;
-                value = words[wordIndex].substring(0, idx);
-                if (word) {
-                    word = word.toString();
-                    idx = word.toLowerCase().indexOf(value.toLowerCase());
-                    if (idx > -1) {
-                        word = word.substring(idx + value.length);
-                        selectionEnd = caretIdx + word.length;
-                        value += word;
-                    }
-                    if (separator && words[words.length - 1] !== '') {
-                        words.push('');
-                    }
-                }
-                words[wordIndex] = value;
-                that._accessor(words.join(separator || ''));
-                if (element === activeElement()) {
-                    caret(element, caretIdx, selectionEnd);
-                }
-            },
-            value: function (value) {
-                if (value !== undefined) {
-                    this.listView.value(value);
-                    this._accessor(value);
-                    this._old = this._accessor();
-                    this._oldText = this._accessor();
-                } else {
-                    return this._accessor();
-                }
-            },
-            _click: function (e) {
-                var item = e.item;
-                var that = this;
-                var element = that.element;
-                var dataItem = that.listView.dataItemByIndex(that.listView.getElementIndex(item));
-                e.preventDefault();
-                that._active = true;
-                if (that.trigger('select', {
-                        dataItem: dataItem,
-                        item: item
-                    })) {
-                    that.close();
-                    return;
-                }
-                that._oldText = element.val();
-                that._select(item).done(function () {
-                    that._blur();
-                    caret(element, element.val().length);
-                });
-            },
-            _clearText: $.noop,
-            _resetFocusItem: function () {
-                var index = this.options.highlightFirst ? 0 : -1;
-                if (this.options.virtual) {
-                    this.listView.scrollTo(0);
-                }
-                this.listView.focus(index);
-            },
-            _listBound: function () {
-                var that = this;
-                var popup = that.popup;
-                var options = that.options;
-                var data = that.dataSource.flatView();
-                var length = data.length;
-                var isActive = that.element[0] === activeElement();
-                var action;
-                that._renderFooter();
-                that._renderNoData();
-                that._toggleNoData(!data.length);
-                that._resizePopup();
-                popup.position();
-                if (length) {
-                    if (options.suggest && isActive) {
-                        that.suggest(data[0]);
-                    }
-                }
-                if (that._open) {
-                    that._open = false;
-                    action = that._allowOpening() ? 'open' : 'close';
-                    if (that._typingTimeout && !isActive) {
-                        action = 'close';
-                    }
-                    if (length) {
-                        that._resetFocusItem();
-                        if (options.virtual) {
-                            that.popup.unbind('activate', that._resetFocusItemHandler).one('activate', that._resetFocusItemHandler);
-                        }
-                    }
-                    popup[action]();
-                    that._typingTimeout = undefined;
-                }
-                if (that._touchScroller) {
-                    that._touchScroller.reset();
-                }
-                that._hideBusy();
-                that._makeUnselectable();
-                that.trigger('dataBound');
-            },
-            _mute: function (callback) {
-                this._muted = true;
-                callback.call(this);
-                this._muted = false;
-            },
-            _listChange: function () {
-                var isActive = this._active || this.element[0] === activeElement();
-                if (isActive && !this._muted) {
-                    this._selectValue(this.listView.selectedDataItems()[0]);
-                }
-            },
-            _selectValue: function (dataItem) {
-                var separator = this._separator();
-                var text = '';
-                if (dataItem) {
-                    text = this._text(dataItem);
-                }
-                if (text === null) {
-                    text = '';
-                }
-                if (separator) {
-                    text = replaceWordAtCaret(caret(this.element)[0], this._accessor(), text, separator, this._defaultSeparator());
-                }
-                this._prev = text;
-                this._accessor(text);
-                this._placeholder();
-            },
-            _unifySeparators: function () {
-                this._accessor(this.value().split(this._separator()).join(this._defaultSeparator()));
-                return this;
-            },
-            _change: function () {
-                var that = this;
-                var value = that._unifySeparators().value();
-                var trigger = value !== List.unifyType(that._old, typeof value);
-                var valueUpdated = trigger && !that._typing;
-                var itemSelected = that._oldText !== value;
-                that._old = value;
-                that._oldText = value;
-                if (valueUpdated || itemSelected) {
-                    that.element.trigger(CHANGE);
-                }
-                if (trigger) {
-                    that.trigger(CHANGE);
-                }
-                that.typing = false;
-            },
-            _accessor: function (value) {
-                var that = this, element = that.element[0];
-                if (value !== undefined) {
-                    element.value = value === null ? '' : value;
-                    that._placeholder();
-                } else {
-                    value = element.value;
-                    if (element.className.indexOf('k-readonly') > -1) {
-                        if (value === that.options.placeholder) {
-                            return '';
-                        } else {
-                            return value;
-                        }
-                    }
-                    return value;
-                }
-            },
-            _keydown: function (e) {
-                var that = this;
-                var key = e.keyCode;
-                var listView = that.listView;
-                var visible = that.popup.visible();
-                var current = listView.focus();
-                that._last = key;
-                if (key === keys.DOWN) {
-                    if (visible) {
-                        this._move(current ? 'focusNext' : 'focusFirst');
-                    } else {
-                        that.search();
-                        that._open = true;
-                        that.refresh();
-                    }
-                    e.preventDefault();
-                } else if (key === keys.UP) {
-                    if (visible) {
-                        this._move(current ? 'focusPrev' : 'focusLast');
-                    }
-                    e.preventDefault();
-                } else if (key === keys.ENTER || key === keys.TAB) {
-                    if (key === keys.ENTER && visible) {
-                        e.preventDefault();
-                    }
-                    if (visible && current) {
-                        var dataItem = listView.dataItemByIndex(listView.getElementIndex(current));
-                        if (that.trigger('select', {
-                                dataItem: dataItem,
-                                item: current
-                            })) {
-                            return;
-                        }
-                        this._select(current);
-                    }
-                    this._blur();
-                } else if (key === keys.ESC) {
-                    if (visible) {
-                        e.preventDefault();
-                    }
-                    that.close();
-                } else if (that.popup.visible() && (key === keys.PAGEDOWN || key === keys.PAGEUP)) {
-                    e.preventDefault();
-                    var direction = key === keys.PAGEDOWN ? 1 : -1;
-                    listView.scrollWith(direction * listView.screenHeight());
-                } else {
-                    that._search();
-                }
-            },
-            _keypress: function () {
-                this._oldText = this.element.val();
-                this._typing = true;
-            },
-            _move: function (action) {
-                this.listView[action]();
-                if (this.options.suggest) {
-                    this.suggest(this.listView.focus());
-                }
-            },
-            _hideBusy: function () {
-                var that = this;
-                clearTimeout(that._busy);
-                that._loading.hide();
-                that.element.attr('aria-busy', false);
-                that._busy = null;
-                that._showClear();
-            },
-            _showBusy: function () {
-                var that = this;
-                if (that._busy) {
-                    return;
-                }
-                that._busy = setTimeout(function () {
-                    that.element.attr('aria-busy', true);
-                    that._loading.show();
-                    that._hideClear();
-                }, 100);
-            },
-            _placeholder: function (show) {
-                if (placeholderSupported) {
-                    return;
-                }
-                var that = this, element = that.element, placeholder = that.options.placeholder, value;
-                if (placeholder) {
-                    value = element.val();
-                    if (show === undefined) {
-                        show = !value;
-                    }
-                    if (!show) {
-                        if (value !== placeholder) {
-                            placeholder = value;
-                        } else {
-                            placeholder = '';
-                        }
-                    }
-                    if (value === that._old && !show) {
-                        return;
-                    }
-                    element.toggleClass('k-readonly', show).val(placeholder);
-                    if (!placeholder && element[0] === document.activeElement) {
-                        caret(element[0], 0, 0);
-                    }
-                }
-            },
-            _separator: function () {
-                var separator = this.options.separator;
-                if (separator instanceof Array) {
-                    return new RegExp(separator.join('|'), 'gi');
-                }
-                return separator;
-            },
-            _defaultSeparator: function () {
-                var separator = this.options.separator;
-                if (separator instanceof Array) {
-                    return separator[0];
-                }
-                return separator;
-            },
-            _inputValue: function () {
-                return this.element.val();
-            },
-            _search: function () {
-                var that = this;
-                clearTimeout(that._typingTimeout);
-                that._typingTimeout = setTimeout(function () {
-                    if (that._prev !== that._accessor()) {
-                        that._prev = that._accessor();
-                        that.search();
-                    }
-                }, that.options.delay);
-            },
-            _select: function (candidate) {
-                var that = this;
-                that._active = true;
-                return that.listView.select(candidate).done(function () {
-                    that._active = false;
-                });
-            },
-            _loader: function () {
-                this._loading = $('<span class="k-icon k-i-loading" style="display:none"></span>').insertAfter(this.element);
-            },
-            _clearButton: function () {
-                this._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
-                    'role': 'button',
-                    'tabIndex': -1
-                });
-                if (this.options.clearButton) {
-                    this._clear.insertAfter(this.element);
-                }
-            },
-            _toggleHover: function (e) {
-                $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
-            },
-            _wrapper: function () {
-                var that = this, element = that.element, DOMelement = element[0], wrapper;
-                wrapper = element.parent();
-                if (!wrapper.is('span.k-widget')) {
-                    wrapper = element.wrap('<span />').parent();
-                }
-                wrapper.attr('tabindex', -1);
-                wrapper.attr('role', 'presentation');
-                wrapper[0].style.cssText = DOMelement.style.cssText;
-                element.css({
-                    width: '100%',
-                    height: DOMelement.style.height
-                });
-                that._focused = that.element;
-                that.wrapper = wrapper.addClass('k-widget k-autocomplete k-header').addClass(DOMelement.className);
-            }
-        });
-        ui.plugin(AutoComplete);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.combobox', [
-        'kendo.list',
-        'kendo.mobile.scroller'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'combobox',
-        name: 'ComboBox',
-        category: 'web',
-        description: 'The ComboBox widget allows the selection from pre-defined values or entering a new value.',
-        depends: ['list'],
-        features: [
-            {
-                id: 'mobile-scroller',
-                name: 'Mobile scroller',
-                description: 'Support for kinetic scrolling in mobile device',
-                depends: ['mobile.scroller']
-            },
-            {
-                id: 'virtualization',
-                name: 'VirtualList',
-                description: 'Support for virtualization',
-                depends: ['virtuallist']
-            }
-        ]
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, caret = kendo.caret, support = kendo.support, placeholderSupported = support.placeholder, activeElement = kendo._activeElement, keys = kendo.keys, ns = '.kendoComboBox', CLICK = 'click' + ns, MOUSEDOWN = 'mousedown' + ns, DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', STATE_REBIND = 'rebind', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, proxy = $.proxy;
-        var ComboBox = Select.extend({
-            init: function (element, options) {
-                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
-                    $(element).remove();
-                    element.id && $('label[for=' + element.id + ']').remove();
-                    return;
-                }
-                var that = this, text, disabled;
-                that.ns = ns;
-                options = $.isArray(options) ? { dataSource: options } : options;
-                Select.fn.init.call(that, element, options);
-                options = that.options;
-                element = that.element.on('focus' + ns, proxy(that._focusHandler, that));
-                options.placeholder = options.placeholder || element.attr('placeholder');
-                that._reset();
-                that._wrapper();
-                that._input();
-                that._clearButton();
-                that._tabindex(that.input);
-                that._popup();
-                that._dataSource();
-                that._ignoreCase();
-                that._enable();
-                that._oldIndex = that.selectedIndex = -1;
-                that._aria();
-                that._initialIndex = options.index;
-                that.requireValueMapper(that.options);
-                that._initList();
-                that._cascade();
-                if (options.autoBind) {
-                    that._filterSource();
-                } else {
-                    text = options.text;
-                    if (!text && that._isSelect) {
-                        text = element.children(':selected').text();
-                    }
-                    if (text) {
-                        that._setText(text);
-                    }
-                }
-                if (!text) {
-                    that._placeholder();
-                }
-                disabled = $(that.element).parents('fieldset').is(':disabled');
-                if (disabled) {
-                    that.enable(false);
-                }
-                kendo.notify(that);
-            },
-            options: {
-                name: 'ComboBox',
-                enabled: true,
-                index: -1,
-                text: null,
-                value: null,
-                autoBind: true,
-                delay: 200,
-                dataTextField: '',
-                dataValueField: '',
-                minLength: 1,
-                enforceMinLength: false,
-                height: 200,
-                highlightFirst: true,
-                filter: 'none',
-                placeholder: '',
-                suggest: false,
-                cascadeFrom: '',
-                cascadeFromField: '',
-                ignoreCase: true,
-                animation: {},
-                virtual: false,
-                template: null,
-                groupTemplate: '#:data#',
-                fixedGroupTemplate: '#:data#',
-                clearButton: true,
-                clearNoData: true
-            },
-            events: [
-                'open',
-                'close',
-                CHANGE,
-                'select',
-                'filtering',
-                'dataBinding',
-                'dataBound',
-                'cascade',
-                'set'
-            ],
-            setOptions: function (options) {
-                Select.fn.setOptions.call(this, options);
-                this.listView.setOptions(options);
-                this._accessors();
-                this._aria();
-            },
-            destroy: function () {
-                var that = this;
-                that.input.off(ns);
-                that.element.off(ns);
-                that._inputWrapper.off(ns);
-                clearTimeout(that._pasteTimeout);
-                that._arrow.off(CLICK + ' ' + MOUSEDOWN);
-                that._clear.off(CLICK + ' ' + MOUSEDOWN);
-                Select.fn.destroy.call(that);
-            },
-            _focusHandler: function () {
-                this.input.focus();
-            },
-            _arrowClick: function () {
-                this._toggle();
-            },
-            _inputFocus: function () {
-                this._inputWrapper.addClass(FOCUSED);
-                this._placeholder(false);
-            },
-            _inputFocusout: function () {
-                var that = this, options = that.options;
-                var value = that.value();
-                that._inputWrapper.removeClass(FOCUSED);
-                clearTimeout(that._typingTimeout);
-                that._typingTimeout = null;
-                that.text(that.text());
-                var item = that._focus();
-                var dataItem = this.listView.dataItemByIndex(this.listView.getElementIndex(item));
-                if (value !== that.value() && that.trigger('select', {
-                        dataItem: dataItem,
-                        item: item
-                    })) {
-                    that.value(value);
-                    return;
-                }
-                that._placeholder();
-                that._blur();
-                that.element.blur();
-            },
-            _inputPaste: function () {
-                var that = this;
-                clearTimeout(that._pasteTimeout);
-                that._pasteTimeout = null;
-                that._pasteTimeout = setTimeout(function () {
-                    that.search();
-                });
-            },
-            _editable: function (options) {
-                var that = this, disable = options.disable, readonly = options.readonly, wrapper = that._inputWrapper.off(ns), input = that.element.add(that.input.off(ns)), arrow = that._arrow.off(CLICK + ' ' + MOUSEDOWN), clear = that._clear;
-                if (!readonly && !disable) {
-                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
-                    input.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false);
-                    arrow.on(CLICK, proxy(that._arrowClick, that)).on(MOUSEDOWN, function (e) {
-                        e.preventDefault();
-                    });
-                    clear.on(CLICK, proxy(that._clearValue, that)).on(MOUSEDOWN, function (e) {
-                        e.preventDefault();
-                    });
-                    that.input.on('keydown' + ns, proxy(that._keydown, that)).on('focus' + ns, proxy(that._inputFocus, that)).on('focusout' + ns, proxy(that._inputFocusout, that)).on('paste' + ns, proxy(that._inputPaste, that));
-                } else {
-                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
-                    input.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
-                }
-            },
-            open: function () {
-                var that = this;
-                var state = that._state;
-                if (that.popup.visible()) {
-                    return;
-                }
-                if (!that.listView.bound() && state !== STATE_FILTER || state === STATE_ACCEPT) {
-                    that._open = true;
-                    that._state = STATE_REBIND;
-                    if (that.options.minLength !== 1) {
-                        that.refresh();
-                        that._openPopup();
-                    } else {
-                        that._filterSource();
-                    }
-                } else if (that._allowOpening()) {
-                    that._openPopup();
-                    that._focusItem();
-                }
-            },
-            _scrollToFocusedItem: function () {
-                var listView = this.listView;
-                listView.scrollToIndex(listView.getElementIndex(listView.focus()));
-            },
-            _openPopup: function () {
-                this.popup.one('activate', proxy(this._scrollToFocusedItem, this));
-                this.popup.open();
-            },
-            _updateSelectionState: function () {
-                var that = this;
-                var text = that.options.text;
-                var value = that.options.value;
-                if (that.listView.isFiltered()) {
-                    return;
-                }
-                if (that.selectedIndex === -1) {
-                    if (text === undefined || text === null) {
-                        text = value;
-                    }
-                    that._accessor(value);
-                    that.input.val(text || that.input.val());
-                    that._placeholder();
-                } else if (that._oldIndex === -1) {
-                    that._oldIndex = that.selectedIndex;
-                }
-            },
-            _buildOptions: function (data) {
-                var that = this;
-                if (!that._isSelect) {
-                    return;
-                }
-                var custom = that._customOption;
-                if (that._state === STATE_REBIND) {
-                    that._state = '';
-                }
-                that._customOption = undefined;
-                that._options(data, '', that.value());
-                if (custom && custom[0].selected) {
-                    that._custom(custom.val());
-                }
-            },
-            _updateSelection: function () {
-                var that = this;
-                var listView = that.listView;
-                var initialIndex = that._initialIndex;
-                var hasInitialIndex = initialIndex !== null && initialIndex > -1;
-                var filtered = that._state === STATE_FILTER;
-                if (filtered) {
-                    $(listView.focus()).removeClass('k-state-selected');
-                    return;
-                }
-                if (that._fetch) {
-                    return;
-                }
-                if (!listView.value().length) {
-                    if (hasInitialIndex) {
-                        that.select(initialIndex);
-                    } else if (that._accessor()) {
-                        listView.value(that._accessor());
-                    }
-                }
-                that._initialIndex = null;
-                var dataItem = listView.selectedDataItems()[0];
-                if (!dataItem) {
-                    return;
-                }
-                if (that._value(dataItem) !== that.value()) {
-                    that._custom(that._value(dataItem));
-                }
-                if (that.text() && that.text() !== that._text(dataItem)) {
-                    that._selectValue(dataItem);
-                }
-            },
-            _updateItemFocus: function () {
-                var listView = this.listView;
-                if (!this.options.highlightFirst) {
-                    listView.focus(-1);
-                } else if (!listView.focus() && !listView.focusIndex()) {
-                    listView.focus(0);
-                }
-            },
-            _listBound: function () {
-                var that = this;
-                var isActive = that.input[0] === activeElement();
-                var data = that.dataSource.flatView();
-                var skip = that.listView.skip();
-                var isFirstPage = skip === undefined || skip === 0;
-                that._presetValue = false;
-                that._renderFooter();
-                that._renderNoData();
-                that._toggleNoData(!data.length);
-                that._resizePopup();
-                that.popup.position();
-                that._buildOptions(data);
-                that._makeUnselectable();
-                that._updateSelection();
-                if (data.length && isFirstPage) {
-                    that._updateItemFocus();
-                    if (that.options.suggest && isActive && that.input.val()) {
-                        that.suggest(data[0]);
-                    }
-                }
-                if (that._open) {
-                    that._open = false;
-                    if (that._typingTimeout && !isActive) {
-                        that.popup.close();
-                    } else {
-                        that.toggle(that._allowOpening());
-                    }
-                    that._typingTimeout = null;
-                }
-                that._hideBusy();
-                that.trigger('dataBound');
-            },
-            _listChange: function () {
-                this._selectValue(this.listView.selectedDataItems()[0]);
-                if (this._presetValue) {
-                    this._oldIndex = this.selectedIndex;
-                }
-            },
-            _get: function (candidate) {
-                var data, found, idx;
-                if (typeof candidate === 'function') {
-                    data = this.dataSource.flatView();
-                    for (idx = 0; idx < data.length; idx++) {
-                        if (candidate(data[idx])) {
-                            candidate = idx;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        candidate = -1;
-                    }
-                }
-                return candidate;
-            },
-            _select: function (candidate, keepState) {
-                var that = this;
-                candidate = that._get(candidate);
-                if (candidate === -1) {
-                    that.input[0].value = '';
-                    that._accessor('');
-                }
-                return that.listView.select(candidate).done(function () {
-                    if (!keepState && that._state === STATE_FILTER) {
-                        that._state = STATE_ACCEPT;
-                    }
-                });
-            },
-            _selectValue: function (dataItem) {
-                var idx = this.listView.select();
-                var value = '';
-                var text = '';
-                idx = idx[idx.length - 1];
-                if (idx === undefined) {
-                    idx = -1;
-                }
-                this.selectedIndex = idx;
-                if (idx === -1 && !dataItem) {
-                    value = text = this.input[0].value;
-                    this.listView.focus(-1);
-                } else {
-                    if (dataItem) {
-                        value = this._dataValue(dataItem);
-                        text = this._text(dataItem);
-                    }
-                    if (value === null) {
-                        value = '';
-                    }
-                }
-                this._prev = this.input[0].value = text;
-                this._accessor(value !== undefined ? value : text, idx);
-                this._placeholder();
-                this._triggerCascade();
-            },
-            refresh: function () {
-                this.listView.refresh();
-            },
-            suggest: function (word) {
-                var that = this;
-                var element = that.input[0];
-                var value = that.text();
-                var caretIdx = caret(element)[0];
-                var key = that._last;
-                var idx;
-                if (key == keys.BACKSPACE || key == keys.DELETE) {
-                    that._last = undefined;
-                    return;
-                }
-                word = word || '';
-                if (typeof word !== 'string') {
-                    if (word[0]) {
-                        word = that.dataSource.view()[List.inArray(word[0], that.ul[0])];
-                    }
-                    word = word ? that._text(word) : '';
-                }
-                if (caretIdx <= 0) {
-                    caretIdx = value.toLowerCase().indexOf(word.toLowerCase()) + 1;
-                }
-                if (word) {
-                    word = word.toString();
-                    idx = word.toLowerCase().indexOf(value.toLowerCase());
-                    if (idx > -1) {
-                        value += word.substring(idx + value.length);
-                    }
-                } else {
-                    value = value.substring(0, caretIdx);
-                }
-                if (value.length !== caretIdx || !word) {
-                    element.value = value;
-                    if (element === activeElement()) {
-                        caret(element, caretIdx, value.length);
-                    }
-                }
-            },
-            text: function (text) {
-                text = text === null ? '' : text;
-                var that = this;
-                var input = that.input[0];
-                var ignoreCase = that.options.ignoreCase;
-                var loweredText = text;
-                var dataItem;
-                var value;
-                if (text === undefined) {
-                    return input.value;
-                }
-                if (that.options.autoBind === false && !that.listView.bound()) {
-                    that._setText(text);
-                    return;
-                }
-                dataItem = that.dataItem();
-                if (dataItem && that._text(dataItem) === text) {
-                    value = that._value(dataItem);
-                    if (value === List.unifyType(that._old, typeof value)) {
-                        that._triggerCascade();
-                        return;
-                    }
-                }
-                if (ignoreCase) {
-                    loweredText = loweredText.toLowerCase();
-                }
-                that._select(function (data) {
-                    data = that._text(data);
-                    if (ignoreCase) {
-                        data = (data + '').toLowerCase();
-                    }
-                    return data === loweredText;
-                }).done(function () {
-                    if (that.selectedIndex < 0 && !that.options.clearNoData) {
-                        that._accessor(text);
-                        input.value = text;
-                        that._triggerCascade();
-                    }
-                    that._prev = input.value;
-                });
-            },
-            toggle: function (toggle) {
-                this._toggle(toggle, true);
-            },
-            value: function (value) {
-                var that = this;
-                var options = that.options;
-                var listView = that.listView;
-                if (value === undefined) {
-                    value = that._accessor() || that.listView.value()[0];
-                    return value === undefined || value === null ? '' : value;
-                }
-                that.requireValueMapper(that.options, value);
-                that.trigger('set', { value: value });
-                if (value === options.value && that.input.val() === options.text) {
-                    return;
-                }
-                that._accessor(value);
-                if (that._isFilterEnabled() && listView.bound() && listView.isFiltered()) {
-                    that._clearFilter();
-                } else {
-                    that._fetchData();
-                }
-                listView.value(value).done(function () {
-                    if (that.selectedIndex === -1) {
-                        that._accessor(value);
-                        that.input.val(value);
-                        that._placeholder(true);
-                    }
-                    that._old = that._accessor();
-                    that._oldIndex = that.selectedIndex;
-                    that._prev = that.input.val();
-                    if (that._state === STATE_FILTER) {
-                        that._state = STATE_ACCEPT;
-                    }
-                });
-            },
-            _click: function (e) {
-                var that = this;
-                var item = e.item;
-                var dataItem = that.listView.dataItemByIndex(that.listView.getElementIndex(item));
-                e.preventDefault();
-                if (that.trigger('select', {
-                        dataItem: dataItem,
-                        item: item
-                    })) {
-                    that.close();
-                    return;
-                }
-                that._userTriggered = true;
-                that._select(item).done(function () {
-                    that._blur();
-                });
-            },
-            _inputValue: function () {
-                return this.text();
-            },
-            _searchByWord: function (word) {
-                var that = this;
-                var options = that.options;
-                var dataSource = that.dataSource;
-                var ignoreCase = options.ignoreCase;
-                var predicate = function (dataItem) {
-                    var text = that._text(dataItem);
-                    if (text !== undefined) {
-                        text = text + '';
-                        if (text !== '' && word === '') {
-                            return false;
-                        }
-                        if (ignoreCase) {
-                            text = text.toLowerCase();
-                        }
-                        return text.indexOf(word) === 0;
-                    }
-                };
-                if (ignoreCase) {
-                    word = word.toLowerCase();
-                }
-                if (!that.ul[0].firstChild) {
-                    dataSource.one(CHANGE, function () {
-                        if (dataSource.view()[0]) {
-                            that.search(word);
-                        }
-                    }).fetch();
-                    return;
-                }
-                this.listView.focus(this._get(predicate));
-                var current = this.listView.focus();
-                if (current) {
-                    if (options.suggest) {
-                        that.suggest(current);
-                    }
-                    this.open();
-                }
-                if (this.options.highlightFirst && !word) {
-                    this.listView.focusFirst();
-                }
-            },
-            _input: function () {
-                var that = this, element = that.element.removeClass('k-input')[0], accessKey = element.accessKey, wrapper = that.wrapper, SELECTOR = 'input.k-input', name = element.name || '', input, maxLength;
-                if (name) {
-                    name = 'name="' + name + '_input" ';
-                }
-                input = wrapper.find(SELECTOR);
-                if (!input[0]) {
-                    wrapper.append('<span tabindex="-1" unselectable="on" class="k-dropdown-wrap k-state-default"><input ' + name + 'class="k-input" type="text" autocomplete="off"/><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-s"></span></span></span>').append(that.element);
-                    input = wrapper.find(SELECTOR);
-                }
-                if (that.element.attr('required')) {
-                    wrapper.addClass('k-state-required');
-                }
-                input[0].style.cssText = element.style.cssText;
-                input[0].title = element.title;
-                maxLength = parseInt(this.element.prop('maxlength') || this.element.attr('maxlength'), 10);
-                if (maxLength > -1) {
-                    input[0].maxLength = maxLength;
-                }
-                input.addClass(element.className).css({
-                    width: '100%',
-                    height: element.style.height
-                }).attr({
-                    'role': 'combobox',
-                    'aria-expanded': false
-                }).show();
-                if (placeholderSupported) {
-                    input.attr('placeholder', that.options.placeholder);
-                }
-                if (accessKey) {
-                    element.accessKey = '';
-                    input[0].accessKey = accessKey;
-                }
-                that._focused = that.input = input;
-                if (!input[0].id && element.id) {
-                    var id = kendo.guid();
-                    input[0].id = id;
-                    $('label[for=' + element.id + ']').attr('for', id);
-                }
-                that._inputWrapper = $(wrapper[0].firstChild);
-                that._arrow = wrapper.find('.k-select').attr({
-                    'role': 'button',
-                    'tabIndex': -1
-                });
-                if (element.id) {
-                    that._arrow.attr('aria-controls', that.ul[0].id);
-                }
-            },
-            _clearButton: function () {
-                this._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
-                    'role': 'button',
-                    'tabIndex': -1
-                });
-                if (this.options.clearButton) {
-                    this._clear.insertAfter(this.input);
-                }
-            },
-            _keydown: function (e) {
-                var that = this, key = e.keyCode;
-                that._last = key;
-                clearTimeout(that._typingTimeout);
-                that._typingTimeout = null;
-                if (key != keys.TAB && !that._move(e)) {
-                    that._search();
-                }
-            },
-            _placeholder: function (show) {
-                if (placeholderSupported) {
-                    return;
-                }
-                var that = this, input = that.input, placeholder = that.options.placeholder, value;
-                if (placeholder) {
-                    value = that.value();
-                    if (show === undefined) {
-                        show = !value;
-                    }
-                    input.toggleClass('k-readonly', show);
-                    if (!show) {
-                        if (!value) {
-                            placeholder = '';
-                        } else {
-                            return;
-                        }
-                    }
-                    input.val(placeholder);
-                    if (!placeholder && input[0] === activeElement()) {
-                        caret(input[0], 0, 0);
-                    }
-                }
-            },
-            _search: function () {
-                var that = this;
-                that._typingTimeout = setTimeout(function () {
-                    var value = that.text();
-                    if (that._prev !== value) {
-                        that._prev = value;
-                        if (that.options.filter === 'none') {
-                            that.listView.select(-1);
-                        }
-                        that.search(value);
-                    }
-                    that._typingTimeout = null;
-                }, that.options.delay);
-            },
-            _setText: function (text) {
-                this.input.val(text);
-                this._prev = text;
-            },
-            _wrapper: function () {
-                var that = this, element = that.element, wrapper = element.parent();
-                if (!wrapper.is('span.k-widget')) {
-                    wrapper = element.hide().wrap('<span />').parent();
-                    wrapper[0].style.cssText = element[0].style.cssText;
-                }
-                that.wrapper = wrapper.addClass('k-widget k-combobox k-header').addClass(element[0].className).css('display', '');
-            },
-            _clearSelection: function (parent, isFiltered) {
-                var that = this;
-                var hasValue = parent.value();
-                var custom = hasValue && parent.selectedIndex === -1;
-                if (this.selectedIndex == -1 && this.value()) {
-                    return;
-                }
-                if (isFiltered || !hasValue || custom) {
-                    that.options.value = '';
-                    that.value('');
-                }
-            },
-            _preselect: function (value, text) {
-                this.input.val(text);
-                this._accessor(value);
-                this._old = this._accessor();
-                this._oldIndex = this.selectedIndex;
-                this.listView.setValue(value);
-                this._placeholder();
-                this._initialIndex = null;
-                this._presetValue = true;
-            }
-        });
-        ui.plugin(ComboBox);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -55946,6 +55947,110 @@
     (a3 || a2)();
 }));
 (function (f, define) {
+    define('kendo.responsivepanel', ['kendo.core'], f);
+}(function () {
+    var __meta__ = {
+        id: 'responsive-panel',
+        name: 'Responsive Panel',
+        category: 'web',
+        description: 'The Responsive Panel widget allows a panel of content to be hidden on mobile devices, available through a toggle button.',
+        depends: ['core']
+    };
+    (function ($, undefined) {
+        var proxy = $.proxy;
+        var NS = '.kendoResponsivePanel';
+        var OPEN = 'open';
+        var CLOSE = 'close';
+        var ACTIVATE_EVENTS = 'click' + NS + ' touchstart' + NS;
+        var Widget = kendo.ui.Widget;
+        var ResponsivePanel = Widget.extend({
+            init: function (element, options) {
+                Widget.fn.init.call(this, element, options);
+                this._guid = '_' + kendo.guid();
+                this._toggleHandler = proxy(this._toggleButtonClick, this);
+                this._closeHandler = proxy(this._close, this);
+                $(document.documentElement).on(ACTIVATE_EVENTS, this.options.toggleButton, this._toggleHandler);
+                this._registerBreakpoint();
+                this.element.addClass('k-rpanel k-rpanel-' + this.options.orientation + ' ' + this._guid);
+                this._resizeHandler = proxy(this.resize, this, true);
+                $(window).on('resize' + NS, this._resizeHandler);
+            },
+            _mediaQuery: '@media (max-width: #= breakpoint-1 #px) {' + '.#= guid #.k-rpanel-animate.k-rpanel-left,' + '.#= guid #.k-rpanel-animate.k-rpanel-right {' + '-webkit-transition: -webkit-transform .2s ease-out;' + '-ms-transition: -ms-transform .2s ease-out;' + 'transition: transform .2s ease-out;' + '} ' + '.#= guid #.k-rpanel-top {' + 'overflow: hidden;' + '}' + '.#= guid #.k-rpanel-animate.k-rpanel-top {' + '-webkit-transition: max-height .2s linear;' + '-ms-transition: max-height .2s linear;' + 'transition: max-height .2s linear;' + '}' + '} ' + '@media (min-width: #= breakpoint #px) {' + '#= toggleButton # { display: none; } ' + '.#= guid #.k-rpanel-left { float: left; } ' + '.#= guid #.k-rpanel-right { float: right; } ' + '.#= guid #.k-rpanel-left, .#= guid #.k-rpanel-right {' + 'position: relative;' + '-webkit-transform: translateX(0);' + '-ms-transform: translateX(0);' + 'transform: translateX(0);' + '-webkit-transform: translateX(0) translateZ(0);' + '-ms-transform: translateX(0) translateZ(0);' + 'transform: translateX(0) translateZ(0);' + '} ' + '.#= guid #.k-rpanel-top { max-height: none; }' + '}',
+            _registerBreakpoint: function () {
+                var options = this.options;
+                this._registerStyle(kendo.template(this._mediaQuery)({
+                    breakpoint: options.breakpoint,
+                    toggleButton: options.toggleButton,
+                    guid: this._guid
+                }));
+            },
+            _registerStyle: function (cssText) {
+                var head = $('head,body')[0];
+                var style = document.createElement('style');
+                head.appendChild(style);
+                if (style.styleSheet) {
+                    style.styleSheet.cssText = cssText;
+                } else {
+                    style.appendChild(document.createTextNode(cssText));
+                }
+            },
+            options: {
+                name: 'ResponsivePanel',
+                orientation: 'left',
+                toggleButton: '.k-rpanel-toggle',
+                breakpoint: 640,
+                autoClose: true
+            },
+            events: [
+                OPEN,
+                CLOSE
+            ],
+            _resize: function () {
+                this.element.removeClass('k-rpanel-animate k-rpanel-expanded');
+                $(document.documentElement).off(ACTIVATE_EVENTS, this._closeHandler);
+            },
+            _toggleButtonClick: function (e) {
+                e.preventDefault();
+                if (this.element.hasClass('k-rpanel-expanded')) {
+                    this.close();
+                } else {
+                    this.open();
+                }
+            },
+            open: function () {
+                if (!this.trigger(OPEN)) {
+                    this.element.addClass('k-rpanel-animate k-rpanel-expanded');
+                    if (this.options.autoClose) {
+                        $(document.documentElement).on(ACTIVATE_EVENTS, this._closeHandler);
+                    }
+                }
+            },
+            close: function () {
+                if (!this.trigger(CLOSE)) {
+                    this.element.addClass('k-rpanel-animate').removeClass('k-rpanel-expanded');
+                    $(document.documentElement).off(ACTIVATE_EVENTS, this._closeHandler);
+                }
+            },
+            _close: function (e) {
+                var prevented = e.isDefaultPrevented();
+                var container = $(e.target).closest(this.options.toggleButton + ',.k-rpanel');
+                if (!container.length && !prevented) {
+                    this.close();
+                }
+            },
+            destroy: function () {
+                Widget.fn.destroy.call(this);
+                $(window).off('resize' + NS, this._resizeHandler);
+                $(document.documentElement).off(ACTIVATE_EVENTS, this._closeHandler);
+            }
+        });
+        kendo.ui.plugin(ResponsivePanel);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('kendo.tabstrip', [
         'kendo.data',
         'kendo.menu'
@@ -57126,110 +57231,6 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.responsivepanel', ['kendo.core'], f);
-}(function () {
-    var __meta__ = {
-        id: 'responsive-panel',
-        name: 'Responsive Panel',
-        category: 'web',
-        description: 'The Responsive Panel widget allows a panel of content to be hidden on mobile devices, available through a toggle button.',
-        depends: ['core']
-    };
-    (function ($, undefined) {
-        var proxy = $.proxy;
-        var NS = '.kendoResponsivePanel';
-        var OPEN = 'open';
-        var CLOSE = 'close';
-        var ACTIVATE_EVENTS = 'click' + NS + ' touchstart' + NS;
-        var Widget = kendo.ui.Widget;
-        var ResponsivePanel = Widget.extend({
-            init: function (element, options) {
-                Widget.fn.init.call(this, element, options);
-                this._guid = '_' + kendo.guid();
-                this._toggleHandler = proxy(this._toggleButtonClick, this);
-                this._closeHandler = proxy(this._close, this);
-                $(document.documentElement).on(ACTIVATE_EVENTS, this.options.toggleButton, this._toggleHandler);
-                this._registerBreakpoint();
-                this.element.addClass('k-rpanel k-rpanel-' + this.options.orientation + ' ' + this._guid);
-                this._resizeHandler = proxy(this.resize, this, true);
-                $(window).on('resize' + NS, this._resizeHandler);
-            },
-            _mediaQuery: '@media (max-width: #= breakpoint-1 #px) {' + '.#= guid #.k-rpanel-animate.k-rpanel-left,' + '.#= guid #.k-rpanel-animate.k-rpanel-right {' + '-webkit-transition: -webkit-transform .2s ease-out;' + '-ms-transition: -ms-transform .2s ease-out;' + 'transition: transform .2s ease-out;' + '} ' + '.#= guid #.k-rpanel-top {' + 'overflow: hidden;' + '}' + '.#= guid #.k-rpanel-animate.k-rpanel-top {' + '-webkit-transition: max-height .2s linear;' + '-ms-transition: max-height .2s linear;' + 'transition: max-height .2s linear;' + '}' + '} ' + '@media (min-width: #= breakpoint #px) {' + '#= toggleButton # { display: none; } ' + '.#= guid #.k-rpanel-left { float: left; } ' + '.#= guid #.k-rpanel-right { float: right; } ' + '.#= guid #.k-rpanel-left, .#= guid #.k-rpanel-right {' + 'position: relative;' + '-webkit-transform: translateX(0);' + '-ms-transform: translateX(0);' + 'transform: translateX(0);' + '-webkit-transform: translateX(0) translateZ(0);' + '-ms-transform: translateX(0) translateZ(0);' + 'transform: translateX(0) translateZ(0);' + '} ' + '.#= guid #.k-rpanel-top { max-height: none; }' + '}',
-            _registerBreakpoint: function () {
-                var options = this.options;
-                this._registerStyle(kendo.template(this._mediaQuery)({
-                    breakpoint: options.breakpoint,
-                    toggleButton: options.toggleButton,
-                    guid: this._guid
-                }));
-            },
-            _registerStyle: function (cssText) {
-                var head = $('head,body')[0];
-                var style = document.createElement('style');
-                head.appendChild(style);
-                if (style.styleSheet) {
-                    style.styleSheet.cssText = cssText;
-                } else {
-                    style.appendChild(document.createTextNode(cssText));
-                }
-            },
-            options: {
-                name: 'ResponsivePanel',
-                orientation: 'left',
-                toggleButton: '.k-rpanel-toggle',
-                breakpoint: 640,
-                autoClose: true
-            },
-            events: [
-                OPEN,
-                CLOSE
-            ],
-            _resize: function () {
-                this.element.removeClass('k-rpanel-animate k-rpanel-expanded');
-                $(document.documentElement).off(ACTIVATE_EVENTS, this._closeHandler);
-            },
-            _toggleButtonClick: function (e) {
-                e.preventDefault();
-                if (this.element.hasClass('k-rpanel-expanded')) {
-                    this.close();
-                } else {
-                    this.open();
-                }
-            },
-            open: function () {
-                if (!this.trigger(OPEN)) {
-                    this.element.addClass('k-rpanel-animate k-rpanel-expanded');
-                    if (this.options.autoClose) {
-                        $(document.documentElement).on(ACTIVATE_EVENTS, this._closeHandler);
-                    }
-                }
-            },
-            close: function () {
-                if (!this.trigger(CLOSE)) {
-                    this.element.addClass('k-rpanel-animate').removeClass('k-rpanel-expanded');
-                    $(document.documentElement).off(ACTIVATE_EVENTS, this._closeHandler);
-                }
-            },
-            _close: function (e) {
-                var prevented = e.isDefaultPrevented();
-                var container = $(e.target).closest(this.options.toggleButton + ',.k-rpanel');
-                if (!container.length && !prevented) {
-                    this.close();
-                }
-            },
-            destroy: function () {
-                Widget.fn.destroy.call(this);
-                $(window).off('resize' + NS, this._resizeHandler);
-                $(document.documentElement).off(ACTIVATE_EVENTS, this._closeHandler);
-            }
-        });
-        kendo.ui.plugin(ResponsivePanel);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
     define('kendo.timepicker', ['kendo.popup'], f);
 }(function () {
     var __meta__ = {
@@ -57816,582 +57817,6 @@
             e.preventDefault();
         }
         ui.plugin(TimePicker);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.datetimepicker', [
-        'kendo.datepicker',
-        'kendo.timepicker'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'datetimepicker',
-        name: 'DateTimePicker',
-        category: 'web',
-        description: 'The DateTimePicker allows the end user to select a value from a calendar or a time drop-down list.',
-        depends: [
-            'datepicker',
-            'timepicker'
-        ]
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, TimeView = kendo.TimeView, parse = kendo.parseDate, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, calendar = kendo.calendar, isInRange = calendar.isInRange, restrictValue = calendar.restrictValue, isEqualDatePart = calendar.isEqualDatePart, getMilliseconds = TimeView.getMilliseconds, ui = kendo.ui, Widget = ui.Widget, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', ns = '.kendoDateTimePicker', CLICK = 'click' + ns, DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', STATEDISABLED = 'k-state-disabled', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, MOUSEDOWN = 'mousedown' + ns, MONTH = 'month', SPAN = '<span/>', ARIA_ACTIVEDESCENDANT = 'aria-activedescendant', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', ARIA_OWNS = 'aria-owns', ARIA_DISABLED = 'aria-disabled', DATE = Date, MIN = new DATE(1800, 0, 1), MAX = new DATE(2099, 11, 31), dateViewParams = { view: 'date' }, timeViewParams = { view: 'time' }, proxy = $.proxy, extend = $.extend;
-        var DateTimePicker = Widget.extend({
-            init: function (element, options) {
-                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
-                    $(element).remove();
-                    element.id && $('label[for=' + element.id + ']').remove();
-                    return;
-                }
-                var that = this, disabled;
-                Widget.fn.init.call(that, element, options);
-                element = that.element;
-                options = that.options;
-                options.disableDates = kendo.calendar.disabled(options.disableDates);
-                options.min = parse(element.attr('min')) || parse(options.min);
-                options.max = parse(element.attr('max')) || parse(options.max);
-                normalize(options);
-                that._initialOptions = extend({}, options);
-                that._wrapper();
-                that._views();
-                that._icons();
-                that._reset();
-                that._template();
-                that._clearButton();
-                try {
-                    element[0].setAttribute('type', 'text');
-                } catch (e) {
-                    element[0].type = 'text';
-                }
-                element.addClass('k-input').attr({
-                    'role': 'combobox',
-                    'aria-expanded': false
-                });
-                that._midnight = that._calculateMidnight(options.min, options.max);
-                disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
-                if (disabled) {
-                    that.enable(false);
-                } else {
-                    that.readonly(element.is('[readonly]'));
-                }
-                that._old = that._update(options.value || that.element.val());
-                that._oldText = element.val();
-                kendo.notify(that);
-            },
-            options: {
-                name: 'DateTimePicker',
-                value: null,
-                format: '',
-                timeFormat: '',
-                culture: '',
-                parseFormats: [],
-                dates: [],
-                min: new DATE(MIN),
-                max: new DATE(MAX),
-                interval: 30,
-                height: 200,
-                footer: '',
-                start: MONTH,
-                depth: MONTH,
-                animation: {},
-                month: {},
-                ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "d")#',
-                clearButton: true
-            },
-            events: [
-                OPEN,
-                CLOSE,
-                CHANGE
-            ],
-            setOptions: function (options) {
-                var that = this, value = that._value, min, max, currentValue;
-                Widget.fn.setOptions.call(that, options);
-                options = that.options;
-                options.min = min = parse(options.min);
-                options.max = max = parse(options.max);
-                normalize(options);
-                that._midnight = that._calculateMidnight(options.min, options.max);
-                currentValue = options.value || that._value || that.dateView._current;
-                if (min && !isEqualDatePart(min, currentValue)) {
-                    min = new DATE(MIN);
-                }
-                if (max && !isEqualDatePart(max, currentValue)) {
-                    max = new DATE(MAX);
-                }
-                that.dateView.setOptions(options);
-                that.timeView.setOptions(extend({}, options, {
-                    format: options.timeFormat,
-                    min: min,
-                    max: max
-                }));
-                if (value) {
-                    that.element.val(kendo.toString(value, options.format, options.culture));
-                    that._updateARIA(value);
-                }
-            },
-            _editable: function (options) {
-                var that = this, element = that.element.off(ns), dateIcon = that._dateIcon.off(ns), timeIcon = that._timeIcon.off(ns), wrapper = that._inputWrapper.off(ns), readonly = options.readonly, disable = options.disable, clear = that._clear;
-                if (!readonly && !disable) {
-                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
-                    element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false).on('keydown' + ns, $.proxy(that._keydown, that)).on('focus' + ns, function () {
-                        that._inputWrapper.addClass(FOCUSED);
-                    }).on('focusout' + ns, proxy(that._blur, that));
-                    dateIcon.on(MOUSEDOWN, preventDefault).on(CLICK, function () {
-                        that.toggle('date');
-                        if (!kendo.support.touch && element[0] !== activeElement()) {
-                            element.focus();
-                        }
-                    });
-                    timeIcon.on(MOUSEDOWN, preventDefault).on(CLICK, function () {
-                        that.toggle('time');
-                        if (!kendo.support.touch && element[0] !== activeElement()) {
-                            element.focus();
-                        }
-                    });
-                    clear.on(CLICK, $.proxy(that._clearValue, that)).on(MOUSEDOWN, function (e) {
-                        e.preventDefault();
-                    });
-                } else {
-                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
-                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
-                }
-            },
-            _clearValue: function () {
-                if ('' !== this._oldText || '' !== this.element.val()) {
-                    this._change('');
-                }
-                this.element.blur();
-            },
-            _blur: function () {
-                var that = this, value = that.element.val();
-                that._inputWrapper.removeClass(FOCUSED);
-                if (value !== that._oldText) {
-                    that._change(value);
-                }
-                that.close('date');
-                that.close('time');
-            },
-            readonly: function (readonly) {
-                this._editable({
-                    readonly: readonly === undefined ? true : readonly,
-                    disable: false
-                });
-            },
-            enable: function (enable) {
-                this._editable({
-                    readonly: false,
-                    disable: !(enable = enable === undefined ? true : enable)
-                });
-            },
-            destroy: function () {
-                var that = this;
-                Widget.fn.destroy.call(that);
-                that.dateView.destroy();
-                that.timeView.destroy();
-                that.element.off(ns);
-                that._dateIcon.off(ns);
-                that._timeIcon.off(ns);
-                that._inputWrapper.off(ns);
-                that._clear.off(ns);
-                if (that._form) {
-                    that._form.off('reset', that._resetHandler);
-                }
-            },
-            close: function (view) {
-                if (view !== 'time') {
-                    view = 'date';
-                }
-                this[view + 'View'].close();
-            },
-            open: function (view) {
-                if (view !== 'time') {
-                    view = 'date';
-                }
-                this[view + 'View'].open();
-            },
-            min: function (value) {
-                return this._option('min', value);
-            },
-            max: function (value) {
-                return this._option('max', value);
-            },
-            toggle: function (view) {
-                var secondView = 'timeView';
-                if (view !== 'time') {
-                    view = 'date';
-                } else {
-                    secondView = 'dateView';
-                }
-                this[view + 'View'].toggle();
-                this[secondView].close();
-            },
-            value: function (value) {
-                var that = this;
-                if (value === undefined) {
-                    return that._value;
-                }
-                that._old = that._update(value);
-                if (that._old === null) {
-                    that.element.val('');
-                }
-                that._oldText = that.element.val();
-            },
-            _change: function (value) {
-                var that = this, oldValue = that.element.val(), dateChanged;
-                value = that._update(value);
-                dateChanged = +that._old != +value;
-                var valueUpdated = dateChanged && !that._typing;
-                var textFormatted = oldValue !== that.element.val();
-                if (valueUpdated || textFormatted) {
-                    that.element.trigger(CHANGE);
-                }
-                if (dateChanged) {
-                    that._old = value;
-                    that._oldText = that.element.val();
-                    that.trigger(CHANGE);
-                }
-                that._typing = false;
-            },
-            _option: function (option, value) {
-                var that = this;
-                var options = that.options;
-                var timeView = that.timeView;
-                var timeViewOptions = timeView.options;
-                var current = that._value || that._old;
-                var minDateEqual;
-                var maxDateEqual;
-                if (value === undefined) {
-                    return options[option];
-                }
-                value = parse(value, options.parseFormats, options.culture);
-                if (!value) {
-                    return;
-                }
-                if (options.min.getTime() === options.max.getTime()) {
-                    timeViewOptions.dates = [];
-                }
-                options[option] = new DATE(value.getTime());
-                that.dateView[option](value);
-                that._midnight = that._calculateMidnight(options.min, options.max);
-                if (current) {
-                    minDateEqual = isEqualDatePart(options.min, current);
-                    maxDateEqual = isEqualDatePart(options.max, current);
-                }
-                if (minDateEqual || maxDateEqual) {
-                    timeViewOptions[option] = value;
-                    if (minDateEqual && !maxDateEqual) {
-                        timeViewOptions.max = lastTimeOption(options.interval);
-                    }
-                    if (maxDateEqual) {
-                        if (that._midnight) {
-                            timeView.dataBind([MAX]);
-                            return;
-                        } else if (!minDateEqual) {
-                            timeViewOptions.min = MIN;
-                        }
-                    }
-                } else {
-                    timeViewOptions.max = MAX;
-                    timeViewOptions.min = MIN;
-                }
-                timeView.bind();
-            },
-            _toggleHover: function (e) {
-                $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
-            },
-            _update: function (value) {
-                var that = this, options = that.options, min = options.min, max = options.max, dates = options.dates, timeView = that.timeView, current = that._value, date = parse(value, options.parseFormats, options.culture), isSameType = date === null && current === null || date instanceof Date && current instanceof Date, rebind, timeViewOptions, old, skip, formattedValue;
-                if (options.disableDates && options.disableDates(date)) {
-                    date = null;
-                    if (!that._old && !that.element.val()) {
-                        value = null;
-                    }
-                }
-                if (+date === +current && isSameType) {
-                    formattedValue = kendo.toString(date, options.format, options.culture);
-                    if (formattedValue !== value) {
-                        that.element.val(date === null ? value : formattedValue);
-                        if (value instanceof String) {
-                            that.element.trigger(CHANGE);
-                        }
-                    }
-                    return date;
-                }
-                if (date !== null && isEqualDatePart(date, min)) {
-                    date = restrictValue(date, min, max);
-                } else if (!isInRange(date, min, max)) {
-                    date = null;
-                }
-                that._value = date;
-                timeView.value(date);
-                that.dateView.value(date);
-                if (date) {
-                    old = that._old;
-                    timeViewOptions = timeView.options;
-                    if (dates[0]) {
-                        dates = $.grep(dates, function (d) {
-                            return isEqualDatePart(date, d);
-                        });
-                        if (dates[0]) {
-                            timeView.dataBind(dates);
-                            skip = true;
-                        }
-                    }
-                    if (!skip) {
-                        if (isEqualDatePart(date, min)) {
-                            timeViewOptions.min = min;
-                            timeViewOptions.max = lastTimeOption(options.interval);
-                            rebind = true;
-                        }
-                        if (isEqualDatePart(date, max)) {
-                            if (that._midnight) {
-                                timeView.dataBind([MAX]);
-                                skip = true;
-                            } else {
-                                timeViewOptions.max = max;
-                                if (!rebind) {
-                                    timeViewOptions.min = MIN;
-                                }
-                                rebind = true;
-                            }
-                        }
-                    }
-                    if (!skip && (!old && rebind || old && !isEqualDatePart(old, date))) {
-                        if (!rebind) {
-                            timeViewOptions.max = MAX;
-                            timeViewOptions.min = MIN;
-                        }
-                        timeView.bind();
-                    }
-                }
-                that.element.val(date ? kendo.toString(date, options.format, options.culture) : value);
-                that._updateARIA(date);
-                return date;
-            },
-            _keydown: function (e) {
-                var that = this, dateView = that.dateView, timeView = that.timeView, value = that.element.val(), isDateViewVisible = dateView.popup.visible();
-                if (e.altKey && e.keyCode === kendo.keys.DOWN) {
-                    that.toggle(isDateViewVisible ? 'time' : 'date');
-                } else if (isDateViewVisible) {
-                    dateView.move(e);
-                    that._updateARIA(dateView._current);
-                } else if (timeView.popup.visible()) {
-                    timeView.move(e);
-                } else if (e.keyCode === kendo.keys.ENTER && value !== that._oldText) {
-                    that._change(value);
-                } else {
-                    that._typing = true;
-                }
-            },
-            _views: function () {
-                var that = this, element = that.element, options = that.options, id = element.attr('id'), dateView, timeView, div, ul, msMin, date;
-                that.dateView = dateView = new kendo.DateView(extend({}, options, {
-                    id: id,
-                    anchor: that.wrapper,
-                    change: function () {
-                        var value = dateView.calendar.value(), msValue = +value, msMin = +options.min, msMax = +options.max, current, adjustedDate;
-                        if (msValue === msMin || msValue === msMax) {
-                            current = msValue === msMin ? msMin : msMax;
-                            current = new DATE(that._value || current);
-                            current.setFullYear(value.getFullYear(), value.getMonth(), value.getDate());
-                            if (isInRange(current, msMin, msMax)) {
-                                value = current;
-                            }
-                        }
-                        if (that._value) {
-                            adjustedDate = kendo.date.setHours(new Date(value), that._value);
-                            if (isInRange(adjustedDate, msMin, msMax)) {
-                                value = adjustedDate;
-                            }
-                        }
-                        that._change(value);
-                        that.close('date');
-                    },
-                    close: function (e) {
-                        if (that.trigger(CLOSE, dateViewParams)) {
-                            e.preventDefault();
-                        } else {
-                            element.attr(ARIA_EXPANDED, false);
-                            div.attr(ARIA_HIDDEN, true);
-                            if (!timeView.popup.visible()) {
-                                element.removeAttr(ARIA_OWNS);
-                            }
-                        }
-                    },
-                    open: function (e) {
-                        if (that.trigger(OPEN, dateViewParams)) {
-                            e.preventDefault();
-                        } else {
-                            if (element.val() !== that._oldText) {
-                                date = parse(element.val(), options.parseFormats, options.culture);
-                                that.dateView[date ? 'current' : 'value'](date);
-                            }
-                            div.attr(ARIA_HIDDEN, false);
-                            element.attr(ARIA_EXPANDED, true).attr(ARIA_OWNS, dateView._dateViewID);
-                            that._updateARIA(date);
-                        }
-                    }
-                }));
-                div = dateView.div;
-                msMin = options.min.getTime();
-                that.timeView = timeView = new TimeView({
-                    id: id,
-                    value: options.value,
-                    anchor: that.wrapper,
-                    animation: options.animation,
-                    format: options.timeFormat,
-                    culture: options.culture,
-                    height: options.height,
-                    interval: options.interval,
-                    min: new DATE(MIN),
-                    max: new DATE(MAX),
-                    dates: msMin === options.max.getTime() ? [new Date(msMin)] : [],
-                    parseFormats: options.parseFormats,
-                    change: function (value, trigger) {
-                        value = timeView._parse(value);
-                        if (value < options.min) {
-                            value = new DATE(+options.min);
-                            timeView.options.min = value;
-                        } else if (value > options.max) {
-                            value = new DATE(+options.max);
-                            timeView.options.max = value;
-                        }
-                        if (trigger) {
-                            that._timeSelected = true;
-                            that._change(value);
-                        } else {
-                            element.val(kendo.toString(value, options.format, options.culture));
-                            dateView.value(value);
-                            that._updateARIA(value);
-                        }
-                    },
-                    close: function (e) {
-                        if (that.trigger(CLOSE, timeViewParams)) {
-                            e.preventDefault();
-                        } else {
-                            ul.attr(ARIA_HIDDEN, true);
-                            element.attr(ARIA_EXPANDED, false);
-                            if (!dateView.popup.visible()) {
-                                element.removeAttr(ARIA_OWNS);
-                            }
-                        }
-                    },
-                    open: function (e) {
-                        timeView._adjustListWidth();
-                        if (that.trigger(OPEN, timeViewParams)) {
-                            e.preventDefault();
-                        } else {
-                            if (element.val() !== that._oldText) {
-                                date = parse(element.val(), options.parseFormats, options.culture);
-                                that.timeView.value(date);
-                            }
-                            ul.attr(ARIA_HIDDEN, false);
-                            element.attr(ARIA_EXPANDED, true).attr(ARIA_OWNS, timeView._timeViewID);
-                            timeView.options.active(timeView.current());
-                        }
-                    },
-                    active: function (current) {
-                        element.removeAttr(ARIA_ACTIVEDESCENDANT);
-                        if (current) {
-                            element.attr(ARIA_ACTIVEDESCENDANT, timeView._optionID);
-                        }
-                    }
-                });
-                ul = timeView.ul;
-            },
-            _icons: function () {
-                var that = this, element = that.element, icons;
-                icons = element.next('span.k-select');
-                if (!icons[0]) {
-                    icons = $('<span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-calendar">select</span><span unselectable="on" class="k-icon k-i-clock">select</span></span>').insertAfter(element);
-                }
-                icons = icons.children();
-                that._dateIcon = icons.eq(0).attr({
-                    'role': 'button',
-                    'aria-controls': that.dateView._dateViewID
-                });
-                that._timeIcon = icons.eq(1).attr({
-                    'role': 'button',
-                    'aria-controls': that.timeView._timeViewID
-                });
-            },
-            _clearButton: function () {
-                this._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
-                    'role': 'button',
-                    'tabIndex': -1
-                });
-                if (this.options.clearButton) {
-                    this._clear.insertAfter(this.element);
-                }
-            },
-            _wrapper: function () {
-                var that = this, element = that.element, wrapper;
-                wrapper = element.parents('.k-datetimepicker');
-                if (!wrapper[0]) {
-                    wrapper = element.wrap(SPAN).parent().addClass('k-picker-wrap k-state-default');
-                    wrapper = wrapper.wrap(SPAN).parent();
-                }
-                wrapper[0].style.cssText = element[0].style.cssText;
-                element.css({
-                    width: '100%',
-                    height: element[0].style.height
-                });
-                that.wrapper = wrapper.addClass('k-widget k-datetimepicker k-header').addClass(element[0].className);
-                that._inputWrapper = $(wrapper[0].firstChild);
-            },
-            _reset: function () {
-                var that = this, element = that.element, formId = element.attr('form'), form = formId ? $('#' + formId) : element.closest('form');
-                if (form[0]) {
-                    that._resetHandler = function () {
-                        that.value(element[0].defaultValue);
-                        that.max(that._initialOptions.max);
-                        that.min(that._initialOptions.min);
-                    };
-                    that._form = form.on('reset', that._resetHandler);
-                }
-            },
-            _template: function () {
-                this._ariaTemplate = kendo.template(this.options.ARIATemplate);
-            },
-            _calculateMidnight: function (min, max) {
-                return getMilliseconds(min) + getMilliseconds(max) === 0;
-            },
-            _updateARIA: function (date) {
-                var cell;
-                var that = this;
-                var calendar = that.dateView.calendar;
-                that.element.removeAttr(ARIA_ACTIVEDESCENDANT);
-                if (calendar) {
-                    cell = calendar._cell;
-                    cell.attr('aria-label', that._ariaTemplate({ current: date || calendar.current() }));
-                    that.element.attr(ARIA_ACTIVEDESCENDANT, cell.attr('id'));
-                }
-            }
-        });
-        function lastTimeOption(interval) {
-            var date = new Date(2100, 0, 1);
-            date.setMinutes(-interval);
-            return date;
-        }
-        function preventDefault(e) {
-            e.preventDefault();
-        }
-        function normalize(options) {
-            var patterns = kendo.getCulture(options.culture).calendars.standard.patterns, parseFormats = !options.parseFormats.length, timeFormat;
-            options.format = extractFormat(options.format || patterns.g);
-            options.timeFormat = timeFormat = extractFormat(options.timeFormat || patterns.t);
-            kendo.DateView.normalize(options);
-            if (parseFormats) {
-                options.parseFormats.unshift('yyyy-MM-ddTHH:mm:ss');
-            }
-            if ($.inArray(timeFormat, options.parseFormats) === -1) {
-                options.parseFormats.splice(1, 0, timeFormat);
-            }
-        }
-        ui.plugin(DateTimePicker);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -59572,6 +58997,582 @@
             }
         });
         kendo.ui.plugin(ToolBar);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.datetimepicker', [
+        'kendo.datepicker',
+        'kendo.timepicker'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'datetimepicker',
+        name: 'DateTimePicker',
+        category: 'web',
+        description: 'The DateTimePicker allows the end user to select a value from a calendar or a time drop-down list.',
+        depends: [
+            'datepicker',
+            'timepicker'
+        ]
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, TimeView = kendo.TimeView, parse = kendo.parseDate, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, calendar = kendo.calendar, isInRange = calendar.isInRange, restrictValue = calendar.restrictValue, isEqualDatePart = calendar.isEqualDatePart, getMilliseconds = TimeView.getMilliseconds, ui = kendo.ui, Widget = ui.Widget, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', ns = '.kendoDateTimePicker', CLICK = 'click' + ns, DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', STATEDISABLED = 'k-state-disabled', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, MOUSEDOWN = 'mousedown' + ns, MONTH = 'month', SPAN = '<span/>', ARIA_ACTIVEDESCENDANT = 'aria-activedescendant', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', ARIA_OWNS = 'aria-owns', ARIA_DISABLED = 'aria-disabled', DATE = Date, MIN = new DATE(1800, 0, 1), MAX = new DATE(2099, 11, 31), dateViewParams = { view: 'date' }, timeViewParams = { view: 'time' }, proxy = $.proxy, extend = $.extend;
+        var DateTimePicker = Widget.extend({
+            init: function (element, options) {
+                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
+                    $(element).remove();
+                    element.id && $('label[for=' + element.id + ']').remove();
+                    return;
+                }
+                var that = this, disabled;
+                Widget.fn.init.call(that, element, options);
+                element = that.element;
+                options = that.options;
+                options.disableDates = kendo.calendar.disabled(options.disableDates);
+                options.min = parse(element.attr('min')) || parse(options.min);
+                options.max = parse(element.attr('max')) || parse(options.max);
+                normalize(options);
+                that._initialOptions = extend({}, options);
+                that._wrapper();
+                that._views();
+                that._icons();
+                that._reset();
+                that._template();
+                that._clearButton();
+                try {
+                    element[0].setAttribute('type', 'text');
+                } catch (e) {
+                    element[0].type = 'text';
+                }
+                element.addClass('k-input').attr({
+                    'role': 'combobox',
+                    'aria-expanded': false
+                });
+                that._midnight = that._calculateMidnight(options.min, options.max);
+                disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
+                if (disabled) {
+                    that.enable(false);
+                } else {
+                    that.readonly(element.is('[readonly]'));
+                }
+                that._old = that._update(options.value || that.element.val());
+                that._oldText = element.val();
+                kendo.notify(that);
+            },
+            options: {
+                name: 'DateTimePicker',
+                value: null,
+                format: '',
+                timeFormat: '',
+                culture: '',
+                parseFormats: [],
+                dates: [],
+                min: new DATE(MIN),
+                max: new DATE(MAX),
+                interval: 30,
+                height: 200,
+                footer: '',
+                start: MONTH,
+                depth: MONTH,
+                animation: {},
+                month: {},
+                ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "d")#',
+                clearButton: true
+            },
+            events: [
+                OPEN,
+                CLOSE,
+                CHANGE
+            ],
+            setOptions: function (options) {
+                var that = this, value = that._value, min, max, currentValue;
+                Widget.fn.setOptions.call(that, options);
+                options = that.options;
+                options.min = min = parse(options.min);
+                options.max = max = parse(options.max);
+                normalize(options);
+                that._midnight = that._calculateMidnight(options.min, options.max);
+                currentValue = options.value || that._value || that.dateView._current;
+                if (min && !isEqualDatePart(min, currentValue)) {
+                    min = new DATE(MIN);
+                }
+                if (max && !isEqualDatePart(max, currentValue)) {
+                    max = new DATE(MAX);
+                }
+                that.dateView.setOptions(options);
+                that.timeView.setOptions(extend({}, options, {
+                    format: options.timeFormat,
+                    min: min,
+                    max: max
+                }));
+                if (value) {
+                    that.element.val(kendo.toString(value, options.format, options.culture));
+                    that._updateARIA(value);
+                }
+            },
+            _editable: function (options) {
+                var that = this, element = that.element.off(ns), dateIcon = that._dateIcon.off(ns), timeIcon = that._timeIcon.off(ns), wrapper = that._inputWrapper.off(ns), readonly = options.readonly, disable = options.disable, clear = that._clear;
+                if (!readonly && !disable) {
+                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
+                    element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false).on('keydown' + ns, $.proxy(that._keydown, that)).on('focus' + ns, function () {
+                        that._inputWrapper.addClass(FOCUSED);
+                    }).on('focusout' + ns, proxy(that._blur, that));
+                    dateIcon.on(MOUSEDOWN, preventDefault).on(CLICK, function () {
+                        that.toggle('date');
+                        if (!kendo.support.touch && element[0] !== activeElement()) {
+                            element.focus();
+                        }
+                    });
+                    timeIcon.on(MOUSEDOWN, preventDefault).on(CLICK, function () {
+                        that.toggle('time');
+                        if (!kendo.support.touch && element[0] !== activeElement()) {
+                            element.focus();
+                        }
+                    });
+                    clear.on(CLICK, $.proxy(that._clearValue, that)).on(MOUSEDOWN, function (e) {
+                        e.preventDefault();
+                    });
+                } else {
+                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
+                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
+                }
+            },
+            _clearValue: function () {
+                if ('' !== this._oldText || '' !== this.element.val()) {
+                    this._change('');
+                }
+                this.element.blur();
+            },
+            _blur: function () {
+                var that = this, value = that.element.val();
+                that._inputWrapper.removeClass(FOCUSED);
+                if (value !== that._oldText) {
+                    that._change(value);
+                }
+                that.close('date');
+                that.close('time');
+            },
+            readonly: function (readonly) {
+                this._editable({
+                    readonly: readonly === undefined ? true : readonly,
+                    disable: false
+                });
+            },
+            enable: function (enable) {
+                this._editable({
+                    readonly: false,
+                    disable: !(enable = enable === undefined ? true : enable)
+                });
+            },
+            destroy: function () {
+                var that = this;
+                Widget.fn.destroy.call(that);
+                that.dateView.destroy();
+                that.timeView.destroy();
+                that.element.off(ns);
+                that._dateIcon.off(ns);
+                that._timeIcon.off(ns);
+                that._inputWrapper.off(ns);
+                that._clear.off(ns);
+                if (that._form) {
+                    that._form.off('reset', that._resetHandler);
+                }
+            },
+            close: function (view) {
+                if (view !== 'time') {
+                    view = 'date';
+                }
+                this[view + 'View'].close();
+            },
+            open: function (view) {
+                if (view !== 'time') {
+                    view = 'date';
+                }
+                this[view + 'View'].open();
+            },
+            min: function (value) {
+                return this._option('min', value);
+            },
+            max: function (value) {
+                return this._option('max', value);
+            },
+            toggle: function (view) {
+                var secondView = 'timeView';
+                if (view !== 'time') {
+                    view = 'date';
+                } else {
+                    secondView = 'dateView';
+                }
+                this[view + 'View'].toggle();
+                this[secondView].close();
+            },
+            value: function (value) {
+                var that = this;
+                if (value === undefined) {
+                    return that._value;
+                }
+                that._old = that._update(value);
+                if (that._old === null) {
+                    that.element.val('');
+                }
+                that._oldText = that.element.val();
+            },
+            _change: function (value) {
+                var that = this, oldValue = that.element.val(), dateChanged;
+                value = that._update(value);
+                dateChanged = +that._old != +value;
+                var valueUpdated = dateChanged && !that._typing;
+                var textFormatted = oldValue !== that.element.val();
+                if (valueUpdated || textFormatted) {
+                    that.element.trigger(CHANGE);
+                }
+                if (dateChanged) {
+                    that._old = value;
+                    that._oldText = that.element.val();
+                    that.trigger(CHANGE);
+                }
+                that._typing = false;
+            },
+            _option: function (option, value) {
+                var that = this;
+                var options = that.options;
+                var timeView = that.timeView;
+                var timeViewOptions = timeView.options;
+                var current = that._value || that._old;
+                var minDateEqual;
+                var maxDateEqual;
+                if (value === undefined) {
+                    return options[option];
+                }
+                value = parse(value, options.parseFormats, options.culture);
+                if (!value) {
+                    return;
+                }
+                if (options.min.getTime() === options.max.getTime()) {
+                    timeViewOptions.dates = [];
+                }
+                options[option] = new DATE(value.getTime());
+                that.dateView[option](value);
+                that._midnight = that._calculateMidnight(options.min, options.max);
+                if (current) {
+                    minDateEqual = isEqualDatePart(options.min, current);
+                    maxDateEqual = isEqualDatePart(options.max, current);
+                }
+                if (minDateEqual || maxDateEqual) {
+                    timeViewOptions[option] = value;
+                    if (minDateEqual && !maxDateEqual) {
+                        timeViewOptions.max = lastTimeOption(options.interval);
+                    }
+                    if (maxDateEqual) {
+                        if (that._midnight) {
+                            timeView.dataBind([MAX]);
+                            return;
+                        } else if (!minDateEqual) {
+                            timeViewOptions.min = MIN;
+                        }
+                    }
+                } else {
+                    timeViewOptions.max = MAX;
+                    timeViewOptions.min = MIN;
+                }
+                timeView.bind();
+            },
+            _toggleHover: function (e) {
+                $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
+            },
+            _update: function (value) {
+                var that = this, options = that.options, min = options.min, max = options.max, dates = options.dates, timeView = that.timeView, current = that._value, date = parse(value, options.parseFormats, options.culture), isSameType = date === null && current === null || date instanceof Date && current instanceof Date, rebind, timeViewOptions, old, skip, formattedValue;
+                if (options.disableDates && options.disableDates(date)) {
+                    date = null;
+                    if (!that._old && !that.element.val()) {
+                        value = null;
+                    }
+                }
+                if (+date === +current && isSameType) {
+                    formattedValue = kendo.toString(date, options.format, options.culture);
+                    if (formattedValue !== value) {
+                        that.element.val(date === null ? value : formattedValue);
+                        if (value instanceof String) {
+                            that.element.trigger(CHANGE);
+                        }
+                    }
+                    return date;
+                }
+                if (date !== null && isEqualDatePart(date, min)) {
+                    date = restrictValue(date, min, max);
+                } else if (!isInRange(date, min, max)) {
+                    date = null;
+                }
+                that._value = date;
+                timeView.value(date);
+                that.dateView.value(date);
+                if (date) {
+                    old = that._old;
+                    timeViewOptions = timeView.options;
+                    if (dates[0]) {
+                        dates = $.grep(dates, function (d) {
+                            return isEqualDatePart(date, d);
+                        });
+                        if (dates[0]) {
+                            timeView.dataBind(dates);
+                            skip = true;
+                        }
+                    }
+                    if (!skip) {
+                        if (isEqualDatePart(date, min)) {
+                            timeViewOptions.min = min;
+                            timeViewOptions.max = lastTimeOption(options.interval);
+                            rebind = true;
+                        }
+                        if (isEqualDatePart(date, max)) {
+                            if (that._midnight) {
+                                timeView.dataBind([MAX]);
+                                skip = true;
+                            } else {
+                                timeViewOptions.max = max;
+                                if (!rebind) {
+                                    timeViewOptions.min = MIN;
+                                }
+                                rebind = true;
+                            }
+                        }
+                    }
+                    if (!skip && (!old && rebind || old && !isEqualDatePart(old, date))) {
+                        if (!rebind) {
+                            timeViewOptions.max = MAX;
+                            timeViewOptions.min = MIN;
+                        }
+                        timeView.bind();
+                    }
+                }
+                that.element.val(date ? kendo.toString(date, options.format, options.culture) : value);
+                that._updateARIA(date);
+                return date;
+            },
+            _keydown: function (e) {
+                var that = this, dateView = that.dateView, timeView = that.timeView, value = that.element.val(), isDateViewVisible = dateView.popup.visible();
+                if (e.altKey && e.keyCode === kendo.keys.DOWN) {
+                    that.toggle(isDateViewVisible ? 'time' : 'date');
+                } else if (isDateViewVisible) {
+                    dateView.move(e);
+                    that._updateARIA(dateView._current);
+                } else if (timeView.popup.visible()) {
+                    timeView.move(e);
+                } else if (e.keyCode === kendo.keys.ENTER && value !== that._oldText) {
+                    that._change(value);
+                } else {
+                    that._typing = true;
+                }
+            },
+            _views: function () {
+                var that = this, element = that.element, options = that.options, id = element.attr('id'), dateView, timeView, div, ul, msMin, date;
+                that.dateView = dateView = new kendo.DateView(extend({}, options, {
+                    id: id,
+                    anchor: that.wrapper,
+                    change: function () {
+                        var value = dateView.calendar.value(), msValue = +value, msMin = +options.min, msMax = +options.max, current, adjustedDate;
+                        if (msValue === msMin || msValue === msMax) {
+                            current = msValue === msMin ? msMin : msMax;
+                            current = new DATE(that._value || current);
+                            current.setFullYear(value.getFullYear(), value.getMonth(), value.getDate());
+                            if (isInRange(current, msMin, msMax)) {
+                                value = current;
+                            }
+                        }
+                        if (that._value) {
+                            adjustedDate = kendo.date.setHours(new Date(value), that._value);
+                            if (isInRange(adjustedDate, msMin, msMax)) {
+                                value = adjustedDate;
+                            }
+                        }
+                        that._change(value);
+                        that.close('date');
+                    },
+                    close: function (e) {
+                        if (that.trigger(CLOSE, dateViewParams)) {
+                            e.preventDefault();
+                        } else {
+                            element.attr(ARIA_EXPANDED, false);
+                            div.attr(ARIA_HIDDEN, true);
+                            if (!timeView.popup.visible()) {
+                                element.removeAttr(ARIA_OWNS);
+                            }
+                        }
+                    },
+                    open: function (e) {
+                        if (that.trigger(OPEN, dateViewParams)) {
+                            e.preventDefault();
+                        } else {
+                            if (element.val() !== that._oldText) {
+                                date = parse(element.val(), options.parseFormats, options.culture);
+                                that.dateView[date ? 'current' : 'value'](date);
+                            }
+                            div.attr(ARIA_HIDDEN, false);
+                            element.attr(ARIA_EXPANDED, true).attr(ARIA_OWNS, dateView._dateViewID);
+                            that._updateARIA(date);
+                        }
+                    }
+                }));
+                div = dateView.div;
+                msMin = options.min.getTime();
+                that.timeView = timeView = new TimeView({
+                    id: id,
+                    value: options.value,
+                    anchor: that.wrapper,
+                    animation: options.animation,
+                    format: options.timeFormat,
+                    culture: options.culture,
+                    height: options.height,
+                    interval: options.interval,
+                    min: new DATE(MIN),
+                    max: new DATE(MAX),
+                    dates: msMin === options.max.getTime() ? [new Date(msMin)] : [],
+                    parseFormats: options.parseFormats,
+                    change: function (value, trigger) {
+                        value = timeView._parse(value);
+                        if (value < options.min) {
+                            value = new DATE(+options.min);
+                            timeView.options.min = value;
+                        } else if (value > options.max) {
+                            value = new DATE(+options.max);
+                            timeView.options.max = value;
+                        }
+                        if (trigger) {
+                            that._timeSelected = true;
+                            that._change(value);
+                        } else {
+                            element.val(kendo.toString(value, options.format, options.culture));
+                            dateView.value(value);
+                            that._updateARIA(value);
+                        }
+                    },
+                    close: function (e) {
+                        if (that.trigger(CLOSE, timeViewParams)) {
+                            e.preventDefault();
+                        } else {
+                            ul.attr(ARIA_HIDDEN, true);
+                            element.attr(ARIA_EXPANDED, false);
+                            if (!dateView.popup.visible()) {
+                                element.removeAttr(ARIA_OWNS);
+                            }
+                        }
+                    },
+                    open: function (e) {
+                        timeView._adjustListWidth();
+                        if (that.trigger(OPEN, timeViewParams)) {
+                            e.preventDefault();
+                        } else {
+                            if (element.val() !== that._oldText) {
+                                date = parse(element.val(), options.parseFormats, options.culture);
+                                that.timeView.value(date);
+                            }
+                            ul.attr(ARIA_HIDDEN, false);
+                            element.attr(ARIA_EXPANDED, true).attr(ARIA_OWNS, timeView._timeViewID);
+                            timeView.options.active(timeView.current());
+                        }
+                    },
+                    active: function (current) {
+                        element.removeAttr(ARIA_ACTIVEDESCENDANT);
+                        if (current) {
+                            element.attr(ARIA_ACTIVEDESCENDANT, timeView._optionID);
+                        }
+                    }
+                });
+                ul = timeView.ul;
+            },
+            _icons: function () {
+                var that = this, element = that.element, icons;
+                icons = element.next('span.k-select');
+                if (!icons[0]) {
+                    icons = $('<span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-calendar">select</span><span unselectable="on" class="k-icon k-i-clock">select</span></span>').insertAfter(element);
+                }
+                icons = icons.children();
+                that._dateIcon = icons.eq(0).attr({
+                    'role': 'button',
+                    'aria-controls': that.dateView._dateViewID
+                });
+                that._timeIcon = icons.eq(1).attr({
+                    'role': 'button',
+                    'aria-controls': that.timeView._timeViewID
+                });
+            },
+            _clearButton: function () {
+                this._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
+                    'role': 'button',
+                    'tabIndex': -1
+                });
+                if (this.options.clearButton) {
+                    this._clear.insertAfter(this.element);
+                }
+            },
+            _wrapper: function () {
+                var that = this, element = that.element, wrapper;
+                wrapper = element.parents('.k-datetimepicker');
+                if (!wrapper[0]) {
+                    wrapper = element.wrap(SPAN).parent().addClass('k-picker-wrap k-state-default');
+                    wrapper = wrapper.wrap(SPAN).parent();
+                }
+                wrapper[0].style.cssText = element[0].style.cssText;
+                element.css({
+                    width: '100%',
+                    height: element[0].style.height
+                });
+                that.wrapper = wrapper.addClass('k-widget k-datetimepicker k-header').addClass(element[0].className);
+                that._inputWrapper = $(wrapper[0].firstChild);
+            },
+            _reset: function () {
+                var that = this, element = that.element, formId = element.attr('form'), form = formId ? $('#' + formId) : element.closest('form');
+                if (form[0]) {
+                    that._resetHandler = function () {
+                        that.value(element[0].defaultValue);
+                        that.max(that._initialOptions.max);
+                        that.min(that._initialOptions.min);
+                    };
+                    that._form = form.on('reset', that._resetHandler);
+                }
+            },
+            _template: function () {
+                this._ariaTemplate = kendo.template(this.options.ARIATemplate);
+            },
+            _calculateMidnight: function (min, max) {
+                return getMilliseconds(min) + getMilliseconds(max) === 0;
+            },
+            _updateARIA: function (date) {
+                var cell;
+                var that = this;
+                var calendar = that.dateView.calendar;
+                that.element.removeAttr(ARIA_ACTIVEDESCENDANT);
+                if (calendar) {
+                    cell = calendar._cell;
+                    cell.attr('aria-label', that._ariaTemplate({ current: date || calendar.current() }));
+                    that.element.attr(ARIA_ACTIVEDESCENDANT, cell.attr('id'));
+                }
+            }
+        });
+        function lastTimeOption(interval) {
+            var date = new Date(2100, 0, 1);
+            date.setMinutes(-interval);
+            return date;
+        }
+        function preventDefault(e) {
+            e.preventDefault();
+        }
+        function normalize(options) {
+            var patterns = kendo.getCulture(options.culture).calendars.standard.patterns, parseFormats = !options.parseFormats.length, timeFormat;
+            options.format = extractFormat(options.format || patterns.g);
+            options.timeFormat = timeFormat = extractFormat(options.timeFormat || patterns.t);
+            kendo.DateView.normalize(options);
+            if (parseFormats) {
+                options.parseFormats.unshift('yyyy-MM-ddTHH:mm:ss');
+            }
+            if ($.inArray(timeFormat, options.parseFormats) === -1) {
+                options.parseFormats.splice(1, 0, timeFormat);
+            }
+        }
+        ui.plugin(DateTimePicker);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -61274,488 +61275,6 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.splitter', ['kendo.resizable'], f);
-}(function () {
-    var __meta__ = {
-        id: 'splitter',
-        name: 'Splitter',
-        category: 'web',
-        description: 'The Splitter widget provides an easy way to create a dynamic layout of resizable and collapsible panes.',
-        depends: ['resizable']
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, keys = kendo.keys, extend = $.extend, proxy = $.proxy, Widget = ui.Widget, pxUnitsRegex = /^\d+(\.\d+)?px$/i, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, NS = '.kendoSplitter', EXPAND = 'expand', COLLAPSE = 'collapse', CONTENTLOAD = 'contentLoad', ERROR = 'error', RESIZE = 'resize', LAYOUTCHANGE = 'layoutChange', HORIZONTAL = 'horizontal', VERTICAL = 'vertical', MOUSEENTER = 'mouseenter', CLICK = 'click', PANE = 'pane', MOUSELEAVE = 'mouseleave', FOCUSED = 'k-state-focused', KPANE = 'k-' + PANE, PANECLASS = '.' + KPANE;
-        function isPercentageSize(size) {
-            return percentageUnitsRegex.test(size);
-        }
-        function isPixelSize(size) {
-            return pxUnitsRegex.test(size) || /^\d+$/.test(size);
-        }
-        function isFluid(size) {
-            return !isPercentageSize(size) && !isPixelSize(size);
-        }
-        function calculateSize(size, total) {
-            var output = parseInt(size, 10);
-            if (isPercentageSize(size)) {
-                output = Math.floor(output * total / 100);
-            }
-            return output;
-        }
-        function panePropertyAccessor(propertyName, triggersResize) {
-            return function (pane, value) {
-                var paneConfig = this.element.find(pane).data(PANE);
-                if (arguments.length == 1) {
-                    return paneConfig[propertyName];
-                }
-                paneConfig[propertyName] = value;
-                if (triggersResize) {
-                    var splitter = this.element.data('kendo' + this.options.name);
-                    splitter.resize(true);
-                }
-            };
-        }
-        var Splitter = Widget.extend({
-            init: function (element, options) {
-                var that = this, isHorizontal;
-                Widget.fn.init.call(that, element, options);
-                that.wrapper = that.element;
-                isHorizontal = that.options.orientation.toLowerCase() != VERTICAL;
-                that.orientation = isHorizontal ? HORIZONTAL : VERTICAL;
-                that._dimension = isHorizontal ? 'width' : 'height';
-                that._keys = {
-                    decrease: isHorizontal ? keys.LEFT : keys.UP,
-                    increase: isHorizontal ? keys.RIGHT : keys.DOWN
-                };
-                that._resizeStep = 10;
-                that._marker = kendo.guid().substring(0, 8);
-                that._initPanes();
-                that.resizing = new PaneResizing(that);
-                that.element.triggerHandler('init' + NS);
-            },
-            events: [
-                EXPAND,
-                COLLAPSE,
-                CONTENTLOAD,
-                ERROR,
-                RESIZE,
-                LAYOUTCHANGE
-            ],
-            _addOverlays: function () {
-                this._panes().append('<div class=\'k-splitter-overlay k-overlay\' />');
-            },
-            _removeOverlays: function () {
-                this._panes().children('.k-splitter-overlay').remove();
-            },
-            _attachEvents: function () {
-                var that = this, orientation = that.options.orientation;
-                that.element.children('.k-splitbar-draggable-' + orientation).on('keydown' + NS, proxy(that._keydown, that)).on('mousedown' + NS, function (e) {
-                    e.currentTarget.focus();
-                }).on('focus' + NS, function (e) {
-                    $(e.currentTarget).addClass(FOCUSED);
-                }).on('blur' + NS, function (e) {
-                    $(e.currentTarget).removeClass(FOCUSED);
-                    if (that.resizing) {
-                        that.resizing.end();
-                    }
-                }).on(MOUSEENTER + NS, function () {
-                    $(this).addClass('k-splitbar-' + that.orientation + '-hover');
-                }).on(MOUSELEAVE + NS, function () {
-                    $(this).removeClass('k-splitbar-' + that.orientation + '-hover');
-                }).on('mousedown' + NS, proxy(that._addOverlays, that)).end().children('.k-splitbar').on('dblclick' + NS, proxy(that._togglePane, that)).children('.k-collapse-next, .k-collapse-prev').on(CLICK + NS, that._arrowClick(COLLAPSE)).end().children('.k-expand-next, .k-expand-prev').on(CLICK + NS, that._arrowClick(EXPAND)).end().end();
-                $(window).on('resize' + NS + that._marker, proxy(that.resize, that, false));
-                $(document).on('mouseup' + NS + that._marker, proxy(that._removeOverlays, that));
-            },
-            _detachEvents: function () {
-                var that = this;
-                that.element.children('.k-splitbar-draggable-' + that.orientation).off(NS).end().children('.k-splitbar').off('dblclick' + NS).children('.k-collapse-next, .k-collapse-prev, .k-expand-next, .k-expand-prev').off(NS);
-                $(window).off(NS + that._marker);
-                $(document).off(NS + that._marker);
-            },
-            options: {
-                name: 'Splitter',
-                orientation: HORIZONTAL,
-                panes: []
-            },
-            destroy: function () {
-                Widget.fn.destroy.call(this);
-                this._detachEvents();
-                if (this.resizing) {
-                    this.resizing.destroy();
-                }
-                kendo.destroy(this.element);
-                this.wrapper = this.element = null;
-            },
-            _keydown: function (e) {
-                var that = this, key = e.keyCode, resizing = that.resizing, target = $(e.currentTarget), navigationKeys = that._keys, increase = key === navigationKeys.increase, decrease = key === navigationKeys.decrease, pane;
-                if (increase || decrease) {
-                    if (e.ctrlKey) {
-                        pane = target[decrease ? 'next' : 'prev']();
-                        if (resizing && resizing.isResizing()) {
-                            resizing.end();
-                        }
-                        if (!pane[that._dimension]()) {
-                            that._triggerAction(EXPAND, pane);
-                        } else {
-                            that._triggerAction(COLLAPSE, target[decrease ? 'prev' : 'next']());
-                        }
-                    } else if (resizing) {
-                        resizing.move((decrease ? -1 : 1) * that._resizeStep, target);
-                    }
-                    e.preventDefault();
-                } else if (key === keys.ENTER && resizing) {
-                    resizing.end();
-                    e.preventDefault();
-                }
-            },
-            _initPanes: function () {
-                var panesConfig = this.options.panes || [];
-                var that = this;
-                this.element.addClass('k-widget').addClass('k-splitter').children().each(function (i, pane) {
-                    if (pane.nodeName.toLowerCase() != 'script') {
-                        that._initPane(pane, panesConfig[i]);
-                    }
-                });
-                this.resize();
-            },
-            _initPane: function (pane, config) {
-                pane = $(pane).attr('role', 'group').addClass(KPANE);
-                pane.data(PANE, config ? config : {}).toggleClass('k-scrollable', config ? config.scrollable !== false : true);
-                this.ajaxRequest(pane);
-            },
-            ajaxRequest: function (pane, url, data) {
-                var that = this, paneConfig;
-                pane = that.element.find(pane);
-                paneConfig = pane.data(PANE);
-                url = url || paneConfig.contentUrl;
-                if (url) {
-                    pane.append('<span class=\'k-icon k-loading k-pane-loading\' />');
-                    if (kendo.isLocalUrl(url)) {
-                        jQuery.ajax({
-                            url: url,
-                            data: data || {},
-                            type: 'GET',
-                            dataType: 'html',
-                            success: function (data) {
-                                that.angular('cleanup', function () {
-                                    return { elements: pane.get() };
-                                });
-                                pane.html(data);
-                                that.angular('compile', function () {
-                                    return { elements: pane.get() };
-                                });
-                                that.trigger(CONTENTLOAD, { pane: pane[0] });
-                            },
-                            error: function (xhr, status) {
-                                that.trigger(ERROR, {
-                                    pane: pane[0],
-                                    status: status,
-                                    xhr: xhr
-                                });
-                            }
-                        });
-                    } else {
-                        pane.removeClass('k-scrollable').html('<iframe src=\'' + url + '\' frameborder=\'0\' class=\'k-content-frame\'>' + 'This page requires frames in order to show content' + '</iframe>');
-                    }
-                }
-            },
-            _triggerAction: function (type, pane) {
-                if (!this.trigger(type, { pane: pane[0] })) {
-                    this[type](pane[0]);
-                }
-            },
-            _togglePane: function (e) {
-                var that = this, target = $(e.target), arrow;
-                if (target.closest('.k-splitter')[0] != that.element[0]) {
-                    return;
-                }
-                arrow = target.children('.k-icon:not(.k-resize-handle)');
-                if (arrow.length !== 1) {
-                    return;
-                }
-                if (arrow.is('.k-collapse-prev')) {
-                    that._triggerAction(COLLAPSE, target.prev());
-                } else if (arrow.is('.k-collapse-next')) {
-                    that._triggerAction(COLLAPSE, target.next());
-                } else if (arrow.is('.k-expand-prev')) {
-                    that._triggerAction(EXPAND, target.prev());
-                } else if (arrow.is('.k-expand-next')) {
-                    that._triggerAction(EXPAND, target.next());
-                }
-            },
-            _arrowClick: function (arrowType) {
-                var that = this;
-                return function (e) {
-                    var target = $(e.target), pane;
-                    if (target.closest('.k-splitter')[0] != that.element[0]) {
-                        return;
-                    }
-                    if (target.is('.k-' + arrowType + '-prev')) {
-                        pane = target.parent().prev();
-                    } else {
-                        pane = target.parent().next();
-                    }
-                    that._triggerAction(arrowType, pane);
-                };
-            },
-            _updateSplitBar: function (splitbar, previousPane, nextPane) {
-                var catIconIf = function (iconType, condition) {
-                        return condition ? '<div class=\'k-icon ' + iconType + '\' />' : '';
-                    }, orientation = this.orientation, draggable = previousPane.resizable !== false && nextPane.resizable !== false, prevCollapsible = previousPane.collapsible, prevCollapsed = previousPane.collapsed, nextCollapsible = nextPane.collapsible, nextCollapsed = nextPane.collapsed;
-                splitbar.addClass('k-splitbar k-state-default k-splitbar-' + orientation).attr('role', 'separator').attr('aria-expanded', !(prevCollapsed || nextCollapsed)).removeClass('k-splitbar-' + orientation + '-hover').toggleClass('k-splitbar-draggable-' + orientation, draggable && !prevCollapsed && !nextCollapsed).toggleClass('k-splitbar-static-' + orientation, !draggable && !prevCollapsible && !nextCollapsible).html(catIconIf('k-collapse-prev', prevCollapsible && !prevCollapsed && !nextCollapsed) + catIconIf('k-expand-prev', prevCollapsible && prevCollapsed && !nextCollapsed) + catIconIf('k-resize-handle', draggable) + catIconIf('k-collapse-next', nextCollapsible && !nextCollapsed && !prevCollapsed) + catIconIf('k-expand-next', nextCollapsible && nextCollapsed && !prevCollapsed));
-                if (!draggable && !prevCollapsible && !nextCollapsible) {
-                    splitbar.removeAttr('tabindex');
-                }
-            },
-            _updateSplitBars: function () {
-                var that = this;
-                this.element.children('.k-splitbar').each(function () {
-                    var splitbar = $(this), previousPane = splitbar.prevAll(PANECLASS).first().data(PANE), nextPane = splitbar.nextAll(PANECLASS).first().data(PANE);
-                    if (!nextPane) {
-                        return;
-                    }
-                    that._updateSplitBar(splitbar, previousPane, nextPane);
-                });
-            },
-            _removeSplitBars: function () {
-                this.element.children('.k-splitbar').remove();
-            },
-            _panes: function () {
-                if (!this.element) {
-                    return $();
-                }
-                return this.element.children(PANECLASS);
-            },
-            _resize: function () {
-                var that = this, element = that.element, panes = element.children(PANECLASS), isHorizontal = that.orientation == HORIZONTAL, splitBars = element.children('.k-splitbar'), splitBarsCount = splitBars.length, sizingProperty = isHorizontal ? 'width' : 'height', totalSize = element[sizingProperty]();
-                that.wrapper.addClass('k-splitter-resizing');
-                if (splitBarsCount === 0) {
-                    splitBarsCount = panes.length - 1;
-                    panes.slice(0, splitBarsCount).after('<div tabindex=\'0\' class=\'k-splitbar\' data-marker=\'' + that._marker + '\' />');
-                    that._updateSplitBars();
-                    splitBars = element.children('.k-splitbar');
-                } else {
-                    that._updateSplitBars();
-                }
-                splitBars.each(function () {
-                    totalSize -= this[isHorizontal ? 'offsetWidth' : 'offsetHeight'];
-                });
-                var sizedPanesWidth = 0, sizedPanesCount = 0, freeSizedPanes = $();
-                panes.css({
-                    position: 'absolute',
-                    top: 0
-                })[sizingProperty](function () {
-                    var element = $(this), config = element.data(PANE) || {}, size;
-                    element.removeClass('k-state-collapsed');
-                    if (config.collapsed) {
-                        size = config.collapsedSize ? calculateSize(config.collapsedSize, totalSize) : 0;
-                        element.css('overflow', 'hidden').addClass('k-state-collapsed');
-                    } else if (isFluid(config.size)) {
-                        freeSizedPanes = freeSizedPanes.add(this);
-                        return;
-                    } else {
-                        size = calculateSize(config.size, totalSize);
-                    }
-                    sizedPanesCount++;
-                    sizedPanesWidth += size;
-                    return size;
-                });
-                totalSize -= sizedPanesWidth;
-                var freeSizePanesCount = freeSizedPanes.length, freeSizePaneWidth = Math.floor(totalSize / freeSizePanesCount);
-                freeSizedPanes.slice(0, freeSizePanesCount - 1).css(sizingProperty, freeSizePaneWidth).end().eq(freeSizePanesCount - 1).css(sizingProperty, totalSize - (freeSizePanesCount - 1) * freeSizePaneWidth);
-                var sum = 0, alternateSizingProperty = isHorizontal ? 'height' : 'width', positioningProperty = isHorizontal ? 'left' : 'top', sizingDomProperty = isHorizontal ? 'offsetWidth' : 'offsetHeight';
-                if (freeSizePanesCount === 0) {
-                    var lastNonCollapsedPane = panes.filter(function () {
-                        return !($(this).data(PANE) || {}).collapsed;
-                    }).last();
-                    lastNonCollapsedPane[sizingProperty](totalSize + lastNonCollapsedPane[0][sizingDomProperty]);
-                }
-                element.children().css(alternateSizingProperty, element[alternateSizingProperty]()).each(function (i, child) {
-                    if (child.tagName.toLowerCase() != 'script') {
-                        child.style[positioningProperty] = Math.floor(sum) + 'px';
-                        sum += child[sizingDomProperty];
-                    }
-                });
-                that._detachEvents();
-                that._attachEvents();
-                that.wrapper.removeClass('k-splitter-resizing');
-                kendo.resize(panes);
-                that.trigger(LAYOUTCHANGE);
-            },
-            toggle: function (pane, expand) {
-                var that = this, paneConfig;
-                pane = that.element.find(pane);
-                paneConfig = pane.data(PANE);
-                if (!expand && !paneConfig.collapsible) {
-                    return;
-                }
-                if (arguments.length == 1) {
-                    expand = paneConfig.collapsed === undefined ? false : paneConfig.collapsed;
-                }
-                paneConfig.collapsed = !expand;
-                if (paneConfig.collapsed) {
-                    pane.css('overflow', 'hidden');
-                } else {
-                    pane.css('overflow', '');
-                }
-                that.resize(true);
-            },
-            collapse: function (pane) {
-                this.toggle(pane, false);
-            },
-            expand: function (pane) {
-                this.toggle(pane, true);
-            },
-            _addPane: function (config, idx, paneElement) {
-                var that = this;
-                if (paneElement.length) {
-                    that.options.panes.splice(idx, 0, config);
-                    that._initPane(paneElement, config);
-                    that._removeSplitBars();
-                    that.resize(true);
-                }
-                return paneElement;
-            },
-            append: function (config) {
-                config = config || {};
-                var that = this, paneElement = $('<div />').appendTo(that.element);
-                return that._addPane(config, that.options.panes.length, paneElement);
-            },
-            insertBefore: function (config, referencePane) {
-                referencePane = $(referencePane);
-                config = config || {};
-                var that = this, idx = that.wrapper.children('.k-pane').index(referencePane), paneElement = $('<div />').insertBefore($(referencePane));
-                return that._addPane(config, idx, paneElement);
-            },
-            insertAfter: function (config, referencePane) {
-                referencePane = $(referencePane);
-                config = config || {};
-                var that = this, idx = that.wrapper.children('.k-pane').index(referencePane), paneElement = $('<div />').insertAfter($(referencePane));
-                return that._addPane(config, idx + 1, paneElement);
-            },
-            remove: function (pane) {
-                pane = $(pane);
-                var that = this;
-                if (pane.length) {
-                    kendo.destroy(pane);
-                    pane.each(function (idx, element) {
-                        that.options.panes.splice(that.wrapper.children('.k-pane').index(element), 1);
-                        $(element).remove();
-                    });
-                    that._removeSplitBars();
-                    if (that.options.panes.length) {
-                        that.resize(true);
-                    }
-                }
-                return that;
-            },
-            size: panePropertyAccessor('size', true),
-            min: panePropertyAccessor('min'),
-            max: panePropertyAccessor('max')
-        });
-        ui.plugin(Splitter);
-        var verticalDefaults = {
-            sizingProperty: 'height',
-            sizingDomProperty: 'offsetHeight',
-            alternateSizingProperty: 'width',
-            positioningProperty: 'top',
-            mousePositioningProperty: 'pageY'
-        };
-        var horizontalDefaults = {
-            sizingProperty: 'width',
-            sizingDomProperty: 'offsetWidth',
-            alternateSizingProperty: 'height',
-            positioningProperty: 'left',
-            mousePositioningProperty: 'pageX'
-        };
-        function PaneResizing(splitter) {
-            var that = this, orientation = splitter.orientation;
-            that.owner = splitter;
-            that._element = splitter.element;
-            that.orientation = orientation;
-            extend(that, orientation === HORIZONTAL ? horizontalDefaults : verticalDefaults);
-            that._resizable = new kendo.ui.Resizable(splitter.element, {
-                orientation: orientation,
-                handle: '.k-splitbar-draggable-' + orientation + '[data-marker=' + splitter._marker + ']',
-                hint: proxy(that._createHint, that),
-                start: proxy(that._start, that),
-                max: proxy(that._max, that),
-                min: proxy(that._min, that),
-                invalidClass: 'k-restricted-size-' + orientation,
-                resizeend: proxy(that._stop, that)
-            });
-        }
-        PaneResizing.prototype = {
-            press: function (target) {
-                this._resizable.press(target);
-            },
-            move: function (delta, target) {
-                if (!this.pressed) {
-                    this.press(target);
-                    this.pressed = true;
-                }
-                if (!this._resizable.target) {
-                    this._resizable.press(target);
-                }
-                this._resizable.move(delta);
-            },
-            end: function () {
-                this._resizable.end();
-                this.pressed = false;
-            },
-            destroy: function () {
-                this._resizable.destroy();
-                this._resizable = this._element = this.owner = null;
-            },
-            isResizing: function () {
-                return this._resizable.resizing;
-            },
-            _createHint: function (handle) {
-                var that = this;
-                return $('<div class=\'k-ghost-splitbar k-ghost-splitbar-' + that.orientation + ' k-state-default\' />').css(that.alternateSizingProperty, handle[that.alternateSizingProperty]());
-            },
-            _start: function (e) {
-                var that = this, splitbar = $(e.currentTarget), previousPane = splitbar.prev(), nextPane = splitbar.next(), previousPaneConfig = previousPane.data(PANE), nextPaneConfig = nextPane.data(PANE), prevBoundary = parseInt(previousPane[0].style[that.positioningProperty], 10), nextBoundary = parseInt(nextPane[0].style[that.positioningProperty], 10) + nextPane[0][that.sizingDomProperty] - splitbar[0][that.sizingDomProperty], totalSize = parseInt(that._element.css(that.sizingProperty), 10), toPx = function (value) {
-                        var val = parseInt(value, 10);
-                        return (isPixelSize(value) ? val : totalSize * val / 100) || 0;
-                    }, prevMinSize = toPx(previousPaneConfig.min), prevMaxSize = toPx(previousPaneConfig.max) || nextBoundary - prevBoundary, nextMinSize = toPx(nextPaneConfig.min), nextMaxSize = toPx(nextPaneConfig.max) || nextBoundary - prevBoundary;
-                that.previousPane = previousPane;
-                that.nextPane = nextPane;
-                that._maxPosition = Math.min(nextBoundary - nextMinSize, prevBoundary + prevMaxSize);
-                that._minPosition = Math.max(prevBoundary + prevMinSize, nextBoundary - nextMaxSize);
-            },
-            _max: function () {
-                return this._maxPosition;
-            },
-            _min: function () {
-                return this._minPosition;
-            },
-            _stop: function (e) {
-                var that = this, splitbar = $(e.currentTarget), owner = that.owner;
-                owner._panes().children('.k-splitter-overlay').remove();
-                if (e.keyCode !== kendo.keys.ESC) {
-                    var ghostPosition = e.position, previousPane = splitbar.prev(), nextPane = splitbar.next(), previousPaneConfig = previousPane.data(PANE), nextPaneConfig = nextPane.data(PANE), previousPaneNewSize = ghostPosition - parseInt(previousPane[0].style[that.positioningProperty], 10), nextPaneNewSize = parseInt(nextPane[0].style[that.positioningProperty], 10) + nextPane[0][that.sizingDomProperty] - ghostPosition - splitbar[0][that.sizingDomProperty], fluidPanesCount = that._element.children(PANECLASS).filter(function () {
-                            return isFluid($(this).data(PANE).size);
-                        }).length;
-                    if (!isFluid(previousPaneConfig.size) || fluidPanesCount > 1) {
-                        if (isFluid(previousPaneConfig.size)) {
-                            fluidPanesCount--;
-                        }
-                        previousPaneConfig.size = previousPaneNewSize + 'px';
-                    }
-                    if (!isFluid(nextPaneConfig.size) || fluidPanesCount > 1) {
-                        nextPaneConfig.size = nextPaneNewSize + 'px';
-                    }
-                    owner.resize(true);
-                }
-                return false;
-            }
-        };
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
     define('kendo.slider', ['kendo.draganddrop'], f);
 }(function () {
     var __meta__ = {
@@ -62915,472 +62434,1618 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.dialog', ['kendo.window'], f);
+    define('kendo.splitter', ['kendo.resizable'], f);
 }(function () {
     var __meta__ = {
-        id: 'dialog',
-        name: 'Dialog',
+        id: 'splitter',
+        name: 'Splitter',
         category: 'web',
-        description: 'The dialog widget is a modal window that brings information to the user.',
-        depends: ['window']
+        description: 'The Splitter widget provides an easy way to create a dynamic layout of resizable and collapsible panes.',
+        depends: ['resizable']
     };
     (function ($, undefined) {
-        var kendo = window.kendo;
-        var dialogBodyTemplate = kendo.template('<div class="modal-content #=dialogClass#"><div class="modal-header"><span class="modal-title">#=title#</span></div><div class="modal-body" style="# if(!isNaN(contentHeight)) {# height:#= parseInt(contentHeight)#px; #}#"><table><tr>#if(iconClass) {#<td width="54"><span class="#=iconClass#"></span></td>#}#<td>#=message#</td></tr></table></div><div class="modal-footer"></div></div>');
-        var Dialog = kendo.ui.Window.extend({
-            _buttonTemplate: kendo.template('# jQuery.each (buttons, function (idx, button) { # <button class="btn btn-#=button.type#">#= button.text #</button> # }) #'),
+        var kendo = window.kendo, ui = kendo.ui, keys = kendo.keys, extend = $.extend, proxy = $.proxy, Widget = ui.Widget, pxUnitsRegex = /^\d+(\.\d+)?px$/i, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, NS = '.kendoSplitter', EXPAND = 'expand', COLLAPSE = 'collapse', CONTENTLOAD = 'contentLoad', ERROR = 'error', RESIZE = 'resize', LAYOUTCHANGE = 'layoutChange', HORIZONTAL = 'horizontal', VERTICAL = 'vertical', MOUSEENTER = 'mouseenter', CLICK = 'click', PANE = 'pane', MOUSELEAVE = 'mouseleave', FOCUSED = 'k-state-focused', KPANE = 'k-' + PANE, PANECLASS = '.' + KPANE;
+        function isPercentageSize(size) {
+            return percentageUnitsRegex.test(size);
+        }
+        function isPixelSize(size) {
+            return pxUnitsRegex.test(size) || /^\d+$/.test(size);
+        }
+        function isFluid(size) {
+            return !isPercentageSize(size) && !isPixelSize(size);
+        }
+        function calculateSize(size, total) {
+            var output = parseInt(size, 10);
+            if (isPercentageSize(size)) {
+                output = Math.floor(output * total / 100);
+            }
+            return output;
+        }
+        function panePropertyAccessor(propertyName, triggersResize) {
+            return function (pane, value) {
+                var paneConfig = this.element.find(pane).data(PANE);
+                if (arguments.length == 1) {
+                    return paneConfig[propertyName];
+                }
+                paneConfig[propertyName] = value;
+                if (triggersResize) {
+                    var splitter = this.element.data('kendo' + this.options.name);
+                    splitter.resize(true);
+                }
+            };
+        }
+        var Splitter = Widget.extend({
             init: function (element, options) {
-                var that = this, el = $(element);
-                options = $.extend(options, {
-                    resizable: false,
-                    title: false,
-                    visible: options.visible || false
-                });
-                kendo.ui.Window.fn.init.call(that, element, options);
-                var html = el.html();
-                $.each(options.buttons, function (idx, button) {
-                    button.type = button.type || 'default';
-                });
-                el.find('div.modal-footer').append(that._buttonTemplate(options));
-                $.each(options.buttons, function (idx, button) {
-                    if (button.click) {
-                        $(el.find('.modal-footer').find('.btn')[idx]).on('click', { handler: button.click }, function (e) {
-                            e.data.handler({
-                                button: this,
-                                dialog: that,
-                                deferred: options.deferred
-                            });
-                        });
+                var that = this, isHorizontal;
+                Widget.fn.init.call(that, element, options);
+                that.wrapper = that.element;
+                isHorizontal = that.options.orientation.toLowerCase() != VERTICAL;
+                that.orientation = isHorizontal ? HORIZONTAL : VERTICAL;
+                that._dimension = isHorizontal ? 'width' : 'height';
+                that._keys = {
+                    decrease: isHorizontal ? keys.LEFT : keys.UP,
+                    increase: isHorizontal ? keys.RIGHT : keys.DOWN
+                };
+                that._resizeStep = 10;
+                that._marker = kendo.guid().substring(0, 8);
+                that._initPanes();
+                that.resizing = new PaneResizing(that);
+                that.element.triggerHandler('init' + NS);
+            },
+            events: [
+                EXPAND,
+                COLLAPSE,
+                CONTENTLOAD,
+                ERROR,
+                RESIZE,
+                LAYOUTCHANGE
+            ],
+            _addOverlays: function () {
+                this._panes().append('<div class=\'k-splitter-overlay k-overlay\' />');
+            },
+            _removeOverlays: function () {
+                this._panes().children('.k-splitter-overlay').remove();
+            },
+            _attachEvents: function () {
+                var that = this, orientation = that.options.orientation;
+                that.element.children('.k-splitbar-draggable-' + orientation).on('keydown' + NS, proxy(that._keydown, that)).on('mousedown' + NS, function (e) {
+                    e.currentTarget.focus();
+                }).on('focus' + NS, function (e) {
+                    $(e.currentTarget).addClass(FOCUSED);
+                }).on('blur' + NS, function (e) {
+                    $(e.currentTarget).removeClass(FOCUSED);
+                    if (that.resizing) {
+                        that.resizing.end();
+                    }
+                }).on(MOUSEENTER + NS, function () {
+                    $(this).addClass('k-splitbar-' + that.orientation + '-hover');
+                }).on(MOUSELEAVE + NS, function () {
+                    $(this).removeClass('k-splitbar-' + that.orientation + '-hover');
+                }).on('mousedown' + NS, proxy(that._addOverlays, that)).end().children('.k-splitbar').on('dblclick' + NS, proxy(that._togglePane, that)).children('.k-collapse-next, .k-collapse-prev').on(CLICK + NS, that._arrowClick(COLLAPSE)).end().children('.k-expand-next, .k-expand-prev').on(CLICK + NS, that._arrowClick(EXPAND)).end().end();
+                $(window).on('resize' + NS + that._marker, proxy(that.resize, that, false));
+                $(document).on('mouseup' + NS + that._marker, proxy(that._removeOverlays, that));
+            },
+            _detachEvents: function () {
+                var that = this;
+                that.element.children('.k-splitbar-draggable-' + that.orientation).off(NS).end().children('.k-splitbar').off('dblclick' + NS).children('.k-collapse-next, .k-collapse-prev, .k-expand-next, .k-expand-prev').off(NS);
+                $(window).off(NS + that._marker);
+                $(document).off(NS + that._marker);
+            },
+            options: {
+                name: 'Splitter',
+                orientation: HORIZONTAL,
+                panes: []
+            },
+            destroy: function () {
+                Widget.fn.destroy.call(this);
+                this._detachEvents();
+                if (this.resizing) {
+                    this.resizing.destroy();
+                }
+                kendo.destroy(this.element);
+                this.wrapper = this.element = null;
+            },
+            _keydown: function (e) {
+                var that = this, key = e.keyCode, resizing = that.resizing, target = $(e.currentTarget), navigationKeys = that._keys, increase = key === navigationKeys.increase, decrease = key === navigationKeys.decrease, pane;
+                if (increase || decrease) {
+                    if (e.ctrlKey) {
+                        pane = target[decrease ? 'next' : 'prev']();
+                        if (resizing && resizing.isResizing()) {
+                            resizing.end();
+                        }
+                        if (!pane[that._dimension]()) {
+                            that._triggerAction(EXPAND, pane);
+                        } else {
+                            that._triggerAction(COLLAPSE, target[decrease ? 'prev' : 'next']());
+                        }
+                    } else if (resizing) {
+                        resizing.move((decrease ? -1 : 1) * that._resizeStep, target);
+                    }
+                    e.preventDefault();
+                } else if (key === keys.ENTER && resizing) {
+                    resizing.end();
+                    e.preventDefault();
+                }
+            },
+            _initPanes: function () {
+                var panesConfig = this.options.panes || [];
+                var that = this;
+                this.element.addClass('k-widget').addClass('k-splitter').children().each(function (i, pane) {
+                    if (pane.nodeName.toLowerCase() != 'script') {
+                        that._initPane(pane, panesConfig[i]);
                     }
                 });
+                this.resize();
             },
-            options: { name: 'Dialog' }
-        });
-        kendo.ui.plugin(Dialog);
-        $.extend(kendo.ui, {
-            showDialog: function (options) {
-                return new $.Deferred(function (deferred) {
-                    var dialog = null;
-                    options = $.extend({
-                        deferred: deferred,
-                        width: 400,
-                        dialogClass: options.dialogClass | '',
-                        iconClass: options.iconClass | '',
-                        buttons: [],
-                        contentHeight: options.height || 'auto',
-                        modal: true,
-                        visible: false,
-                        title: false
-                    }, options);
-                    delete options.height;
-                    dialog = $(dialogBodyTemplate(options)).appendTo(document.body).kendoDialog(options).data('kendoDialog');
-                    dialog.center().open();
+            _initPane: function (pane, config) {
+                pane = $(pane).attr('role', 'group').addClass(KPANE);
+                pane.data(PANE, config ? config : {}).toggleClass('k-scrollable', config ? config.scrollable !== false : true);
+                this.ajaxRequest(pane);
+            },
+            ajaxRequest: function (pane, url, data) {
+                var that = this, paneConfig;
+                pane = that.element.find(pane);
+                paneConfig = pane.data(PANE);
+                url = url || paneConfig.contentUrl;
+                if (url) {
+                    pane.append('<span class=\'k-icon k-loading k-pane-loading\' />');
+                    if (kendo.isLocalUrl(url)) {
+                        jQuery.ajax({
+                            url: url,
+                            data: data || {},
+                            type: 'GET',
+                            dataType: 'html',
+                            success: function (data) {
+                                that.angular('cleanup', function () {
+                                    return { elements: pane.get() };
+                                });
+                                pane.html(data);
+                                that.angular('compile', function () {
+                                    return { elements: pane.get() };
+                                });
+                                that.trigger(CONTENTLOAD, { pane: pane[0] });
+                            },
+                            error: function (xhr, status) {
+                                that.trigger(ERROR, {
+                                    pane: pane[0],
+                                    status: status,
+                                    xhr: xhr
+                                });
+                            }
+                        });
+                    } else {
+                        pane.removeClass('k-scrollable').html('<iframe src=\'' + url + '\' frameborder=\'0\' class=\'k-content-frame\'>' + 'This page requires frames in order to show content' + '</iframe>');
+                    }
+                }
+            },
+            _triggerAction: function (type, pane) {
+                if (!this.trigger(type, { pane: pane[0] })) {
+                    this[type](pane[0]);
+                }
+            },
+            _togglePane: function (e) {
+                var that = this, target = $(e.target), arrow;
+                if (target.closest('.k-splitter')[0] != that.element[0]) {
+                    return;
+                }
+                arrow = target.children('.k-icon:not(.k-resize-handle)');
+                if (arrow.length !== 1) {
+                    return;
+                }
+                if (arrow.is('.k-collapse-prev')) {
+                    that._triggerAction(COLLAPSE, target.prev());
+                } else if (arrow.is('.k-collapse-next')) {
+                    that._triggerAction(COLLAPSE, target.next());
+                } else if (arrow.is('.k-expand-prev')) {
+                    that._triggerAction(EXPAND, target.prev());
+                } else if (arrow.is('.k-expand-next')) {
+                    that._triggerAction(EXPAND, target.next());
+                }
+            },
+            _arrowClick: function (arrowType) {
+                var that = this;
+                return function (e) {
+                    var target = $(e.target), pane;
+                    if (target.closest('.k-splitter')[0] != that.element[0]) {
+                        return;
+                    }
+                    if (target.is('.k-' + arrowType + '-prev')) {
+                        pane = target.parent().prev();
+                    } else {
+                        pane = target.parent().next();
+                    }
+                    that._triggerAction(arrowType, pane);
+                };
+            },
+            _updateSplitBar: function (splitbar, previousPane, nextPane) {
+                var catIconIf = function (iconType, condition) {
+                        return condition ? '<div class=\'k-icon ' + iconType + '\' />' : '';
+                    }, orientation = this.orientation, draggable = previousPane.resizable !== false && nextPane.resizable !== false, prevCollapsible = previousPane.collapsible, prevCollapsed = previousPane.collapsed, nextCollapsible = nextPane.collapsible, nextCollapsed = nextPane.collapsed;
+                splitbar.addClass('k-splitbar k-state-default k-splitbar-' + orientation).attr('role', 'separator').attr('aria-expanded', !(prevCollapsed || nextCollapsed)).removeClass('k-splitbar-' + orientation + '-hover').toggleClass('k-splitbar-draggable-' + orientation, draggable && !prevCollapsed && !nextCollapsed).toggleClass('k-splitbar-static-' + orientation, !draggable && !prevCollapsible && !nextCollapsible).html(catIconIf('k-collapse-prev', prevCollapsible && !prevCollapsed && !nextCollapsed) + catIconIf('k-expand-prev', prevCollapsible && prevCollapsed && !nextCollapsed) + catIconIf('k-resize-handle', draggable) + catIconIf('k-collapse-next', nextCollapsible && !nextCollapsed && !prevCollapsed) + catIconIf('k-expand-next', nextCollapsible && nextCollapsed && !prevCollapsed));
+                if (!draggable && !prevCollapsible && !nextCollapsible) {
+                    splitbar.removeAttr('tabindex');
+                }
+            },
+            _updateSplitBars: function () {
+                var that = this;
+                this.element.children('.k-splitbar').each(function () {
+                    var splitbar = $(this), previousPane = splitbar.prevAll(PANECLASS).first().data(PANE), nextPane = splitbar.nextAll(PANECLASS).first().data(PANE);
+                    if (!nextPane) {
+                        return;
+                    }
+                    that._updateSplitBar(splitbar, previousPane, nextPane);
                 });
             },
-            showInfoDialog: function (options) {
-                options = $.extend({
-                    buttons: [{
-                            text: kendo.ui.Widget.prototype.options.messages['ok'],
-                            type: 'primary',
-                            click: function (e) {
-                                e.dialog.destroy();
-                                e.deferred.resolve({ button: 'OK' });
-                            }
-                        }],
-                    title: kendo.ui.Dialog.prototype.options.messages['info'],
-                    iconClass: 'fa fa-info-circle',
-                    dialogClass: 'k-dialog-information'
-                }, options);
-                return this.showDialog(options);
+            _removeSplitBars: function () {
+                this.element.children('.k-splitbar').remove();
             },
-            showWarningDialog: function (options) {
-                options = $.extend({
-                    title: kendo.ui.Dialog.prototype.options.messages['warning'],
-                    iconClass: 'fa fa-warning',
-                    dialogClass: 'k-dialog-warning'
-                }, options);
-                return this.showInfoDialog(options);
+            _panes: function () {
+                if (!this.element) {
+                    return $();
+                }
+                return this.element.children(PANECLASS);
             },
-            showErrorDialog: function (options) {
-                options = $.extend({
-                    title: kendo.ui.Dialog.prototype.options.messages['error'],
-                    width: 500,
-                    iconClass: 'fa fa-times-circle',
-                    dialogClass: 'k-dialog-error'
-                }, options);
-                return this.showInfoDialog(options);
+            _resize: function () {
+                var that = this, element = that.element, panes = element.children(PANECLASS), isHorizontal = that.orientation == HORIZONTAL, splitBars = element.children('.k-splitbar'), splitBarsCount = splitBars.length, sizingProperty = isHorizontal ? 'width' : 'height', totalSize = element[sizingProperty]();
+                that.wrapper.addClass('k-splitter-resizing');
+                if (splitBarsCount === 0) {
+                    splitBarsCount = panes.length - 1;
+                    panes.slice(0, splitBarsCount).after('<div tabindex=\'0\' class=\'k-splitbar\' data-marker=\'' + that._marker + '\' />');
+                    that._updateSplitBars();
+                    splitBars = element.children('.k-splitbar');
+                } else {
+                    that._updateSplitBars();
+                }
+                splitBars.each(function () {
+                    totalSize -= this[isHorizontal ? 'offsetWidth' : 'offsetHeight'];
+                });
+                var sizedPanesWidth = 0, sizedPanesCount = 0, freeSizedPanes = $();
+                panes.css({
+                    position: 'absolute',
+                    top: 0
+                })[sizingProperty](function () {
+                    var element = $(this), config = element.data(PANE) || {}, size;
+                    element.removeClass('k-state-collapsed');
+                    if (config.collapsed) {
+                        size = config.collapsedSize ? calculateSize(config.collapsedSize, totalSize) : 0;
+                        element.css('overflow', 'hidden').addClass('k-state-collapsed');
+                    } else if (isFluid(config.size)) {
+                        freeSizedPanes = freeSizedPanes.add(this);
+                        return;
+                    } else {
+                        size = calculateSize(config.size, totalSize);
+                    }
+                    sizedPanesCount++;
+                    sizedPanesWidth += size;
+                    return size;
+                });
+                totalSize -= sizedPanesWidth;
+                var freeSizePanesCount = freeSizedPanes.length, freeSizePaneWidth = Math.floor(totalSize / freeSizePanesCount);
+                freeSizedPanes.slice(0, freeSizePanesCount - 1).css(sizingProperty, freeSizePaneWidth).end().eq(freeSizePanesCount - 1).css(sizingProperty, totalSize - (freeSizePanesCount - 1) * freeSizePaneWidth);
+                var sum = 0, alternateSizingProperty = isHorizontal ? 'height' : 'width', positioningProperty = isHorizontal ? 'left' : 'top', sizingDomProperty = isHorizontal ? 'offsetWidth' : 'offsetHeight';
+                if (freeSizePanesCount === 0) {
+                    var lastNonCollapsedPane = panes.filter(function () {
+                        return !($(this).data(PANE) || {}).collapsed;
+                    }).last();
+                    lastNonCollapsedPane[sizingProperty](totalSize + lastNonCollapsedPane[0][sizingDomProperty]);
+                }
+                element.children().css(alternateSizingProperty, element[alternateSizingProperty]()).each(function (i, child) {
+                    if (child.tagName.toLowerCase() != 'script') {
+                        child.style[positioningProperty] = Math.floor(sum) + 'px';
+                        sum += child[sizingDomProperty];
+                    }
+                });
+                that._detachEvents();
+                that._attachEvents();
+                that.wrapper.removeClass('k-splitter-resizing');
+                kendo.resize(panes);
+                that.trigger(LAYOUTCHANGE);
             },
-            showConfirmDialog: function (options) {
-                options = $.extend({
-                    title: options.title || kendo.ui.Dialog.prototype.options.messages['confirm'],
-                    buttons: [
-                        {
-                            text: options.ok || kendo.ui.Widget.prototype.options.messages['ok'],
-                            type: 'primary',
-                            click: function (e) {
-                                e.dialog.destroy();
-                                e.deferred.resolve({ button: 'OK' });
-                            }
-                        },
-                        {
-                            text: options.cancel || kendo.ui.Widget.prototype.options.messages['cancel'],
-                            click: function (e) {
-                                e.dialog.destroy();
-                                e.deferred.resolve({ button: 'Cancel' });
-                            }
-                        }
-                    ],
-                    iconClass: 'fa fa-question-circle',
-                    dialogClass: 'k-dialog-confirm'
-                }, options);
-                return this.showDialog(options);
-            }
+            toggle: function (pane, expand) {
+                var that = this, paneConfig;
+                pane = that.element.find(pane);
+                paneConfig = pane.data(PANE);
+                if (!expand && !paneConfig.collapsible) {
+                    return;
+                }
+                if (arguments.length == 1) {
+                    expand = paneConfig.collapsed === undefined ? false : paneConfig.collapsed;
+                }
+                paneConfig.collapsed = !expand;
+                if (paneConfig.collapsed) {
+                    pane.css('overflow', 'hidden');
+                } else {
+                    pane.css('overflow', '');
+                }
+                that.resize(true);
+            },
+            collapse: function (pane) {
+                this.toggle(pane, false);
+            },
+            expand: function (pane) {
+                this.toggle(pane, true);
+            },
+            _addPane: function (config, idx, paneElement) {
+                var that = this;
+                if (paneElement.length) {
+                    that.options.panes.splice(idx, 0, config);
+                    that._initPane(paneElement, config);
+                    that._removeSplitBars();
+                    that.resize(true);
+                }
+                return paneElement;
+            },
+            append: function (config) {
+                config = config || {};
+                var that = this, paneElement = $('<div />').appendTo(that.element);
+                return that._addPane(config, that.options.panes.length, paneElement);
+            },
+            insertBefore: function (config, referencePane) {
+                referencePane = $(referencePane);
+                config = config || {};
+                var that = this, idx = that.wrapper.children('.k-pane').index(referencePane), paneElement = $('<div />').insertBefore($(referencePane));
+                return that._addPane(config, idx, paneElement);
+            },
+            insertAfter: function (config, referencePane) {
+                referencePane = $(referencePane);
+                config = config || {};
+                var that = this, idx = that.wrapper.children('.k-pane').index(referencePane), paneElement = $('<div />').insertAfter($(referencePane));
+                return that._addPane(config, idx + 1, paneElement);
+            },
+            remove: function (pane) {
+                pane = $(pane);
+                var that = this;
+                if (pane.length) {
+                    kendo.destroy(pane);
+                    pane.each(function (idx, element) {
+                        that.options.panes.splice(that.wrapper.children('.k-pane').index(element), 1);
+                        $(element).remove();
+                    });
+                    that._removeSplitBars();
+                    if (that.options.panes.length) {
+                        that.resize(true);
+                    }
+                }
+                return that;
+            },
+            size: panePropertyAccessor('size', true),
+            min: panePropertyAccessor('min'),
+            max: panePropertyAccessor('max')
         });
+        ui.plugin(Splitter);
+        var verticalDefaults = {
+            sizingProperty: 'height',
+            sizingDomProperty: 'offsetHeight',
+            alternateSizingProperty: 'width',
+            positioningProperty: 'top',
+            mousePositioningProperty: 'pageY'
+        };
+        var horizontalDefaults = {
+            sizingProperty: 'width',
+            sizingDomProperty: 'offsetWidth',
+            alternateSizingProperty: 'height',
+            positioningProperty: 'left',
+            mousePositioningProperty: 'pageX'
+        };
+        function PaneResizing(splitter) {
+            var that = this, orientation = splitter.orientation;
+            that.owner = splitter;
+            that._element = splitter.element;
+            that.orientation = orientation;
+            extend(that, orientation === HORIZONTAL ? horizontalDefaults : verticalDefaults);
+            that._resizable = new kendo.ui.Resizable(splitter.element, {
+                orientation: orientation,
+                handle: '.k-splitbar-draggable-' + orientation + '[data-marker=' + splitter._marker + ']',
+                hint: proxy(that._createHint, that),
+                start: proxy(that._start, that),
+                max: proxy(that._max, that),
+                min: proxy(that._min, that),
+                invalidClass: 'k-restricted-size-' + orientation,
+                resizeend: proxy(that._stop, that)
+            });
+        }
+        PaneResizing.prototype = {
+            press: function (target) {
+                this._resizable.press(target);
+            },
+            move: function (delta, target) {
+                if (!this.pressed) {
+                    this.press(target);
+                    this.pressed = true;
+                }
+                if (!this._resizable.target) {
+                    this._resizable.press(target);
+                }
+                this._resizable.move(delta);
+            },
+            end: function () {
+                this._resizable.end();
+                this.pressed = false;
+            },
+            destroy: function () {
+                this._resizable.destroy();
+                this._resizable = this._element = this.owner = null;
+            },
+            isResizing: function () {
+                return this._resizable.resizing;
+            },
+            _createHint: function (handle) {
+                var that = this;
+                return $('<div class=\'k-ghost-splitbar k-ghost-splitbar-' + that.orientation + ' k-state-default\' />').css(that.alternateSizingProperty, handle[that.alternateSizingProperty]());
+            },
+            _start: function (e) {
+                var that = this, splitbar = $(e.currentTarget), previousPane = splitbar.prev(), nextPane = splitbar.next(), previousPaneConfig = previousPane.data(PANE), nextPaneConfig = nextPane.data(PANE), prevBoundary = parseInt(previousPane[0].style[that.positioningProperty], 10), nextBoundary = parseInt(nextPane[0].style[that.positioningProperty], 10) + nextPane[0][that.sizingDomProperty] - splitbar[0][that.sizingDomProperty], totalSize = parseInt(that._element.css(that.sizingProperty), 10), toPx = function (value) {
+                        var val = parseInt(value, 10);
+                        return (isPixelSize(value) ? val : totalSize * val / 100) || 0;
+                    }, prevMinSize = toPx(previousPaneConfig.min), prevMaxSize = toPx(previousPaneConfig.max) || nextBoundary - prevBoundary, nextMinSize = toPx(nextPaneConfig.min), nextMaxSize = toPx(nextPaneConfig.max) || nextBoundary - prevBoundary;
+                that.previousPane = previousPane;
+                that.nextPane = nextPane;
+                that._maxPosition = Math.min(nextBoundary - nextMinSize, prevBoundary + prevMaxSize);
+                that._minPosition = Math.max(prevBoundary + prevMinSize, nextBoundary - nextMaxSize);
+            },
+            _max: function () {
+                return this._maxPosition;
+            },
+            _min: function () {
+                return this._minPosition;
+            },
+            _stop: function (e) {
+                var that = this, splitbar = $(e.currentTarget), owner = that.owner;
+                owner._panes().children('.k-splitter-overlay').remove();
+                if (e.keyCode !== kendo.keys.ESC) {
+                    var ghostPosition = e.position, previousPane = splitbar.prev(), nextPane = splitbar.next(), previousPaneConfig = previousPane.data(PANE), nextPaneConfig = nextPane.data(PANE), previousPaneNewSize = ghostPosition - parseInt(previousPane[0].style[that.positioningProperty], 10), nextPaneNewSize = parseInt(nextPane[0].style[that.positioningProperty], 10) + nextPane[0][that.sizingDomProperty] - ghostPosition - splitbar[0][that.sizingDomProperty], fluidPanesCount = that._element.children(PANECLASS).filter(function () {
+                            return isFluid($(this).data(PANE).size);
+                        }).length;
+                    if (!isFluid(previousPaneConfig.size) || fluidPanesCount > 1) {
+                        if (isFluid(previousPaneConfig.size)) {
+                            fluidPanesCount--;
+                        }
+                        previousPaneConfig.size = previousPaneNewSize + 'px';
+                    }
+                    if (!isFluid(nextPaneConfig.size) || fluidPanesCount > 1) {
+                        nextPaneConfig.size = nextPaneNewSize + 'px';
+                    }
+                    owner.resize(true);
+                }
+                return false;
+            }
+        };
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.tledit', ['kendo.window'], f);
+    define('kendo.virtuallist', ['kendo.data'], f);
 }(function () {
     var __meta__ = {
-        id: 'tledit',
-        name: 'TLEdit',
-        category: 'web',
-        description: 'The TLEdit widget allows the user to enter a field of multiple languages.',
-        depends: ['window']
+        id: 'virtuallist',
+        name: 'VirtualList',
+        category: 'framework',
+        depends: ['data'],
+        hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, support = kendo.support, placeholderSupported = support.placeholder, caret = kendo.caret, keys = kendo.keys, template = kendo.template, activeElement = kendo._activeElement, each = $.each, map = $.map, trim = $.trim, extend = $.extend, proxy = $.proxy, NS = '.kendoTLEdit', CLICK = 'click' + NS, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', HOVEREVENTS = 'mouseenter' + NS + ' mouseleave' + NS, MOUSEDOWN = 'mousedown' + NS, ARIA_DISABLED = 'aria-disabled', SPAN = '<span />';
-        var DIV = '<div />', SELECTED = 'k-state-selected', ID = 'id', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden';
-        function preventDefault(e) {
-            e.preventDefault();
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, WRAPPER = 'k-virtual-wrap', VIRTUALLIST = 'k-virtual-list', CONTENT = 'k-virtual-content', LIST = 'k-list', HEADER = 'k-group-header', VIRTUALITEM = 'k-virtual-item', ITEM = 'k-item', HEIGHTCONTAINER = 'k-height-container', GROUPITEM = 'k-group', SELECTED = 'k-state-selected', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', CHANGE = 'change', CLICK = 'click', LISTBOUND = 'listBound', ITEMCHANGE = 'itemChange', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', VIRTUAL_LIST_NS = '.VirtualList';
+        function lastFrom(array) {
+            return array[array.length - 1];
         }
-        var TLEdit = Widget.extend({
-            init: function (element, options) {
-                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
-                    $(element).remove();
-                    element.id && $('label[for=' + element.id + ']').remove();
-                    return;
+        function toArray(value) {
+            return value instanceof Array ? value : [value];
+        }
+        function isPrimitive(dataItem) {
+            return typeof dataItem === 'string' || typeof dataItem === 'number' || typeof dataItem === 'boolean';
+        }
+        function getItemCount(screenHeight, listScreens, itemHeight) {
+            return Math.ceil(screenHeight * listScreens / itemHeight);
+        }
+        function appendChild(parent, className, tagName) {
+            var element = document.createElement(tagName || 'div');
+            if (className) {
+                element.className = className;
+            }
+            parent.appendChild(element);
+            return element;
+        }
+        function getDefaultItemHeight() {
+            var mockList = $('<div class="k-popup"><ul class="k-list"><li class="k-item"><li></ul></div>'), lineHeight;
+            mockList.css({
+                position: 'absolute',
+                left: '-200000px',
+                visibility: 'hidden'
+            });
+            mockList.appendTo(document.body);
+            lineHeight = parseFloat(kendo.getComputedStyles(mockList.find('.k-item')[0], ['line-height'])['line-height']);
+            mockList.remove();
+            return lineHeight;
+        }
+        function bufferSizes(screenHeight, listScreens, opposite) {
+            return {
+                down: screenHeight * opposite,
+                up: screenHeight * (listScreens - 1 - opposite)
+            };
+        }
+        function listValidator(options, screenHeight) {
+            var downThreshold = (options.listScreens - 1 - options.threshold) * screenHeight;
+            var upThreshold = options.threshold * screenHeight;
+            return function (list, scrollTop, lastScrollTop) {
+                if (scrollTop > lastScrollTop) {
+                    return scrollTop - list.top < downThreshold;
+                } else {
+                    return list.top === 0 || scrollTop - list.top > upThreshold;
                 }
-                if (typeof options.model == 'string') {
-                    try {
-                        options.model = eval(options.model);
-                    } catch (e) {
+            };
+        }
+        function scrollCallback(element, callback) {
+            return function (force) {
+                return callback(element.scrollTop, force);
+            };
+        }
+        function syncList(reorder) {
+            return function (list, force) {
+                reorder(list.items, list.index, force);
+                return list;
+            };
+        }
+        function position(element, y) {
+            if (kendo.support.browser.msie && kendo.support.browser.version < 10) {
+                element.style.top = y + 'px';
+            } else {
+                element.style.webkitTransform = 'translateY(' + y + 'px)';
+                element.style.transform = 'translateY(' + y + 'px)';
+            }
+        }
+        function map2(callback, templates) {
+            return function (arr1, arr2) {
+                for (var i = 0, len = arr1.length; i < len; i++) {
+                    callback(arr1[i], arr2[i], templates);
+                    if (arr2[i].item) {
+                        this.trigger(ITEMCHANGE, {
+                            item: $(arr1[i]),
+                            data: arr2[i].item,
+                            ns: kendo.ui
+                        });
                     }
                 }
-                var that = this, disabled, text;
+            };
+        }
+        function reshift(items, diff) {
+            var range;
+            if (diff > 0) {
+                range = items.splice(0, diff);
+                items.push.apply(items, range);
+            } else {
+                range = items.splice(diff, -diff);
+                items.unshift.apply(items, range);
+            }
+            return range;
+        }
+        function render(element, data, templates) {
+            var itemTemplate = templates.template;
+            element = $(element);
+            if (!data.item) {
+                itemTemplate = templates.placeholderTemplate;
+            }
+            this.angular('cleanup', function () {
+                return { elements: [element] };
+            });
+            element.attr('data-uid', data.item ? data.item.uid : '').attr('data-offset-index', data.index).html(itemTemplate(data.item || {}));
+            element.toggleClass(FOCUSED, data.current);
+            element.toggleClass(SELECTED, data.selected);
+            element.toggleClass('k-first', data.newGroup);
+            element.toggleClass('k-loading-item', !data.item);
+            if (data.index !== 0 && data.newGroup) {
+                $('<div class=' + GROUPITEM + '></div>').appendTo(element).html(templates.groupTemplate(data.group));
+            }
+            if (data.top !== undefined) {
+                position(element[0], data.top);
+            }
+            this.angular('compile', function () {
+                return {
+                    elements: [element],
+                    data: [{
+                            dataItem: data.item,
+                            group: data.group,
+                            newGroup: data.newGroup
+                        }]
+                };
+            });
+        }
+        function mapChangedItems(selected, itemsToMatch) {
+            var itemsLength = itemsToMatch.length;
+            var selectedLength = selected.length;
+            var dataItem;
+            var found;
+            var i, j;
+            var changed = [];
+            var unchanged = [];
+            if (selectedLength) {
+                for (i = 0; i < selectedLength; i++) {
+                    dataItem = selected[i];
+                    found = false;
+                    for (j = 0; j < itemsLength; j++) {
+                        if (dataItem === itemsToMatch[j]) {
+                            found = true;
+                            changed.push({
+                                index: i,
+                                item: dataItem
+                            });
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        unchanged.push(dataItem);
+                    }
+                }
+            }
+            return {
+                changed: changed,
+                unchanged: unchanged
+            };
+        }
+        var VirtualList = DataBoundWidget.extend({
+            init: function (element, options) {
+                var that = this;
+                that.bound(false);
+                that._fetching = false;
                 Widget.fn.init.call(that, element, options);
-                element = that.element;
+                if (!that.options.itemHeight) {
+                    that.options.itemHeight = getDefaultItemHeight();
+                }
                 options = that.options;
-                element = that.element.on('focus' + NS, proxy(that._focusHandler, that));
-                options.placeholder = options.placeholder || element.attr('placeholder');
-                that._wrapper();
-                that._icon();
-                that._clearButton();
-                if (!options.text) {
-                    that._placeholder();
-                }
-                if (options.enable !== undefined) {
-                    options.enabled = options.enable;
-                }
-                disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
-                if (options.enabled === false || disabled) {
-                    that.enable(false);
-                } else {
-                    that.readonly(element.is('[readonly]'));
-                }
-                kendo.notify(that);
+                that.element.addClass(LIST + ' ' + VIRTUALLIST).attr('role', 'listbox');
+                that.content = that.element.wrap('<div unselectable=\'on\' class=\'' + CONTENT + '\'></div>').parent();
+                that.wrapper = that.content.wrap('<div class=\'' + WRAPPER + '\'></div>').parent();
+                that.header = that.content.before('<div class=\'' + HEADER + '\'></div>').prev();
+                that.element.on('mouseenter' + VIRTUAL_LIST_NS, 'li:not(.k-loading-item)', function () {
+                    $(this).addClass(HOVER);
+                }).on('mouseleave' + VIRTUAL_LIST_NS, 'li', function () {
+                    $(this).removeClass(HOVER);
+                });
+                that._values = toArray(that.options.value);
+                that._selectedDataItems = [];
+                that._selectedIndexes = [];
+                that._rangesList = {};
+                that._activeDeferred = null;
+                that._promisesList = [];
+                that._optionID = kendo.guid();
+                that.setDataSource(options.dataSource);
+                that.content.on('scroll' + VIRTUAL_LIST_NS, kendo.throttle(function () {
+                    that._renderItems();
+                    that._triggerListBound();
+                }, options.delay));
+                that._selectable();
+            },
+            options: {
+                name: 'VirtualList',
+                autoBind: true,
+                delay: 100,
+                height: null,
+                listScreens: 4,
+                threshold: 0.5,
+                itemHeight: null,
+                oppositeBuffer: 1,
+                type: 'flat',
+                selectable: false,
+                value: [],
+                dataValueField: null,
+                template: '#:data#',
+                placeholderTemplate: 'loading...',
+                groupTemplate: '#:data#',
+                fixedGroupTemplate: 'fixed header template',
+                valueMapper: null
             },
             events: [
-                OPEN,
-                CLOSE,
                 CHANGE,
-                'select'
+                CLICK,
+                LISTBOUND,
+                ITEMCHANGE,
+                ACTIVATE,
+                DEACTIVATE
             ],
-            options: {
-                name: 'TLEdit',
-                idField: 'id',
-                field: '',
-                dto: '',
-                url: '/sys/multiLanguage',
-                enable: true,
-                value: null,
-                placeholder: '',
-                clearButton: true,
-                model: null
-            },
             setOptions: function (options) {
                 Widget.fn.setOptions.call(this, options);
-            },
-            _focusHandler: function () {
-                this.element.focus();
-            },
-            _clearButton: function () {
-                var that = this;
-                that._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
-                    'role': 'button',
-                    'tabIndex': -1
-                });
-                if (that.options.clearButton) {
-                    that._clear.insertAfter(that.element);
+                if (this._selectProxy && this.options.selectable === false) {
+                    this.element.off(CLICK, '.' + VIRTUALITEM, this._selectProxy);
+                } else if (!this._selectProxy && this.options.selectable) {
+                    this._selectable();
                 }
+                this.refresh();
             },
-            _wrapper: function () {
-                var that = this, element = that.element, wrapper;
-                wrapper = element.parents('.k-tledit');
-                if (!wrapper[0]) {
-                    wrapper = element.wrap(SPAN).parent().addClass('k-dropdown-wrap k-state-default');
-                    wrapper = wrapper.wrap(SPAN).parent();
-                }
-                wrapper[0].style.cssText = element[0].style.cssText;
-                element.css({
-                    width: '100%',
-                    height: element[0].style.height
-                });
-                that.wrapper = wrapper.addClass('k-widget k-tledit k-header').addClass(element[0].className);
-                that._inputWrapper = $(wrapper[0].firstChild);
-                element.addClass('k-input').attr({
-                    role: 'tledit',
-                    'aria-expanded': false
-                });
-            },
-            _icon: function () {
-                var that = this, element = that.element, icon;
-                icon = element.next('span.k-select');
-                if (!icon[0]) {
-                    icon = $('<span unselectable="on" class="k-select"><span class="k-icon k-i-group"></span></span>').insertAfter(element);
-                }
-                that._arrow = icon.attr({ 'role': 'button' });
-            },
-            _editable: function (options) {
-                var that = this, disable = options.disable, readonly = options.readonly, wrapper = that._inputWrapper.off(NS), element = that.element.off(NS), arrow = that._arrow.off(CLICK + ' ' + MOUSEDOWN), clear = that._clear;
-                if (!readonly && !disable) {
-                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
-                    element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false).on('focus' + NS, proxy(that._inputFocus, that)).on('focusout' + NS, proxy(that._blur, that));
-                    arrow.on(CLICK, proxy(that._click, that)).on(MOUSEDOWN, preventDefault);
-                    clear.on(CLICK, proxy(that._clearValue, that)).on(MOUSEDOWN, preventDefault);
-                } else {
-                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
-                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
-                }
-            },
-            _inputFocus: function () {
-                this._inputWrapper.addClass(FOCUSED);
-                this._placeholder(false);
-            },
-            _clearValue: function () {
-                var that = this, options = that.options, field = options.field, __tls = options.model.__tls;
-                that.value('');
-                if (__tls) {
-                    if (__tls.hasOwnProperty(field))
-                        delete __tls[field];
-                }
-                that._change();
-                that.element.blur();
-            },
-            readonly: function (readonly) {
-                this._editable({
-                    readonly: readonly === undefined ? true : readonly,
-                    disable: false
-                });
-            },
-            enable: function (enable) {
-                this._editable({
-                    readonly: false,
-                    disable: !(enable = enable === undefined ? true : enable)
-                });
+            items: function () {
+                return $(this._items);
             },
             destroy: function () {
+                this.wrapper.off(VIRTUAL_LIST_NS);
+                this.dataSource.unbind(CHANGE, this._refreshHandler);
+                Widget.fn.destroy.call(this);
+            },
+            setDataSource: function (source) {
                 var that = this;
-                Widget.fn.destroy.call(that);
-                that.element.off(NS);
-                that._arrow.off(NS);
-                that._inputWrapper.off(NS);
-            },
-            dataItem: function () {
-                return this._dataItem;
-            },
-            value: function (value) {
-                var that = this, options = that.options;
-                if (value === undefined) {
-                    value = that._accessor();
-                    return value === undefined || value === null ? '' : value;
-                }
-                that.trigger('set', { value: value });
-                if (value === options.value && that.element.val() === options.text) {
-                    return;
-                }
-                that._accessor(value);
-            },
-            _toggleHover: function (e) {
-                $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
-            },
-            _blur: function () {
-                var that = this, value = that.element.val();
-                if (value !== that._oldText) {
-                    that._change(value);
-                }
-                that._inputWrapper.removeClass(FOCUSED);
-                that._placeholder();
-            },
-            _accessor: function (value) {
-                var element = this.element[0];
-                if (value === undefined) {
-                    return element.value;
-                } else {
-                    if (value === null) {
-                        value = '';
-                    }
-                    element.value = value;
-                }
-            },
-            _selectValue: function (value) {
-                if (value === null) {
-                    value = '';
-                }
-                this.value(value !== undefined ? value : text);
-                this._placeholder();
-                this._change();
-            },
-            _placeholder: function (show) {
-                if (placeholderSupported) {
-                    return;
-                }
-                var that = this, input = that.element, placeholder = that.options.placeholder, value;
-                if (placeholder) {
+                var dataSource = source || {};
+                var value;
+                dataSource = $.isArray(dataSource) ? { data: dataSource } : dataSource;
+                dataSource = kendo.data.DataSource.create(dataSource);
+                if (that.dataSource) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
+                    that._clean();
+                    that.bound(false);
+                    that._deferValueSet = true;
                     value = that.value();
-                    if (show === undefined) {
-                        show = !value;
-                    }
-                    input.toggleClass('k-readonly', show);
-                    if (!show) {
-                        if (!value) {
-                            placeholder = '';
-                        } else {
-                            return;
-                        }
-                    }
-                    input.val(placeholder);
-                    if (!placeholder && input[0] === activeElement()) {
-                        caret(input[0], 0, 0);
-                    }
+                    that.value([]);
+                    that.mute(function () {
+                        that.value(value);
+                    });
+                } else {
+                    that._refreshHandler = $.proxy(that.refresh, that);
+                }
+                that.dataSource = dataSource.bind(CHANGE, that._refreshHandler);
+                that.setDSFilter(dataSource.filter());
+                if (dataSource.view().length !== 0) {
+                    that.refresh();
+                } else if (that.options.autoBind) {
+                    dataSource.fetch();
                 }
             },
-            _closeTLEditWindow: function () {
+            skip: function () {
+                return this.dataSource.currentRangeStart();
             },
-            _initTLEditWindow: function () {
-                var that = this, messages = kendo.ui.TLEdit.prototype.options.messages, options = that.options;
-                if (!that.tlEditWin) {
-                    that.tlEditWin = $('<div class="modal-content"><div class="modal-body"><table style="width:90%" data-bind="source: multiLanguages" data-template="formItem-template"></table></div><div class="modal-footer"><button class="btn btn-primary" data-bind="click:confirm">' + messages['ok'] + '</button><button class="btn btn-default" data-bind="click:cancel">' + messages['cancel'] + '</button></div></div><script id="formItem-template" type="text/x-kendo-template"><tr><td width="30%" style="text-align:right;padding:10px"><label data-bind="text: description"></label></td><td><input type="text" style="width:100%" class="k-textbox" data-bind="value: value"/></td></tr></script>').appendTo(document.body).kendoWindow({
-                        width: options.width || 400,
-                        modal: options.modal === undefined ? true : options.modal,
-                        resizable: false,
-                        autoFocus: true,
-                        title: options.title || messages['title'],
-                        visible: false,
-                        open: function () {
-                            that.trigger(OPEN, that);
-                        },
-                        close: function () {
-                            that.trigger(CLOSE, that);
-                            that.element.focus();
+            _triggerListBound: function () {
+                var that = this;
+                var skip = that.skip();
+                if (that.bound() && !that._selectingValue && that._skip !== skip) {
+                    that._skip = skip;
+                    that.trigger(LISTBOUND);
+                }
+            },
+            _getValues: function (dataItems) {
+                var getter = this._valueGetter;
+                return $.map(dataItems, function (dataItem) {
+                    return getter(dataItem);
+                });
+            },
+            refresh: function (e) {
+                var that = this;
+                var action = e && e.action;
+                var isItemChange = action === 'itemchange';
+                var filtered = this.isFiltered();
+                var result;
+                if (that._mute) {
+                    return;
+                }
+                that._deferValueSet = false;
+                if (!that._fetching) {
+                    if (filtered) {
+                        that.focus(0);
+                    }
+                    that._createList();
+                    if (!action && that._values.length && !filtered && !that.options.skipUpdateOnBind) {
+                        that._selectingValue = true;
+                        that.value(that._values, true).done(function () {
+                            that.bound(true);
+                            that._selectingValue = false;
+                            that._triggerListBound();
+                        });
+                    } else {
+                        that.bound(true);
+                        that._triggerListBound();
+                    }
+                } else {
+                    if (that._renderItems) {
+                        that._renderItems(true);
+                    }
+                    that._triggerListBound();
+                }
+                if (isItemChange || action === 'remove') {
+                    result = mapChangedItems(that._selectedDataItems, e.items);
+                    if (result.changed.length) {
+                        if (isItemChange) {
+                            that.trigger('selectedItemChange', { items: result.changed });
+                        } else {
+                            that.value(that._getValues(result.unchanged));
                         }
-                    }).data('kendoWindow');
-                    var winEl = that.tlEditWin.element, formGroup = '<div class=\'form-group\'>';
-                    winEl.addClass('k-animation-container');
-                    that.viewModel = kendo.observable({
-                        multiLanguages: [],
-                        confirm: function () {
-                            var _tl = {};
-                            each(this.multiLanguages, function (idx, item) {
-                                _tl[item.langCode] = item.value;
-                            });
-                            var __tls = options.model.get('__tls') || {};
-                            __tls[options.field] = _tl;
-                            options.model.set('__tls', __tls);
-                            that._selectValue(_tl[window._locale || options.locale]);
-                            that.tlEditWin.close();
-                            that.element.focus();
-                        },
-                        cancel: function () {
-                            that.tlEditWin.close();
-                            that.element.focus();
+                    }
+                }
+                that._fetching = false;
+            },
+            removeAt: function (position) {
+                this._selectedIndexes.splice(position, 1);
+                this._values.splice(position, 1);
+                return {
+                    position: position,
+                    dataItem: this._selectedDataItems.splice(position, 1)[0]
+                };
+            },
+            setValue: function (value) {
+                this._values = toArray(value);
+            },
+            value: function (value, _forcePrefetch) {
+                var that = this;
+                if (value === undefined) {
+                    return that._values.slice();
+                }
+                if (value === null) {
+                    value = [];
+                }
+                value = toArray(value);
+                if (that.options.selectable === 'multiple' && that.select().length && value.length) {
+                    that.select(-1);
+                }
+                if (!that._valueDeferred || that._valueDeferred.state() === 'resolved') {
+                    that._valueDeferred = $.Deferred();
+                }
+                if (!value.length) {
+                    that.select(-1);
+                }
+                that._values = value;
+                if (that.bound() && !that._mute && !that._deferValueSet || _forcePrefetch) {
+                    that._prefetchByValue(value);
+                }
+                return that._valueDeferred;
+            },
+            _prefetchByValue: function (value) {
+                var that = this, dataView = that._dataView, valueGetter = that._valueGetter, item, match = false, forSelection = [];
+                for (var i = 0; i < value.length; i++) {
+                    for (var idx = 0; idx < dataView.length; idx++) {
+                        item = dataView[idx].item;
+                        if (item) {
+                            match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
+                            if (match) {
+                                forSelection.push(dataView[idx].index);
+                            }
+                        }
+                    }
+                }
+                if (forSelection.length === value.length) {
+                    that._values = [];
+                    that.select(forSelection);
+                    return;
+                }
+                if (typeof that.options.valueMapper === 'function') {
+                    that.options.valueMapper({
+                        value: this.options.selectable === 'multiple' ? value : value[0],
+                        success: function (indexes) {
+                            if (indexes === undefined || indexes === -1 || indexes === null) {
+                                indexes = [];
+                            } else {
+                                indexes = toArray(indexes);
+                            }
+                            if (!indexes.length) {
+                                indexes = [-1];
+                            } else {
+                                that._values = [];
+                                that._selectedIndexes = [];
+                                that._selectedDataItems = [];
+                            }
+                            that.select(indexes);
                         }
                     });
-                    kendo.bind(winEl, that.viewModel);
+                } else {
+                    throw new Error('valueMapper is not provided');
                 }
             },
-            _initFormGroup: function () {
-                var that = this;
-                that._ajaxForm();
-                if (that.options.model.__tls) {
-                    that._cacheForm();
-                }
-                that._setLocal();
+            deferredRange: function (index) {
+                var dataSource = this.dataSource;
+                var take = this.itemCount;
+                var ranges = this._rangesList;
+                var result = $.Deferred();
+                var defs = [];
+                var low = Math.floor(index / take) * take;
+                var high = Math.ceil(index / take) * take;
+                var pages = high === low ? [high] : [
+                    low,
+                    high
+                ];
+                $.each(pages, function (_, skip) {
+                    var end = skip + take;
+                    var existingRange = ranges[skip];
+                    var deferred;
+                    if (!existingRange || existingRange.end !== end) {
+                        deferred = $.Deferred();
+                        ranges[skip] = {
+                            end: end,
+                            deferred: deferred
+                        };
+                        dataSource._multiplePrefetch(skip, take, function () {
+                            deferred.resolve();
+                        });
+                    } else {
+                        deferred = existingRange.deferred;
+                    }
+                    defs.push(deferred);
+                });
+                $.when.apply($, defs).then(function () {
+                    result.resolve();
+                });
+                return result;
             },
-            _ajaxForm: function () {
-                var that = this, options = that.options, url = (window._basePath || options.contextPath || '') + options.url;
-                if (options.model && options.model.get) {
-                    $.ajax({
-                        type: 'GET',
-                        cache: true,
-                        url: url,
-                        dataType: 'JSON',
-                        contentType: 'application/json',
-                        async: false,
-                        data: {
-                            'id': options.model.get(options.idField) || '',
-                            'dto': options.dto,
-                            'field': options.field
-                        },
-                        success: function (data) {
-                            var multiLanguages = data.multiLanguages;
-                            each(multiLanguages, function (idx, item) {
-                                if (!item.hasOwnProperty('value')) {
-                                    item.value = '';
+            prefetch: function (indexes) {
+                var that = this, take = this.itemCount, isEmptyList = !that._promisesList.length;
+                if (!that._activeDeferred) {
+                    that._activeDeferred = $.Deferred();
+                    that._promisesList = [];
+                }
+                $.each(indexes, function (_, index) {
+                    var rangeStart = Math.floor(index / take) * take;
+                    if (index === rangeStart && rangeStart > take) {
+                        rangeStart -= take;
+                    }
+                    that._promisesList.push(that.deferredRange(rangeStart));
+                });
+                if (isEmptyList) {
+                    $.when.apply($, that._promisesList).done(function () {
+                        that._activeDeferred.resolve();
+                        that._activeDeferred = null;
+                        that._promisesList = [];
+                    });
+                }
+                return that._activeDeferred;
+            },
+            _findDataItem: function (index) {
+                var view = this.dataSource.view(), group;
+                if (this.options.type === 'group') {
+                    for (var i = 0; i < view.length; i++) {
+                        group = view[i].items;
+                        if (group.length <= index) {
+                            index = index - group.length;
+                        } else {
+                            return group[index];
+                        }
+                    }
+                }
+                return view[index];
+            },
+            selectedDataItems: function () {
+                return this._selectedDataItems.slice();
+            },
+            scrollTo: function (y) {
+                this.content.scrollTop(y);
+            },
+            scrollToIndex: function (index) {
+                this.scrollTo(index * this.options.itemHeight);
+            },
+            focus: function (candidate) {
+                var element, index, data, current, itemHeight = this.options.itemHeight, id = this._optionID, triggerEvent = true;
+                if (candidate === undefined) {
+                    current = this.element.find('.' + FOCUSED);
+                    return current.length ? current : null;
+                }
+                if (typeof candidate === 'function') {
+                    data = this.dataSource.flatView();
+                    for (var idx = 0; idx < data.length; idx++) {
+                        if (candidate(data[idx])) {
+                            candidate = idx;
+                            break;
+                        }
+                    }
+                }
+                if (candidate instanceof Array) {
+                    candidate = lastFrom(candidate);
+                }
+                if (isNaN(candidate)) {
+                    element = $(candidate);
+                    index = parseInt($(element).attr('data-offset-index'), 10);
+                } else {
+                    index = candidate;
+                    element = this._getElementByIndex(index);
+                }
+                if (index === -1) {
+                    this.element.find('.' + FOCUSED).removeClass(FOCUSED);
+                    this._focusedIndex = undefined;
+                    return;
+                }
+                if (element.length) {
+                    if (element.hasClass(FOCUSED)) {
+                        triggerEvent = false;
+                    }
+                    if (this._focusedIndex !== undefined) {
+                        current = this._getElementByIndex(this._focusedIndex);
+                        current.removeClass(FOCUSED).removeAttr('id');
+                        if (triggerEvent) {
+                            this.trigger(DEACTIVATE);
+                        }
+                    }
+                    this._focusedIndex = index;
+                    element.addClass(FOCUSED).attr('id', id);
+                    var position = this._getElementLocation(index);
+                    if (position === 'top') {
+                        this.scrollTo(index * itemHeight);
+                    } else if (position === 'bottom') {
+                        this.scrollTo(index * itemHeight + itemHeight - this.screenHeight);
+                    } else if (position === 'outScreen') {
+                        this.scrollTo(index * itemHeight);
+                    }
+                    if (triggerEvent) {
+                        this.trigger(ACTIVATE);
+                    }
+                } else {
+                    this._focusedIndex = index;
+                    this.items().removeClass(FOCUSED);
+                    this.scrollToIndex(index);
+                }
+            },
+            focusIndex: function () {
+                return this._focusedIndex;
+            },
+            focusFirst: function () {
+                this.scrollTo(0);
+                this.focus(0);
+            },
+            focusLast: function () {
+                var lastIndex = this.dataSource.total();
+                this.scrollTo(this.heightContainer.offsetHeight);
+                this.focus(lastIndex);
+            },
+            focusPrev: function () {
+                var index = this._focusedIndex;
+                var current;
+                if (!isNaN(index) && index > 0) {
+                    index -= 1;
+                    this.focus(index);
+                    current = this.focus();
+                    if (current && current.hasClass('k-loading-item')) {
+                        index += 1;
+                        this.focus(index);
+                    }
+                    return index;
+                } else {
+                    index = this.dataSource.total() - 1;
+                    this.focus(index);
+                    return index;
+                }
+            },
+            focusNext: function () {
+                var index = this._focusedIndex;
+                var lastIndex = this.dataSource.total() - 1;
+                var current;
+                if (!isNaN(index) && index < lastIndex) {
+                    index += 1;
+                    this.focus(index);
+                    current = this.focus();
+                    if (current && current.hasClass('k-loading-item')) {
+                        index -= 1;
+                        this.focus(index);
+                    }
+                    return index;
+                } else {
+                    index = 0;
+                    this.focus(index);
+                    return index;
+                }
+            },
+            _triggerChange: function (removed, added) {
+                removed = removed || [];
+                added = added || [];
+                if (removed.length || added.length) {
+                    this.trigger(CHANGE, {
+                        removed: removed,
+                        added: added
+                    });
+                }
+            },
+            select: function (candidate) {
+                var that = this, indices, singleSelection = that.options.selectable !== 'multiple', prefetchStarted = !!that._activeDeferred, filtered = this.isFiltered(), isAlreadySelected, deferred, result, removed = [];
+                if (candidate === undefined) {
+                    return that._selectedIndexes.slice();
+                }
+                indices = that._getIndecies(candidate);
+                isAlreadySelected = singleSelection && !filtered && lastFrom(indices) === lastFrom(this._selectedIndexes);
+                removed = that._deselectCurrentValues(indices);
+                if (removed.length || !indices.length || isAlreadySelected) {
+                    that._triggerChange(removed);
+                    if (that._valueDeferred) {
+                        that._valueDeferred.resolve();
+                    }
+                    return;
+                }
+                if (indices.length === 1 && indices[0] === -1) {
+                    indices = [];
+                }
+                result = that._deselect(indices);
+                removed = result.removed;
+                indices = result.indices;
+                if (singleSelection) {
+                    that._activeDeferred = null;
+                    prefetchStarted = false;
+                    if (indices.length) {
+                        indices = [lastFrom(indices)];
+                    }
+                }
+                var done = function () {
+                    var added = that._select(indices);
+                    that.focus(indices);
+                    that._triggerChange(removed, added);
+                    if (that._valueDeferred) {
+                        that._valueDeferred.resolve();
+                    }
+                };
+                deferred = that.prefetch(indices);
+                if (!prefetchStarted) {
+                    if (deferred) {
+                        deferred.done(done);
+                    } else {
+                        done();
+                    }
+                }
+            },
+            bound: function (bound) {
+                if (bound === undefined) {
+                    return this._listCreated;
+                }
+                this._listCreated = bound;
+            },
+            mute: function (callback) {
+                this._mute = true;
+                proxy(callback(), this);
+                this._mute = false;
+            },
+            setDSFilter: function (filter) {
+                this._lastDSFilter = $.extend({}, filter);
+            },
+            isFiltered: function () {
+                if (!this._lastDSFilter) {
+                    this.setDSFilter(this.dataSource.filter());
+                }
+                return !kendo.data.Query.compareFilters(this.dataSource.filter(), this._lastDSFilter);
+            },
+            skipUpdate: $.noop,
+            _getElementByIndex: function (index) {
+                return this.items().filter(function (idx, element) {
+                    return index === parseInt($(element).attr('data-offset-index'), 10);
+                });
+            },
+            _clean: function () {
+                this.result = undefined;
+                this._lastScrollTop = undefined;
+                this._skip = undefined;
+                $(this.heightContainer).remove();
+                this.heightContainer = undefined;
+                this.element.empty();
+            },
+            _height: function () {
+                var hasData = !!this.dataSource.view().length, height = this.options.height, itemHeight = this.options.itemHeight, total = this.dataSource.total();
+                if (!hasData) {
+                    height = 0;
+                } else if (height / itemHeight > total) {
+                    height = total * itemHeight;
+                }
+                return height;
+            },
+            _screenHeight: function () {
+                var height = this._height(), content = this.content;
+                content.height(height);
+                this.screenHeight = height;
+            },
+            _getElementLocation: function (index) {
+                var scrollTop = this.content.scrollTop(), screenHeight = this.screenHeight, itemHeight = this.options.itemHeight, yPosition = index * itemHeight, yDownPostion = yPosition + itemHeight, screenEnd = scrollTop + screenHeight, position;
+                if (yPosition === scrollTop - itemHeight || yDownPostion > scrollTop && yPosition < scrollTop) {
+                    position = 'top';
+                } else if (yPosition === screenEnd || yPosition < screenEnd && screenEnd < yDownPostion) {
+                    position = 'bottom';
+                } else if (yPosition >= scrollTop && yPosition <= scrollTop + (screenHeight - itemHeight)) {
+                    position = 'inScreen';
+                } else {
+                    position = 'outScreen';
+                }
+                return position;
+            },
+            _templates: function () {
+                var templates = {
+                    template: this.options.template,
+                    placeholderTemplate: this.options.placeholderTemplate,
+                    groupTemplate: this.options.groupTemplate,
+                    fixedGroupTemplate: this.options.fixedGroupTemplate
+                };
+                for (var key in templates) {
+                    if (typeof templates[key] !== 'function') {
+                        templates[key] = kendo.template(templates[key]);
+                    }
+                }
+                this.templates = templates;
+            },
+            _generateItems: function (element, count) {
+                var items = [], item, itemHeight = this.options.itemHeight + 'px';
+                while (count-- > 0) {
+                    item = document.createElement('li');
+                    item.tabIndex = -1;
+                    item.className = VIRTUALITEM + ' ' + ITEM;
+                    item.setAttribute('role', 'option');
+                    item.style.height = itemHeight;
+                    item.style.minHeight = itemHeight;
+                    element.appendChild(item);
+                    items.push(item);
+                }
+                return items;
+            },
+            _saveInitialRanges: function () {
+                var ranges = this.dataSource._ranges;
+                var deferred = $.Deferred();
+                deferred.resolve();
+                this._rangesList = {};
+                for (var i = 0; i < ranges.length; i++) {
+                    this._rangesList[ranges[i].start] = {
+                        end: ranges[i].end,
+                        deferred: deferred
+                    };
+                }
+            },
+            _createList: function () {
+                var that = this, content = that.content.get(0), options = that.options, dataSource = that.dataSource;
+                if (that.bound()) {
+                    that._clean();
+                }
+                that._saveInitialRanges();
+                that._screenHeight();
+                that._buildValueGetter();
+                that.itemCount = getItemCount(that.screenHeight, options.listScreens, options.itemHeight);
+                if (that.itemCount > dataSource.total()) {
+                    that.itemCount = dataSource.total();
+                }
+                that._templates();
+                that._items = that._generateItems(that.element[0], that.itemCount);
+                that._setHeight(options.itemHeight * dataSource.total());
+                that.options.type = (dataSource.group() || []).length ? 'group' : 'flat';
+                if (that.options.type === 'flat') {
+                    that.header.hide();
+                } else {
+                    that.header.show();
+                }
+                that.getter = that._getter(function () {
+                    that._renderItems(true);
+                });
+                that._onScroll = function (scrollTop, force) {
+                    var getList = that._listItems(that.getter);
+                    return that._fixedHeader(scrollTop, getList(scrollTop, force));
+                };
+                that._renderItems = that._whenChanged(scrollCallback(content, that._onScroll), syncList(that._reorderList(that._items, $.proxy(render, that))));
+                that._renderItems();
+                that._calculateGroupPadding(that.screenHeight);
+            },
+            _setHeight: function (height) {
+                var currentHeight, heightContainer = this.heightContainer;
+                if (!heightContainer) {
+                    heightContainer = this.heightContainer = appendChild(this.content[0], HEIGHTCONTAINER);
+                } else {
+                    currentHeight = heightContainer.offsetHeight;
+                }
+                if (height !== currentHeight) {
+                    heightContainer.innerHTML = '';
+                    while (height > 0) {
+                        var padHeight = Math.min(height, 250000);
+                        appendChild(heightContainer).style.height = padHeight + 'px';
+                        height -= padHeight;
+                    }
+                }
+            },
+            _getter: function () {
+                var lastRequestedRange = null, dataSource = this.dataSource, lastRangeStart = dataSource.skip(), type = this.options.type, pageSize = this.itemCount, flatGroups = {};
+                if (dataSource.pageSize() < pageSize) {
+                    this.mute(function () {
+                        dataSource.pageSize(pageSize);
+                    });
+                }
+                return function (index, rangeStart) {
+                    var that = this;
+                    if (!dataSource.inRange(rangeStart, pageSize)) {
+                        if (lastRequestedRange !== rangeStart) {
+                            lastRequestedRange = rangeStart;
+                            lastRangeStart = rangeStart;
+                            if (that._getterDeferred) {
+                                that._getterDeferred.reject();
+                            }
+                            that._getterDeferred = that.deferredRange(rangeStart);
+                            that._getterDeferred.then(function () {
+                                var firstItemIndex = that._indexConstraint(that.content[0].scrollTop);
+                                that._getterDeferred = null;
+                                if (rangeStart <= firstItemIndex && firstItemIndex <= rangeStart + pageSize) {
+                                    that._fetching = true;
+                                    dataSource.range(rangeStart, pageSize);
                                 }
                             });
-                            that.viewModel.set('multiLanguages', multiLanguages);
                         }
-                    });
-                }
-            },
-            _cacheForm: function () {
-                var that = this, options = that.options, _tls = options.model.get('__tls'), field = options.field, multiLanguages = that.viewModel.get('multiLanguages');
-                options.value = that.element.val();
-                if (!_tls.hasOwnProperty(field)) {
-                    return;
-                }
-                each(multiLanguages, function (idx, item) {
-                    item.set('value', _tls.get(field)[item.langCode]);
-                });
-            },
-            _setLocal: function () {
-                var that = this;
-                each(that.viewModel.get('multiLanguages'), function (idx, item) {
-                    if (item.langCode === (_locale || that.options.locale)) {
-                        item.set('value', that.element.val());
+                        return null;
+                    } else {
+                        if (lastRangeStart !== rangeStart) {
+                            this.mute(function () {
+                                dataSource.range(rangeStart, pageSize);
+                                lastRangeStart = rangeStart;
+                            });
+                        }
+                        var result;
+                        if (type === 'group') {
+                            if (!flatGroups[rangeStart]) {
+                                var flatGroup = flatGroups[rangeStart] = [];
+                                var groups = dataSource.view();
+                                for (var i = 0, len = groups.length; i < len; i++) {
+                                    var group = groups[i];
+                                    for (var j = 0, groupLength = group.items.length; j < groupLength; j++) {
+                                        flatGroup.push({
+                                            item: group.items[j],
+                                            group: group.value
+                                        });
+                                    }
+                                }
+                            }
+                            result = flatGroups[rangeStart][index - rangeStart];
+                        } else {
+                            result = dataSource.view()[index - rangeStart];
+                        }
+                        return result;
                     }
-                });
+                };
             },
-            _click: function () {
+            _fixedHeader: function (scrollTop, list) {
+                var group = this.currentVisibleGroup, itemHeight = this.options.itemHeight, firstVisibleDataItemIndex = Math.floor((scrollTop - list.top) / itemHeight), firstVisibleDataItem = list.items[firstVisibleDataItemIndex];
+                if (firstVisibleDataItem && firstVisibleDataItem.item) {
+                    var firstVisibleGroup = firstVisibleDataItem.group;
+                    if (firstVisibleGroup !== group) {
+                        this.header[0].innerHTML = firstVisibleGroup || '';
+                        this.currentVisibleGroup = firstVisibleGroup;
+                    }
+                }
+                return list;
+            },
+            _itemMapper: function (item, index, value) {
+                var listType = this.options.type, itemHeight = this.options.itemHeight, currentIndex = this._focusedIndex, selected = false, current = false, newGroup = false, group = null, match = false, valueGetter = this._valueGetter;
+                if (listType === 'group') {
+                    if (item) {
+                        newGroup = index === 0 || this._currentGroup && this._currentGroup !== item.group;
+                        this._currentGroup = item.group;
+                    }
+                    group = item ? item.group : null;
+                    item = item ? item.item : null;
+                }
+                if (!this.isFiltered() && value.length && item) {
+                    for (var i = 0; i < value.length; i++) {
+                        match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
+                        if (match) {
+                            value.splice(i, 1);
+                            selected = true;
+                            break;
+                        }
+                    }
+                }
+                if (currentIndex === index) {
+                    current = true;
+                }
+                return {
+                    item: item ? item : null,
+                    group: group,
+                    newGroup: newGroup,
+                    selected: selected,
+                    current: current,
+                    index: index,
+                    top: index * itemHeight
+                };
+            },
+            _range: function (index) {
+                var itemCount = this.itemCount, value = this._values.slice(), items = [], item;
+                this._view = {};
+                this._currentGroup = null;
+                for (var i = index, length = index + itemCount; i < length; i++) {
+                    item = this._itemMapper(this.getter(i, index), i, value);
+                    items.push(item);
+                    this._view[item.index] = item;
+                }
+                this._dataView = items;
+                return items;
+            },
+            _getDataItemsCollection: function (scrollTop, lastScrollTop) {
+                var items = this._range(this._listIndex(scrollTop, lastScrollTop));
+                return {
+                    index: items.length ? items[0].index : 0,
+                    top: items.length ? items[0].top : 0,
+                    items: items
+                };
+            },
+            _listItems: function () {
+                var screenHeight = this.screenHeight, options = this.options;
+                var theValidator = listValidator(options, screenHeight);
+                return $.proxy(function (value, force) {
+                    var result = this.result, lastScrollTop = this._lastScrollTop;
+                    if (force || !result || !theValidator(result, value, lastScrollTop)) {
+                        result = this._getDataItemsCollection(value, lastScrollTop);
+                    }
+                    this._lastScrollTop = value;
+                    this.result = result;
+                    return result;
+                }, this);
+            },
+            _whenChanged: function (getter, callback) {
+                var current;
+                return function (force) {
+                    var theNew = getter(force);
+                    if (theNew !== current) {
+                        current = theNew;
+                        callback(theNew, force);
+                    }
+                };
+            },
+            _reorderList: function (list, reorder) {
                 var that = this;
-                if (that.options.model && typeof that.options.model != 'string') {
-                    that._initTLEditWindow();
-                    that._initFormGroup();
-                    that.tlEditWin.center().open();
+                var length = list.length;
+                var currentOffset = -Infinity;
+                reorder = $.proxy(map2(reorder, this.templates), this);
+                return function (list2, offset, force) {
+                    var diff = offset - currentOffset;
+                    var range, range2;
+                    if (force || Math.abs(diff) >= length) {
+                        range = list;
+                        range2 = list2;
+                    } else {
+                        range = reshift(list, diff);
+                        range2 = diff > 0 ? list2.slice(-diff) : list2.slice(0, -diff);
+                    }
+                    reorder(range, range2, that.bound());
+                    currentOffset = offset;
+                };
+            },
+            _bufferSizes: function () {
+                var options = this.options;
+                return bufferSizes(this.screenHeight, options.listScreens, options.oppositeBuffer);
+            },
+            _indexConstraint: function (position) {
+                var itemCount = this.itemCount, itemHeight = this.options.itemHeight, total = this.dataSource.total();
+                return Math.min(Math.max(total - itemCount, 0), Math.max(0, Math.floor(position / itemHeight)));
+            },
+            _listIndex: function (scrollTop, lastScrollTop) {
+                var buffers = this._bufferSizes(), position;
+                position = scrollTop - (scrollTop > lastScrollTop ? buffers.down : buffers.up);
+                return this._indexConstraint(position);
+            },
+            _selectable: function () {
+                if (this.options.selectable) {
+                    this._selectProxy = $.proxy(this, '_clickHandler');
+                    this.element.on(CLICK + VIRTUAL_LIST_NS, '.' + VIRTUALITEM, this._selectProxy);
                 }
             },
-            _change: function (value) {
-                this.trigger(CHANGE);
+            _getIndecies: function (candidate) {
+                var result = [], data;
+                if (typeof candidate === 'function') {
+                    data = this.dataSource.flatView();
+                    for (var idx = 0; idx < data.length; idx++) {
+                        if (candidate(data[idx])) {
+                            result.push(idx);
+                            break;
+                        }
+                    }
+                }
+                if (typeof candidate === 'number') {
+                    result.push(candidate);
+                }
+                if (candidate instanceof jQuery) {
+                    candidate = parseInt(candidate.attr('data-offset-index'), 10);
+                    if (!isNaN(candidate)) {
+                        result.push(candidate);
+                    }
+                }
+                if (candidate instanceof Array) {
+                    result = candidate;
+                }
+                return result;
             },
-            _keydown: function (e) {
-                var that = this, value = that.element.val();
+            _deselect: function (indices) {
+                var removed = [], selectedIndex, dataItem, selectedIndexes = this._selectedIndexes, position = 0, selectable = this.options.selectable, removedindexesCounter = 0, item;
+                indices = indices.slice();
+                if (selectable === true || !indices.length) {
+                    for (var idx = 0; idx < selectedIndexes.length; idx++) {
+                        if (selectedIndexes[idx] !== undefined) {
+                            this._getElementByIndex(selectedIndexes[idx]).removeClass(SELECTED);
+                            removed.push({
+                                index: selectedIndexes[idx],
+                                position: idx,
+                                dataItem: this._selectedDataItems[idx]
+                            });
+                        }
+                    }
+                    this._values = [];
+                    this._selectedDataItems = [];
+                    this._selectedIndexes = [];
+                } else if (selectable === 'multiple') {
+                    for (var i = 0; i < indices.length; i++) {
+                        position = $.inArray(indices[i], selectedIndexes);
+                        selectedIndex = selectedIndexes[position];
+                        if (selectedIndex !== undefined) {
+                            item = this._getElementByIndex(selectedIndex);
+                            if (!item.hasClass('k-state-selected')) {
+                                continue;
+                            }
+                            item.removeClass(SELECTED);
+                            this._values.splice(position, 1);
+                            this._selectedIndexes.splice(position, 1);
+                            dataItem = this._selectedDataItems.splice(position, 1)[0];
+                            indices.splice(i, 1);
+                            removed.push({
+                                index: selectedIndex,
+                                position: position + removedindexesCounter,
+                                dataItem: dataItem
+                            });
+                            removedindexesCounter++;
+                            i--;
+                        }
+                    }
+                }
+                return {
+                    indices: indices,
+                    removed: removed
+                };
+            },
+            _deselectCurrentValues: function (indices) {
+                var children = this.element[0].children;
+                var value, index, position;
+                var values = this._values;
+                var removed = [];
+                var idx = 0;
+                var j;
+                if (this.options.selectable !== 'multiple' || !this.isFiltered()) {
+                    return [];
+                }
+                for (; idx < indices.length; idx++) {
+                    position = -1;
+                    index = indices[idx];
+                    value = this._valueGetter(this._view[index].item);
+                    for (j = 0; j < values.length; j++) {
+                        if (value == values[j]) {
+                            position = j;
+                            break;
+                        }
+                    }
+                    if (position > -1) {
+                        removed.push(this.removeAt(position));
+                        $(children[index]).removeClass('k-state-selected');
+                    }
+                }
+                return removed;
+            },
+            _select: function (indexes) {
+                var that = this, singleSelection = this.options.selectable !== 'multiple', dataSource = this.dataSource, dataItem, oldSkip, take = this.itemCount, valueGetter = this._valueGetter, added = [];
+                if (singleSelection) {
+                    that._selectedIndexes = [];
+                    that._selectedDataItems = [];
+                    that._values = [];
+                }
+                oldSkip = dataSource.skip();
+                $.each(indexes, function (_, index) {
+                    var page = index < take ? 1 : Math.floor(index / take) + 1;
+                    var skip = (page - 1) * take;
+                    that.mute(function () {
+                        dataSource.range(skip, take);
+                        dataItem = that._findDataItem([index - skip]);
+                        that._selectedIndexes.push(index);
+                        that._selectedDataItems.push(dataItem);
+                        that._values.push(isPrimitive(dataItem) ? dataItem : valueGetter(dataItem));
+                        added.push({
+                            index: index,
+                            dataItem: dataItem
+                        });
+                        that._getElementByIndex(index).addClass(SELECTED);
+                        dataSource.range(oldSkip, take);
+                    });
+                });
+                return added;
+            },
+            _clickHandler: function (e) {
+                var item = $(e.currentTarget);
+                if (!e.isDefaultPrevented() && item.attr('data-uid')) {
+                    this.trigger(CLICK, { item: item });
+                }
+            },
+            _buildValueGetter: function () {
+                this._valueGetter = kendo.getter(this.options.dataValueField);
+            },
+            _calculateGroupPadding: function (height) {
+                var firstItem = this.items().first(), groupHeader = this.header, padding = 0;
+                if (groupHeader[0] && groupHeader[0].style.display !== 'none') {
+                    if (height !== 'auto') {
+                        padding = kendo.support.scrollbar();
+                    }
+                    padding += parseFloat(firstItem.css('border-right-width'), 10) + parseFloat(firstItem.children('.k-group').css('right'), 10);
+                    groupHeader.css('padding-right', padding);
+                }
             }
         });
-        ui.plugin(TLEdit);
+        kendo.ui.VirtualList = VirtualList;
+        kendo.ui.plugin(VirtualList);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -65958,1411 +66623,127 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.virtuallist', ['kendo.data'], f);
+    define('kendo.dialog', ['kendo.window'], f);
 }(function () {
     var __meta__ = {
-        id: 'virtuallist',
-        name: 'VirtualList',
-        category: 'framework',
-        depends: ['data'],
-        hidden: true
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, WRAPPER = 'k-virtual-wrap', VIRTUALLIST = 'k-virtual-list', CONTENT = 'k-virtual-content', LIST = 'k-list', HEADER = 'k-group-header', VIRTUALITEM = 'k-virtual-item', ITEM = 'k-item', HEIGHTCONTAINER = 'k-height-container', GROUPITEM = 'k-group', SELECTED = 'k-state-selected', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', CHANGE = 'change', CLICK = 'click', LISTBOUND = 'listBound', ITEMCHANGE = 'itemChange', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', VIRTUAL_LIST_NS = '.VirtualList';
-        function lastFrom(array) {
-            return array[array.length - 1];
-        }
-        function toArray(value) {
-            return value instanceof Array ? value : [value];
-        }
-        function isPrimitive(dataItem) {
-            return typeof dataItem === 'string' || typeof dataItem === 'number' || typeof dataItem === 'boolean';
-        }
-        function getItemCount(screenHeight, listScreens, itemHeight) {
-            return Math.ceil(screenHeight * listScreens / itemHeight);
-        }
-        function appendChild(parent, className, tagName) {
-            var element = document.createElement(tagName || 'div');
-            if (className) {
-                element.className = className;
-            }
-            parent.appendChild(element);
-            return element;
-        }
-        function getDefaultItemHeight() {
-            var mockList = $('<div class="k-popup"><ul class="k-list"><li class="k-item"><li></ul></div>'), lineHeight;
-            mockList.css({
-                position: 'absolute',
-                left: '-200000px',
-                visibility: 'hidden'
-            });
-            mockList.appendTo(document.body);
-            lineHeight = parseFloat(kendo.getComputedStyles(mockList.find('.k-item')[0], ['line-height'])['line-height']);
-            mockList.remove();
-            return lineHeight;
-        }
-        function bufferSizes(screenHeight, listScreens, opposite) {
-            return {
-                down: screenHeight * opposite,
-                up: screenHeight * (listScreens - 1 - opposite)
-            };
-        }
-        function listValidator(options, screenHeight) {
-            var downThreshold = (options.listScreens - 1 - options.threshold) * screenHeight;
-            var upThreshold = options.threshold * screenHeight;
-            return function (list, scrollTop, lastScrollTop) {
-                if (scrollTop > lastScrollTop) {
-                    return scrollTop - list.top < downThreshold;
-                } else {
-                    return list.top === 0 || scrollTop - list.top > upThreshold;
-                }
-            };
-        }
-        function scrollCallback(element, callback) {
-            return function (force) {
-                return callback(element.scrollTop, force);
-            };
-        }
-        function syncList(reorder) {
-            return function (list, force) {
-                reorder(list.items, list.index, force);
-                return list;
-            };
-        }
-        function position(element, y) {
-            if (kendo.support.browser.msie && kendo.support.browser.version < 10) {
-                element.style.top = y + 'px';
-            } else {
-                element.style.webkitTransform = 'translateY(' + y + 'px)';
-                element.style.transform = 'translateY(' + y + 'px)';
-            }
-        }
-        function map2(callback, templates) {
-            return function (arr1, arr2) {
-                for (var i = 0, len = arr1.length; i < len; i++) {
-                    callback(arr1[i], arr2[i], templates);
-                    if (arr2[i].item) {
-                        this.trigger(ITEMCHANGE, {
-                            item: $(arr1[i]),
-                            data: arr2[i].item,
-                            ns: kendo.ui
-                        });
-                    }
-                }
-            };
-        }
-        function reshift(items, diff) {
-            var range;
-            if (diff > 0) {
-                range = items.splice(0, diff);
-                items.push.apply(items, range);
-            } else {
-                range = items.splice(diff, -diff);
-                items.unshift.apply(items, range);
-            }
-            return range;
-        }
-        function render(element, data, templates) {
-            var itemTemplate = templates.template;
-            element = $(element);
-            if (!data.item) {
-                itemTemplate = templates.placeholderTemplate;
-            }
-            this.angular('cleanup', function () {
-                return { elements: [element] };
-            });
-            element.attr('data-uid', data.item ? data.item.uid : '').attr('data-offset-index', data.index).html(itemTemplate(data.item || {}));
-            element.toggleClass(FOCUSED, data.current);
-            element.toggleClass(SELECTED, data.selected);
-            element.toggleClass('k-first', data.newGroup);
-            element.toggleClass('k-loading-item', !data.item);
-            if (data.index !== 0 && data.newGroup) {
-                $('<div class=' + GROUPITEM + '></div>').appendTo(element).html(templates.groupTemplate(data.group));
-            }
-            if (data.top !== undefined) {
-                position(element[0], data.top);
-            }
-            this.angular('compile', function () {
-                return {
-                    elements: [element],
-                    data: [{
-                            dataItem: data.item,
-                            group: data.group,
-                            newGroup: data.newGroup
-                        }]
-                };
-            });
-        }
-        function mapChangedItems(selected, itemsToMatch) {
-            var itemsLength = itemsToMatch.length;
-            var selectedLength = selected.length;
-            var dataItem;
-            var found;
-            var i, j;
-            var changed = [];
-            var unchanged = [];
-            if (selectedLength) {
-                for (i = 0; i < selectedLength; i++) {
-                    dataItem = selected[i];
-                    found = false;
-                    for (j = 0; j < itemsLength; j++) {
-                        if (dataItem === itemsToMatch[j]) {
-                            found = true;
-                            changed.push({
-                                index: i,
-                                item: dataItem
-                            });
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        unchanged.push(dataItem);
-                    }
-                }
-            }
-            return {
-                changed: changed,
-                unchanged: unchanged
-            };
-        }
-        var VirtualList = DataBoundWidget.extend({
-            init: function (element, options) {
-                var that = this;
-                that.bound(false);
-                that._fetching = false;
-                Widget.fn.init.call(that, element, options);
-                if (!that.options.itemHeight) {
-                    that.options.itemHeight = getDefaultItemHeight();
-                }
-                options = that.options;
-                that.element.addClass(LIST + ' ' + VIRTUALLIST).attr('role', 'listbox');
-                that.content = that.element.wrap('<div unselectable=\'on\' class=\'' + CONTENT + '\'></div>').parent();
-                that.wrapper = that.content.wrap('<div class=\'' + WRAPPER + '\'></div>').parent();
-                that.header = that.content.before('<div class=\'' + HEADER + '\'></div>').prev();
-                that.element.on('mouseenter' + VIRTUAL_LIST_NS, 'li:not(.k-loading-item)', function () {
-                    $(this).addClass(HOVER);
-                }).on('mouseleave' + VIRTUAL_LIST_NS, 'li', function () {
-                    $(this).removeClass(HOVER);
-                });
-                that._values = toArray(that.options.value);
-                that._selectedDataItems = [];
-                that._selectedIndexes = [];
-                that._rangesList = {};
-                that._activeDeferred = null;
-                that._promisesList = [];
-                that._optionID = kendo.guid();
-                that.setDataSource(options.dataSource);
-                that.content.on('scroll' + VIRTUAL_LIST_NS, kendo.throttle(function () {
-                    that._renderItems();
-                    that._triggerListBound();
-                }, options.delay));
-                that._selectable();
-            },
-            options: {
-                name: 'VirtualList',
-                autoBind: true,
-                delay: 100,
-                height: null,
-                listScreens: 4,
-                threshold: 0.5,
-                itemHeight: null,
-                oppositeBuffer: 1,
-                type: 'flat',
-                selectable: false,
-                value: [],
-                dataValueField: null,
-                template: '#:data#',
-                placeholderTemplate: 'loading...',
-                groupTemplate: '#:data#',
-                fixedGroupTemplate: 'fixed header template',
-                valueMapper: null
-            },
-            events: [
-                CHANGE,
-                CLICK,
-                LISTBOUND,
-                ITEMCHANGE,
-                ACTIVATE,
-                DEACTIVATE
-            ],
-            setOptions: function (options) {
-                Widget.fn.setOptions.call(this, options);
-                if (this._selectProxy && this.options.selectable === false) {
-                    this.element.off(CLICK, '.' + VIRTUALITEM, this._selectProxy);
-                } else if (!this._selectProxy && this.options.selectable) {
-                    this._selectable();
-                }
-                this.refresh();
-            },
-            items: function () {
-                return $(this._items);
-            },
-            destroy: function () {
-                this.wrapper.off(VIRTUAL_LIST_NS);
-                this.dataSource.unbind(CHANGE, this._refreshHandler);
-                Widget.fn.destroy.call(this);
-            },
-            setDataSource: function (source) {
-                var that = this;
-                var dataSource = source || {};
-                var value;
-                dataSource = $.isArray(dataSource) ? { data: dataSource } : dataSource;
-                dataSource = kendo.data.DataSource.create(dataSource);
-                if (that.dataSource) {
-                    that.dataSource.unbind(CHANGE, that._refreshHandler);
-                    that._clean();
-                    that.bound(false);
-                    that._deferValueSet = true;
-                    value = that.value();
-                    that.value([]);
-                    that.mute(function () {
-                        that.value(value);
-                    });
-                } else {
-                    that._refreshHandler = $.proxy(that.refresh, that);
-                }
-                that.dataSource = dataSource.bind(CHANGE, that._refreshHandler);
-                that.setDSFilter(dataSource.filter());
-                if (dataSource.view().length !== 0) {
-                    that.refresh();
-                } else if (that.options.autoBind) {
-                    dataSource.fetch();
-                }
-            },
-            skip: function () {
-                return this.dataSource.currentRangeStart();
-            },
-            _triggerListBound: function () {
-                var that = this;
-                var skip = that.skip();
-                if (that.bound() && !that._selectingValue && that._skip !== skip) {
-                    that._skip = skip;
-                    that.trigger(LISTBOUND);
-                }
-            },
-            _getValues: function (dataItems) {
-                var getter = this._valueGetter;
-                return $.map(dataItems, function (dataItem) {
-                    return getter(dataItem);
-                });
-            },
-            refresh: function (e) {
-                var that = this;
-                var action = e && e.action;
-                var isItemChange = action === 'itemchange';
-                var filtered = this.isFiltered();
-                var result;
-                if (that._mute) {
-                    return;
-                }
-                that._deferValueSet = false;
-                if (!that._fetching) {
-                    if (filtered) {
-                        that.focus(0);
-                    }
-                    that._createList();
-                    if (!action && that._values.length && !filtered && !that.options.skipUpdateOnBind) {
-                        that._selectingValue = true;
-                        that.value(that._values, true).done(function () {
-                            that.bound(true);
-                            that._selectingValue = false;
-                            that._triggerListBound();
-                        });
-                    } else {
-                        that.bound(true);
-                        that._triggerListBound();
-                    }
-                } else {
-                    if (that._renderItems) {
-                        that._renderItems(true);
-                    }
-                    that._triggerListBound();
-                }
-                if (isItemChange || action === 'remove') {
-                    result = mapChangedItems(that._selectedDataItems, e.items);
-                    if (result.changed.length) {
-                        if (isItemChange) {
-                            that.trigger('selectedItemChange', { items: result.changed });
-                        } else {
-                            that.value(that._getValues(result.unchanged));
-                        }
-                    }
-                }
-                that._fetching = false;
-            },
-            removeAt: function (position) {
-                this._selectedIndexes.splice(position, 1);
-                this._values.splice(position, 1);
-                return {
-                    position: position,
-                    dataItem: this._selectedDataItems.splice(position, 1)[0]
-                };
-            },
-            setValue: function (value) {
-                this._values = toArray(value);
-            },
-            value: function (value, _forcePrefetch) {
-                var that = this;
-                if (value === undefined) {
-                    return that._values.slice();
-                }
-                if (value === null) {
-                    value = [];
-                }
-                value = toArray(value);
-                if (that.options.selectable === 'multiple' && that.select().length && value.length) {
-                    that.select(-1);
-                }
-                if (!that._valueDeferred || that._valueDeferred.state() === 'resolved') {
-                    that._valueDeferred = $.Deferred();
-                }
-                if (!value.length) {
-                    that.select(-1);
-                }
-                that._values = value;
-                if (that.bound() && !that._mute && !that._deferValueSet || _forcePrefetch) {
-                    that._prefetchByValue(value);
-                }
-                return that._valueDeferred;
-            },
-            _prefetchByValue: function (value) {
-                var that = this, dataView = that._dataView, valueGetter = that._valueGetter, item, match = false, forSelection = [];
-                for (var i = 0; i < value.length; i++) {
-                    for (var idx = 0; idx < dataView.length; idx++) {
-                        item = dataView[idx].item;
-                        if (item) {
-                            match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
-                            if (match) {
-                                forSelection.push(dataView[idx].index);
-                            }
-                        }
-                    }
-                }
-                if (forSelection.length === value.length) {
-                    that._values = [];
-                    that.select(forSelection);
-                    return;
-                }
-                if (typeof that.options.valueMapper === 'function') {
-                    that.options.valueMapper({
-                        value: this.options.selectable === 'multiple' ? value : value[0],
-                        success: function (indexes) {
-                            if (indexes === undefined || indexes === -1 || indexes === null) {
-                                indexes = [];
-                            } else {
-                                indexes = toArray(indexes);
-                            }
-                            if (!indexes.length) {
-                                indexes = [-1];
-                            } else {
-                                that._values = [];
-                                that._selectedIndexes = [];
-                                that._selectedDataItems = [];
-                            }
-                            that.select(indexes);
-                        }
-                    });
-                } else {
-                    throw new Error('valueMapper is not provided');
-                }
-            },
-            deferredRange: function (index) {
-                var dataSource = this.dataSource;
-                var take = this.itemCount;
-                var ranges = this._rangesList;
-                var result = $.Deferred();
-                var defs = [];
-                var low = Math.floor(index / take) * take;
-                var high = Math.ceil(index / take) * take;
-                var pages = high === low ? [high] : [
-                    low,
-                    high
-                ];
-                $.each(pages, function (_, skip) {
-                    var end = skip + take;
-                    var existingRange = ranges[skip];
-                    var deferred;
-                    if (!existingRange || existingRange.end !== end) {
-                        deferred = $.Deferred();
-                        ranges[skip] = {
-                            end: end,
-                            deferred: deferred
-                        };
-                        dataSource._multiplePrefetch(skip, take, function () {
-                            deferred.resolve();
-                        });
-                    } else {
-                        deferred = existingRange.deferred;
-                    }
-                    defs.push(deferred);
-                });
-                $.when.apply($, defs).then(function () {
-                    result.resolve();
-                });
-                return result;
-            },
-            prefetch: function (indexes) {
-                var that = this, take = this.itemCount, isEmptyList = !that._promisesList.length;
-                if (!that._activeDeferred) {
-                    that._activeDeferred = $.Deferred();
-                    that._promisesList = [];
-                }
-                $.each(indexes, function (_, index) {
-                    var rangeStart = Math.floor(index / take) * take;
-                    if (index === rangeStart && rangeStart > take) {
-                        rangeStart -= take;
-                    }
-                    that._promisesList.push(that.deferredRange(rangeStart));
-                });
-                if (isEmptyList) {
-                    $.when.apply($, that._promisesList).done(function () {
-                        that._activeDeferred.resolve();
-                        that._activeDeferred = null;
-                        that._promisesList = [];
-                    });
-                }
-                return that._activeDeferred;
-            },
-            _findDataItem: function (index) {
-                var view = this.dataSource.view(), group;
-                if (this.options.type === 'group') {
-                    for (var i = 0; i < view.length; i++) {
-                        group = view[i].items;
-                        if (group.length <= index) {
-                            index = index - group.length;
-                        } else {
-                            return group[index];
-                        }
-                    }
-                }
-                return view[index];
-            },
-            selectedDataItems: function () {
-                return this._selectedDataItems.slice();
-            },
-            scrollTo: function (y) {
-                this.content.scrollTop(y);
-            },
-            scrollToIndex: function (index) {
-                this.scrollTo(index * this.options.itemHeight);
-            },
-            focus: function (candidate) {
-                var element, index, data, current, itemHeight = this.options.itemHeight, id = this._optionID, triggerEvent = true;
-                if (candidate === undefined) {
-                    current = this.element.find('.' + FOCUSED);
-                    return current.length ? current : null;
-                }
-                if (typeof candidate === 'function') {
-                    data = this.dataSource.flatView();
-                    for (var idx = 0; idx < data.length; idx++) {
-                        if (candidate(data[idx])) {
-                            candidate = idx;
-                            break;
-                        }
-                    }
-                }
-                if (candidate instanceof Array) {
-                    candidate = lastFrom(candidate);
-                }
-                if (isNaN(candidate)) {
-                    element = $(candidate);
-                    index = parseInt($(element).attr('data-offset-index'), 10);
-                } else {
-                    index = candidate;
-                    element = this._getElementByIndex(index);
-                }
-                if (index === -1) {
-                    this.element.find('.' + FOCUSED).removeClass(FOCUSED);
-                    this._focusedIndex = undefined;
-                    return;
-                }
-                if (element.length) {
-                    if (element.hasClass(FOCUSED)) {
-                        triggerEvent = false;
-                    }
-                    if (this._focusedIndex !== undefined) {
-                        current = this._getElementByIndex(this._focusedIndex);
-                        current.removeClass(FOCUSED).removeAttr('id');
-                        if (triggerEvent) {
-                            this.trigger(DEACTIVATE);
-                        }
-                    }
-                    this._focusedIndex = index;
-                    element.addClass(FOCUSED).attr('id', id);
-                    var position = this._getElementLocation(index);
-                    if (position === 'top') {
-                        this.scrollTo(index * itemHeight);
-                    } else if (position === 'bottom') {
-                        this.scrollTo(index * itemHeight + itemHeight - this.screenHeight);
-                    } else if (position === 'outScreen') {
-                        this.scrollTo(index * itemHeight);
-                    }
-                    if (triggerEvent) {
-                        this.trigger(ACTIVATE);
-                    }
-                } else {
-                    this._focusedIndex = index;
-                    this.items().removeClass(FOCUSED);
-                    this.scrollToIndex(index);
-                }
-            },
-            focusIndex: function () {
-                return this._focusedIndex;
-            },
-            focusFirst: function () {
-                this.scrollTo(0);
-                this.focus(0);
-            },
-            focusLast: function () {
-                var lastIndex = this.dataSource.total();
-                this.scrollTo(this.heightContainer.offsetHeight);
-                this.focus(lastIndex);
-            },
-            focusPrev: function () {
-                var index = this._focusedIndex;
-                var current;
-                if (!isNaN(index) && index > 0) {
-                    index -= 1;
-                    this.focus(index);
-                    current = this.focus();
-                    if (current && current.hasClass('k-loading-item')) {
-                        index += 1;
-                        this.focus(index);
-                    }
-                    return index;
-                } else {
-                    index = this.dataSource.total() - 1;
-                    this.focus(index);
-                    return index;
-                }
-            },
-            focusNext: function () {
-                var index = this._focusedIndex;
-                var lastIndex = this.dataSource.total() - 1;
-                var current;
-                if (!isNaN(index) && index < lastIndex) {
-                    index += 1;
-                    this.focus(index);
-                    current = this.focus();
-                    if (current && current.hasClass('k-loading-item')) {
-                        index -= 1;
-                        this.focus(index);
-                    }
-                    return index;
-                } else {
-                    index = 0;
-                    this.focus(index);
-                    return index;
-                }
-            },
-            _triggerChange: function (removed, added) {
-                removed = removed || [];
-                added = added || [];
-                if (removed.length || added.length) {
-                    this.trigger(CHANGE, {
-                        removed: removed,
-                        added: added
-                    });
-                }
-            },
-            select: function (candidate) {
-                var that = this, indices, singleSelection = that.options.selectable !== 'multiple', prefetchStarted = !!that._activeDeferred, filtered = this.isFiltered(), isAlreadySelected, deferred, result, removed = [];
-                if (candidate === undefined) {
-                    return that._selectedIndexes.slice();
-                }
-                indices = that._getIndecies(candidate);
-                isAlreadySelected = singleSelection && !filtered && lastFrom(indices) === lastFrom(this._selectedIndexes);
-                removed = that._deselectCurrentValues(indices);
-                if (removed.length || !indices.length || isAlreadySelected) {
-                    that._triggerChange(removed);
-                    if (that._valueDeferred) {
-                        that._valueDeferred.resolve();
-                    }
-                    return;
-                }
-                if (indices.length === 1 && indices[0] === -1) {
-                    indices = [];
-                }
-                result = that._deselect(indices);
-                removed = result.removed;
-                indices = result.indices;
-                if (singleSelection) {
-                    that._activeDeferred = null;
-                    prefetchStarted = false;
-                    if (indices.length) {
-                        indices = [lastFrom(indices)];
-                    }
-                }
-                var done = function () {
-                    var added = that._select(indices);
-                    that.focus(indices);
-                    that._triggerChange(removed, added);
-                    if (that._valueDeferred) {
-                        that._valueDeferred.resolve();
-                    }
-                };
-                deferred = that.prefetch(indices);
-                if (!prefetchStarted) {
-                    if (deferred) {
-                        deferred.done(done);
-                    } else {
-                        done();
-                    }
-                }
-            },
-            bound: function (bound) {
-                if (bound === undefined) {
-                    return this._listCreated;
-                }
-                this._listCreated = bound;
-            },
-            mute: function (callback) {
-                this._mute = true;
-                proxy(callback(), this);
-                this._mute = false;
-            },
-            setDSFilter: function (filter) {
-                this._lastDSFilter = $.extend({}, filter);
-            },
-            isFiltered: function () {
-                if (!this._lastDSFilter) {
-                    this.setDSFilter(this.dataSource.filter());
-                }
-                return !kendo.data.Query.compareFilters(this.dataSource.filter(), this._lastDSFilter);
-            },
-            skipUpdate: $.noop,
-            _getElementByIndex: function (index) {
-                return this.items().filter(function (idx, element) {
-                    return index === parseInt($(element).attr('data-offset-index'), 10);
-                });
-            },
-            _clean: function () {
-                this.result = undefined;
-                this._lastScrollTop = undefined;
-                this._skip = undefined;
-                $(this.heightContainer).remove();
-                this.heightContainer = undefined;
-                this.element.empty();
-            },
-            _height: function () {
-                var hasData = !!this.dataSource.view().length, height = this.options.height, itemHeight = this.options.itemHeight, total = this.dataSource.total();
-                if (!hasData) {
-                    height = 0;
-                } else if (height / itemHeight > total) {
-                    height = total * itemHeight;
-                }
-                return height;
-            },
-            _screenHeight: function () {
-                var height = this._height(), content = this.content;
-                content.height(height);
-                this.screenHeight = height;
-            },
-            _getElementLocation: function (index) {
-                var scrollTop = this.content.scrollTop(), screenHeight = this.screenHeight, itemHeight = this.options.itemHeight, yPosition = index * itemHeight, yDownPostion = yPosition + itemHeight, screenEnd = scrollTop + screenHeight, position;
-                if (yPosition === scrollTop - itemHeight || yDownPostion > scrollTop && yPosition < scrollTop) {
-                    position = 'top';
-                } else if (yPosition === screenEnd || yPosition < screenEnd && screenEnd < yDownPostion) {
-                    position = 'bottom';
-                } else if (yPosition >= scrollTop && yPosition <= scrollTop + (screenHeight - itemHeight)) {
-                    position = 'inScreen';
-                } else {
-                    position = 'outScreen';
-                }
-                return position;
-            },
-            _templates: function () {
-                var templates = {
-                    template: this.options.template,
-                    placeholderTemplate: this.options.placeholderTemplate,
-                    groupTemplate: this.options.groupTemplate,
-                    fixedGroupTemplate: this.options.fixedGroupTemplate
-                };
-                for (var key in templates) {
-                    if (typeof templates[key] !== 'function') {
-                        templates[key] = kendo.template(templates[key]);
-                    }
-                }
-                this.templates = templates;
-            },
-            _generateItems: function (element, count) {
-                var items = [], item, itemHeight = this.options.itemHeight + 'px';
-                while (count-- > 0) {
-                    item = document.createElement('li');
-                    item.tabIndex = -1;
-                    item.className = VIRTUALITEM + ' ' + ITEM;
-                    item.setAttribute('role', 'option');
-                    item.style.height = itemHeight;
-                    item.style.minHeight = itemHeight;
-                    element.appendChild(item);
-                    items.push(item);
-                }
-                return items;
-            },
-            _saveInitialRanges: function () {
-                var ranges = this.dataSource._ranges;
-                var deferred = $.Deferred();
-                deferred.resolve();
-                this._rangesList = {};
-                for (var i = 0; i < ranges.length; i++) {
-                    this._rangesList[ranges[i].start] = {
-                        end: ranges[i].end,
-                        deferred: deferred
-                    };
-                }
-            },
-            _createList: function () {
-                var that = this, content = that.content.get(0), options = that.options, dataSource = that.dataSource;
-                if (that.bound()) {
-                    that._clean();
-                }
-                that._saveInitialRanges();
-                that._screenHeight();
-                that._buildValueGetter();
-                that.itemCount = getItemCount(that.screenHeight, options.listScreens, options.itemHeight);
-                if (that.itemCount > dataSource.total()) {
-                    that.itemCount = dataSource.total();
-                }
-                that._templates();
-                that._items = that._generateItems(that.element[0], that.itemCount);
-                that._setHeight(options.itemHeight * dataSource.total());
-                that.options.type = (dataSource.group() || []).length ? 'group' : 'flat';
-                if (that.options.type === 'flat') {
-                    that.header.hide();
-                } else {
-                    that.header.show();
-                }
-                that.getter = that._getter(function () {
-                    that._renderItems(true);
-                });
-                that._onScroll = function (scrollTop, force) {
-                    var getList = that._listItems(that.getter);
-                    return that._fixedHeader(scrollTop, getList(scrollTop, force));
-                };
-                that._renderItems = that._whenChanged(scrollCallback(content, that._onScroll), syncList(that._reorderList(that._items, $.proxy(render, that))));
-                that._renderItems();
-                that._calculateGroupPadding(that.screenHeight);
-            },
-            _setHeight: function (height) {
-                var currentHeight, heightContainer = this.heightContainer;
-                if (!heightContainer) {
-                    heightContainer = this.heightContainer = appendChild(this.content[0], HEIGHTCONTAINER);
-                } else {
-                    currentHeight = heightContainer.offsetHeight;
-                }
-                if (height !== currentHeight) {
-                    heightContainer.innerHTML = '';
-                    while (height > 0) {
-                        var padHeight = Math.min(height, 250000);
-                        appendChild(heightContainer).style.height = padHeight + 'px';
-                        height -= padHeight;
-                    }
-                }
-            },
-            _getter: function () {
-                var lastRequestedRange = null, dataSource = this.dataSource, lastRangeStart = dataSource.skip(), type = this.options.type, pageSize = this.itemCount, flatGroups = {};
-                if (dataSource.pageSize() < pageSize) {
-                    this.mute(function () {
-                        dataSource.pageSize(pageSize);
-                    });
-                }
-                return function (index, rangeStart) {
-                    var that = this;
-                    if (!dataSource.inRange(rangeStart, pageSize)) {
-                        if (lastRequestedRange !== rangeStart) {
-                            lastRequestedRange = rangeStart;
-                            lastRangeStart = rangeStart;
-                            if (that._getterDeferred) {
-                                that._getterDeferred.reject();
-                            }
-                            that._getterDeferred = that.deferredRange(rangeStart);
-                            that._getterDeferred.then(function () {
-                                var firstItemIndex = that._indexConstraint(that.content[0].scrollTop);
-                                that._getterDeferred = null;
-                                if (rangeStart <= firstItemIndex && firstItemIndex <= rangeStart + pageSize) {
-                                    that._fetching = true;
-                                    dataSource.range(rangeStart, pageSize);
-                                }
-                            });
-                        }
-                        return null;
-                    } else {
-                        if (lastRangeStart !== rangeStart) {
-                            this.mute(function () {
-                                dataSource.range(rangeStart, pageSize);
-                                lastRangeStart = rangeStart;
-                            });
-                        }
-                        var result;
-                        if (type === 'group') {
-                            if (!flatGroups[rangeStart]) {
-                                var flatGroup = flatGroups[rangeStart] = [];
-                                var groups = dataSource.view();
-                                for (var i = 0, len = groups.length; i < len; i++) {
-                                    var group = groups[i];
-                                    for (var j = 0, groupLength = group.items.length; j < groupLength; j++) {
-                                        flatGroup.push({
-                                            item: group.items[j],
-                                            group: group.value
-                                        });
-                                    }
-                                }
-                            }
-                            result = flatGroups[rangeStart][index - rangeStart];
-                        } else {
-                            result = dataSource.view()[index - rangeStart];
-                        }
-                        return result;
-                    }
-                };
-            },
-            _fixedHeader: function (scrollTop, list) {
-                var group = this.currentVisibleGroup, itemHeight = this.options.itemHeight, firstVisibleDataItemIndex = Math.floor((scrollTop - list.top) / itemHeight), firstVisibleDataItem = list.items[firstVisibleDataItemIndex];
-                if (firstVisibleDataItem && firstVisibleDataItem.item) {
-                    var firstVisibleGroup = firstVisibleDataItem.group;
-                    if (firstVisibleGroup !== group) {
-                        this.header[0].innerHTML = firstVisibleGroup || '';
-                        this.currentVisibleGroup = firstVisibleGroup;
-                    }
-                }
-                return list;
-            },
-            _itemMapper: function (item, index, value) {
-                var listType = this.options.type, itemHeight = this.options.itemHeight, currentIndex = this._focusedIndex, selected = false, current = false, newGroup = false, group = null, match = false, valueGetter = this._valueGetter;
-                if (listType === 'group') {
-                    if (item) {
-                        newGroup = index === 0 || this._currentGroup && this._currentGroup !== item.group;
-                        this._currentGroup = item.group;
-                    }
-                    group = item ? item.group : null;
-                    item = item ? item.item : null;
-                }
-                if (!this.isFiltered() && value.length && item) {
-                    for (var i = 0; i < value.length; i++) {
-                        match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
-                        if (match) {
-                            value.splice(i, 1);
-                            selected = true;
-                            break;
-                        }
-                    }
-                }
-                if (currentIndex === index) {
-                    current = true;
-                }
-                return {
-                    item: item ? item : null,
-                    group: group,
-                    newGroup: newGroup,
-                    selected: selected,
-                    current: current,
-                    index: index,
-                    top: index * itemHeight
-                };
-            },
-            _range: function (index) {
-                var itemCount = this.itemCount, value = this._values.slice(), items = [], item;
-                this._view = {};
-                this._currentGroup = null;
-                for (var i = index, length = index + itemCount; i < length; i++) {
-                    item = this._itemMapper(this.getter(i, index), i, value);
-                    items.push(item);
-                    this._view[item.index] = item;
-                }
-                this._dataView = items;
-                return items;
-            },
-            _getDataItemsCollection: function (scrollTop, lastScrollTop) {
-                var items = this._range(this._listIndex(scrollTop, lastScrollTop));
-                return {
-                    index: items.length ? items[0].index : 0,
-                    top: items.length ? items[0].top : 0,
-                    items: items
-                };
-            },
-            _listItems: function () {
-                var screenHeight = this.screenHeight, options = this.options;
-                var theValidator = listValidator(options, screenHeight);
-                return $.proxy(function (value, force) {
-                    var result = this.result, lastScrollTop = this._lastScrollTop;
-                    if (force || !result || !theValidator(result, value, lastScrollTop)) {
-                        result = this._getDataItemsCollection(value, lastScrollTop);
-                    }
-                    this._lastScrollTop = value;
-                    this.result = result;
-                    return result;
-                }, this);
-            },
-            _whenChanged: function (getter, callback) {
-                var current;
-                return function (force) {
-                    var theNew = getter(force);
-                    if (theNew !== current) {
-                        current = theNew;
-                        callback(theNew, force);
-                    }
-                };
-            },
-            _reorderList: function (list, reorder) {
-                var that = this;
-                var length = list.length;
-                var currentOffset = -Infinity;
-                reorder = $.proxy(map2(reorder, this.templates), this);
-                return function (list2, offset, force) {
-                    var diff = offset - currentOffset;
-                    var range, range2;
-                    if (force || Math.abs(diff) >= length) {
-                        range = list;
-                        range2 = list2;
-                    } else {
-                        range = reshift(list, diff);
-                        range2 = diff > 0 ? list2.slice(-diff) : list2.slice(0, -diff);
-                    }
-                    reorder(range, range2, that.bound());
-                    currentOffset = offset;
-                };
-            },
-            _bufferSizes: function () {
-                var options = this.options;
-                return bufferSizes(this.screenHeight, options.listScreens, options.oppositeBuffer);
-            },
-            _indexConstraint: function (position) {
-                var itemCount = this.itemCount, itemHeight = this.options.itemHeight, total = this.dataSource.total();
-                return Math.min(Math.max(total - itemCount, 0), Math.max(0, Math.floor(position / itemHeight)));
-            },
-            _listIndex: function (scrollTop, lastScrollTop) {
-                var buffers = this._bufferSizes(), position;
-                position = scrollTop - (scrollTop > lastScrollTop ? buffers.down : buffers.up);
-                return this._indexConstraint(position);
-            },
-            _selectable: function () {
-                if (this.options.selectable) {
-                    this._selectProxy = $.proxy(this, '_clickHandler');
-                    this.element.on(CLICK + VIRTUAL_LIST_NS, '.' + VIRTUALITEM, this._selectProxy);
-                }
-            },
-            _getIndecies: function (candidate) {
-                var result = [], data;
-                if (typeof candidate === 'function') {
-                    data = this.dataSource.flatView();
-                    for (var idx = 0; idx < data.length; idx++) {
-                        if (candidate(data[idx])) {
-                            result.push(idx);
-                            break;
-                        }
-                    }
-                }
-                if (typeof candidate === 'number') {
-                    result.push(candidate);
-                }
-                if (candidate instanceof jQuery) {
-                    candidate = parseInt(candidate.attr('data-offset-index'), 10);
-                    if (!isNaN(candidate)) {
-                        result.push(candidate);
-                    }
-                }
-                if (candidate instanceof Array) {
-                    result = candidate;
-                }
-                return result;
-            },
-            _deselect: function (indices) {
-                var removed = [], selectedIndex, dataItem, selectedIndexes = this._selectedIndexes, position = 0, selectable = this.options.selectable, removedindexesCounter = 0, item;
-                indices = indices.slice();
-                if (selectable === true || !indices.length) {
-                    for (var idx = 0; idx < selectedIndexes.length; idx++) {
-                        if (selectedIndexes[idx] !== undefined) {
-                            this._getElementByIndex(selectedIndexes[idx]).removeClass(SELECTED);
-                            removed.push({
-                                index: selectedIndexes[idx],
-                                position: idx,
-                                dataItem: this._selectedDataItems[idx]
-                            });
-                        }
-                    }
-                    this._values = [];
-                    this._selectedDataItems = [];
-                    this._selectedIndexes = [];
-                } else if (selectable === 'multiple') {
-                    for (var i = 0; i < indices.length; i++) {
-                        position = $.inArray(indices[i], selectedIndexes);
-                        selectedIndex = selectedIndexes[position];
-                        if (selectedIndex !== undefined) {
-                            item = this._getElementByIndex(selectedIndex);
-                            if (!item.hasClass('k-state-selected')) {
-                                continue;
-                            }
-                            item.removeClass(SELECTED);
-                            this._values.splice(position, 1);
-                            this._selectedIndexes.splice(position, 1);
-                            dataItem = this._selectedDataItems.splice(position, 1)[0];
-                            indices.splice(i, 1);
-                            removed.push({
-                                index: selectedIndex,
-                                position: position + removedindexesCounter,
-                                dataItem: dataItem
-                            });
-                            removedindexesCounter++;
-                            i--;
-                        }
-                    }
-                }
-                return {
-                    indices: indices,
-                    removed: removed
-                };
-            },
-            _deselectCurrentValues: function (indices) {
-                var children = this.element[0].children;
-                var value, index, position;
-                var values = this._values;
-                var removed = [];
-                var idx = 0;
-                var j;
-                if (this.options.selectable !== 'multiple' || !this.isFiltered()) {
-                    return [];
-                }
-                for (; idx < indices.length; idx++) {
-                    position = -1;
-                    index = indices[idx];
-                    value = this._valueGetter(this._view[index].item);
-                    for (j = 0; j < values.length; j++) {
-                        if (value == values[j]) {
-                            position = j;
-                            break;
-                        }
-                    }
-                    if (position > -1) {
-                        removed.push(this.removeAt(position));
-                        $(children[index]).removeClass('k-state-selected');
-                    }
-                }
-                return removed;
-            },
-            _select: function (indexes) {
-                var that = this, singleSelection = this.options.selectable !== 'multiple', dataSource = this.dataSource, dataItem, oldSkip, take = this.itemCount, valueGetter = this._valueGetter, added = [];
-                if (singleSelection) {
-                    that._selectedIndexes = [];
-                    that._selectedDataItems = [];
-                    that._values = [];
-                }
-                oldSkip = dataSource.skip();
-                $.each(indexes, function (_, index) {
-                    var page = index < take ? 1 : Math.floor(index / take) + 1;
-                    var skip = (page - 1) * take;
-                    that.mute(function () {
-                        dataSource.range(skip, take);
-                        dataItem = that._findDataItem([index - skip]);
-                        that._selectedIndexes.push(index);
-                        that._selectedDataItems.push(dataItem);
-                        that._values.push(isPrimitive(dataItem) ? dataItem : valueGetter(dataItem));
-                        added.push({
-                            index: index,
-                            dataItem: dataItem
-                        });
-                        that._getElementByIndex(index).addClass(SELECTED);
-                        dataSource.range(oldSkip, take);
-                    });
-                });
-                return added;
-            },
-            _clickHandler: function (e) {
-                var item = $(e.currentTarget);
-                if (!e.isDefaultPrevented() && item.attr('data-uid')) {
-                    this.trigger(CLICK, { item: item });
-                }
-            },
-            _buildValueGetter: function () {
-                this._valueGetter = kendo.getter(this.options.dataValueField);
-            },
-            _calculateGroupPadding: function (height) {
-                var firstItem = this.items().first(), groupHeader = this.header, padding = 0;
-                if (groupHeader[0] && groupHeader[0].style.display !== 'none') {
-                    if (height !== 'auto') {
-                        padding = kendo.support.scrollbar();
-                    }
-                    padding += parseFloat(firstItem.css('border-right-width'), 10) + parseFloat(firstItem.children('.k-group').css('right'), 10);
-                    groupHeader.css('padding-right', padding);
-                }
-            }
-        });
-        kendo.ui.VirtualList = VirtualList;
-        kendo.ui.plugin(VirtualList);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.querypanel', ['kendo.core'], f);
-}(function () {
-    var __meta__ = {
-        id: 'querypanel',
-        name: 'QueryPanel',
+        id: 'dialog',
+        name: 'Dialog',
         category: 'web',
-        description: 'The queryPanel use config the form query',
-        depends: ['core']
+        description: 'The dialog widget is a modal window that brings information to the user.',
+        depends: ['window']
     };
     (function ($, undefined) {
-        var _S = '.', QUERY_PANEL = 'k-query-panel', BODY = $('body'), kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, ns = '.kendoQueryPanel', CLICK = 'click' + ns, QUERY_SIMPLE = 'k-query-simple', QUERY_DETAIL = 'k-query-detail', KEYDOWN = 'keydown' + ns, proxy = $.proxy;
-        var QueryPanel = Widget.extend({
+        var kendo = window.kendo;
+        var dialogBodyTemplate = kendo.template('<div class="modal-content #=dialogClass#"><div class="modal-header"><span class="modal-title">#=title#</span></div><div class="modal-body" style="# if(!isNaN(contentHeight)) {# height:#= parseInt(contentHeight)#px; #}#"><table><tr>#if(iconClass) {#<td width="54"><span class="#=iconClass#"></span></td>#}#<td>#if(typeof message !== "undefined"){#<span>#=message #</span>#}else{#<span>Response data error !</span>#}#</td></tr></table></div><div class="modal-footer"></div></div>');
+        var Dialog = kendo.ui.Window.extend({
+            _buttonTemplate: kendo.template('# jQuery.each (buttons, function (idx, button) { # <button class="btn btn-#=button.type#">#= button.text #</button> # }) #'),
             init: function (element, options) {
-                var that = this;
-                Widget.fn.init.call(that, element, options);
-                element = that.element;
-                options = that.options;
-                that._button();
-                that._queryPanel();
-                kendo.notify(that);
-            },
-            options: { name: 'QueryPanel' },
-            _button: function () {
-                var that = this, element = that.element, options = that.options, message = options.messages, querySimple = element.find(_S + QUERY_SIMPLE), queryDetail = element.find(_S + QUERY_DETAIL), queryFunction = options.queryFunction, resetFunction = options.resetFunction, queryButton = '<span class="btn btn-primary" style="margin-left:5px;"><i class="fa fa-search" style="margin-right:3px;"></i>' + message['query'] + '</span>', resetButton = '<span class="btn btn-default" style="margin-left:5px;"><i class="fa fa-undo" style="margin-right:3px;"></i>' + message['reset'] + '</span>', moreButton = '<span class="btn btn-default btn-more"  style="margin-left:5px;"><i class="fa fa-chevron-circle-down" style="margin-right:3px;"></i>' + message['moreQuery'] + '</span>', simpleTempl = '<div class="k-query-simple"></div>';
-                if (!querySimple.length) {
-                    element.prepend(simpleTempl);
-                    querySimple = element.find(_S + QUERY_SIMPLE);
-                }
-                if (querySimple.length) {
-                    querySimple.css('float', 'left');
-                    if (querySimple.children().length) {
-                        var simpleWapper = $('<div style="float:left"/>');
-                        querySimple.children().wrap(simpleWapper);
-                    }
-                    var btnWapper = $('<div style="float:left"/>');
-                    if (queryFunction) {
-                        this.queryBtn = $(queryButton).appendTo(btnWapper);
-                        this.queryBtn.on(CLICK, proxy(that._query, that));
-                    }
-                    if (resetFunction) {
-                        this.resetBtn = $(resetButton).appendTo(btnWapper);
-                        this.resetBtn.on(CLICK, resetFunction);
-                    }
-                    if (queryDetail.length) {
-                        if (queryDetail.children().length) {
-                            this.moreBtn = $(moreButton).appendTo(btnWapper);
-                            this.moreBtn.on(CLICK, proxy(that._showQueryPanel, that));
-                        }
-                    }
-                    btnWapper.appendTo(querySimple);
-                    $('<div style="clear:both"/>').appendTo(element);
-                }
-            },
-            _query: function () {
-                if (this.options.queryFunction) {
-                    this.options.queryFunction.call(window);
-                }
-                this._closeQueryPanel();
-            },
-            _queryPanel: function () {
-                var that = this, element = that.element, queryDetail = element.find(_S + QUERY_DETAIL);
-                if (queryDetail.length) {
-                    that.sidebar = $('<div class="k-query-panel"><div class="triangle"><div class="triangle1"></div><div class="triangle2"></div></div></div>').appendTo($('body'));
-                    that.sidebar.append(queryDetail);
-                    that._keydown();
-                    that._resize();
-                }
-            },
-            _openQueryPanel: function () {
-                var that = this, element = that.element, querySimple = element.find(_S + QUERY_SIMPLE), moreBtn = this.moreBtn;
-                moreBtn.css({ 'background-color': 'rgb(230, 230, 230)' });
-                moreBtn.find('i').removeClass('fa-chevron-circle-down').addClass('fa-chevron-circle-up');
-                var triangle = this.sidebar.find('.triangle');
-                this.sidebar.css({
-                    'top': element.outerHeight() + element.offset().top,
-                    'left': Math.max(moreBtn.offset().left + moreBtn.outerWidth() - this.sidebar.outerWidth(), 0)
+                var that = this, el = $(element);
+                options = $.extend(options, {
+                    resizable: false,
+                    title: false,
+                    visible: options.visible || false
                 });
-                triangle.css({ 'left': moreBtn.offset().left - parseInt(this.sidebar.css('left')) + moreBtn.outerWidth() / 2 });
-                this.sidebar.slideDown('fast');
-                $(document).off(CLICK).on(CLICK, proxy(that._mousedown, that));
-            },
-            _resize: function () {
-                var that = this;
-                $(window).resize(function () {
-                    that._closeQueryPanel();
+                kendo.ui.Window.fn.init.call(that, element, options);
+                var html = el.html();
+                $.each(options.buttons, function (idx, button) {
+                    button.type = button.type || 'default';
                 });
-            },
-            _closeQueryPanel: function () {
-                if (this.moreBtn) {
-                    this.moreBtn.css({ 'background-color': '#fff' });
-                    this.moreBtn.find('i').removeClass('fa-chevron-circle-up').addClass('fa-chevron-circle-down');
-                    this.sidebar.slideUp('fast');
-                }
-                $(document).off(ns);
-            },
-            _mousedown: function (e) {
-                var that = this, sidebar = this.sidebar, id = that.options.id, time = 300;
-                var e = e || window.event;
-                var elem = e.target || e.srcElement;
-                while (elem) {
-                    if ($(elem).hasClass(QUERY_PANEL) || $(elem).hasClass('k-window') || $(elem).hasClass('k-overlay') || $(elem).hasClass(QUERY_SIMPLE) || $(elem).hasClass('k-overlay') || $(elem).hasClass(QUERY_SIMPLE) || $(elem).hasClass('k-animation-container')) {
-                        return;
-                    }
-                    elem = elem.parentNode;
-                }
-                that._closeQueryPanel();
-            },
-            _keydown: function (e) {
-                var that = this;
-                this.sidebar.find(_S + QUERY_DETAIL + ' input').on(KEYDOWN, function (e) {
-                    if (e.keyCode == keys.ENTER) {
-                        e.target.blur();
-                        that._query();
+                el.find('div.modal-footer').append(that._buttonTemplate(options));
+                $.each(options.buttons, function (idx, button) {
+                    if (button.click) {
+                        $(el.find('.modal-footer').find('.btn')[idx]).on('click', { handler: button.click }, function (e) {
+                            e.data.handler({
+                                button: this,
+                                dialog: that,
+                                deferred: options.deferred
+                            });
+                        });
                     }
                 });
             },
-            _showQueryPanel: function () {
-                var that = this, element = that.element, querySimple = element.find(_S + QUERY_SIMPLE), sidebar = $('body').find('.k-query-panel'), options = that.options;
-                if (sidebar.is(':visible')) {
-                    that._closeQueryPanel();
-                } else {
-                    that._openQueryPanel();
-                }
-            }
+            options: { name: 'Dialog' }
         });
-        ui.plugin(QueryPanel);
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.radio', ['kendo.core'], f);
-}(function () {
-    var __meta__ = {
-        id: 'radio',
-        name: 'Radio',
-        category: 'web',
-        description: 'The Radio widget.',
-        depends: ['core']
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, support = kendo.support, keys = kendo.keys, ns = '.kendoRadio', CLICK = 'click' + ns, CHANGE = 'change', CHECKED = 'checked', STATEDISABLED = 'k-state-disabled', extend = $.extend, proxy = $.proxy;
-        var Radio = Widget.extend({
-            init: function (element, options) {
-                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
-                    $(element).remove();
-                    element.id && $('label[for=' + element.id + ']').remove();
-                    return;
-                }
-                var that = this, disabled, text;
-                Widget.fn.init.call(that, element, options);
-                element = that.element;
-                options = that.options;
-                that._renderItem();
-                disabled = element.is('[disabled]');
-                if (options.enable !== undefined) {
-                    options.enabled = options.enable;
-                }
-                if (options.enabled == false || disabled) {
-                    that.enable(false);
-                } else {
-                    that.readonly(element.is('[readonly]'));
-                }
-                kendo.notify(that);
-            },
-            events: [CHANGE],
-            options: {
-                name: 'Radio',
-                layout: '',
-                enable: false,
-                items: [],
-                cols: ''
-            },
-            setOptions: function (options) {
-                Widget.fn.setOptions.call(this, options);
-            },
-            _renderItem: function () {
-                var that = this, parent = that.element, items = that.options.items, length = items.length, css = $(parent).attr('style'), cols = that.options.cols, divClass;
-                $('<input style="display:none">').attr('data-bind', parent.attr('data-bind')).appendTo(parent);
-                if (cols && parseInt(cols) <= 12) {
-                    var num = parseInt(12 / parseInt(cols));
-                    divClass = 'col-sm-' + num;
-                } else {
-                    divClass = 'radio-inline';
-                }
-                for (var i = 0; i < length; i++) {
-                    if (that.options.layout == 'vertical') {
-                        $('<div><span class=\'radiobox\'><input  style=\'display:none;\' value=' + items[i].value + ' ' + 'id=' + items[i].value + '></span><label style="margin-left:5px;" for=' + items[i].value + '>' + items[i].label + '</label></div>').appendTo(parent);
-                    } else {
-                        $('<div class=' + divClass + ' style="padding:0"><span class=\'radiobox\'><input  style=\'display:none;\' value=' + items[i].value + ' ' + 'id=' + items[i].value + '></span><label style="margin-left:5px;" for=' + items[i].value + '>' + items[i].label + '</label></div>').appendTo(parent);
-                    }
-                }
-            },
-            _editable: function (options) {
-                var that = this, readonly = options.readonly, disable = options.disable, span = that.element.find('span').off(ns), label = that.element.find('label').off(ns);
-                that.element.off(CLICK);
-                if (!readonly && !disable) {
-                    that.element.on(CLICK, proxy(that._click, that));
-                    span.removeClass(STATEDISABLED);
-                } else {
-                    span.addClass(STATEDISABLED);
-                }
-            },
-            readonly: function (readonly) {
-                this._editable({
-                    readonly: readonly === undefined ? true : readonly,
-                    disable: false
+        kendo.ui.plugin(Dialog);
+        $.extend(kendo.ui, {
+            showDialog: function (options) {
+                return new $.Deferred(function (deferred) {
+                    var dialog = null;
+                    options = $.extend({
+                        deferred: deferred,
+                        width: 400,
+                        dialogClass: options.dialogClass | '',
+                        iconClass: options.iconClass | '',
+                        buttons: [],
+                        contentHeight: options.height || 'auto',
+                        modal: true,
+                        visible: false,
+                        title: false
+                    }, options);
+                    delete options.height;
+                    dialog = $(dialogBodyTemplate(options)).appendTo(document.body).kendoDialog(options).data('kendoDialog');
+                    dialog.center().open();
                 });
             },
-            enable: function (enable) {
-                this._editable({
-                    readonly: false,
-                    disable: !(enable = enable === undefined ? true : enable)
-                });
+            showInfoDialog: function (options) {
+                options = $.extend({
+                    buttons: [{
+                            text: kendo.ui.Widget.prototype.options.messages['ok'],
+                            type: 'primary',
+                            click: function (e) {
+                                e.dialog.destroy();
+                                e.deferred.resolve({ button: 'OK' });
+                            }
+                        }],
+                    title: kendo.ui.Dialog.prototype.options.messages['info'],
+                    iconClass: 'fa fa-info-circle',
+                    dialogClass: 'k-dialog-information'
+                }, options);
+                return this.showDialog(options);
             },
-            check: function (value, e) {
-                var that = this, options = that.options, element = $(e).children();
-                if (value === undefined) {
-                    value = that._accessor();
-                    return value === undefined || value === null ? '' : value;
-                }
-                var _oldValue = that._oldValue;
-                that._accessor(value, e);
-                if (value != _oldValue) {
-                    that.trigger(CHANGE, { values: value });
-                }
+            showWarningDialog: function (options) {
+                options = $.extend({
+                    title: kendo.ui.Dialog.prototype.options.messages['warning'],
+                    iconClass: 'fa fa-warning',
+                    dialogClass: 'k-dialog-warning'
+                }, options);
+                return this.showInfoDialog(options);
             },
-            value: function (value, e) {
-                return this.check(value, e);
+            showErrorDialog: function (options) {
+                options = $.extend({
+                    title: kendo.ui.Dialog.prototype.options.messages['error'],
+                    width: 500,
+                    iconClass: 'fa fa-times-circle',
+                    dialogClass: 'k-dialog-error'
+                }, options);
+                return this.showInfoDialog(options);
             },
-            _accessor: function (value, e) {
-                var that = this, element = that.element[0], input = that.element.children('input');
-                if (value === undefined) {
-                    return $(input).val();
-                } else {
-                    that.element.find('span').removeClass(CHECKED);
-                    that._oldValue = value;
-                    $(input).val(value);
-                    if (value === null) {
-                        value = '';
-                    } else if (e === undefined) {
-                        var child = that.element.find('span').children('input'), length = child.length;
-                        for (var i = 0; i < length; i++) {
-                            var val = $(child[i]).val();
-                            if (val == value) {
-                                $(child[i]).parents('span').addClass(CHECKED);
-                                break;
+            showConfirmDialog: function (options) {
+                options = $.extend({
+                    title: options.title || kendo.ui.Dialog.prototype.options.messages['confirm'],
+                    buttons: [
+                        {
+                            text: options.ok || kendo.ui.Widget.prototype.options.messages['ok'],
+                            type: 'primary',
+                            click: function (e) {
+                                e.dialog.destroy();
+                                e.deferred.resolve({ button: 'OK' });
+                            }
+                        },
+                        {
+                            text: options.cancel || kendo.ui.Widget.prototype.options.messages['cancel'],
+                            click: function (e) {
+                                e.dialog.destroy();
+                                e.deferred.resolve({ button: 'Cancel' });
                             }
                         }
-                    } else if (e.tagName == 'INPUT') {
-                        $(e).parents('span').addClass(CHECKED);
-                    } else {
-                        $(e).addClass(CHECKED);
-                    }
-                }
-            },
-            _click: function (e) {
-                var that = this, options = that.options;
-                if (e.target.tagName == 'INPUT') {
-                    that.value($(e.target).val(), e.target);
-                } else if (e.target.tagName == 'SPAN') {
-                    that.value($(e.target).children().val(), e.target);
-                } else {
-                    return;
-                }
+                    ],
+                    iconClass: 'fa fa-question-circle',
+                    dialogClass: 'k-dialog-confirm'
+                }, options);
+                return this.showDialog(options);
             }
         });
-        ui.plugin(Radio);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -68609,59 +67990,143 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.textarea', ['kendo.core'], f);
+    define('kendo.tledit', ['kendo.window'], f);
 }(function () {
     var __meta__ = {
-        id: 'textarea',
-        name: 'textarea',
+        id: 'tledit',
+        name: 'TLEdit',
         category: 'web',
-        description: 'The TextArea widget displays styled textarea.',
-        depends: ['core']
+        description: 'The TLEdit widget allows the user to enter a field of multiple languages.',
+        depends: ['window']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, support = kendo.support, placeholderSupported = support.placeholder, keys = kendo.keys, ns = '.kendoTextArea', STATEDISABLED = 'k-state-disabled', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', BLUR = 'blur' + ns, extend = $.extend, proxy = $.proxy;
-        var TextArea = Widget.extend({
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, support = kendo.support, placeholderSupported = support.placeholder, caret = kendo.caret, keys = kendo.keys, template = kendo.template, activeElement = kendo._activeElement, each = $.each, map = $.map, trim = $.trim, extend = $.extend, proxy = $.proxy, NS = '.kendoTLEdit', CLICK = 'click' + NS, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', HOVEREVENTS = 'mouseenter' + NS + ' mouseleave' + NS, MOUSEDOWN = 'mousedown' + NS, ARIA_DISABLED = 'aria-disabled', SPAN = '<span />';
+        var DIV = '<div />', SELECTED = 'k-state-selected', ID = 'id', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden';
+        function preventDefault(e) {
+            e.preventDefault();
+        }
+        var TLEdit = Widget.extend({
             init: function (element, options) {
                 if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
                     $(element).remove();
                     element.id && $('label[for=' + element.id + ']').remove();
                     return;
                 }
+                if (typeof options.model == 'string') {
+                    try {
+                        options.model = eval(options.model);
+                    } catch (e) {
+                    }
+                }
                 var that = this, disabled, text;
                 Widget.fn.init.call(that, element, options);
                 element = that.element;
                 options = that.options;
-                that._render();
+                element = that.element.on('focus' + NS, proxy(that._focusHandler, that));
+                options.placeholder = options.placeholder || element.attr('placeholder');
+                that._wrapper();
+                that._icon();
+                that._clearButton();
+                if (!options.text) {
+                    that._placeholder();
+                }
+                if (options.enable !== undefined) {
+                    options.enabled = options.enable;
+                }
                 disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
-                if (disabled) {
+                if (options.enabled === false || disabled) {
                     that.enable(false);
                 } else {
                     that.readonly(element.is('[readonly]'));
                 }
-                that.value(that.options.value || element.val());
                 kendo.notify(that);
             },
-            events: [CHANGE],
+            events: [
+                OPEN,
+                CLOSE,
+                CHANGE,
+                'select'
+            ],
             options: {
-                name: 'TextArea',
-                height: null,
-                width: null,
-                readonly: false,
-                value: null
+                name: 'TLEdit',
+                idField: 'id',
+                field: '',
+                dto: '',
+                url: '/sys/multiLanguage',
+                enable: true,
+                value: null,
+                placeholder: '',
+                clearButton: true,
+                model: null
             },
             setOptions: function (options) {
                 Widget.fn.setOptions.call(this, options);
-                this._accessors();
             },
-            _render: function () {
-                var that = this, element = that.element, options = that.options, height = options.height, width = options.width;
-                element.addClass('k-textbox').addClass('k-state-textarea');
-                if (height && width) {
-                    element.css({
-                        height: height + 'px',
-                        width: width + 'px'
-                    });
+            _focusHandler: function () {
+                this.element.focus();
+            },
+            _clearButton: function () {
+                var that = this;
+                that._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
+                    'role': 'button',
+                    'tabIndex': -1
+                });
+                if (that.options.clearButton) {
+                    that._clear.insertAfter(that.element);
                 }
+            },
+            _wrapper: function () {
+                var that = this, element = that.element, wrapper;
+                wrapper = element.parents('.k-tledit');
+                if (!wrapper[0]) {
+                    wrapper = element.wrap(SPAN).parent().addClass('k-dropdown-wrap k-state-default');
+                    wrapper = wrapper.wrap(SPAN).parent();
+                }
+                wrapper[0].style.cssText = element[0].style.cssText;
+                element.css({
+                    width: '100%',
+                    height: element[0].style.height
+                });
+                that.wrapper = wrapper.addClass('k-widget k-tledit k-header').addClass(element[0].className);
+                that._inputWrapper = $(wrapper[0].firstChild);
+                element.addClass('k-input').attr({
+                    role: 'tledit',
+                    'aria-expanded': false
+                });
+            },
+            _icon: function () {
+                var that = this, element = that.element, icon;
+                icon = element.next('span.k-select');
+                if (!icon[0]) {
+                    icon = $('<span unselectable="on" class="k-select"><span class="k-icon k-i-group"></span></span>').insertAfter(element);
+                }
+                that._arrow = icon.attr({ 'role': 'button' });
+            },
+            _editable: function (options) {
+                var that = this, disable = options.disable, readonly = options.readonly, wrapper = that._inputWrapper.off(NS), element = that.element.off(NS), arrow = that._arrow.off(CLICK + ' ' + MOUSEDOWN), clear = that._clear;
+                if (!readonly && !disable) {
+                    wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
+                    element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false).on('focus' + NS, proxy(that._inputFocus, that)).on('focusout' + NS, proxy(that._blur, that));
+                    arrow.on(CLICK, proxy(that._click, that)).on(MOUSEDOWN, preventDefault);
+                    clear.on(CLICK, proxy(that._clearValue, that)).on(MOUSEDOWN, preventDefault);
+                } else {
+                    wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
+                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
+                }
+            },
+            _inputFocus: function () {
+                this._inputWrapper.addClass(FOCUSED);
+                this._placeholder(false);
+            },
+            _clearValue: function () {
+                var that = this, options = that.options, field = options.field, __tls = options.model.__tls;
+                that.value('');
+                if (__tls) {
+                    if (__tls.hasOwnProperty(field))
+                        delete __tls[field];
+                }
+                that._change();
+                that.element.blur();
             },
             readonly: function (readonly) {
                 this._editable({
@@ -68675,57 +68140,195 @@
                     disable: !(enable = enable === undefined ? true : enable)
                 });
             },
-            _editable: function (options) {
-                var that = this;
-                var element = that.element;
-                var disable = options.disable;
-                var readonly = options.readonly;
-                if (!readonly && !disable) {
-                    element.removeAttr(DISABLED).removeAttr(READONLY).removeClass(STATEDISABLED).on(BLUR, proxy(that._blur, that));
-                } else {
-                    element.attr(DISABLED, disable).attr(READONLY, readonly).removeClass('k-textbox').toggleClass(STATEDISABLED, disable);
-                }
-            },
             destroy: function () {
                 var that = this;
                 Widget.fn.destroy.call(that);
-                that.element.off(ns);
+                that.element.off(NS);
+                that._arrow.off(NS);
+                that._inputWrapper.off(NS);
             },
-            check: function (value) {
+            dataItem: function () {
+                return this._dataItem;
+            },
+            value: function (value) {
                 var that = this, options = that.options;
                 if (value === undefined) {
                     value = that._accessor();
                     return value === undefined || value === null ? '' : value;
                 }
-                if (value === options.value) {
+                that.trigger('set', { value: value });
+                if (value === options.value && that.element.val() === options.text) {
                     return;
                 }
-                var _oldValue = that._oldValue;
                 that._accessor(value);
-                if (value != _oldValue) {
-                    that.trigger(CHANGE, { values: value });
-                }
             },
-            value: function (value) {
-                return this.check(value);
+            _toggleHover: function (e) {
+                $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
+            },
+            _blur: function () {
+                var that = this, value = that.element.val();
+                if (value !== that._oldText) {
+                    that._change(value);
+                }
+                that._inputWrapper.removeClass(FOCUSED);
+                that._placeholder();
             },
             _accessor: function (value) {
-                var that = this, element = that.element[0];
+                var element = this.element[0];
                 if (value === undefined) {
                     return element.value;
                 } else {
                     if (value === null) {
                         value = '';
                     }
-                    that._oldValue = element.value = value;
+                    element.value = value;
                 }
             },
-            _blur: function () {
+            _selectValue: function (value) {
+                if (value === null) {
+                    value = '';
+                }
+                this.value(value !== undefined ? value : text);
+                this._placeholder();
+                this._change();
+            },
+            _placeholder: function (show) {
+                if (placeholderSupported) {
+                    return;
+                }
+                var that = this, input = that.element, placeholder = that.options.placeholder, value;
+                if (placeholder) {
+                    value = that.value();
+                    if (show === undefined) {
+                        show = !value;
+                    }
+                    input.toggleClass('k-readonly', show);
+                    if (!show) {
+                        if (!value) {
+                            placeholder = '';
+                        } else {
+                            return;
+                        }
+                    }
+                    input.val(placeholder);
+                    if (!placeholder && input[0] === activeElement()) {
+                        caret(input[0], 0, 0);
+                    }
+                }
+            },
+            _closeTLEditWindow: function () {
+            },
+            _initTLEditWindow: function () {
+                var that = this, messages = kendo.ui.TLEdit.prototype.options.messages, options = that.options;
+                if (!that.tlEditWin) {
+                    that.tlEditWin = $('<div class="modal-content"><div class="modal-body"><table style="width:90%" data-bind="source: multiLanguages" data-template="formItem-template"></table></div><div class="modal-footer"><button class="btn btn-primary" data-bind="click:confirm">' + messages['ok'] + '</button><button class="btn btn-default" data-bind="click:cancel">' + messages['cancel'] + '</button></div></div><script id="formItem-template" type="text/x-kendo-template"><tr><td width="30%" style="text-align:right;padding:10px"><label data-bind="text: description"></label></td><td><input type="text" style="width:100%" class="k-textbox" data-bind="value: value"/></td></tr></script>').appendTo(document.body).kendoWindow({
+                        width: options.width || 400,
+                        modal: options.modal === undefined ? true : options.modal,
+                        resizable: false,
+                        autoFocus: true,
+                        title: options.title || messages['title'],
+                        visible: false,
+                        open: function () {
+                            that.trigger(OPEN, that);
+                        },
+                        close: function () {
+                            that.trigger(CLOSE, that);
+                            that.element.focus();
+                        }
+                    }).data('kendoWindow');
+                    var winEl = that.tlEditWin.element, formGroup = '<div class=\'form-group\'>';
+                    winEl.addClass('k-animation-container');
+                    that.viewModel = kendo.observable({
+                        multiLanguages: [],
+                        confirm: function () {
+                            var _tl = {};
+                            each(this.multiLanguages, function (idx, item) {
+                                _tl[item.langCode] = item.value;
+                            });
+                            var __tls = options.model.get('__tls') || {};
+                            __tls[options.field] = _tl;
+                            options.model.set('__tls', __tls);
+                            that._selectValue(_tl[window._locale || options.locale]);
+                            that.tlEditWin.close();
+                            that.element.focus();
+                        },
+                        cancel: function () {
+                            that.tlEditWin.close();
+                            that.element.focus();
+                        }
+                    });
+                    kendo.bind(winEl, that.viewModel);
+                }
+            },
+            _initFormGroup: function () {
                 var that = this;
-                that.value(that.element.val());
+                that._ajaxForm();
+                if (that.options.model.__tls) {
+                    that._cacheForm();
+                }
+                that._setLocal();
+            },
+            _ajaxForm: function () {
+                var that = this, options = that.options, url = (window._basePath || options.contextPath || '') + options.url;
+                if (options.model && options.model.get) {
+                    $.ajax({
+                        type: 'GET',
+                        cache: true,
+                        url: url,
+                        dataType: 'JSON',
+                        contentType: 'application/json',
+                        async: false,
+                        data: {
+                            'id': options.model.get(options.idField) || '',
+                            'dto': options.dto,
+                            'field': options.field
+                        },
+                        success: function (data) {
+                            var multiLanguages = data.multiLanguages;
+                            each(multiLanguages, function (idx, item) {
+                                if (!item.hasOwnProperty('value')) {
+                                    item.value = '';
+                                }
+                            });
+                            that.viewModel.set('multiLanguages', multiLanguages);
+                        }
+                    });
+                }
+            },
+            _cacheForm: function () {
+                var that = this, options = that.options, _tls = options.model.get('__tls'), field = options.field, multiLanguages = that.viewModel.get('multiLanguages');
+                options.value = that.element.val();
+                if (!_tls.hasOwnProperty(field)) {
+                    return;
+                }
+                each(multiLanguages, function (idx, item) {
+                    item.set('value', _tls.get(field)[item.langCode]);
+                });
+            },
+            _setLocal: function () {
+                var that = this;
+                each(that.viewModel.get('multiLanguages'), function (idx, item) {
+                    if (item.langCode === (_locale || that.options.locale)) {
+                        item.set('value', that.element.val());
+                    }
+                });
+            },
+            _click: function () {
+                var that = this;
+                if (that.options.model && typeof that.options.model != 'string') {
+                    that._initTLEditWindow();
+                    that._initFormGroup();
+                    that.tlEditWin.center().open();
+                }
+            },
+            _change: function (value) {
+                this.trigger(CHANGE);
+            },
+            _keydown: function (e) {
+                var that = this, value = that.element.val();
             }
         });
-        ui.plugin(TextArea);
+        ui.plugin(TLEdit);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -68904,6 +68507,404 @@
             }
         });
         ui.plugin(Checkbox);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.querypanel', ['kendo.core'], f);
+}(function () {
+    var __meta__ = {
+        id: 'querypanel',
+        name: 'QueryPanel',
+        category: 'web',
+        description: 'The queryPanel use config the form query',
+        depends: ['core']
+    };
+    (function ($, undefined) {
+        var _S = '.', QUERY_PANEL = 'k-query-panel', BODY = $('body'), kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, ns = '.kendoQueryPanel', CLICK = 'click' + ns, QUERY_SIMPLE = 'k-query-simple', QUERY_DETAIL = 'k-query-detail', KEYDOWN = 'keydown' + ns, proxy = $.proxy;
+        var QueryPanel = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                element = that.element;
+                options = that.options;
+                that._button();
+                that._queryPanel();
+                kendo.notify(that);
+            },
+            options: { name: 'QueryPanel' },
+            _button: function () {
+                var that = this, element = that.element, options = that.options, message = options.messages, querySimple = element.find(_S + QUERY_SIMPLE), queryDetail = element.find(_S + QUERY_DETAIL), queryFunction = options.queryFunction, resetFunction = options.resetFunction, queryButton = '<span class="btn btn-primary" style="margin-left:5px;"><i class="fa fa-search" style="margin-right:3px;"></i>' + message['query'] + '</span>', resetButton = '<span class="btn btn-default" style="margin-left:5px;"><i class="fa fa-undo" style="margin-right:3px;"></i>' + message['reset'] + '</span>', moreButton = '<span class="btn btn-default btn-more"  style="margin-left:5px;"><i class="fa fa-chevron-circle-down" style="margin-right:3px;"></i>' + message['moreQuery'] + '</span>', simpleTempl = '<div class="k-query-simple"></div>';
+                if (!querySimple.length) {
+                    element.prepend(simpleTempl);
+                    querySimple = element.find(_S + QUERY_SIMPLE);
+                }
+                if (querySimple.length) {
+                    querySimple.css('float', 'left');
+                    if (querySimple.children().length) {
+                        var simpleWapper = $('<div style="float:left"/>');
+                        querySimple.children().wrap(simpleWapper);
+                    }
+                    var btnWapper = $('<div style="float:left"/>');
+                    if (queryFunction) {
+                        this.queryBtn = $(queryButton).appendTo(btnWapper);
+                        this.queryBtn.on(CLICK, proxy(that._query, that));
+                    }
+                    if (resetFunction) {
+                        this.resetBtn = $(resetButton).appendTo(btnWapper);
+                        this.resetBtn.on(CLICK, resetFunction);
+                    }
+                    if (queryDetail.length) {
+                        if (queryDetail.children().length) {
+                            this.moreBtn = $(moreButton).appendTo(btnWapper);
+                            this.moreBtn.on(CLICK, proxy(that._showQueryPanel, that));
+                        }
+                    }
+                    btnWapper.appendTo(querySimple);
+                    $('<div style="clear:both"/>').appendTo(element);
+                }
+            },
+            _query: function () {
+                if (this.options.queryFunction) {
+                    this.options.queryFunction.call(window);
+                }
+                this._closeQueryPanel();
+            },
+            _queryPanel: function () {
+                var that = this, element = that.element, queryDetail = element.find(_S + QUERY_DETAIL);
+                if (queryDetail.length) {
+                    that.sidebar = $('<div class="k-query-panel"><div class="triangle"><div class="triangle1"></div><div class="triangle2"></div></div></div>').appendTo($('body'));
+                    that.sidebar.append(queryDetail);
+                    that._keydown();
+                    that._resize();
+                }
+            },
+            _openQueryPanel: function () {
+                var that = this, element = that.element, querySimple = element.find(_S + QUERY_SIMPLE), moreBtn = this.moreBtn;
+                moreBtn.css({ 'background-color': 'rgb(230, 230, 230)' });
+                moreBtn.find('i').removeClass('fa-chevron-circle-down').addClass('fa-chevron-circle-up');
+                var triangle = this.sidebar.find('.triangle');
+                this.sidebar.css({
+                    'top': element.outerHeight() + element.offset().top,
+                    'left': Math.max(moreBtn.offset().left + moreBtn.outerWidth() - this.sidebar.outerWidth(), 0)
+                });
+                triangle.css({ 'left': moreBtn.offset().left - parseInt(this.sidebar.css('left')) + moreBtn.outerWidth() / 2 });
+                this.sidebar.slideDown('fast');
+                $(document).off(CLICK).on(CLICK, proxy(that._mousedown, that));
+            },
+            _resize: function () {
+                var that = this;
+                $(window).resize(function () {
+                    that._closeQueryPanel();
+                });
+            },
+            _closeQueryPanel: function () {
+                if (this.moreBtn) {
+                    this.moreBtn.css({ 'background-color': '#fff' });
+                    this.moreBtn.find('i').removeClass('fa-chevron-circle-up').addClass('fa-chevron-circle-down');
+                    this.sidebar.slideUp('fast');
+                }
+                $(document).off(ns);
+            },
+            _mousedown: function (e) {
+                var that = this, sidebar = this.sidebar, id = that.options.id, time = 300;
+                var e = e || window.event;
+                var elem = e.target || e.srcElement;
+                while (elem) {
+                    if ($(elem).hasClass(QUERY_PANEL) || $(elem).hasClass('k-window') || $(elem).hasClass('k-overlay') || $(elem).hasClass(QUERY_SIMPLE) || $(elem).hasClass('k-overlay') || $(elem).hasClass(QUERY_SIMPLE) || $(elem).hasClass('k-animation-container')) {
+                        return;
+                    }
+                    elem = elem.parentNode;
+                }
+                that._closeQueryPanel();
+            },
+            _keydown: function (e) {
+                var that = this;
+                this.sidebar.find(_S + QUERY_DETAIL + ' input').on(KEYDOWN, function (e) {
+                    if (e.keyCode == keys.ENTER) {
+                        e.target.blur();
+                        that._query();
+                    }
+                });
+            },
+            _showQueryPanel: function () {
+                var that = this, element = that.element, querySimple = element.find(_S + QUERY_SIMPLE), sidebar = $('body').find('.k-query-panel'), options = that.options;
+                if (sidebar.is(':visible')) {
+                    that._closeQueryPanel();
+                } else {
+                    that._openQueryPanel();
+                }
+            }
+        });
+        ui.plugin(QueryPanel);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.radio', ['kendo.core'], f);
+}(function () {
+    var __meta__ = {
+        id: 'radio',
+        name: 'Radio',
+        category: 'web',
+        description: 'The Radio widget.',
+        depends: ['core']
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, support = kendo.support, keys = kendo.keys, ns = '.kendoRadio', CLICK = 'click' + ns, CHANGE = 'change', CHECKED = 'checked', STATEDISABLED = 'k-state-disabled', extend = $.extend, proxy = $.proxy;
+        var Radio = Widget.extend({
+            init: function (element, options) {
+                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
+                    $(element).remove();
+                    element.id && $('label[for=' + element.id + ']').remove();
+                    return;
+                }
+                var that = this, disabled, text;
+                Widget.fn.init.call(that, element, options);
+                element = that.element;
+                options = that.options;
+                that._renderItem();
+                disabled = element.is('[disabled]');
+                if (options.enable !== undefined) {
+                    options.enabled = options.enable;
+                }
+                if (options.enabled == false || disabled) {
+                    that.enable(false);
+                } else {
+                    that.readonly(element.is('[readonly]'));
+                }
+                kendo.notify(that);
+            },
+            events: [CHANGE],
+            options: {
+                name: 'Radio',
+                layout: '',
+                enable: false,
+                items: [],
+                cols: ''
+            },
+            setOptions: function (options) {
+                Widget.fn.setOptions.call(this, options);
+            },
+            _renderItem: function () {
+                var that = this, parent = that.element, items = that.options.items, length = items.length, css = $(parent).attr('style'), cols = that.options.cols, divClass;
+                $('<input style="display:none">').attr('data-bind', parent.attr('data-bind')).appendTo(parent);
+                if (cols && parseInt(cols) <= 12) {
+                    var num = parseInt(12 / parseInt(cols));
+                    divClass = 'col-sm-' + num;
+                } else {
+                    divClass = 'radio-inline';
+                }
+                for (var i = 0; i < length; i++) {
+                    if (that.options.layout == 'vertical') {
+                        $('<div><span class=\'radiobox\'><input  style=\'display:none;\' value=' + items[i].value + ' ' + 'id=' + items[i].value + '></span><label style="margin-left:5px;" for=' + items[i].value + '>' + items[i].label + '</label></div>').appendTo(parent);
+                    } else {
+                        $('<div class=' + divClass + ' style="padding:0"><span class=\'radiobox\'><input  style=\'display:none;\' value=' + items[i].value + ' ' + 'id=' + items[i].value + '></span><label style="margin-left:5px;" for=' + items[i].value + '>' + items[i].label + '</label></div>').appendTo(parent);
+                    }
+                }
+            },
+            _editable: function (options) {
+                var that = this, readonly = options.readonly, disable = options.disable, span = that.element.find('span').off(ns), label = that.element.find('label').off(ns);
+                that.element.off(CLICK);
+                if (!readonly && !disable) {
+                    that.element.on(CLICK, proxy(that._click, that));
+                    span.removeClass(STATEDISABLED);
+                } else {
+                    span.addClass(STATEDISABLED);
+                }
+            },
+            readonly: function (readonly) {
+                this._editable({
+                    readonly: readonly === undefined ? true : readonly,
+                    disable: false
+                });
+            },
+            enable: function (enable) {
+                this._editable({
+                    readonly: false,
+                    disable: !(enable = enable === undefined ? true : enable)
+                });
+            },
+            check: function (value, e) {
+                var that = this, options = that.options, element = $(e).children();
+                if (value === undefined) {
+                    value = that._accessor();
+                    return value === undefined || value === null ? '' : value;
+                }
+                var _oldValue = that._oldValue;
+                that._accessor(value, e);
+                if (value != _oldValue) {
+                    that.trigger(CHANGE, { values: value });
+                }
+            },
+            value: function (value, e) {
+                return this.check(value, e);
+            },
+            _accessor: function (value, e) {
+                var that = this, element = that.element[0], input = that.element.children('input');
+                if (value === undefined) {
+                    return $(input).val();
+                } else {
+                    that.element.find('span').removeClass(CHECKED);
+                    that._oldValue = value;
+                    $(input).val(value);
+                    if (value === null) {
+                        value = '';
+                    } else if (e === undefined) {
+                        var child = that.element.find('span').children('input'), length = child.length;
+                        for (var i = 0; i < length; i++) {
+                            var val = $(child[i]).val();
+                            if (val == value) {
+                                $(child[i]).parents('span').addClass(CHECKED);
+                                break;
+                            }
+                        }
+                    } else if (e.tagName == 'INPUT') {
+                        $(e).parents('span').addClass(CHECKED);
+                    } else {
+                        $(e).addClass(CHECKED);
+                    }
+                }
+            },
+            _click: function (e) {
+                var that = this, options = that.options;
+                if (e.target.tagName == 'INPUT') {
+                    that.value($(e.target).val(), e.target);
+                } else if (e.target.tagName == 'SPAN') {
+                    that.value($(e.target).children().val(), e.target);
+                } else {
+                    return;
+                }
+            }
+        });
+        ui.plugin(Radio);
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.textarea', ['kendo.core'], f);
+}(function () {
+    var __meta__ = {
+        id: 'textarea',
+        name: 'textarea',
+        category: 'web',
+        description: 'The TextArea widget displays styled textarea.',
+        depends: ['core']
+    };
+    (function ($, undefined) {
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, support = kendo.support, placeholderSupported = support.placeholder, keys = kendo.keys, ns = '.kendoTextArea', STATEDISABLED = 'k-state-disabled', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', BLUR = 'blur' + ns, extend = $.extend, proxy = $.proxy;
+        var TextArea = Widget.extend({
+            init: function (element, options) {
+                if (Jrap && Jrap.checkAccess && !Jrap.checkAccess(element.id)) {
+                    $(element).remove();
+                    element.id && $('label[for=' + element.id + ']').remove();
+                    return;
+                }
+                var that = this, disabled, text;
+                Widget.fn.init.call(that, element, options);
+                element = that.element;
+                options = that.options;
+                that._render();
+                disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
+                if (disabled) {
+                    that.enable(false);
+                } else {
+                    that.readonly(element.is('[readonly]'));
+                }
+                that.value(that.options.value || element.val());
+                kendo.notify(that);
+            },
+            events: [CHANGE],
+            options: {
+                name: 'TextArea',
+                height: null,
+                width: null,
+                readonly: false,
+                value: null
+            },
+            setOptions: function (options) {
+                Widget.fn.setOptions.call(this, options);
+                this._accessors();
+            },
+            _render: function () {
+                var that = this, element = that.element, options = that.options, height = options.height, width = options.width;
+                element.addClass('k-textbox').addClass('k-state-textarea');
+                if (height && width) {
+                    element.css({
+                        height: height + 'px',
+                        width: width + 'px'
+                    });
+                }
+            },
+            readonly: function (readonly) {
+                this._editable({
+                    readonly: readonly === undefined ? true : readonly,
+                    disable: false
+                });
+            },
+            enable: function (enable) {
+                this._editable({
+                    readonly: false,
+                    disable: !(enable = enable === undefined ? true : enable)
+                });
+            },
+            _editable: function (options) {
+                var that = this;
+                var element = that.element;
+                var disable = options.disable;
+                var readonly = options.readonly;
+                if (!readonly && !disable) {
+                    element.removeAttr(DISABLED).removeAttr(READONLY).removeClass(STATEDISABLED).on(BLUR, proxy(that._blur, that));
+                } else {
+                    element.attr(DISABLED, disable).attr(READONLY, readonly).removeClass('k-textbox').toggleClass(STATEDISABLED, disable);
+                }
+            },
+            destroy: function () {
+                var that = this;
+                Widget.fn.destroy.call(that);
+                that.element.off(ns);
+            },
+            check: function (value) {
+                var that = this, options = that.options;
+                if (value === undefined) {
+                    value = that._accessor();
+                    return value === undefined || value === null ? '' : value;
+                }
+                if (value === options.value) {
+                    return;
+                }
+                var _oldValue = that._oldValue;
+                that._accessor(value);
+                if (value != _oldValue) {
+                    that.trigger(CHANGE, { values: value });
+                }
+            },
+            value: function (value) {
+                return this.check(value);
+            },
+            _accessor: function (value) {
+                var that = this, element = that.element[0];
+                if (value === undefined) {
+                    return element.value;
+                } else {
+                    if (value === null) {
+                        value = '';
+                    }
+                    that._oldValue = element.value = value;
+                }
+            },
+            _blur: function () {
+                var that = this;
+                that.value(that.element.val());
+            }
+        });
+        ui.plugin(TextArea);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {

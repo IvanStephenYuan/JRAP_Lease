@@ -153,7 +153,7 @@
               $(this).attr('type', 'password');
           });
       }
-      function editResourceItem(userId,userName){
+      function editResourceItem(userId){
           var itemWin = $("#itemWin").kendoWindow({
               width: 800,
               height: 700,
@@ -252,8 +252,9 @@
                             attributes: {style: "text-align:center"},
                             template : function (rowdata) {
                                 if (!!rowdata.userId) {
-                                    return '<a href="#" onclick="choiceRole(' + rowdata.userId + ',\''+rowdata.userName+'\')"><@spring.message "user.allocationrole"/></a>'
-                                } else return ''
+                                    var userName = (rowdata.userName || '').replace("'", "\\\'");
+                                    return '<a href="#" onclick=choiceRole(' + rowdata.userId + ',\''+ userName +'\')><@spring.message "user.allocationrole"/></a>';
+                                } else return '';
                             },
                             sortable: false
                         },
@@ -265,7 +266,8 @@
                             },
                             template : function (rowdata) {
                                 if (!!rowdata.userId) {
-                                    return '<a href="#" onclick="editPassWord(' + rowdata.userId + ',\''+rowdata.userName+'\')"><@spring.message "user.updatepassword"/></a>'
+                                    var userName = (rowdata.userName || '').replace("'", "\\\'");
+                                    return '<a href="#" onclick=editPassWord(' + rowdata.userId + ',\''+ userName +'\')><@spring.message "user.updatepassword"/></a>'
                                 } else return ''
                             }
 
@@ -278,7 +280,7 @@
                             },
                             template : function (rowdata) {
                                 if (!!rowdata.userId) {
-                                    return '<a href="#" onclick="editResourceItem(' + rowdata.userId + ',\''+rowdata.userName+'\')"><@spring.message "function.accessset"/></a>'
+                                    return '<a href="#" onclick="editResourceItem(' + rowdata.userId + ')"><@spring.message "function.accessset"/></a>'
                                 } else return ''
                             }
 

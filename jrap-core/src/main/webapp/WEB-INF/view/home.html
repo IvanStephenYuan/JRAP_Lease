@@ -17,7 +17,21 @@
     <link href="${base.contextPath}/lib/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
     <link href="${base.contextPath}/lib/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <!-- END GLOBAL MANDATORY STYLES -->
+
     <script src="${base.contextPath}/lib/kendoui/js/jquery.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.all.min.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/jszip.min.js"></script>
+
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.common-bootstrap.min.css?v=20181015" rel="stylesheet" type="text/css"/>
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.bootstrap.min.css?v=20181015" rel="stylesheet" type="text/css"/>
+
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.jrap.css?v=20181015" rel="stylesheet" type="text/css"/>
+
+    <script src="${base.contextPath}/lib/kendoui/js/cultures/kendo.culture.zh-CN.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/messages/kendo.messages.zh-CN.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.jrap.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/jquery.blockui.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/jquery.placeholder.js"></script>
 
     <script src="${base.contextPath}/lib/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
 
@@ -29,78 +43,407 @@
     <link href="${base.contextPath}/lib/assets/layouts/layout4/css/layout.css" rel="stylesheet" type="text/css" />
     <link href="${base.contextPath}/lib/assets/layouts/layout4/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color" />
     <link href="${base.contextPath}/lib/assets/layouts/layout4/css/custom.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/resources/css/home.css" rel="stylesheet" type="text/css" />
     <!-- END THEME LAYOUT STYLES -->
+
 </head>
 <body>
-<style>
-    body{
-        overflow:hidden;
-    }
-</style>
-    <div class="row" style="margin-top:20px;">
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="dashboard-stat green">
-                <div class="visual">
-                    <i class="fa fa-shopping-cart"></i>
-                </div>
-                <div class="details">
-                    <div class="number">
-                        <span data-counter="counterup" data-value="549">0</span>
-                    </div>
-                    <div class="desc">往来客户</div>
-                </div>
-                <a class="more" href="javascript:;">更多
-                    <i class="m-icon-swapright m-icon-white"></i>
-                </a>
-            </div>
+    <div class="home-header">
+        <div class="home-breadcrumb">
+            首页
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-            <div class="dashboard-stat purple">
-                <div class="visual">
-                    <i class="fa fa-globe"></i>
+        <div class="home-user row clearfix">
+            <div class="home-user-info col-sm-8 col-xs-12 row clearfix">
+                <div class="home-user-image col-sm-2 col-xs-12">
+                    <img alt="" class="img-circle" src="${base.contextPath}/lib/assets/layouts/layout4/img/avatar9.jpg" />
                 </div>
-                <div class="details">
-                    <div class="number"> +
-                        <span data-counter="counterup" data-value="89"></span>% </div>
-                    <div class="desc">订单查询</div>
+                <div class="col-sm-10 col-xs-12">
+                    <div class="home-user-greetings">hi,<span class="username">${Session.userName!''}，祝你开心每一天！</span>
+                    </div>
+                    <div class="home-user-job"> <span class="user-job-post"></span> |
+                        <span class="user-job-department"></span></div>
                 </div>
-                <a class="more" href="javascript:;">更多
-                    <i class="m-icon-swapright m-icon-white"></i>
-                </a>
+
+            </div>
+            <div class=" col-sm-4 col-xs-12">
+                <ul class="home-user-work row clearfix">
+                    <li class="">
+                        <p>项目数</p>
+                        <p class="user-work-num orderNumber">0</p>
+                    </li>
+                    <li class="user-work-num-unit">
+                        <p>团队内排名</p>
+                        <p class="user-work-num "><span class="unitRank">0</span>/<span class="unitEmpTotal">0</span></p>
+                    </li>
+                    <li class="user-work-num-group">
+                        <p>公司内排名</p>
+                        <p class="user-work-num"><span class="groupRank">0</span>/<span class="groupEmpTotal">0</span></p>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
-    <div class="clearfix"></div>
-    <#assign new_row = false/>
-    <#list dashboards as dashboard>
-        <#assign new_row = dashboard_index%2 ==0/>
-        <#if new_row == true>
-            <div class="row">
-        </#if>
-        <div class="col-md-6 col-sm-6">
-            <!-- BEGIN PORTLET-->
-            <div class="portlet light bordered">
-                <div class="portlet-title tabbable-line">
-                    <div class="caption">
-                        <i class="icon-globe font-green-sharp"></i>
-                        <span class="caption-subject font-green-sharp bold uppercase">${dashboard.dashboardTitle} </span>
-                    </div>
+
+    <div class="home-work clearfix">
+        <div class="home-left col-sm-12 col-xs-12 col-md-8">
+            <div class="home-task ">
+                <div class="task-header">
+                    <p class="pull-left">进行中的商机</p>
+                    <p class="pull-right"><a href="javascript:void(0);" id="allOppourity">全部商机</a></p>
+                    <div class="clearfix "></div>
                 </div>
-                <div class="portlet-body" id="${dashboard.dashboardCode}">
-                   <!-- <script>
-                        $('#${dashboard.dashboardCode}').load('${dashboard.dashboardUrl}')
-                    </script>-->
-                    <script type="text/JavaScript">
-                        var html=$.ajax({url:'${dashboard.dashboardUrl}',async:false});
-                        $("#${dashboard.dashboardCode}").html(html.responseText);
-                    </script>
+                <ul class="task-lists row clearfix" id="opportunityList">
+                    <!--<li class="col-sm-4 col-xs-12 task-item">
+                            <p class="task-item-num" >编号：<a href="#" >1</a></p>
+                            <p class="task-item-name">姓名：付彩梅</p>
+                            <p class="task-item-phone">手机号：18812345678</p>
+                            <p class="task-item-time">时间：2019-5-23</p>
+                    </li>-->
+
+                </ul>
+            </div>
+            <div class="home-task home-order">
+                <div class="task-header">
+                    <p class="pull-left">进行中的订单</p>
+                    <p class="pull-right"><a href=" javascript:void(0);"  id="allOrders">全部订单</a></p>
+                    <div class="clearfix "></div>
                 </div>
+                <ul class="task-lists row clearfix" id="orders">
+                    <!--<li class="col-sm-4 col-xs-12 task-item">
+                        <p class="task-item-num" >编号：<a href="#" >CHA201905270102</a></p>
+                        <p class="task-item-name">姓名：付彩梅</p>
+                        <p class="task-item-phone">手机号：18812345678</p>
+                        <p class="task-item-time">时间：2019-5-23</p>
+                    </li>
+                    <li class="col-sm-4 col-xs-12 task-item">
+                        <p class="task-item-num" >编号：<a href="#" >CHA201905270102</a></p>
+                        <p class="task-item-name">姓名：付彩梅</p>
+                        <p class="task-item-phone">手机号：18812345678</p>
+                        <p class="task-item-time">时间：2019-5-23</p>
+                    </li>
+                    <li class="col-sm-4 col-xs-12 task-item">
+                        <p class="task-item-num" >编号：<a href="#" >CHA201905270102</a></p>
+                        <p class="task-item-name">姓名：付彩梅</p>
+                        <p class="task-item-phone">手机号：18812345678</p>
+                        <p class="task-item-time">时间：2019-5-23</p>
+                    </li>
+                    <li class="col-sm-4 col-xs-12 task-item">
+                        <p class="task-item-num" >编号：<a href="#" >CHA201905270102</a></p>
+                        <p class="task-item-name">姓名：付彩梅</p>
+                        <p class="task-item-phone">手机号：18812345678</p>
+                        <p class="task-item-time">时间：2019-5-23</p>
+                    </li>-->
+                </ul>
             </div>
         </div>
-        <#if new_row == false>
+        <div class="home-right col-sm-12 col-xs-12 col-md-4 clearfix">
+            <div class="my-shortcut col-sm-12 col-xs-12 col-md-11 pull-right">
+                <div class="shortcut-header">
+                    <p>快速开始/便捷导航</p>
+                </div>
+                <ul class="shortcutLists clearfix " id="my-shortcut">
+                </ul>
             </div>
-        </#if>
-    </#list>
+            <div class="distribution col-sm-12 col-xs-12 col-md-11 pull-right">
+                <div class="distribution-header ">
+                    <p>客户分布情况</p>
+                </div>
+                <div id="distribution_charts"></div>
+            </div>
+        </div>
+    </div>
+    <div id="newWin" style="display: none"></div>
+    <script src="${base.contextPath}/lib/eCharts/echarts.min.js"></script>
     <script src="${base.contextPath}/lib/assets/global/scripts/app.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var baseUrl = '${base.contextPath}';
+
+            //用户详情
+            function getUserInfo() {
+                    $.ajax({
+                        type: "POST",
+                        url: baseUrl+'/sys/selectHomePageInfo',
+                        dataType: "json",
+                        contentType: "application/json;charset=UTF-8",
+                        async: true,
+                        success: function (data) {
+                           if(data.success && data.rows){
+                               var userInfo=data.rows[0];
+                               $(".user-job-post").html(userInfo.roleName);
+                               $(".user-job-department").html(userInfo.unitName);
+                               if(userInfo.orderNumber){
+                                   $(".orderNumber").html(userInfo.orderNumber);
+                               }else{
+                                   $(".orderNumber").html("0");
+                               }
+                               $(".unitRank").html(userInfo.unitRank);
+                               /*if(userInfo.unitRank ){
+                                   $(".unitRank").html(userInfo.unitRank);
+                               }else{
+                                   $(".unitRank").html("无");
+                               }*/
+                               $(".unitEmpTotal").html(userInfo.unitEmpTotal);
+                               /*if(userInfo.groupRank){
+                                   $(".groupRank").html(userInfo.groupRank);
+                               }else{
+                                   $(".unitRank").html("无");
+                               }*/
+                               $(".groupRank").html(userInfo.groupRank);
+                               $(".groupEmpTotal").html(userInfo.groupEmpTotal);
+
+
+
+
+                           }else{
+                                $(".user-job-post").html("暂无岗位");
+                                $(".user-job-department").html("暂无部门");
+                           }
+                        }
+                    });
+            }
+            getUserInfo();
+
+            //快捷键管理
+            function refreshShorucut(){
+                $.ajax({
+                    url: baseUrl+'/sys/shortcut/query',
+                    success: function (args) {
+
+                        var shortcut = $("#my-shortcut");
+
+                        if (args.total == 0) {
+                            shortcut.append("<div style='text-align: center;height: 50px;line-height: 50px;'><h3><@spring.message 'shortcut.notaddshortcut'/></h3></div>");
+                            shortcut.append("<div style='text-align: center;margin-bottom:20px;line-height: 20px;font-size: 12px;'>点击右上角“操作”，然后点击“添加快捷方式”</div>")
+                        } else {
+                            var str="";
+                            var length=(args.total>8)?8:args.total;
+                            for (var i = 0; i < length; i++) {
+                                str+='<li class="shortcutList col-xs-3 col-sm-3 col-md-3" id=shortcutId_'+args.rows[i].shortcutId+
+                                    ' data-id='+args.rows[i].shortcutId+' >' +
+                                    '<a href="javascript:void(0)"  class="shortcutList-openurl" data-functionCode="'+args.rows[i].functionCode+'" data-functionName="'+args.rows[i].functionName+'"' +
+                                    'data-url="'+args.rows[i].url+'">' +
+                                    '<p class="shortcutList-icon"><i class="'+args.rows[i].functionIcon+'"></i></p>' +
+                                    '<p class="shortcutList-txt">'+args.rows[i].functionName+'</p></a>' +
+                                    '<p class="shortcutList-close" ><i class="fa fa-close"></i></p></li>';
+                            }
+                            $("#my-shortcut").html(str);
+                        }
+                    }
+                });
+            }
+            refreshShorucut();
+            $("#my-shortcut").on("click touchend ",".shortcutList-close",function () {
+                var id =$(this).parent(".shortcutList").attr("data-id");
+                $.ajax({
+                    url: '${base.contextPath}/sys/shortcut/remove?shortcutId=' + id,
+                    success: function (args) {
+                        $("#shortcutId_" + id + "").remove();
+                        if($(".shortcutList").length==0){
+                            $("#my-shortcut").append("<div style='text-align: center;height: 50px;line-height: 50px;'><h3><@spring.message 'shortcut.notaddshortcut'/></h3></div>");
+                            $("#my-shortcut").append("<div style='text-align: center;margin-bottom:20px;line-height: 20px;font-size: 12px;'>点击右上角“操作”，然后点击“添加快捷方式”</div>")
+                        }
+                    }
+                });
+            })
+            $("#my-shortcut").on("click touchend ",".shortcutList-openurl",function () {
+                var functionCode=$(this).attr("data-functionCode");
+                var functionName=$(this).attr("data-functionName");
+                var url=$(this).attr("data-url");
+                window.parent.openTab(functionCode, functionName, url);
+            });
+
+
+            //商机管理
+            $("#allOppourity").on("click touchend",function () {
+                window.parent.openTab('CHA1010', '<@spring.message "user.info"/>', baseUrl+'/change/change.html');
+            });
+
+            function opportunity() {
+                $.ajax({
+                    url:baseUrl+'/con/change/query',
+                    success:function (res) {
+                        if(res.success && res.rows && res.rows.length){
+                            var data=res.rows;
+                            var len=data.length;
+                            var str="";
+                            var length=(len>6)?6:len;
+                            for(var i=0;i<length;i++){
+                                str+='<li class="col-sm-4 col-xs-12 task-item"><a href="javascript:;" data-customerId="'+data[i].customerId+'">' +
+                                    '<p class="task-item-num" >编号：'+data[i].changeCode+'</p>' +
+                                    '<p class="task-item-name">姓名：'+data[i].customerName+'</p>' +
+                                    '<p class="task-item-phone">手机号：'+data[i].cellphone+'</p>' +
+                                    '</a></li>';
+                            }
+                            $("#opportunityList").html(str);
+
+                        }else{
+                            $("#opportunityList").html('<p style="margin-top: 40px;text-align: center;font-size: 16px;">暂无商机</p>');
+                        }
+                    }
+                });
+            }
+            $("#opportunityList").on("click touchend",".task-item a",function () {
+                var functionCode="CHA1010";
+                var functionName='<@spring.message "user.info"/>';
+                var customerId=$(this).attr("data-customerId");
+                var url='/change/change_edit.html?isedit=1&changeId='+customerId;
+                //window.parent.openTab("", functionName, url);
+                Jrap.createWindow('#newWin', {
+                    width: 1500,
+                    height: 800,
+                    title: '商机编辑',
+                    url: url
+                })
+                if (parent.autoResizeIframe) {
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
+                        var win = $("#newWin").data("kendoWindow");
+                        win.center().maximize().open();
+                    })
+                } else {
+                    var win = $("#newWin").data("kendoWindow");
+                    win.center().maximize().open();
+                }
+            });
+            opportunity();
+
+            //订单管理
+            $("#allOrders").on("click touchend",function () {
+                window.parent.openTab('ORD1020', '<@spring.message "user.info"/>', baseUrl+'/order/order.html');
+            });
+            function orderList() {
+                $.ajax({
+                    url:baseUrl+'/con/order/query',
+                    type: "POST",
+                    dataType: "json",
+                    success:function (res) {
+                        if(res.success && res.rows && res.rows.length){
+                            var data=res.rows;
+                            var len=data.length;
+                            var str="";
+                            var length=(len>6)?6:len;
+                            console.log(data);
+                            for(var i=0;i<length;i++){
+                                str+='<li class="col-sm-4 col-xs-12 task-item"><a href="javascript:;" data-orderId="'+data[i].orderId+'"' +
+                                    'data-customerId="'+data[i].customerId+'" data-itemId="'+data[i].itemId+'">' +
+                                    '<p class="task-item-num" >编号：'+data[i].orderCode+'</p>' +
+                                    '<p class="task-item-name">客户姓名：'+data[i].customerName+'</p>' +
+                                    '<p class="task-item-phone">产品：'+data[i].productCode+'</p>' +
+                                    '<p class="task-item-phone">供应商：'+data[i].itemId+'</p>' +
+                                    '</a></li>';
+                            }
+                            $("#orders").html(str);
+                        }else{
+                            $("#orders").html('<p style="margin-top: 40px;text-align: center;font-size: 16px;">暂无订单</p>');
+                        }
+                    }
+                });
+            }
+            $("#orders").on("click touchend",".task-item a",function () {
+                var orderId=$(this).attr("data-orderId");
+                var customerId=$(this).attr("data-customerId");
+                var itemId=$(this).attr("itemId");
+                var url='/order/order_lawedit.html?isedit=1&orderId='+orderId+'&customerId='+customerId+'&itemId='+itemId;
+                //window.parent.openTab("", functionName, url);
+                Jrap.createWindow('#newWin', {
+                    width: 1500,
+                    height: 800,
+                    title: '订单编辑',
+                    url: url
+                })
+                if (parent.autoResizeIframe) {
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}', 700, function () {
+                        var win = $("#newWin").data("kendoWindow");
+                        win.center().maximize().open();
+                    })
+                } else {
+                    var win = $("#newWin").data("kendoWindow");
+                    win.center().maximize().open();
+                }
+            });
+            orderList();
+
+
+
+
+            //客户分布情况
+            var option = {
+                tooltip : {
+                    trigger: 'axis'
+                },
+                legend: {
+                    left:'center',
+                    data:['客户数量'],
+                    textStyle:{
+                        color:"#000"
+                    }
+                },
+                toolbox: {
+                    show :false,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        magicType : {show: true, type: ['line', 'bar']},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                calculable : true,
+                xAxis : [
+                    {
+                        type : 'category',
+                        data : ['1月','2月','3月','4月','5月','6月']
+                    }
+                ],
+                yAxis : [
+                    {
+                        type : 'value'
+                    }
+                ],
+                series : [
+                    {
+                        name:'客户数量',
+                        type:'bar',
+                        data:[11, 33, 22, 45, 88, 99],
+                        barWidth:20,
+                        itemStyle:{
+                            normal:{
+                                color: function(params) {
+                                    var colorList=['#6787ed', '#00837e','#1b7099','#1ab1d8','#99d2dd','#2d69f2'];
+                                    return colorList[params.dataIndex]
+                                },
+                            },
+                            label:{
+                                show: true,
+                                position: 'top',
+                                formatter: '{b}\n{c}'
+                            }
+                        },
+                        markPoint : {
+                            data : [
+                                {type : 'max', name: '最大值'},
+                                {type : 'min', name: '最小值'}
+                            ]
+                        },
+                        markLine : {
+                            data : [
+                                {type : 'average', name: '平均值'}
+                            ]
+                        }
+                    }
+                ]
+            };
+            var charts = echarts.init(document.getElementById('distribution_charts'));
+
+            //使用制定的配置项和数据显示图表
+            charts.setOption(option);
+            // echart图表自适应
+            window.addEventListener("resize", function() {
+                charts.resize();
+            });
+
+        });
+
+    </script>
 </body>
 </html>

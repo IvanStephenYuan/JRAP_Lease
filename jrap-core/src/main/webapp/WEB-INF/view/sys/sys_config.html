@@ -151,7 +151,7 @@ function passwordlength(){
                         <form id="upload-logo-form" action="${base.contextPath}/sys/config/logo/upload?${_csrf.parameterName}=${_csrf.token}"  target="_uploadTarget" enctype="multipart/form-data" method="POST" class="pull-left" style="padding-left:20px;">
                             <a href="javascript:void(0);" class="file btn">
                                 <@spring.message "sys.config.select_file"/>
-                                <input type="file" name="sys-logo-img-uploader" onChange="preview(this,'sys-logo-img');"/>
+                                <input type="file" name="logo" onChange="preview(this,'sys-logo-img');"/>
                             </a>
                             <button type="submit" class="btn btn-success">
                                 <@spring.message "sys.config.upload_file"/>

@@ -12,7 +12,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
             createSequence(sequenceName: 'ACT_DEMO_VACATION_S', startValue: "10001")
         }
         createTable(tableName: "ACT_DEMO_VACATION") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "ID", type: "bigint", autoIncrement: "true", startWith: "10001", remarks: "表ID，主键，供其他表做外键") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "ACT_DEMO_VACATION_PK")
                 }
@@ -42,7 +42,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
             createSequence(sequenceName: 'ACT_EXCEPTION_S', startValue: "10001")
         }
         createTable(tableName: "ACT_EXCEPTION") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "ID", type: "bigint", autoIncrement: "true", startWith: "10001", remarks: "表ID，主键，供其他表做外键") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "ACT_EXCEPTION_PK")
                 }
@@ -72,7 +72,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
         }
 
         createTable (tableName: "WFL_APPROVE_CHAIN_HEADER", remarks: "审批链定义 头表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "APPROVE_CHAIN_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"WFL_APPROVE_CHAIN_HEADER_PK")
                 }
@@ -115,7 +115,7 @@ databaseChangeLog(logicalFilePath:"2016-09-26-init-migration.groovy"){
         }
 
         createTable (tableName: "WFL_APPROVE_CHAIN_LINE", remarks: "审批链定义 行表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "APPROVE_CHAIN_LINE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName:"WFL_APPROVE_CHAIN_LINE_PK")
                 }

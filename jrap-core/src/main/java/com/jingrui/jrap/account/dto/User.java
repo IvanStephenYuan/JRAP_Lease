@@ -159,6 +159,77 @@ public class User extends BaseDTO {
     @Transient
     private Long roleId;
 
+    @Transient
+    private String roleName;
+    @Transient
+    private String unitName;
+    @Transient
+    private String orderNumber;
+    @Transient
+    private String unitRank;
+    @Transient
+    private String unitEmpTotal;
+    @Transient
+    private String groupRank;
+    @Transient
+    private String groupEmpTotal;
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public String getUnitRank() {
+        return unitRank;
+    }
+
+    public void setUnitRank(String unitRank) {
+        this.unitRank = unitRank;
+    }
+
+    public String getUnitEmpTotal() {
+        return unitEmpTotal;
+    }
+
+    public void setUnitEmpTotal(String unitEmpTotal) {
+        this.unitEmpTotal = unitEmpTotal;
+    }
+
+    public String getGroupRank() {
+        return groupRank;
+    }
+
+    public void setGroupRank(String groupRank) {
+        this.groupRank = groupRank;
+    }
+
+    public String getGroupEmpTotal() {
+        return groupEmpTotal;
+    }
+
+    public void setGroupEmpTotal(String groupEmpTotal) {
+        this.groupEmpTotal = groupEmpTotal;
+    }
+
     public String getEmail() {
         return email;
     }

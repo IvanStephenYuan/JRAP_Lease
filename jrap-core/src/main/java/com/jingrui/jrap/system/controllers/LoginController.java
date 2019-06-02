@@ -1,15 +1,11 @@
 package com.jingrui.jrap.system.controllers;
 
-import java.util.Locale;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import com.codahale.metrics.annotation.Timed;
 import com.jingrui.jrap.account.dto.Role;
 import com.jingrui.jrap.account.dto.User;
 import com.jingrui.jrap.account.exception.RoleException;
 import com.jingrui.jrap.account.exception.UserException;
+import com.jingrui.jrap.account.mapper.UserMapper;
 import com.jingrui.jrap.account.service.IUserService;
 import com.jingrui.jrap.adaptor.ILoginAdaptor;
 import com.jingrui.jrap.adaptor.impl.DefaultLoginAdaptor;
@@ -19,6 +15,8 @@ import com.jingrui.jrap.core.exception.BaseException;
 import com.jingrui.jrap.core.exception.IBaseException;
 import com.jingrui.jrap.security.service.impl.DefaultUserSecurityStrategy;
 import com.jingrui.jrap.system.dto.ResponseData;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -30,6 +28,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.Locale;
+
 /**
  * 用户登录控制层.
  *
@@ -37,6 +40,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
  * @author njq.niu@jingrui.com
  */
 @Controller
+@Api(value="NoticeController", tags = {"用户接口"})
 public class LoginController extends BaseController implements InitializingBean {
 
     @Autowired(required = false)
@@ -47,6 +51,9 @@ public class LoginController extends BaseController implements InitializingBean 
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @RequestMapping(value = {"/login.html", "/login"})
     @Timed
@@ -163,5 +170,15 @@ public class LoginController extends BaseController implements InitializingBean 
     public IRequest queryStatusAll(HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
         return requestContext;
+    }
+
+
+    @RequestMapping(value = "/sys/selectHomePageInfo")
+    @ResponseBody
+    @ApiOperation(value="首页信息查询", notes = "首页信息查询接口", httpMethod="GET")
+    public ResponseData selectHomePageInfo(HttpServletRequest request) {
+        IRequest requestContext = createRequestContext(request);
+        User user =  userMapper.selectByPrimaryKey(requestContext.getUserId());
+        return new ResponseData(userMapper.selectHomePageInfo(user));
     }
 }

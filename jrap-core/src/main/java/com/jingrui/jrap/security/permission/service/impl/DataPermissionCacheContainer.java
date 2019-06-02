@@ -13,6 +13,8 @@ import com.jingrui.jrap.security.permission.mapper.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class DataPermissionCacheContainer {
+    private static Logger logger = LoggerFactory.getLogger(DataPermissionCacheContainer.class);
 
     public final String CACHE_DELETE = "delete";
     public final String CACHE_UPDATE = "update";
@@ -190,6 +193,11 @@ public class DataPermissionCacheContainer {
             return true;
         }
         for (String table : tables) {
+            if (table == null) {
+                logger.error("{} has null permission table name", sql);
+                continue;
+            }
+
             if (maskTableRuleMaps.containsKey(table)) {
                 return true;
             }

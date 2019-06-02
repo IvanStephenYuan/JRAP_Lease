@@ -112,6 +112,8 @@
     <result column="USER_STATUS_2" property="userStatus2" jdbcType="VARCHAR"/>
     <result column="DATA_CLASS" property="dataClass" jdbcType="VARCHAR"/>
     <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+    <result column="ENAME" property="ename" jdbcType="VARCHAR"/>
+    <result column="AMCOUNT" property="amcount" jdbcType="DECIMAL"/>
     <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
     <result column="PRODUCT_NAME" property="productName" jdbcType="VARCHAR"/>
     <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR"/>
@@ -265,9 +267,65 @@
       <if test="sourceType !=null ">
         AND od.SOURCE_TYPE LIKE CONCAT('%', CONCAT(#{sourceType,jdbcType=VARCHAR}, '%'))
       </if>
+      <if test="orderStatus !=null ">
+        AND od.ORDER_STATUS LIKE CONCAT('%', CONCAT(#{orderStatus,jdbcType=VARCHAR}, '%'))
+      </if>
     </where>
     ORDER BY od.order_Id ASC
   </select>
-
-
+  <select id="selectleaseAmount" resultMap="BaseResultMap">
+      SELECT
+        (
+          SELECT
+            hem. NAME
+          FROM
+            hr_employee hem
+          WHERE
+            hem.EMPLOYEE_ID = cor.EMPLOYEE_ID
+        ) AS ename,
+        count(*) AS amcount
+      FROM
+        con_order cor
+      WHERE
+        cor.PAYMENT_DATE BETWEEN #{begintime} And #{endtime} and
+        EXISTS (
+          SELECT
+            hpb.UNIT_ID
+          FROM
+            hr_employee hre,
+            hr_employee_assign hea,
+            hr_org_position_b hpb
+          WHERE
+            hre.EMPLOYEE_ID = hea.EMPLOYEE_ID
+          AND hea.POSITION_ID = hpb.POSITION_ID
+          AND hpb.UNIT_ID = cor.UNIT_ID
+          AND hre.EMPLOYEE_CODE = UPPER(
+            #{empcode}) ) GROUP BY  cor.EMPLOYEE_ID ORDER BY amcount desc
+  </select>
+  <select id="selectleaseShow" resultMap="BaseResultMap">
+             SELECT
+          sum(
+            co.LEASE_AMOUNT - co.DOWN_PAYMENT
+          ) AS leaseMoney,
+          co.PAYMENT_DATE
+        FROM
+          con_order co
+        WHERE
+          co.PAYMENT_DATE BETWEEN #{begintime} And #{endtime}
+        AND EXISTS (
+          SELECT
+            hpb.UNIT_ID
+          FROM
+            hr_employee hre,
+            hr_employee_assign hea,
+            hr_org_position_b hpb
+          WHERE
+            hre.EMPLOYEE_ID = hea.EMPLOYEE_ID
+          AND hea.POSITION_ID = hpb.POSITION_ID
+          AND hpb.UNIT_ID = co.UNIT_ID
+          AND hre.EMPLOYEE_CODE = UPPER(#{empcode})
+        )
+          GROUP BY
+            co.PAYMENT_DATE
+  </select>
 </mapper>

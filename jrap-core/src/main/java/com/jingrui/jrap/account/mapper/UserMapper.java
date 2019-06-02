@@ -78,4 +78,13 @@ public interface UserMapper extends Mapper<User> {
      * @return 用户集合
      */
     List<User> selectUsersOption(User user);
+
+
+    /**
+     * 首页查询员工订单信息
+     *
+     * @param user 用户
+     * @return 用户集合
+     */
+    List<User> selectHomePageInfo(User user);
 }

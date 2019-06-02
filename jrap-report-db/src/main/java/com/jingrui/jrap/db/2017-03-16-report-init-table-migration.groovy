@@ -11,7 +11,7 @@ databaseChangeLog(logicalFilePath: "2017-03-16-init-table-migration.groovy") {
             createSequence(sequenceName: 'SYS_REPORT_S', startValue: "10001")
         }
         createTable(tableName: "SYS_REPORT", remarks: "报表定义") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "REPORT_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "报表ID") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_REPORT_PK")
                 }
@@ -54,7 +54,7 @@ databaseChangeLog(logicalFilePath: "2017-03-16-init-table-migration.groovy") {
             createSequence(sequenceName: 'SYS_REPORT_FILE_S', startValue: "10001")
         }
         createTable(tableName: "SYS_REPORT_FILE", remarks: "报表文件") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "FILE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "文件ID") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_REPORT_FILE_PK")
                 }

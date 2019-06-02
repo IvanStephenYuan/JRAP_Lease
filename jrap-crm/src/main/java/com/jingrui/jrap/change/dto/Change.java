@@ -84,6 +84,7 @@ public class Change extends BaseDTO {
   private Long companyId; //公司ID
 
   private Long unitId; //机构ID
+  private Long modelId;//租赁物ID
 
   private Long employeeId; //业务员ID
 
@@ -124,6 +125,13 @@ public class Change extends BaseDTO {
 
   private Date programUpdateDate;
 
+  public Long getModelId() {
+    return modelId;
+  }
+
+  public void setModelId(Long modelId) {
+    this.modelId = modelId;
+  }
 
   public void setChangeId(Long changeId) {
     this.changeId = changeId;

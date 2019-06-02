@@ -159,11 +159,6 @@
     margin-right: 17px
 }
 
-.page-header.navbar .menu-toggler.responsive-toggler {
-    display: none;
-    float: right;
-    margin: 30.5px 14px 0 6px
-}
 
 .page-header.navbar .page-actions {
     margin: 17px 0 15px 10px;
@@ -306,7 +301,7 @@
     position: absolute;
     right: 10px;
     border: 0;
-    margin-top: -1px
+    margin-top: -1px;
 }
 
 .page-container:after,.page-footer:after,.page-head:after {
@@ -618,7 +613,7 @@
         display: none!important
     }
 
-    .page-header.navbar .menu-toggler.responsive-toggler {
+    .page-head .menu-toggler.responsive-toggler {
         display: inline-block
     }
 
@@ -899,7 +894,7 @@
     -o-border-radius: 4px;
     border-radius: 4px;
     list-style: none;
-    margin: 10px 0 0;
+    margin: -2px 0 0;
     padding: 0
 }
 
@@ -1001,11 +996,11 @@
     list-style: none;
     display: none;
     padding: 0;
-    margin: 8px 0
+    margin: 8px 0;
+    background: #000c17;
 }
 
 .page-sidebar .page-sidebar-menu .sub-menu li,.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu .sub-menu li {
-    background: 0 0;
     margin: 0;
     padding: 0;
     margin-top: 1px!important
@@ -1018,7 +1013,6 @@
     text-decoration: none;
     font-size: 14px;
     font-weight: 400;
-    background: 0 0
 }
 
 .page-sidebar .page-sidebar-menu .sub-menu li>a>i,.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu .sub-menu li>a>i {
@@ -1088,7 +1082,6 @@
     .page-sidebar-fixed .page-sidebar {
         position: fixed!important;
         margin-left: 0;
-        top: 95px
     }
 
     .page-sidebar-fixed .page-sidebar-menu>li:last-child {
@@ -1352,18 +1345,10 @@
 
     .page-sidebar,.page-sidebar.navbar-collapse.in {
         border-top: 0!important;
-        margin: 20px
     }
 
     .page-sidebar.navbar-collapse {
         max-height: none
-    }
-
-    .page-sidebar.navbar-collapse.in {
-        position: relative;
-        overflow: hidden!important;
-        overflow-y: auto!important;
-        display: block!important
     }
 
     .page-sidebar.navbar-collapse.navbar-no-scroll {
@@ -1397,9 +1382,7 @@
 }
 
 @media (max-width:767px) {
-    .page-sidebar,.page-sidebar.in {
-        margin: 10px!important
-    }
+
 
     .page-header-fixed.page-header-fixed-mobile .page-sidebar,.page-header-fixed.page-header-fixed-mobile .page-sidebar.in {
         margin-top: 10px!important
@@ -1477,7 +1460,7 @@
         margin-left: 235px;
         margin-top: 0;
         min-height: 600px;
-        padding: 10px 0 0 20px
+        padding: 10px 0 0 0;
     }
 
     .page-content-wrapper .page-content.no-min-height {
@@ -1541,7 +1524,7 @@
 
 @media (max-width:767px) {
     .page-content-wrapper .page-content {
-        padding: 20px 10px 10px!important;
+        /*padding: 20px 10px 10px!important;*/
         overflow: hidden
     }
 

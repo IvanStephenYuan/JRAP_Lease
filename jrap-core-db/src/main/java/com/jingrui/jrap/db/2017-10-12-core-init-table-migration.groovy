@@ -11,7 +11,7 @@ databaseChangeLog(logicalFilePath:"2017-10-12-init-migration.groovy"){
             createSequence(sequenceName: 'SYS_PARAMETER_CONFIG_S', startValue: "10001")
         }
         createTable(tableName: "SYS_PARAMETER_CONFIG", remarks: "参数配置") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "PARAMETER_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "参数ID") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_PARAMETER_CONFIG_PK")
                 }

@@ -17,6 +17,8 @@
         type="text/javascript"></script>
 <script src="${base.contextPath}/common/code?spouseTypeData=CM.SPOUSE_TYPE"
         type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?customerIdTypeData=HR.CERTIFICATE_TYPETH"
+        type="text/javascript"></script>
 <style type="text/css">
   .left {
     margin: 7px;
@@ -1939,7 +1941,7 @@
   guarantdataSource = new kendo.data.DataSource({
     transport: {
       read: {
-        url: BaseUrl + "/con/guarantor/selectOptions",
+        url: BaseUrl + "/con/guarantor/query",
         type: "POST",
         dataType: "json"
       },
@@ -1977,7 +1979,8 @@
         id: "guarantorId",
         fields: {
           orderId: {defaultValue: orderViewModel.model.orderId},
-          customerId:{defaultValue: customerViewModel.model.customerId}
+          customerId:{defaultValue: customerViewModel.model.customerId},
+          enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
         }
       }
     }
@@ -2011,21 +2014,96 @@
       }
     ],
     columns: [
-    /*  {
-        field: "orderId",
-        title: '<@spring.message "guarantor.orderid"/>',
-        width: 120
-      },
-      {
-        field: "customerId",
-        title: '<@spring.message "guarantor.customerid"/>',
-        width: 120
-      },*/
       {
         field: "guarantorSequence",
         title: '<@spring.message "guarantor.guarantorsequence"/>',
+        width: 80
+      },
+      {
+        field: "customerName",
+        title: '<@spring.message "customer.customerName"/>',
         width: 120
-      }
+      },
+      {
+        field: "idType",
+        title: '<@spring.message "customer.idType"/>',
+        width: 80,
+        headerAttributes: {
+          style: "text-align: center"
+        },
+        attributes: {style: "text-align:center"},
+        template: function (dataItem) {
+          var v = dataItem.idType;
+          $.each(customerIdTypeData, function (i, n) {
+            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        },
+        editor: function (container, options) {
+          $('<input name="' + options.field + '"/>')
+          .appendTo(container)
+          .kendoDropDownList({
+            dataTextField: "meaning",
+            dataValueField: "value",
+            valuePrimitive: true,
+            dataSource: customerIdTypeData
+          });
+        }
+      },
+      {
+        field: "idNo",
+        title: '<@spring.message "customer.idNo"/>',
+        width: 190,
+        editor:function (container, options) {
+          $('<input name="' + options.field + '"/>').appendTo(container)
+          if(options.model.isNew()){
+            if(options.model.guarantorId==''&&options.model.idNo!=undefined){
+              $.ajax({
+                type: "POST",
+                url: '${base.contextPath}/afd/customer/query',
+                data: {
+                  "idType": options.model.idType,
+                  "idNo": options.model.idNo,
+                  "customerCategory": "GUARANTOR"
+                },
+                dataType: "json",
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function (data) {
+                  if (data.rows.length > 0) {
+                    var a0 = data.rows[0] || {};
+                    options.model.set("customerName", a0.customerName);
+                    options.model.set("telphone", a0.telphone);
+                    options.model.set("homeAddress", a0.homeAddress);
+                    options.model.set("enabledFlag", a0.enabledFlag);
+                  }
+                }
+              });
+            }
+          }},
+      },
+      {
+        field: "telphone",
+        title: '<@spring.message "customer.telphone"/>',
+        width: 190
+      },
+      {
+        field: "homeAddress",
+        title: '<@spring.message "customer.homeAddress"/>',
+        width: 190
+      },
+      {
+        field: "enabledFlag",
+        title: '<@spring.message "jrap.enableflag"/>',
+        width: 80,
+        headerAttributes: {
+          style: "text-align: center"
+        },
+        attributes: {style: "text-align:center"},
+        sortable: false
+      },
     ],
     editable: true
   }).data("kendoGrid");

@@ -14,6 +14,8 @@
         <result column="CURRENT_VALUE" property="currentValue" jdbcType="DECIMAL" />
         <result column="REST_FREQUENCY" property="resetFrequency" jdbcType="VARCHAR" />
         <result column="REST_DATE" property="resetDate" jdbcType="DATE" />
+        <result column="STEP_NUMBER" property="stepNumber" jdbcType="DECIMAL"/>
+        <result column="RULE_CODE" property="ruleCode" jdbcType="VARCHAR"/>
     </resultMap>
 
     <delete id="deleteByHeaderId" parameterType="com.jingrui.jrap.code.rule.dto.CodeRulesLine">

@@ -1,5 +1,6 @@
 package com.jingrui.jrap.task.service.impl;
 
+import com.google.common.base.Throwables;
 import com.jingrui.jrap.message.IMessagePublisher;
 import com.jingrui.jrap.message.components.TaskExecuteLogManager;
 import com.jingrui.jrap.task.TaskConstants;
@@ -152,8 +153,7 @@ public class ExecuteListener implements IExecuteListener {
         // 存执行失败错误信息
         TaskExecutionDetail taskExecutionDetail = new TaskExecutionDetail();
         taskExecutionDetail.setExecutionId(taskData.getExecutionId());
-        //TODO : core包下新增工具类
-        //taskExecutionDetail.setStacktrace(HapInvokeLogUtils.getRootCauseStackTrace(e));
+        taskExecutionDetail.setStacktrace(Throwables.getStackTraceAsString(Throwables.getRootCause(e)));
         iTaskExecutionDetailService.updateStacktrace(taskExecutionDetail);
     }
 

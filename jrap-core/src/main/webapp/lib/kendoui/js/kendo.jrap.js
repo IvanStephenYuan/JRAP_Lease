@@ -857,8 +857,8 @@
                     }
                 },
                 batch: true,
-                serverPaging: options.serverPaging||true,
-                serverSorting: options.serverSorting||true,
+                serverPaging: options.serverPaging !== false,
+                serverSorting: options.serverSorting !== false,
                 pageSize: options.pageSize||20,
                 sort: options.sort||{},
                 schema: {

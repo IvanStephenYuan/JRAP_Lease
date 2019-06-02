@@ -14,7 +14,7 @@ package com.jingrui.jrap.db
 import com.jingrui.jrap.liquibase.MigrationHelper
 import com.jingrui.jrap.db.excel.ExcelDataLoader
 dbType = MigrationHelper.getInstance().dbType()
-databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
+databaseChangeLog(logicalFilePath:"crm-init-data-migration.groovy") {
     //Milestone , excel data, runAlways=true
     changeSet(author: "ivan", id: "crm-init-data-xlsx", runAlways: "true") {
         customChange(class: ExcelDataLoader.class.name) {
@@ -34,15 +34,15 @@ databaseChangeLog(logicalFilePath:"2018-05-01-init-data-migration.groovy") {
         }
     }
 	
-	changeSet(author: "ivan", id: "20190430-crm-init-data-xlsx", runAlways: "true") {
+	changeSet(author: "ivan", id: "20190505-crm-init-data-xlsx", runAlways: "true") {
         customChange(class: ExcelDataLoader.class.name) {
-            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/201900505-init-data.xlsx"))
+            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/20190505-init-data.xlsx"))
         }
     }
 	
-	changeSet(author: "ivan", id: "20190430-crm-init-data-xlsx", runAlways: "true") {
+	changeSet(author: "ivan", id: "20190507-crm-init-data-xlsx", runAlways: "true") {
         customChange(class: ExcelDataLoader.class.name) {
-            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/201900507-init-data.xlsx"))
+            param(name: "filePath", value: MigrationHelper.getInstance().dataPath("com/jingrui/jrap/db/data/20190507-init-data.xlsx"))
         }
     }
 

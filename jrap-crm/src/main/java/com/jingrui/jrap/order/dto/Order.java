@@ -377,10 +377,53 @@ public class Order extends BaseDTO {
     @Length(max=255)
     private String productName;
 
+    @Transient
+    @Length(max=255)
+    private Long amcount;
+
+    @Transient
+    @Length(max=255)
+    private String ename;
 
     @Transient
     @Length(max=255)
     private String itemCode;
+
+    @Transient
+    @Length(max=255)
+    private Long leaseMoney;
+
+    public Long getLeaseMoney() {
+        return leaseMoney;
+    }
+
+    public void setLeaseMoney(Long leaseMoney) {
+        this.leaseMoney = leaseMoney;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public Long getAmcount() {
+        return amcount;
+    }
+
+    public void setAmcount(Long amcount) {
+        this.amcount = amcount;
+    }
+
+    public String getEname() {
+        return ename;
+    }
+
+    public void setEname(String ename) {
+        this.ename = ename;
+    }
 
     public String getCustomerName() {
         return customerName;

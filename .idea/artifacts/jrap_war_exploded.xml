@@ -49,6 +49,9 @@
           <element id="archive" name="jrap-crm-db-1.3-SNAPSHOT.jar">
             <element id="module-output" name="jrap-crm-db" />
           </element>
+          <element id="archive" name="jrap-settle-db-1.3-SNAPSHOT.jar">
+            <element id="module-output" name="jrap-settle-db" />
+          </element>
           <element id="archive" name="jrap-job-db-1.3-SNAPSHOT.jar">
             <element id="module-output" name="jrap-job-db" />
           </element>
@@ -89,6 +92,7 @@
       <element id="artifact" artifact-name="jrap-task:war exploded" />
       <element id="artifact" artifact-name="jrap-workflow:war exploded" />
       <element id="artifact" artifact-name="jrap-crm:war exploded" />
+      <element id="artifact" artifact-name="jrap-settle:war exploded" />
     </root>
   </artifact>
 </component>

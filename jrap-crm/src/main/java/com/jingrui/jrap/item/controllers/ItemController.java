@@ -77,6 +77,7 @@ public class ItemController extends BaseController {
           }
           String carCode = codeRuleProcessService.getRuleCode(ruleCode);
           dto.get(i).setItemCode(carCode);
+          dto.get(i).setStatus("STOCK");
         } catch (CodeRuleException e) {
           e.printStackTrace();
         }

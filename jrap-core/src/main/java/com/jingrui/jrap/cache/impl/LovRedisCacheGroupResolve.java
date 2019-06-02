@@ -3,20 +3,14 @@ package com.jingrui.jrap.cache.impl;
 import com.jingrui.jrap.cache.CacheResolve;
 import com.jingrui.jrap.core.components.ApplicationContextHelper;
 import com.jingrui.jrap.core.impl.RequestHelper;
-import com.jingrui.jrap.mybatis.common.query.JoinCache;
-import com.jingrui.jrap.mybatis.common.query.JoinCode;
 import com.jingrui.jrap.mybatis.common.query.JoinLov;
 import com.jingrui.jrap.system.dto.Lov;
 import com.jingrui.jrap.system.service.ILovService;
-import com.jingrui.jrap.system.service.impl.LovServiceImpl;
-import org.apache.commons.beanutils.BeanUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author jialong.zuo@jingrui.com on 2018/1/10.

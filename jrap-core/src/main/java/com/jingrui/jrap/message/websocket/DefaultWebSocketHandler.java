@@ -1,29 +1,18 @@
 package com.jingrui.jrap.message.websocket;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jingrui.jrap.system.service.IBadgeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.socket.*;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * 
  * @author hailin.xu@jingrui.com
  * @author njq.niu@jingrui.com
- *
  */
 public class DefaultWebSocketHandler implements WebSocketHandler {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultWebSocketHandler.class);
-    
-
 
     @Autowired
     private WebSocketSessionManager webSocketSessionManager;
@@ -43,7 +32,6 @@ public class DefaultWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        String userName = session.getPrincipal().getName();
         if(session.isOpen()){
             session.close();
         }

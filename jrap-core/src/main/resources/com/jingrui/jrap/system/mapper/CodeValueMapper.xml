@@ -13,6 +13,7 @@
         <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
         <result column="PARENT_CODE_VALUE_ID" property="parentCodeValueId" jdbcType="DECIMAL" />
         <result column="PARENT_CODE_VALUE" property="parentCodeValue" jdbcType="VARCHAR" />
+        <result column="PARENT_CODE_VALUE_MEANING" property="parentCodeValueMeaning" jdbcType="VARCHAR"/>
     </resultMap>
 
     <select id="selectCodeValuesByCodeName" resultMap="BaseResultMap" parameterType="string">
@@ -46,7 +47,10 @@
         SCVB.PARENT_CODE_VALUE_ID,
         SCVB.PARENT_CODE_VALUE,
         SCVB.OBJECT_VERSION_NUMBER,
-        SCVT2.MEANING PARENTCODEVALUEMEANING
+        SCVT2.MEANING PARENTCODEVALUEMEANING,
+        SCVB.ATTRIBUTE_CATEGORY, SCVB.ATTRIBUTE1, SCVB.ATTRIBUTE2, SCVB.ATTRIBUTE3, SCVB.ATTRIBUTE4, SCVB.ATTRIBUTE5, SCVB.ATTRIBUTE6,
+        SCVB.ATTRIBUTE7, SCVB.ATTRIBUTE8, SCVB.ATTRIBUTE9, SCVB.ATTRIBUTE10, SCVB.ATTRIBUTE11, SCVB.ATTRIBUTE12, SCVB.ATTRIBUTE13,
+        SCVB.ATTRIBUTE14, SCVB.ATTRIBUTE15
         FROM
         SYS_CODE_VALUE_B SCVB
         LEFT JOIN SYS_CODE_VALUE_TL SCVT ON (

@@ -10,7 +10,11 @@ import com.jingrui.jrap.system.dto.BaseDTO;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.*;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Date;
 
 @ExtensionAttribute(disable = true)
@@ -29,6 +33,7 @@ public class CodeRulesLine extends BaseDTO {
     public static final String FIELD_REST_FREQUENCY = "resetFrequency";
     public static final String FIELD_REST_DATE = "resetDate";
     public static final String FIELD_STEP_NUMBER = "stepNumber";
+    public static final String FIELD_RULE_CODE = "ruleCode";
 
     @Id
     @GeneratedValue

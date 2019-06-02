@@ -11,7 +11,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"MESSAGE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_PK")
                 }
@@ -64,7 +64,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_ACCOUNT_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_ACCOUNT"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"ACCOUNT_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_ACCOUNT_PK")
                 }
@@ -112,7 +112,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_TRANSACTION_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_TRANSACTION"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"TRANSACTION_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_TRANSACTION_PK")
                 }
@@ -162,7 +162,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_ATTACHMENT_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_ATTACHMENT"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"ATTACHMENT_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_ATTACHMENT_PK")
                 }
@@ -210,7 +210,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_EMAIL_ACCOUNT_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_EMAIL_ACCOUNT"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"ACCOUNT_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_EMAIL_ACCOUNT_PK")
                 }
@@ -270,7 +270,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_EMAIL_CONFIG_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_EMAIL_CONFIG"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"CONFIG_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_EMAIL_CONFIG_PK")
                 }
@@ -333,7 +333,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_EMAIL_WHITE_LT_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_EMAIL_WHITE_LT"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_EMAIL_WHITE_LT_PK")
                 }
@@ -379,7 +379,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_RECEIVER_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_RECEIVER"){
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name:"RECEIVER_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_RECEIVER_PK")
                 }
@@ -427,7 +427,7 @@ databaseChangeLog(logicalFilePath:"2016-06-09-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_MESSAGE_TEMPLATE_S', startValue:"10001")
         }
         createTable(tableName: "SYS_MESSAGE_TEMPLATE"){
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name:"TEMPLATE_ID",type:"bigint",autoIncrement: "true", startWith:"10001",remarks: "表ID，主键"){
                     constraints(nullable: "false", primaryKey: "true",primaryKeyName: "SYS_MESSAGE_TEMPLATE_PK")
                 }

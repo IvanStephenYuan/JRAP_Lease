@@ -14,6 +14,7 @@ import com.jingrui.jrap.product.service.IDocumentTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import javax.servlet.http.HttpServletResponse;
@@ -101,7 +102,7 @@ public class OrderController extends BaseController {
     String cstatus = cm.get("__status").toString();
     String ostatus = order.get("__status").toString();
     String istatus = item.get("__status").toString();
-    Customer customer=null;
+    Customer customer = null;
     //设置默认商户
     if (companyId == null) {
       companyId = requestCtx.getCompanyId();
@@ -117,13 +118,13 @@ public class OrderController extends BaseController {
       customerSource = "MANUAL";
       cm.put("customerSource", customerSource);
     }
-    if(customerId==null) {
+    if (customerId == null) {
       if (customerCode == null) {
         try {
           String ruleCode = null;
           if (customerCategory != null && customerType != null) {
             ruleCode = documentTypeService
-                    .getDocumentCodeRule(customerCategory.toString(), customerType.toString());
+                .getDocumentCodeRule(customerCategory.toString(), customerType.toString());
           }
           if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
             ruleCode = OrderController.CUSTOMER_RULE_CODE;
@@ -138,7 +139,7 @@ public class OrderController extends BaseController {
       // 将map转为Customer对象
       customer = JSON.parseObject(JSON.toJSONString(cm), Customer.class);
       customer.set__status(cstatus);
-    }else{
+    } else {
       // 将map转为Customer对象
       customer = JSON.parseObject(JSON.toJSONString(cm), Customer.class);
       customer.set__status("update");
@@ -264,5 +265,77 @@ public class OrderController extends BaseController {
     IRequest iRequest = createRequestContext(httpRequest);
     service.createVacationLawInstance(iRequest, order);
     return new ResponseData();
+  }
+
+  /*产品机构分配接口*/
+  @RequestMapping(value = "/con/order/selectcar")
+  @ResponseBody
+  public ResponseData batchassign(@RequestBody List<String[]> orderItem,
+      HttpServletRequest request) {
+    String documentCategory = "ITEM";
+    String documentType = "ITEM";
+    //定义一个订单的数组
+    String[] order = orderItem.get(0);
+    //定义一个租赁物的数组
+    String[] item = orderItem.get(1);
+    //定义一个Order类型的list
+    List<Order> lorder = new ArrayList<>();
+    List<Item> litem = new ArrayList<>();
+    Order uporder;
+    Item upitem;
+    for (int i = 0; i < order.length; i++) {
+      for (int j = 0; j < item.length; j++) {
+        uporder = new Order();
+        uporder.setOrderId(Long.parseLong(order[i]));
+        uporder.setItemId(Long.parseLong(item[j]));
+        uporder.set__status("update");
+        try {
+          String ruleCode = null;
+          if (documentCategory != null && documentType != null) {
+            ruleCode = documentTypeService
+                .getDocumentCodeRule(documentCategory.toString(), documentType.toString());
+          }
+          if (ruleCode == null || "ERROR".equalsIgnoreCase(ruleCode)) {
+            ruleCode = OrderController.CAR_RULE_CODE;
+          }
+          String carCode = codeRuleProcessService.getRuleCode(ruleCode);
+          uporder.setItemCode(carCode);
+        } catch (CodeRuleException e) {
+          e.printStackTrace();
+        }
+        lorder.add(uporder);
+        //更新车辆状态
+        upitem = new Item();
+        upitem.set__status("update");
+        upitem.setItemId(Long.parseLong(item[j]));
+        upitem.setStatus("SALING");
+        litem.add(upitem);
+      }
+    }
+    IRequest requestCtx = createRequestContext(request);
+    itemService.batchUpdate(requestCtx, litem);
+    return new ResponseData(service.batchUpdate(requestCtx, lorder));
+  }
+
+  @RequestMapping(value = "/con/order/rankOrder")
+  @ResponseBody
+  @ApiOperation(value = "员工放款排行信息", notes = "通用订单接口", httpMethod = "POST", response = Order.class)
+  public ResponseData rankOrder(@RequestBody String[] timepara, HttpServletRequest request) {
+    IRequest requestCtx = createRequestContext(request);
+    String employeecode = requestCtx.getEmployeeCode();
+    String begintime = timepara[0];
+    String endtime = timepara[1];
+    return new ResponseData(orderMapper.selectleaseAmount(begintime, endtime, employeecode));
+  }
+
+  @RequestMapping(value = "/con/order/leaseamount")
+  @ResponseBody
+  @ApiOperation(value = "员工放款数额", notes = "通用订单接口", httpMethod = "POST", response = Order.class)
+  public ResponseData leaseShow(@RequestBody String[] timepara, HttpServletRequest request) {
+    IRequest requestCtx = createRequestContext(request);
+    String employeecode = requestCtx.getEmployeeCode();
+    String begintime = timepara[0];
+    String endtime = timepara[1];
+    return new ResponseData(orderMapper.selectleaseShow(begintime, endtime, employeecode));
   }
 }

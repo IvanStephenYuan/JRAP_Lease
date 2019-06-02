@@ -510,8 +510,13 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements IUserServi
      * @return 角色功能ID集合，取交集
      */
     private List<Long> getSameFunctionIds(Set<Long> allRoleFunctionIds, Set<Long> roleFunctionIds) {
-        allRoleFunctionIds.retainAll(roleFunctionIds);
-        return new ArrayList<>(allRoleFunctionIds);
+        List<Long> sameFunctions = new ArrayList<>();
+        for (Long allRoleFunction : allRoleFunctionIds) {
+            if (roleFunctionIds.contains(allRoleFunction)) {
+                sameFunctions.add(allRoleFunction);
+            }
+        }
+        return sameFunctions;
     }
 
     /**

@@ -4,13 +4,6 @@
 
 package com.jingrui.jrap.core.impl;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import com.jingrui.jrap.account.dto.Role;
 import com.jingrui.jrap.account.dto.User;
 import com.jingrui.jrap.core.BaseConstants;
@@ -26,6 +19,13 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.WebUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * 维护 IRequest 实例.
@@ -131,6 +131,34 @@ public final class RequestHelper {
             Locale locale = getLocale(httpServletRequest);
             if (locale != null) {
                 requestContext.setLocale(locale.toString());
+            }
+            /******************** 用户的扩展字段 ********************/
+            if (session.getAttribute("positionId") != null) {
+                requestContext.setPositionId((Long) session.getAttribute("positionId"));
+            }
+            if (session.getAttribute("positionCode") != null) {
+                requestContext.setPositionCode((String) session.getAttribute("positionCode"));
+            }
+            if (session.getAttribute("parentPositionId") != null) {
+                requestContext.setParentPositionId((Long) session.getAttribute("parentPositionId"));
+            }
+            if (session.getAttribute("unitId") != null) {
+                requestContext.setUnitId((Long) session.getAttribute("unitId"));
+            }
+            if (session.getAttribute("unitCode") != null) {
+                requestContext.setUnitCode((String) session.getAttribute("unitCode"));
+            }
+            if (session.getAttribute("unitCategory") != null) {
+                requestContext.setUnitCategory((String) session.getAttribute("unitCategory"));
+            }
+            if (session.getAttribute("unitType") != null) {
+                requestContext.setUnitType((String) session.getAttribute("unitType"));
+            }
+            if (session.getAttribute("parentId") != null) {
+                requestContext.setParentId((Long) session.getAttribute("parentId"));
+            }
+            if (session.getAttribute("unitName") != null) {
+                requestContext.setUnitName(session.getAttribute("unitName").toString());
             }
         } else {
             //设置oauth2 token信息

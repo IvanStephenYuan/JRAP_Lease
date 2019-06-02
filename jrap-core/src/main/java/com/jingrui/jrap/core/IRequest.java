@@ -164,4 +164,56 @@ public interface IRequest extends Serializable {
      * @param employeeId
      */
     void setEmployeeId(Long employeeId);
+    /******************** 用户的扩展字段 ********************/
+
+    Long getPositionId();
+
+    String getPositionCode();
+
+    Long getParentPositionId();
+
+    Long getUnitId();
+
+    String getUnitCode();
+
+    Long getParentId();
+
+    String getUnitName();
+
+
+    void setPositionId(Long positionId);
+
+    void setPositionCode(String positionCode);
+
+    void setParentPositionId(Long parentPositionId);
+
+    void setUnitId(Long unitId);
+
+    void setUnitCode(String unitCode);
+
+    void setParentId(Long parentId);
+
+    void setUnitName(String unitName);
+
+
+    String getUnitCategory();
+
+    void setUnitCategory(String unitCategory);
+
+    String getUnitType();
+
+    void setUnitType(String unitType);
+
+
+    /**
+     *  获取首页路径
+     */
+    String getHomePath();
+    /**
+     *  设置首页路径
+     */
+    void setHomePath(String homePath);
+
+
+
 }

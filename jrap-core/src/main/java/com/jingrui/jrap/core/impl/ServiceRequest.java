@@ -4,15 +4,12 @@
 
 package com.jingrui.jrap.core.impl;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jingrui.jrap.core.IRequest;
+
+import java.util.*;
 
 /**
  * 默认的 IRequest 实现.
@@ -41,6 +38,117 @@ public class ServiceRequest implements IRequest {
     private String employeeCode;
     private Long employeeId;
     private String userName;
+    /******************** 用户的扩展字段 ********************/
+    private Long positionId; // 岗位id
+    private String positionCode; // 岗位代码
+    private Long parentPositionId; // 上级岗位id
+    private Long unitId; // 机构id
+    private String unitCode; // 机构代码
+    private String unitCategory; // 机构类别
+    private String unitType; // 机构类型
+    private Long parentId; // 上级机构id
+    private String unitName; // 机构名称
+    private String homePath; // 首页路径
+
+    @Override
+    public Long getPositionId() {
+        return positionId;
+    }
+
+    @Override
+    public void setPositionId(Long positionId) {
+        this.positionId = positionId;
+    }
+
+    @Override
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    @Override
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
+    }
+
+    @Override
+    public Long getParentPositionId() {
+        return parentPositionId;
+    }
+
+    @Override
+    public void setParentPositionId(Long parentPositionId) {
+        this.parentPositionId = parentPositionId;
+    }
+
+    @Override
+    public Long getUnitId() {
+        return unitId;
+    }
+
+    @Override
+    public void setUnitId(Long unitId) {
+        this.unitId = unitId;
+    }
+
+    @Override
+    public String getUnitCode() {
+        return unitCode;
+    }
+
+    @Override
+    public void setUnitCode(String unitCode) {
+        this.unitCode = unitCode;
+    }
+
+    @Override
+    public String getUnitCategory() {
+        return unitCategory;
+    }
+
+    @Override
+    public void setUnitCategory(String unitCategory) {
+        this.unitCategory = unitCategory;
+    }
+
+    @Override
+    public String getUnitType() {
+        return unitType;
+    }
+
+    @Override
+    public void setUnitType(String unitType) {
+        this.unitType = unitType;
+    }
+
+    @Override
+    public Long getParentId() {
+        return parentId;
+    }
+
+    @Override
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    @Override
+    public String getUnitName() {
+        return unitName;
+    }
+
+    @Override
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    @Override
+    public String getHomePath() {
+        return homePath;
+    }
+
+    @Override
+    public void setHomePath(String homePath) {
+        this.homePath = homePath;
+    }
 
     @JsonIgnore
     private Map<String, Object> attributeMap = new HashMap<>();
@@ -85,6 +193,7 @@ public class ServiceRequest implements IRequest {
     public void setEmployeeId(Long employeeId){
         this.employeeId = employeeId;
     }
+
 
     @Override
     public String getLocale() {

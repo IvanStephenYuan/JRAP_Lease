@@ -31,5 +31,6 @@
         <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
         <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
     </resultMap>
 </mapper>

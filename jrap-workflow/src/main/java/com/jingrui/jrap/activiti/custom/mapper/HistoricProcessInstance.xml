@@ -396,10 +396,10 @@
             EX.SUSPENSION_STATE_ = 2
       </if>
       <if test="startUserName != null">
-        EMP.NAME like concat('%', concat(#{startUserName,jdbcType=VARCHAR}, '%'))
+          and EMP.NAME like concat('%', concat(#{startUserName,jdbcType=VARCHAR}, '%'))
       </if>
       <if test="processInstanceId != null">
-        RES.PROC_INST_ID_ = #{processInstanceId}
+          and RES.PROC_INST_ID_ = #{processInstanceId}
       </if>
       <if test="processInstanceIds != null and !processInstanceIds.isEmpty()">
         and RES.PROC_INST_ID_ in

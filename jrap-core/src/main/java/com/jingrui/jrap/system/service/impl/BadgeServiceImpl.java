@@ -72,7 +72,7 @@ public class BadgeServiceImpl implements IBadgeService {
 
     @Override
     public void initBadgeMessage(WebSocketSession session) {
-        String userName = session.getPrincipal().getName();
+        String userName = webSocketSessionManager.getPrincipalName(session);
         if (!StringUtils.isEmpty(userName)) {
             String codes = (String)redisTemplate.opsForHash().get(HAP_CACHE_BADGE,userName);
             Map<String, Object> map = new HashMap<>();

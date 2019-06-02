@@ -10,7 +10,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_USER_SHORTCUT_S', startValue: "10001")
         }
         createTable(tableName: "SYS_USER_SHORTCUT", remarks: "主页快捷方式") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "SHORTCUT_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_USER_SHORTCUT_PK")
                 }
@@ -44,7 +44,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
         }
 
         createTable(tableName: "SYS_TOKEN_LOGS") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: 'ID', type: 'BIGINT', autoIncrement: "true", remarks: '日志ID') {
                     constraints(primaryKey:"true")
                 }
@@ -84,7 +84,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'FND_FLEX_MODEL_S', startValue: "10001")
         }
         createTable(tableName: "FND_FLEX_MODEL", remarks: "弹性域表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "MODEL_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "FND_FLEX_MODEL_PK")
                 }
@@ -125,7 +125,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'FND_FLEX_MODEL_COLUMN_S', startValue: "10001")
         }
         createTable(tableName: "FND_FLEX_MODEL_COLUMN", remarks: "弹性域表属性") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "MODEL_COLUMN_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "FND_FLEX_MODEL_COLUMN_PK")
                 }
@@ -167,7 +167,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'FND_FLEX_RULE_SET_S', startValue: "10001")
         }
         createTable(tableName: "FND_FLEX_RULE_SET", remarks: "model规则集") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "RULE_SET_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "FND_FLEX_RULE_SET_PK")
                 }
@@ -211,7 +211,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'FND_FLEX_RULE_S', startValue: "10001")
         }
         createTable(tableName: "FND_FLEX_RULE", remarks: "弹性域表属性") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "RULE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "FND_FLEX_RULE_PK")
                 }
@@ -256,7 +256,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'FND_FLEX_RULE_DETAIL_S', startValue: "10001")
         }
         createTable(tableName: "FND_FLEX_RULE_DETAIL", remarks: "弹性域表属性") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "DETAIL_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "FND_FLEX_RULE_DETAIL_PK")
                 }
@@ -301,7 +301,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'FND_FLEX_RULE_FIELD_S', startValue: "10001")
         }
         createTable(tableName: "FND_FLEX_RULE_FIELD", remarks: "弹性域表属性") {
-            if (mhi.getDbType().isSuppportAutoIncrement()) {
+            if (mhi.getDbType().isSupportAutoIncrement()) {
                 column(name: "FIELD_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "FND_FLEX_RULE_FIELD_PK")
                 }
@@ -357,7 +357,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_CODE_RULES_HEADER_S',startValue:"10001")
         }
         createTable (tableName: "SYS_CODE_RULES_HEADER", remarks: "编码规则头表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "HEADER_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_CODE_RULES_HEADER_PK")
                 }
@@ -396,7 +396,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_CODE_RULES_LINE_S',startValue:"10001")
         }
         createTable (tableName: "SYS_CODE_RULES_LINE", remarks: "编码规则行表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "LINE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_CODE_RULES_LINE_PK")
                 }
@@ -437,7 +437,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_RESOURCE_ITEM_ASSIGN_S',startValue:"10001")
         }
         createTable (tableName: "SYS_RESOURCE_ITEM_ASSIGN", remarks: "资源组件分配") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "ASSIGN_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_RESOURCE_ITEM_ASSIGN_PK")
                 }
@@ -484,7 +484,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_RESOURCE_ITEM_ELEMENT_S',startValue:"10001")
         }
         createTable (tableName: "SYS_RESOURCE_ITEM_ELEMENT", remarks: "资源组件元素") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "ELEMENT_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_RESOURCE_ITEM_ELEMENT_PK")
                 }
@@ -538,7 +538,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_PERMISSION_RULE_S', startValue: "10001")
         }
         createTable(tableName: "SYS_PERMISSION_RULE", remarks: "规则屏蔽管理表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "RULE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_PERMISSION_RULE_PK")
                 }
@@ -583,7 +583,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_PERMISSION_RULE_DETAIL_S', startValue: "10001")
         }
         createTable(tableName: "SYS_PERMISSION_RULE_DETAIL", remarks: "规则屏蔽管理表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "DETAIL_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_PERMISSION_RULE_DETAIL_PK")
                 }
@@ -622,7 +622,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_PERMISSION_RULE_ASSIGN_S', startValue: "10001")
         }
         createTable(tableName: "SYS_PERMISSION_RULE_ASSIGN", remarks: "规则屏蔽管理表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "ASSIGN_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_PERMISSION_RULE_ASSIGN_PK")
                 }
@@ -665,7 +665,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_PERMISSION_TABLE_S', startValue: "10001")
         }
         createTable(tableName: "SYS_PERMISSION_TABLE", remarks: "规则屏蔽管理表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "TABLE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_PERMISSION_TABLE_PK")
                 }
@@ -705,7 +705,7 @@ databaseChangeLog(logicalFilePath:"2017-03-16-init-table-migration.groovy"){
             createSequence(sequenceName: 'SYS_PERMISSION_TABLE_RULE_S', startValue: "10001")
         }
         createTable(tableName: "SYS_PERMISSION_TABLE_RULE", remarks: "规则屏蔽管理表") {
-            if (mhi.getDbType().isSuppportAutoIncrement()){
+            if (mhi.getDbType().isSupportAutoIncrement()){
                 column(name: "TABLE_RULE_ID", type: "BIGINT", autoIncrement: "true", startWith: "10001", remarks: "PK") {
                     constraints(nullable: "false", primaryKey: "true", primaryKeyName: "SYS_PERMISSION_TABLE_RULE_PK")
                 }

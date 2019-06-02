@@ -43,7 +43,9 @@ public class JrapInvokeOutInterceptor extends AbstractLoggingInterceptor {
         super(Phase.PRE_STREAM);
     }
 
-    public static long DEFAULT_THRESHOLD = 1024 * 1024 * 10;
+    public static final long DEFAULT_THRESHOLD = 1024 * 1024 * 10;
+
+    public static final int DEFAULT_LIMIT = 1024 * 1024 * 10;
 
     @Override
     public void handleMessage(Message message) throws Fault {
@@ -113,9 +115,7 @@ public class JrapInvokeOutInterceptor extends AbstractLoggingInterceptor {
             id = LoggingMessage.nextId();
             message.getExchange().put(LoggingMessage.ID_KEY, id);
         }
-        final LoggingMessage buffer
-                = new LoggingMessage("Outbound Message\n---------------------------",
-                id);
+        final LoggingMessage buffer = new LoggingMessage("Outbound Message\n---------------------------", id);
 
         Integer responseCode = (Integer)message.get(Message.RESPONSE_CODE);
         if (responseCode != null) {
@@ -188,6 +188,7 @@ public class JrapInvokeOutInterceptor extends AbstractLoggingInterceptor {
 
             try {
                 String encoding = (String)message.get(Message.ENCODING);
+                setLimit(DEFAULT_LIMIT);
                 writePayload(buffer.getPayload(), cos, encoding, ct);
                 if (invokeOut != null) {
                     invokeOut.setRequestParameter(buffer.getPayload().toString());
