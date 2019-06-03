@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.item.mapper.PurchaseMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.Purchase">
+        <result column="PURCHASE_ID" property="purchaseId" jdbcType="DECIMAL" />
+        <result column="PURCHASE_CODE" property="purchaseCode" jdbcType="VARCHAR" />
+        <result column="PURCHASE_DATE" property="purchaseDate" jdbcType="DATE" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="UNIT_ID" property="unitId" jdbcType="DECIMAL" />
+        <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL" />
+        <result column="VENDOR_ID" property="vendorId" jdbcType="DECIMAL" />
+        <result column="TOTAL_AMOUNT" property="totalAmount" jdbcType="DECIMAL" />
+        <result column="TOTAL_NUMBER" property="totalNumber" jdbcType="DECIMAL" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="SUBMIT_DATE" property="submitDate" jdbcType="DATE" />
+        <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE" />
+        <result column="REFUSE_DATE" property="refuseDate" jdbcType="DATE" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+        <result column="company_full_name" property="companyFullName" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="EMPLOYEE_CODE" property="employeeCode" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+        <result column="REMAIN_NUMBER" property="remainNumber" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="queryPurchase" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.item.dto.Purchase">
+        select a.*,b.company_full_name,c.name,d.EMPLOYEE_CODE,e.CUSTOMER_NAME ,sum(f.remain_number) as remain_number
+        from  afd_purchase a
+              left join FND_COMPANY_B b on b.COMPANY_ID = a.COMPANY_ID
+              left join hr_org_unit_b c on c.UNIT_ID = a.UNIT_ID
+              left join hr_employee   d on d.EMPLOYEE_ID = a.EMPLOYEE_ID
+              left join afd_customer  e on e.CUSTOMER_ID = a.VENDOR_ID
+              left join afd_purchase_detail_v f on f.PURCHASE_ID = a.PURCHASE_ID
+        <where>
+            <if test="purchaseId !=null ">
+                AND a.PURCHASE_ID =  #{purchaseId}
+            </if>
+            <if test="purchaseDate !=null ">
+                AND a.PURCHASE_DATE =  #{purchaseDate}
+            </if>
+            <if test="purchaseCode !=null ">
+                AND a.PURCHASE_CODE =  #{purchaseCode}
+            </if>
+            <if test="status !=null ">
+                AND a.STATUS =  #{status}
+            </if>
+            <if test="companyId !=null ">
+                AND a.COMPANY_ID =  #{companyId}
+            </if>
+            <if test="unitId !=null ">
+                AND a.UNIT_ID =  #{unitId}
+            </if>
+            <if test="employeeId !=null ">
+                AND a.EMPLOYEE_ID =  #{employeeId}
+            </if>
+            <if test="vendorId !=null ">
+                AND a.VENDOR_ID =  #{vendorId}
+            </if>
+        </where>
+          group by f.PURCHASE_ID
+          order by a.PURCHASE_ID desc
+    </select>
+</mapper>

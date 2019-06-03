@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.item.mapper.PurchaseAssignMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.PurchaseAssign">
+        <result column="ASSIGN_ID" property="assignId" jdbcType="DECIMAL" />
+        <result column="PURCHASE_ID" property="purchaseId" jdbcType="DECIMAL" />
+        <result column="DETAIL_ID" property="detailId" jdbcType="DECIMAL" />
+        <result column="UNIT_ID" property="unitId" jdbcType="DECIMAL" />
+        <result column="WAREHOUSE_ID" property="warehouseId" jdbcType="DECIMAL" />
+        <result column="ASSIGN_NUMBER" property="assignNumber" jdbcType="DECIMAL" />
+        <result column="UNREGISTER_NUM" property="unregisterNum" jdbcType="DECIMAL" />
+        <result column="ASSIGN_DATE" property="assignDate" jdbcType="DATE" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+        <result column="PURCHASE_CODE" property="purchaseCode" jdbcType="VARCHAR" />
+        <result column="WAREHOUSE_NAME" property="warehouseName" jdbcType="VARCHAR" />
+        <result column="company_full_name" property="companyFullName" jdbcType="VARCHAR"/>
+        <result column="unit_name" property="unitName" jdbcType="VARCHAR"/>
+        <result column="EMPLOYEE_CODE" property="employeeCode" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+        <result column="MODEL" property="model" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="queryPurAssign" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.item.dto.PurchaseAssign">
+        select a.*,b.PURCHASE_CODE,d.WAREHOUSE_NAME, e.company_full_name,f.name as unit_name,g.EMPLOYEE_CODE,h.CUSTOMER_NAME,
+        concat(k.brand,'-',k.series,'-',k.model,'-',k.color) as MODEL
+        from  afd_purchase_assign     a
+        left join afd_purchase        b on b.PURCHASE_ID = a.PURCHASE_ID
+        left join afd_purchase_detail c on c.DETAIL_ID = a.DETAIL_ID
+        left join afd_warehouse       d on d.WAREHOUSE_ID = a.WAREHOUSE_ID
+        left join FND_COMPANY_B  e on e.COMPANY_ID = b.COMPANY_ID
+        left join hr_org_unit_b  f on f.UNIT_ID = b.UNIT_ID
+        left join hr_employee    g on g.EMPLOYEE_ID = b.EMPLOYEE_ID
+        left join afd_customer   h on h.CUSTOMER_ID = b.VENDOR_ID
+        left join pro_item_model k on k.MODEL_ID = c.MODEL_ID
+        <where>
+            <if test="assignId !=null ">
+                AND a.ASSIGN_ID =  #{assignId}
+            </if>
+            <if test="purchaseId !=null ">
+                AND a.PURCHASE_ID =  #{purchaseId}
+            </if>
+            <if test="detailId !=null ">
+                AND a.DETAIL_ID =  #{detailId}
+            </if>
+            <if test="unitId !=null ">
+                AND a.UNIT_ID =  #{unitId}
+            </if>
+            <if test="warehouseId !=null ">
+                AND a.WAREHOUSE_ID =  #{warehouseId}
+            </if>
+            <if test="companyFullName !=null ">
+                AND e.company_full_name like  "%"#{companyFullName}"%"
+            </if>
+            <if test="unitName !=null ">
+                AND f.unit_name like  "%"#{unitName}"%"
+            </if>
+            <if test="employeeCode !=null ">
+                AND g.EMPLOYEE_CODE like  "%"#{employeeCode}"%"
+            </if>
+            <if test="model !=null ">
+                AND k.MODEL like  "%"#{model}"%"
+            </if>
+            AND a.UNREGISTER_NUM > 0
+        </where>
+        order by a.ASSIGN_ID desc
+    </select>
+</mapper>

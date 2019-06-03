@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.item.mapper.PurchaseDetailMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.item.dto.PurchaseDetail">
+        <result column="DETAIL_ID" property="detailId" jdbcType="DECIMAL" />
+        <result column="PURCHASE_ID" property="purchaseId" jdbcType="DECIMAL" />
+        <result column="MODEL_ID" property="modelId" jdbcType="DECIMAL" />
+        <result column="GUIDE_PRICE" property="guidePrice" jdbcType="DECIMAL" />
+        <result column="INVOICE_PRICE" property="invoicePrice" jdbcType="DECIMAL" />
+        <result column="UNIT_PRICE" property="unitPrice" jdbcType="DECIMAL" />
+        <result column="ITEM_NUMBER" property="itemNumber" jdbcType="DECIMAL" />
+        <result column="PURCHASE_COST" property="purchaseCost" jdbcType="DECIMAL" />
+        <result column="TRAFFIC_INSURANCE" property="trafficInsurance" jdbcType="DECIMAL" />
+        <result column="COMMERCIAL_INSURANCE" property="commercialInsurance" jdbcType="DECIMAL" />
+        <result column="DEED_FAX" property="deedFax" jdbcType="DECIMAL" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+        <result column="MODEL" property="model" jdbcType="VARCHAR" />
+        <result column="REMAIN_NUMBER" property="remainNumber" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="queryPurchaseDetail" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.item.dto.PurchaseDetail">
+        select *
+        from  afd_purchase_detail_v
+        <where>
+            <if test="purchaseId !=null ">
+                AND PURCHASE_ID =  #{purchaseId}
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,392 @@
+<#--
+* description: 采购编辑页面
+* version: 2.0
+* author:yuliao.chen@jingrui.com
+* version: 3.0
+* author:qiang.zeng@jingrui.com
+-->
+<#include "../include/header.html"/>
+<body>
+<script src="${base.contextPath}/common/code?noticeTypeData=NOTICE.NOTICE_TYPE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?noticeStatusData=NOTICE.STATUS" type="text/javascript"></script>
+<script type="text/javascript">
+    var isedit = '${RequestParameters.isedit!0}';
+    var purchaseId ='${RequestParameters.purchaseId!-1}';
+    var detailViewModel = Jrap.createGridViewModel("#grid");
+    var viewModel = kendo.observable({
+        model: {}
+        // ,
+        // closeWin: function (e) {
+        //     parent.$("#editorDialog").data("kendoWindow").close();
+        // },
+    });
+    if (isedit != 0) { // 如果是编辑
+        $.ajax({
+            url: '${base.contextPath}/afd/purchase/selectOptions?purchaseId='+ purchaseId,
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+                    viewModel.model.set(k, a0[k]);
+                }
+            }
+        });
+    }
+</script>
+<div id="page-content">
+    <form id="mainform" class="form-horizontal">
+        <div class="col-xs-12">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"
+                           style="text-align: right"><@spring.message "purchase.purchasedate"/></label>
+                    <div class="col-xs-8">
+                        <input id="purchaseDate" type="text" data-bind="value:model.purchaseDate"
+                               required
+                               style="width: 100%;">
+                        <script>
+                            $('#purchaseDate').kendoDatePicker({
+                                format:'yyyy-MM-dd',
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"
+                           style="text-align: right"><@spring.message "purchase.unitid"/></label>
+                    <div class="col-xs-8">
+                        <input id="unitId" type="text" data-bind="value:model.unitId,text:model.name"
+                               style="width: 100%;">
+                        <script>
+                            $("#unitId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_UNIT")}, {
+                                query: function (e) {
+                                    // e.param['enabledFlag'] = 'Y';
+                                }
+                            }))
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"
+                           style="text-align: right"><@spring.message "purchase.employeeid"/></label>
+                    <div class="col-xs-8">
+                        <input id="employeeId" type="text" data-bind="value:model.employeeId,text:model.employeeCode"
+                               style="width: 100%;">
+                        <script>
+                            $("#employeeId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_EMPLOYEE")}, {
+                                query: function (e) {
+                                    // e.param['enabledFlag'] = 'Y';
+                                }
+                            }))
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"
+                           style="text-align: right"><@spring.message "purchase.vendorid"/></label>
+                    <div class="col-xs-8">
+                        <input id="vendorId" type="text" data-bind="value:model.vendorId,text:model.customerName"
+                               style="width: 100%;">
+                        <script>
+                            $("#vendorId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_CUSTOMER")}, {
+                                query: function (e) {
+                                    // e.param['enabledFlag'] = 'Y';
+                                }
+                            }))
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"
+                           style="text-align: right"><@spring.message "purchase.totalamount"/></label>
+                    <div class="col-xs-8">
+                        <input id="totalAmount" type="text" data-bind="value:model.totalAmount"
+                               readonly
+                               style="width: 100%;">
+                        <script>
+                            $("#totalAmount").kendoNumericTextBox({min: 0});
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"
+                           style="text-align: right"><@spring.message "purchase.totalnumber"/></label>
+                    <div class="col-xs-8">
+                        <input id="totalNumber" type="text" data-bind="value:model.totalNumber"
+                               readonly
+                               style="width: 100%;">
+                        <script>
+                            $("#totalNumber").kendoNumericTextBox({min: 0});
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-xs-2 control-label"
+                           style="text-align: right"><@spring.message "transaction.remark"/></label>
+                    <div class="col-xs-10">
+                        <input id="remark" type="text" data-bind="value:model.remark" class="k-textbox"
+                               style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div id="detail">
+    <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
+        <span id="save"  class="btn btn-success k-grid-save-changes" onclick="save()" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span data-bind="click:remove" class="btn btn-danger" style="float:left;margin-right:5px;"><@spring.message "jrap.delete"/></span>
+        <span id="submit"  class="btn btn-success k-grid-save-changes" style="float:left;" onclick="submitApply()"><@spring.message "提交申请"/></span>
+    </div>
+    <script>kendo.bind($('#toolbar-btn'), detailViewModel);</script>
+    <div style="clear:both">
+        <div id="grid"></div>
+    </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    kendo.bind($('#mainform'), viewModel);
+    var BaseUrl = _basePath;
+
+    if(isedit==0){
+        $('#save').css("display","none");
+        $('#submit').css("display","block");
+    }else {
+        $('#save').css("display","block");
+        $('#submit').css("display","none");
+    }
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/afd/purchase/detail/selectOptions",
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/afd/purchase/detail/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/afd/purchase/detail/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/afd/purchase/detail/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type);
+                    for(var i=0;i<datas.length;i++){
+                        datas[i].purchaseId=purchaseId;
+                    }
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    detailViewModel.model.set("purchaseId",purchaseId);
+                    return Jrap.prepareQueryParameter(detailViewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "detailId",
+                fields: {
+                    guidePrice: {type: 'number'},
+                    invoicePrice: {type: 'number'},
+                    unitPrice: {type: 'number'},
+                    itemNumber: {type: 'number'},
+                    purchaseCost: {type: 'number'},
+                    trafficInsurance: {type: 'number'},
+                    commercialInsurance: {type: 'number'},
+                    deedFax: {type: 'number'},
+                }
+            }
+        }
+    });
+
+var grid = $("#grid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "modelId",
+                title: '<@spring.message "purchasedetail.modelid"/>',
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['model'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input  name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_ITEM_MODEL"/>, {
+                        query: function (e) {
+                            // e.param['status'] = '';
+                        },
+                        textField: 'model',
+                        valueField:'modelId',
+                        model: options.model
+                    }));
+                }
+            },
+            {
+                field: "guidePrice",
+                title: '<@spring.message "purchasedetail.guideprice"/>',
+                width: 120
+            },
+            {
+                field: "invoicePrice",
+                title: '<@spring.message "purchasedetail.invoiceprice"/>',
+                width: 120
+            },
+            {
+                field: "unitPrice",
+                title: '<@spring.message "purchasedetail.unitprice"/>',
+                width: 120
+            },
+            {
+                field: "itemNumber",
+                title: '<@spring.message "purchasedetail.itemnumber"/>',
+                width: 120
+            },
+            {
+                field: "purchaseCost",
+                title: '<@spring.message "purchasedetail.purchasecost"/>',
+                width: 120
+            },
+            {
+                field: "trafficInsurance",
+                title: '<@spring.message "purchasedetail.trafficinsurance"/>',
+                width: 120
+            },
+            {
+                field: "commercialInsurance",
+                title: '<@spring.message "purchasedetail.commercialinsurance"/>',
+                width: 120
+            },
+            {
+                field: "deedFax",
+                title: '<@spring.message "purchasedetail.deedfax"/>',
+                width: 120
+            },
+            {
+                field: "remark",
+                title: '<@spring.message "item.remark"/>',
+                width: 120
+            },
+
+        ],
+        editable: true
+    }).data("kendoGrid");
+    var validator = $("#mainform").kendoValidator({
+        invalidMessageType: "tooltip"
+    }).data("kendoValidator");
+
+    // 保存
+    function save() {
+        if (validator.validate()) {
+            viewModel.model.set("purchaseId",purchaseId);
+            viewModel.model.set("__status", "update");
+            $.ajax({
+                url: BaseUrl + '/afd/purchase/submit',
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                data: kendo.stringify([viewModel.model]),
+                success: function (args) {
+                    if (args.success === false) {
+                        kendo.ui.showErrorDialog({
+                            title: $l('jrap.error'),
+                            message: args.message
+                        });
+                    } else {
+                        grid.saveChanges();
+                        kendo.ui.showInfoDialog({
+                            title: $l('jrap.tip.info'),
+                            message: $l('jrap.tip.success')
+                        }).done(function (e) {
+                            parent.$("#editorDialog").data("kendoWindow").close();
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    // 提交申请
+    function submitApply() {
+        if (validator.validate()) {
+            if(dataSource.data().length==0){
+                kendo.ui.showErrorDialog({
+                    title: $l('jrap.error'),
+                    message: "采购明细不能为空!"
+                });
+                return ;
+            }
+            viewModel.model.set("purchaseDetails",dataSource.data());
+            $.ajax({
+                url: BaseUrl+'/afd/purchase/apply/workflow',
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                data: kendo.stringify(viewModel.model),
+                success: function (args) {
+                    if (args.success === false) {
+                        kendo.ui.showErrorDialog({
+                            title: $l('jrap.error'),
+                            message: args.message
+                        });
+                    } else {
+                        kendo.ui.showInfoDialog({
+                            title: $l('jrap.tip.info'),
+                            message: $l('jrap.tip.success')
+                        }).done(function (e) {
+                            parent.$("#editorDialog").data("kendoWindow").close();
+                        });
+                    }
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>
