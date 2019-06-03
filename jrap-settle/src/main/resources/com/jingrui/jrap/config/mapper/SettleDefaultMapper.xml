@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.config.mapper.SettleDefaultMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.config.dto.SettleDefault">
+        <result column="DEFAULT_ID" property="defaultId" jdbcType="DECIMAL" />
+        <result column="DEFAULT_CODE" property="defaultCode" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL" />
+        <result column="ACCOUNT_ID" property="accountId" jdbcType="DECIMAL" />
+        <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR" />
+        <result column="CHANNEL" property="channel" jdbcType="VARCHAR" />
+        <result column="DIGEST" property="digest" jdbcType="VARCHAR" />
+        <result column="AUX01" property="aux01" jdbcType="VARCHAR" />
+        <result column="AUX02" property="aux02" jdbcType="VARCHAR" />
+        <result column="AUX03" property="aux03" jdbcType="VARCHAR" />
+        <result column="AUX04" property="aux04" jdbcType="VARCHAR" />
+        <result column="AUX05" property="aux05" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

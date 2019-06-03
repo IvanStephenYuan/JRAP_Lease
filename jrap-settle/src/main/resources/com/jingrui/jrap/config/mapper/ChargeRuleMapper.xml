@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.config.mapper.ChargeRuleMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.config.dto.ChargeRule">
+        <result column="RULE_ID" property="ruleId" jdbcType="DECIMAL" />
+        <result column="RULE_CODE" property="ruleCode" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="CHANNEL" property="channel" jdbcType="VARCHAR" />
+        <result column="INTERVAL_MIN" property="intervalMin" jdbcType="DECIMAL" />
+        <result column="INTERVAL_MAX" property="intervalMax" jdbcType="DECIMAL" />
+        <result column="CHARGE_TYPE" property="chargeType" jdbcType="VARCHAR" />
+        <result column="SINGLE_FEE" property="singleFee" jdbcType="DECIMAL" />
+        <result column="MIN_FEE" property="minFee" jdbcType="DECIMAL" />
+        <result column="MAX_FEE" property="maxFee" jdbcType="DECIMAL" />
+        <result column="CALC_SEQ" property="calcSeq" jdbcType="DECIMAL" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

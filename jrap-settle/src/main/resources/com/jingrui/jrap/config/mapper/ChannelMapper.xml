@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.config.mapper.ChannelMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.config.dto.Channel">
+        <result column="CHANNEL" property="channel" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="CUSTOMER_CODE" property="customerCode" jdbcType="VARCHAR" />
+        <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+        <result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+        <result column="ACCOUNT_ID" property="accountId" jdbcType="DECIMAL" />
+        <result column="CLIENT_URL" property="clientUrl" jdbcType="VARCHAR" />
+        <result column="CERT_PATH" property="certPath" jdbcType="VARCHAR" />
+        <result column="PFX_PATH" property="pfxPath" jdbcType="VARCHAR" />
+        <result column="CERT_PASSWORD" property="certPassword" jdbcType="VARCHAR" />
+        <result column="REFER01" property="refer01" jdbcType="VARCHAR" />
+        <result column="REFER02" property="refer02" jdbcType="VARCHAR" />
+        <result column="REFER03" property="refer03" jdbcType="VARCHAR" />
+        <result column="REFER04" property="refer04" jdbcType="VARCHAR" />
+        <result column="REFER05" property="refer05" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.settle.mapper.DocumentDetailMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.settle.dto.DocumentDetail">
+        <result column="DETAIL_ID" property="detailId" jdbcType="DECIMAL" />
+        <result column="DOCUMENT_ID" property="documentId" jdbcType="DECIMAL" />
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+        <result column="AUX01" property="aux01" jdbcType="VARCHAR" />
+        <result column="AUX02" property="aux02" jdbcType="VARCHAR" />
+        <result column="AUX03" property="aux03" jdbcType="VARCHAR" />
+        <result column="DIGEST" property="digest" jdbcType="VARCHAR" />
+    </resultMap>
+
+
+</mapper>

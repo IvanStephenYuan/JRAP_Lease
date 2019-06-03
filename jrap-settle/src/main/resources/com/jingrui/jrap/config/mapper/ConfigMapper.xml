@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.config.mapper.ConfigMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.config.dto.Config">
+        <result column="CONFIG_ID" property="configId" jdbcType="DECIMAL" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="TRX_CODE" property="trxCode" jdbcType="VARCHAR" />
+        <result column="DESCIRPTION" property="descirption" jdbcType="VARCHAR" />
+        <result column="BUSINESS_CODE" property="businessCode" jdbcType="VARCHAR" />
+        <result column="ACTION_URL" property="actionUrl" jdbcType="VARCHAR" />
+        <result column="USEAGE" property="useage" jdbcType="VARCHAR" />
+        <result column="REFER01" property="refer01" jdbcType="VARCHAR" />
+        <result column="REFER02" property="refer02" jdbcType="VARCHAR" />
+        <result column="REFER03" property="refer03" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.settle.mapper.DocumentMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.settle.dto.Document">
+        <result column="DOCUMENT_ID" property="documentId" jdbcType="DECIMAL" />
+        <result column="DOCUMENT_CODE" property="documentCode" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="TRANSACTION_ID" property="transactionId" jdbcType="DECIMAL" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="SETTLE_TYPE" property="settleType" jdbcType="VARCHAR" />
+        <result column="SETTLE_AMOUNT" property="settleAmount" jdbcType="DECIMAL" />
+        <result column="SETTLE_DATE" property="settleDate" jdbcType="DATE" />
+        <result column="SETTLE_CHANNEL" property="settleChannel" jdbcType="VARCHAR" />
+        <result column="SETTLE_ITEM" property="settleItem" jdbcType="VARCHAR" />
+        <result column="DIGEST" property="digest" jdbcType="VARCHAR" />
+        <result column="ACCOUNT_ID" property="accountId" jdbcType="DECIMAL" />
+        <result column="OPTACCT_ID" property="optacctId" jdbcType="DECIMAL" />
+        <result column="OPTACCT_NAME" property="optacctName" jdbcType="VARCHAR" />
+        <result column="OPTACCT_NUMBER" property="optacctNumber" jdbcType="VARCHAR" />
+        <result column="OPTACCT_BANK" property="optacctBank" jdbcType="VARCHAR" />
+        <result column="OPTACCT_BANK_PN" property="optacctBankPn" jdbcType="VARCHAR" />
+        <result column="OPTACCT_BANK_CODE" property="optacctBankCode" jdbcType="VARCHAR" />
+        <result column="OPTACCT_BANK_CITY" property="optacctBankCity" jdbcType="VARCHAR" />
+        <result column="SN" property="sn" jdbcType="VARCHAR" />
+        <result column="AUX01" property="aux01" jdbcType="VARCHAR" />
+        <result column="AUX02" property="aux02" jdbcType="VARCHAR" />
+        <result column="AUX03" property="aux03" jdbcType="VARCHAR" />
+        <result column="AUX04" property="aux04" jdbcType="VARCHAR" />
+        <result column="AUX05" property="aux05" jdbcType="VARCHAR" />
+        <result column="POST_DATE" property="postDate" jdbcType="DATE" />
+        <result column="DEAL_DATE" property="dealDate" jdbcType="DATE" />
+        <result column="FINISH_DATE" property="finishDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

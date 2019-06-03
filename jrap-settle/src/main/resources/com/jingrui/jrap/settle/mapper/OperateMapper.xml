@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.settle.mapper.OperateMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.settle.dto.Operate">
+        <result column="OPERATE_ID" property="operateId" jdbcType="DECIMAL" />
+        <result column="OPERATE_TYPE" property="operateType" jdbcType="VARCHAR" />
+        <result column="OPERATE_DATE" property="operateDate" jdbcType="DATE" />
+        <result column="TRANSACTION_ID" property="transactionId" jdbcType="DECIMAL" />
+        <result column="BATCH_NO" property="batchNo" jdbcType="VARCHAR" />
+        <result column="OPERATE_STATUS" property="operateStatus" jdbcType="VARCHAR" />
+        <result column="DEAL_STATUS" property="dealStatus" jdbcType="VARCHAR" />
+        <result column="USER_ID" property="userId" jdbcType="DECIMAL" />
+        <result column="TOTAL_AMOUNT" property="totalAmount" jdbcType="DECIMAL" />
+        <result column="TOTAL_COUNT" property="totalCount" jdbcType="DECIMAL" />
+        <result column="SUCCESS_AMOUNT" property="successAmount" jdbcType="DECIMAL" />
+        <result column="SUCCESS_COUNT" property="successCount" jdbcType="DECIMAL" />
+        <result column="FAILURE_AMOUNT" property="failureAmount" jdbcType="DECIMAL" />
+        <result column="FAILURE_COUNT" property="failureCount" jdbcType="DECIMAL" />
+        <result column="ACCOUNT_ID" property="accountId" jdbcType="DECIMAL" />
+        <result column="CUST_CODE" property="custCode" jdbcType="VARCHAR" />
+        <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+        <result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+        <result column="TX_CODE" property="txCode" jdbcType="VARCHAR" />
+        <result column="USEAGE" property="useage" jdbcType="VARCHAR" />
+        <result column="REQUEST_MESSAGE" property="requestMessage" jdbcType="VARCHAR" />
+        <result column="RESPONSE_MESSAGE" property="responseMessage" jdbcType="VARCHAR" />
+        <result column="RETURN_CODE" property="returnCode" jdbcType="VARCHAR" />
+        <result column="RETURN_MSG" property="returnMsg" jdbcType="VARCHAR" />
+        <result column="DEAL_SN" property="dealSn" jdbcType="VARCHAR" />
+        <result column="REQUEST01" property="request01" jdbcType="VARCHAR" />
+        <result column="REQUEST02" property="request02" jdbcType="VARCHAR" />
+        <result column="RESPONSE01" property="response01" jdbcType="VARCHAR" />
+        <result column="RESPONSE02" property="response02" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

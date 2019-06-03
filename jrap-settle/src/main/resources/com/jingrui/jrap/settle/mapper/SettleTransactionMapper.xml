@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.settle.mapper.SettleTransactionMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.settle.dto.SettleTransaction">
+        <result column="TRANSACTION_ID" property="transactionId" jdbcType="DECIMAL" />
+        <result column="TRANSACTION_CODE" property="transactionCode" jdbcType="VARCHAR" />
+        <result column="TRANSACTION_TYPE" property="transactionType" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="TRANSACTION_DATE" property="transactionDate" jdbcType="DATE" />
+        <result column="TRANSACTION_AMOUNT" property="transactionAmount" jdbcType="DECIMAL" />
+        <result column="TRANSACTION_NUMBER" property="transactionNumber" jdbcType="DECIMAL" />
+        <result column="PAY_AMOUNT" property="payAmount" jdbcType="DECIMAL" />
+        <result column="PAY_NUMBER" property="payNumber" jdbcType="DECIMAL" />
+        <result column="RECEIPT_AMOUNT" property="receiptAmount" jdbcType="DECIMAL" />
+        <result column="RECEIPT_NUMBER" property="receiptNumber" jdbcType="DECIMAL" />
+        <result column="DIGEST" property="digest" jdbcType="VARCHAR" />
+        <result column="SERIAL_NUMBER" property="serialNumber" jdbcType="VARCHAR" />
+        <result column="EMPLOYEE_ID" property="employeeId" jdbcType="DECIMAL" />
+        <result column="DEAL_DATE" property="dealDate" jdbcType="DATE" />
+        <result column="SUCCESS_DATE" property="successDate" jdbcType="DATE" />
+        <result column="EXCEPTION_DATE" property="exceptionDate" jdbcType="DATE" />
+        <result column="REVERSE_DATE" property="reverseDate" jdbcType="DATE" />
+        <result column="AUX01" property="aux01" jdbcType="VARCHAR" />
+        <result column="AUX02" property="aux02" jdbcType="VARCHAR" />
+        <result column="AUX03" property="aux03" jdbcType="VARCHAR" />
+        <result column="AUX04" property="aux04" jdbcType="VARCHAR" />
+        <result column="AUX05" property="aux05" jdbcType="VARCHAR" />
+    </resultMap>
+
+
+</mapper>

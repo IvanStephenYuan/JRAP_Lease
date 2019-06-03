@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.report.mapper.ChargeMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.report.dto.Charge">
+        <result column="CHARGE_ID" property="chargeId" jdbcType="DECIMAL" />
+        <result column="RULE_ID" property="ruleId" jdbcType="DECIMAL" />
+        <result column="TRANSACTION_ID" property="transactionId" jdbcType="DECIMAL" />
+        <result column="DOCUMENT_ID" property="documentId" jdbcType="DECIMAL" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+        <result column="CHARGE_DATE" property="chargeDate" jdbcType="DATE" />
+        <result column="DIGEST" property="digest" jdbcType="VARCHAR" />
+        <result column="DEAL_SN" property="dealSn" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>

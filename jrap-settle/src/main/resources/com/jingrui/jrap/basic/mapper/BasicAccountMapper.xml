@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.basic.mapper.BasicAccountMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.basic.dto.BasicAccount">
+        <result column="ACCOUNT_ID" property="accountId" jdbcType="DECIMAL" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ACCOUNT_NUMBER" property="accountNumber" jdbcType="VARCHAR" />
+        <result column="ACCOUNT_NAME" property="accountName" jdbcType="VARCHAR" />
+        <result column="ACCOUNT_TYPE" property="accountType" jdbcType="VARCHAR" />
+        <result column="ACCOUNT_CLASS" property="accountClass" jdbcType="VARCHAR" />
+        <result column="ACCOUNT_USAGE" property="accountUsage" jdbcType="VARCHAR" />
+        <result column="BANK_ID" property="bankId" jdbcType="DECIMAL" />
+        <result column="OWNER_TYPE" property="ownerType" jdbcType="VARCHAR" />
+        <result column="OWNER_ID" property="ownerId" jdbcType="DECIMAL" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>
