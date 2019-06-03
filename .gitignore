@@ -6,6 +6,9 @@
 **/out
 overlays/
 
+#dev
+**/sslcert/
+
 # Maven
 **/target
 **/*.log
