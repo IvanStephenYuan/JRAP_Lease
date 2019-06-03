@@ -1,0 +1,524 @@
+<#include "../include/header.html">
+<script src="${base.contextPath}/common/code?orderStatusData=ORDER.STATUS"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?orderLestData=ORDER.LEASETIMES"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?orderAnnuPtData=ORDER.ANNUALPAYTIMES"
+        type="text/javascript"></script>
+<script type="text/javascript">
+  var viewModel = Jrap.createGridViewModel("#grid");
+  var businessTypeData = [];
+  //业务类型
+  $.ajax({
+    url: _basePath + '/pro/business/type/query',
+    dataType: "json",
+    type: "POST",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      businessTypeData = data.rows;
+    }
+  });
+</script>
+<style>
+  .k-textbox.k-combobox .k-icon.k-i-close {
+    top: 22px !important;
+  }
+</style>
+<body>
+<div id="carseletWindow" style="display: none"></div>
+<div id="page-content">
+  <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
+        <span data-bind="click:remove" class="btn btn-danger"
+              style="float:left;"><@spring.message "jrap.delete"/></span>
+    <span class="btn btn-success k-grid-save-changes" onclick="productChiose()"
+          style="float:right;margin-left:5px;"><@spring.message "客户选车"/></span>
+  </div>
+  <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+  <div class="pull-right" id="query-form" style="padding-bottom:10px;">
+    <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+           placeholder='<@spring.message "order.ordercode"/>'
+           data-bind="value:model.orderCode" class="k-textbox">
+    <input type="text" id="bussinesstype" data-role="maskedtextbox"
+           style="float:left;width:150px;margin-right:5px;"
+           placeholder='<@spring.message "businesstype.businesstype"/>'
+           data-bind="value:model.businessType">
+    <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query"
+          type="submit"><@spring.message "jrap.query"/></span>
+    <div style="clear:both"></div>
+  </div>
+  <script>
+    $("#bussinesstype").kendoComboBox({
+      dataTextField: "description",
+      dataValueField: "businessType",
+      valuePrimitive: true,
+      dataSource: businessTypeData
+    });
+    kendo.bind($('#query-form'), viewModel);
+  </script>
+  <div style="clear:both">
+    <div id="grid"></div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  Jrap.initEnterQuery('#query-form', viewModel.query);
+  // 数据源
+  var customerData = [];
+  var itemData = [];
+  var unitData = [];
+  var employeeData = [];
+  var productData = [];
+  var customerClass;
+  var lineCode;
+  var orderViewModel = kendo.observable({
+    model: {},
+  });
+  $.ajax({
+    url: '${base.contextPath}/afd/customer/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      customerData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/afd/item/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      itemData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/hr/unit/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      unitData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/hr/employee/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      employeeData = data.rows;
+    }
+  });
+
+  $.ajax({
+    url: '${base.contextPath}/pro/product/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      productData = data.rows;
+    }
+  });
+
+  var BaseUrl = _basePath;
+  dataSource = new kendo.data.DataSource({
+    transport: {
+      read: {
+        url: BaseUrl + "/con/order/query?orderStatus=APPROVED",
+        type: "POST",
+        dataType: "json"
+      },
+      destroy: {
+        url: BaseUrl + "/con/order/remove",
+        type: "POST",
+        contentType: "application/json"
+      },
+      parameterMap: function (options, type) {
+         if (type === "read") {
+          return Jrap.prepareQueryParameter(viewModel.model.toJSON(), options)
+        }
+      }
+    },
+    batch: true,
+    serverPaging: true,
+    pageSize: 10,
+    schema: {
+      data: 'rows',
+      total: 'total',
+      model: {
+        id: "orderId",
+        fields: {}
+      }
+    }
+  });
+
+  var pgrid = $("#grid").kendoGrid({
+    dataSource: dataSource,
+    resizable: true,
+    scrollable: true,
+    navigatable: false,
+    selectable: 'multiple, rowbox',
+    dataBound: function () {
+      if (parent.autoResizeIframe) {
+        parent.autoResizeIframe('${RequestParameters.functionCode!}')
+      }
+    },
+    pageable: {
+      pageSizes: [5, 10, 20, 50],
+      refresh: true,
+      buttonCount: 5
+    },
+    columns: [
+      {
+        field: "orderCode",
+        title: '<@spring.message "order.ordercode"/>',
+        width: 150
+      },
+      {
+        field: "customerId",
+        title: '<@spring.message "order.customerid"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.customerName ? dataItem.customerName : "";
+          return v;
+        },
+      },
+
+      {
+        field: "productCode",
+        title: '<@spring.message "order.productcode"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.productCode ? dataItem.productCode : "";
+          $.each(productData, function (i, n) {
+            if ((n.productCode || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.productName;
+              return v;
+            }
+          });
+          return v;
+        },
+      },
+
+      {
+        field: "itemId",
+        title: '<@spring.message "order.itemid"/>',
+        width: 140,
+        template: function (dataItem) {
+          var v = dataItem.itemCode ? dataItem.itemCode : "";
+          return v;
+        },
+      },
+      {
+        field: "agentId",
+        title: '<@spring.message "order.agentid"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.agentId ? dataItem.agentId : "";
+          $.each(customerData, function (i, n) {
+            if ((n.customerId || '') == (v || '')) {
+              v = n.customerName;
+              return v;
+            }
+          });
+          return v;
+        },
+      },
+      {
+        field: "unitId",
+        title: '<@spring.message "order.unitid"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.unitId ? dataItem.unitId : "";
+          $.each(unitData, function (i, n) {
+            if ((n.unitId || '') == (v || '')) {
+              v = n.description;
+              return v;
+            }
+          });
+          return v;
+        },
+      },
+      {
+        field: "employeeId",
+        title: '<@spring.message "order.employeeid"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.employeeId ? dataItem.employeeId : "";
+          $.each(employeeData, function (i, n) {
+            if ((n.employeeId || '') == (v || '')) {
+              v = n.name;
+              return v;
+            }
+          });
+          return v;
+        },
+      },
+      {
+        field: "businessType",
+        title: '<@spring.message "businesstype.businesstype"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.businessType;
+          $.each(businessTypeData, function (i, n) {
+            if ((n.value || '') == (v || '')) {
+              v = n.description;
+              return v;
+            }
+          })
+          return v;
+        }
+      },
+      {
+        field: "guidePrice",
+        title: '<@spring.message "order.guideprice"/>',
+        width: 120
+      },
+      {
+        field: "evaluationAmount",
+        title: '<@spring.message "order.evaluationamount"/>',
+        width: 120
+      },
+      {
+        field: "leaseAmount",
+        title: '<@spring.message "order.leaseamount"/>',
+        width: 120
+      },
+      {
+        field: "downPayment",
+        title: '<@spring.message "order.downpayment"/>',
+        width: 120
+      },
+      {
+        field: "finalPayment",
+        title: '<@spring.message "order.finalpayment"/>',
+        width: 120
+      },
+      {
+        field: "residualValue",
+        title: '<@spring.message "order.residualvalue"/>',
+        width: 120
+      },
+      {
+        field: "leaseTimes",
+        title: '<@spring.message "order.leasetimes"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.leaseTimes;
+          $.each(orderLestData, function (i, n) {
+            if ((n.value || '') == (v || '')) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        }
+
+      },
+      {
+        field: "payTimes",
+        title: '<@spring.message "order.paytimes"/>',
+        width: 120
+      },
+      {
+        field: "annualPayTimes",
+        title: '<@spring.message "order.annualpaytimes"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.annualPayTimes;
+          $.each(orderAnnuPtData, function (i, n) {
+            if ((n.value || '') == (v || '')) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        }
+      },
+      {
+        field: "leaseTerm",
+        title: '<@spring.message "order.leaseterm"/>',
+        width: 120
+      },
+      {
+        field: "intRate",
+        title: '<@spring.message "order.intrate"/>',
+        width: 120
+      },
+
+      {
+        field: "platePrice",
+        title: '<@spring.message "order.plateprice"/>',
+        width: 120
+      },
+      {
+        field: "insuranceAmount",
+        title: '<@spring.message "order.insuranceamount"/>',
+        width: 120
+      },
+      {
+        field: "mortgageFee",
+        title: '<@spring.message "order.mortgagefee"/>',
+        width: 120
+      },
+      {
+        field: "charge",
+        title: '<@spring.message "order.charge"/>',
+        width: 120
+      },
+      {
+        field: "gpsFee",
+        title: '<@spring.message "order.gpsfee"/>',
+        width: 120
+      },
+      {
+        field: "parkingFee",
+        title: '<@spring.message "order.parkingfee"/>',
+        width: 120
+      },
+      {
+        field: "propertyFee",
+        title: '<@spring.message "order.propertyfee"/>',
+        width: 120
+      },
+      {
+        field: "documentFee",
+        title: '<@spring.message "order.documentfee"/>',
+        width: 120
+      },
+      {
+        field: "purchaseTax",
+        title: '<@spring.message "order.purchasetax"/>',
+        width: 120
+      },
+      {
+        field: "notarialFee",
+        title: '<@spring.message "order.notarialfee"/>',
+        width: 120
+      },
+      {
+        field: "creditFee",
+        title: '<@spring.message "order.creditfee"/>',
+        width: 120
+      },
+      {
+        field: "licenseFee",
+        title: '<@spring.message "order.licensefee"/>',
+        width: 120
+      },
+
+      {
+        field: "totalFee",
+        title: '<@spring.message "order.totalfee"/>',
+        width: 120
+      },
+
+      {
+        field: "violationDeposit",
+        title: '<@spring.message "order.violationdeposit"/>',
+        width: 120
+      },
+      {
+        field: "insuranceDeposit",
+        title: '<@spring.message "order.insurancedeposit"/>',
+        width: 120
+      },
+      {
+        field: "annualSurveyDeposit",
+        title: '<@spring.message "order.annualsurveydeposit"/>',
+        width: 120
+      },
+
+      {
+        field: "totalDeposit",
+        title: '<@spring.message "order.totaldeposit"/>',
+        width: 120
+      },
+      {
+        field: "totalRental",
+        title: '<@spring.message "order.totalrental"/>',
+        width: 120
+      },
+
+      {
+        field: "startDate",
+        title: '<@spring.message "order.startdate"/>',
+        width: 120
+      },
+
+      {
+        field: "orderStatus",
+        title: '<@spring.message "order.orderstatus"/>',
+        width: 120,
+        template: function (dataItem) {
+          var v = dataItem.orderStatus;
+          $.each(orderStatusData, function (i, n) {
+            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+              v = n.meaning;
+              return v;
+            }
+          })
+          return v;
+        }
+      },
+    ],
+    editable: false
+  }).data("kendoGrid");
+
+
+
+  //产品选择
+  function productChiose() {
+    var checked = pgrid.selectedDataItems();
+    if (checked.length) {
+      if (checked.length > 1) {
+        kendo.ui.showInfoDialog({
+          title: "提示",
+          message: "只能选择一行数据",
+          iconClass: "fa fa-times-circle", // 提示图标
+          dialogClass: "k-dialog-error" // 图标类型
+        });
+      } else {
+        var orderId;
+        $.each(checked, function (i, v) {
+          orderId = v.orderId;
+        });
+        var win = $("#carseletWindow").kendoWindow({
+          width: 800,
+          height: 350,
+          actions: ["Close"],
+          title: '车辆选择',
+          visible: false,
+          modal: true,
+          iframe: true,
+          content: 'order_selcaredit.html?orderId=' + orderId,
+          close: function (e) {
+          }
+        }).data("kendoWindow");
+        win.center().open();
+      }
+    } else {
+      kendo.ui.showInfoDialog({
+        title: "提示",
+        message: "请至少选择一行数据",
+        iconClass: "fa fa-times-circle", // 提示图标
+        dialogClass: "k-dialog-error" // 图标类型
+      });
+    }
+
+  }
+
+
+
+</script>
+</body>
+</html>

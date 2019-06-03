@@ -1,0 +1,174 @@
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?card_type=HR.CERTIFICATE_TYPE	"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?changeStatusData=CHANGE.STATUS"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?trackTypeData=TRACK.TYPE"
+        type="text/javascript"></script>
+<script>
+  var newViewModel = kendo.observable({
+    model: {
+    }
+  });
+  //数据源
+  var unitData = [];
+  $.ajax({
+    url: '${base.contextPath}/hr/unit/query',
+    type: "POST",
+    dataType: "json",
+    async: false,
+    contentType: "application/json",
+    success: function (data) {
+      unitData = data.rows;
+    }
+  });
+</script>
+<div id="page-content">
+  <div>
+    <div>
+      <form class="form-horizontal">
+        <div class="col-xs-12">
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4 control-label"
+                     style="text-align: right"><@spring.message "item.license"/></label>
+              <div class="col-xs-8">
+                <input id="license" type="text" data-bind="value:model.license"
+                       style="width: 100%;">
+                <script>
+                  $("#license").kendoLov(
+                      $.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_ITEM")},
+                          {
+                            query:function(e){
+                              e.param['status']='STOCK';
+                            },
+                            textField: 'license',
+                            valueField: 'itemId',
+                            select: function (e) {
+                              var item = e.item;
+                              newViewModel.set("model.itemId", item.itemId);
+                              newViewModel.set("model.model", item.model);
+                              newViewModel.set("model.vin", item.vin);
+                              newViewModel.set("model.outsideColor", item.outsideColor);
+                            }
+                          }))
+                  kendo.bind($('#license'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4 control-label"
+                     style="text-align: right"><@spring.message "item.model"/></label>
+              <div class="col-xs-8">
+                <input id="model" type="text" data-bind="value:model.model"
+                       style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                <script>
+                  kendo.bind($('#model'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12">
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4   control-label"
+                     style="text-align: right"><@spring.message "item.vin"/></label>
+              <div class="col-xs-8">
+                <input id="vin" type="text" data-bind="value:model.vin"
+                       style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                <script>
+                  kendo.bind($('#vin'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label class="col-xs-4   control-label"
+                     style="text-align: right"><@spring.message "item.outsidecolor"/></label>
+              <div class="col-xs-8">
+                <input id="outsideColor" type="text" data-bind="value:model.outsideColor"
+                       style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                <script>
+                  kendo.bind($('#outsideColor'), newViewModel);
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-right"
+             style="bottom: 15px;position: fixed; padding-right: 24px;  float: left;padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+          <span class="btn btn-primary" onclick="selectCar()" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+          <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  var validator = $("#page-content").kendoValidator({
+    valid: function (e) {
+    },
+    invalidMessageType: "tooltip"
+  }).data("kendoValidator");
+
+  $("#closeWin").click(function () {
+    window.parent.$("#carseletWindow").data("kendoWindow").close();
+  });
+
+  //商机分配
+  function selectCar() {
+    //接收联系人数组
+    var orderid = '${RequestParameters.orderId!0}';
+    //将数组放入list中
+    var lorder = [];
+    lorder[0] = orderid;
+    var itemid = newViewModel.get("model.itemId");
+    var litem = [];
+    litem[0] = itemid;
+    var listdata=[];
+    listdata[0] = lorder;
+    listdata[1] = litem;
+    //请求接口
+    $.ajax({
+      type: "POST",
+      url: '${base.contextPath}/con/order/selectcar',
+      dataType: "json",
+      data: kendo.stringify(listdata),
+      async: false,
+      contentType: "application/json",
+      success: function (data) {
+        if (data.success = "true") {
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "选车成功"
+          }).done(function (e) {
+            window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
+            window.parent.$("#carseletWindow").data("kendoWindow").close()
+          });
+        } else {
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "选车失败",
+            iconClass: "fa fa-times-circle", // 提示图标
+            dialogClass: "k-dialog-error" // 图标类型
+          }).done(function (e) {
+            window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
+            window.parent.$("#carseletWindow").data("kendoWindow").close()
+          });
+        }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

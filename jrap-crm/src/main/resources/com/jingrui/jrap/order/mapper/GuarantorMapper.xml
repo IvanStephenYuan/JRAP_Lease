@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.order.mapper.GuarantorMapper">
+  <resultMap id="BaseResultMap" type="com.jingrui.jrap.order.dto.Guarantor">
+    <result column="GUARANTOR_ID" property="guarantorId" jdbcType="DECIMAL"/>
+    <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL"/>
+    <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL"/>
+    <result column="GUARANTOR_SEQUENCE" property="guarantorSequence" jdbcType="DECIMAL"/>
+    <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+    <result column="ID_TYPE" property="idType" jdbcType="VARCHAR"/>
+    <result column="ID_NO" property="idNo" jdbcType="VARCHAR"/>
+    <result column="TELPHONE" property="telphone" jdbcType="VARCHAR"/>
+    <result column="HOME_ADDRESS" property="homeAddress" jdbcType="VARCHAR"/>
+    <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR"/>
+    <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+    <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL"/>
+    <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE"/>
+  </resultMap>
+  <select id="selectguaranter" resultMap="BaseResultMap"
+    parameterType="com.jingrui.jrap.order.dto.Guarantor">
+    SELECT
+    cg.GUARANTOR_ID,
+    ac.TELPHONE,
+    ac.CUSTOMER_NAME,
+    ac.HOME_ADDRESS,
+    ac.ID_TYPE,
+    ac.ID_NO,
+    ac.ENABLED_FLAG,
+    cg.GUARANTOR_SEQUENCE
+    FROM
+    con_guarantor cg,
+    afd_customer ac
+    <where>
+    ac.CUSTOMER_ID = cg.CUSTOMER_ID
+    <if test="orderId!=null">
+      AND cg.ORDER_ID=#{orderId}
+    </if>
+   </where>
+  </select>
+</mapper>

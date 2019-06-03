@@ -1,0 +1,2061 @@
+<#include "../include/header.html">
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@3ed22ebc$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?carLoanTypeData=CAR.TYPE	"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?loanTypeData=LOAN.TYPE"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?annualpaytmData=ORDER.ANNUALPAYTIMES"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?leasetmData=ORDER.LEASETIMES"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?casdirData=CASHFLOW.DIRECTION"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?casstuData=CASHFLOW.STATUS"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?paytypeData=ORDER.PAYTYPE"
+        type="text/javascript"></script>
+<style type="text/css">
+    .left {
+        margin: 7px;
+        width: 16%;
+        float: left;
+        position: absolute;
+        top: 50px;
+        bottom: 0px;
+        left: 10px;
+        background-color: #FFFFFF;
+    }
+
+    #treeView {
+        height: 100%;
+    }
+
+    .right {
+        float: right;
+        width: 83%;
+    }
+</style>
+<script>
+    //获取流程单据信息
+    var orderId = "${RequestParameters.businessKey!0}";
+    queryorder(orderId);
+    var customerid;
+    var itemid;
+    //订单的viewmodel
+    var orderViewModel = kendo.observable({
+        model: {
+            companyId: -1,
+            __status: "update"
+        },
+    });
+    //租赁物
+    var itemViewModel = kendo.observable({
+        model: {
+            enabledFlag: "Y",
+            companyId: -1,
+            __status: "update"
+        },
+    });
+    //客户
+    var customerViewModel = kendo.observable({
+        model: {
+            idType: "ID",
+            enabledFlag: "Y",
+            __status: "update"
+        },
+        categoryId: "-1",
+        sourceType: "CUSTOMER_ID"
+    });
+
+    //查找订单
+    function queryorder(orderId) {
+        $.ajax({
+            url: '${base.contextPath}/con/order/query?orderId=' + orderId,
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+                    orderViewModel.model.set(k, a0[k]);
+                }
+                itemid = orderViewModel.model.itemId;
+                customerid = orderViewModel.model.customerId;
+                queryitem(itemid);
+                querycustomer(customerid);
+            }
+        });
+    }
+
+    //查找租赁物
+    function queryitem(itemId) {
+        $.ajax({
+            url: '${base.contextPath}/afd/item/query?itemId=' + itemId,
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+                    itemViewModel.model.set(k, a0[k]);
+                }
+            }
+        });
+    }
+
+    //查找客户信息
+    function querycustomer(customerId) {
+        $.ajax({
+            url: '${base.contextPath}/afd/customer/query?customerId=' + customerId,
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+                    customerViewModel.model.set(k, a0[k]);
+                }
+            }
+        });
+    }
+
+    // 数据源
+    var productData = [];
+    var productLineData = [];
+    var documentTypeData = [];
+    var cfTypeData = [];
+    var venderData = [];
+    var businessTypeData = [];
+    $.ajax({
+        url: '${base.contextPath}/pro/product/line/query',
+        type: "POST",
+        dataType: "json",
+        async: false,
+        contentType: "application/json",
+        success: function (data) {
+            productLineData = data.rows;
+        }
+    });
+    $.ajax({
+        url: '${base.contextPath}/pro/document/type/query',
+        type: "POST",
+        dataType: "json",
+        data: {"documentCategory": "ITEM", "enabledFlag": "Y"},
+        async: false,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        success: function (data) {
+            documentTypeData = data.rows;
+        }
+    });
+
+    $.ajax({
+        url: '${base.contextPath}/pro/product/query',
+        type: "POST",
+        dataType: "json",
+        async: false,
+        contentType: "application/json",
+        success: function (data) {
+            productData = data.rows;
+        }
+    });
+
+    $.ajax({
+        url: '${base.contextPath}/pro/cashflow/type/query',
+        type: "POST",
+        dataType: "json",
+        async: false,
+        contentType: "application/json",
+        success: function (data) {
+            cfTypeData = data.rows;
+        }
+    });
+
+    //post请求上线文指定方式不同
+    $.ajax({
+        url: '${base.contextPath}/afd/customer/query',
+        type: "POST",
+        dataType: "json",
+        data: {"customerType": "VENDER"},
+        async: false,
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        success: function (data) {
+            venderData = data.rows;
+        }
+    });
+
+    //业务类型
+    $.ajax({
+        url: _basePath + '/pro/business/type/query',
+        dataType: "json",
+        type: "POST",
+        async: false,
+        contentType: "application/json",
+        success: function (data) {
+            businessTypeData = data.rows;
+        }
+    });
+
+
+</script>
+<div id="page-content">
+    <div class="text-left"
+         style="bottom: 10px; position: relative;   float: left; padding-top:10px;border-top:1px solid #ebebeb;width:100%; background: #fff;z-index:11;">
+        <span class="btn btn-primary" id="saveGrid" type="submit" style="margin-right: 5px;"><@spring.message "jrap.save"/></span>
+        <span class="btn btn-default" id="closeWin" type="button" style="margin-right: 25px;"><@spring.message "jrap.cancel"/></span>
+    </div>
+    <div>
+
+        <div id="tabstrip">
+
+            <ul>
+                <li class="k-state-active">
+                    订单信息
+                </li>
+                <li>
+                    客户信息
+                </li>
+                <li>
+                    租赁物信息
+                </li>
+                <li>
+                    现金流信息
+                </li>
+                <li>
+                    附件信息
+                </li>
+            </ul>
+            <div id="order">
+                <form class="form-horizontal" role="form" style="width: 98%;">
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.ordercode"/></label>
+                                <div class="col-xs-8">
+                                    <input id="orderCode" name="orderCode" type="text" data-role="maskedtextbox"
+                                           data-label="<@spring.message 'order.ordercode'/>"
+                                           data-bind="value:model.orderCode"
+                                           class="k-textbox" disabled
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#orderCode'), orderViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message
+                                    "businesstype.businesstype"/></label>
+                                <div class="col-xs-8">
+                                    <input id="businessType" name="businessType" type="text"
+                                           data-bind="value:model.businessType"
+                                           style="width: 100%;" required
+                                           data-label="<@spring.message 'businesstype.businesstype'/>">
+                                    <script>
+                                        $("#businessType").kendoComboBox({
+                                            placeholder: "选择业务类型",
+                                            dataTextField: "description",
+                                            dataValueField: "businessType",
+                                            dataSource: businessTypeData,
+                                            select: function (e) {
+                                                orderViewModel.model.set("businessType", e.dataItem.businessType);
+                                                orderViewModel.model.set("productCode", "");
+                                                var combobox = $("#productCode").data("kendoComboBox");
+                                                var dataSource = new kendo.data.DataSource({
+                                                    serverFiltering: true,
+                                                    transport: {
+                                                        read: function (options) {
+                                                            $.ajax({
+                                                                url: '${base.contextPath}/pro/product/query?businessType='
+                                                                    + e.dataItem.businessType,
+                                                                type: "POST",
+                                                                dataType: "json",
+                                                                async: false,
+                                                                contentType: "application/json",
+                                                                success: function (data) {
+                                                                    options.success(data.rows);
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                                combobox.setDataSource(dataSource);
+                                            },
+                                            schema: {
+                                                data: 'rows'
+                                            }
+                                        });
+                                        kendo.bind($("#businessType"), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "order.productcode"/></label>
+                                <div class="col-xs-8">
+                                    <input id="productCode" name="productCode" type="text"
+                                           data-bind="value:model.productCode"
+                                           style="width: 100%;"
+                                           data-label="<@spring.message 'order.productcode'/>">
+                                    <script>
+                                        $("#productCode").kendoComboBox({
+                                            autoBind: false,
+                                            cascadeFrom: "businessType",
+                                            cascadeFromField: "businessType",
+                                            filter: "contains",
+                                            placeholder: "选择产品",
+                                            dataTextField: "productName",
+                                            dataValueField: "productCode",
+                                            select: function (e) {
+                                                orderViewModel.model.set("productCode", e.dataItem.productCode);
+                                            },
+                                            schema: {
+                                                data: 'rows'
+                                            }
+                                        }).data('kendoComboBox');
+                                        kendo.bind($('#productCode'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.agentid"/></label>
+                                <div class="col-xs-8">
+                                    <input id="agentId" name="agentId" type="text"
+                                           data-bind="value:model.agentId,text:model.customerName"
+                                           style="width: 100%;" required
+                                           data-label="<@spring.message 'order.agentId'/>">
+                                    <script>
+                                        $("#agentId").kendoComboBox({
+                                            dataTextField: "customerName",
+                                            dataValueField: "customerId",
+                                            valuePrimitive: true,
+                                            dataSource: venderData,
+                                            select: function (e) {
+                                                orderViewModel.model.set("agentId", e.dataItem.value);
+                                            }
+                                        }).data("kendoComboBox");
+                                        kendo.bind($("#agentId"), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.leaseamount"/></label>
+                                <div class="col-xs-8">
+                                    <input id="leaseAmount" type="text" data-bind="value:model.leaseAmount"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#leaseAmount").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#leaseAmount'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.leasetimes"/></label>
+                                <div class="col-xs-8">
+                                    <input id="leaseTimes" name="leaseTimes" type="text"
+                                           data-label="<@spring.message 'order.leasetimes'/>"
+                                           data-bind="value:model.leaseTimes"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#leaseTimes").kendoComboBox({
+                                            dataSource: leasetmData,
+                                            valuePrimitive: true,
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            select: function (e) {
+                                                orderViewModel.model.set("leaseTimes", e.dataItem.value);
+                                            }
+                                        });
+                                        kendo.bind($('#leaseTimes'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.annualpaytimes"/></label>
+                                <div class="col-xs-8">
+                                    <input id="annualPayTimes" name="leaseTimes" type="text"
+                                           data-label="<@spring.message 'order.annualpaytimes'/>"
+                                           data-bind="value:model.annualPayTimes"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#annualPayTimes").kendoComboBox({
+                                            dataSource: annualpaytmData,
+                                            valuePrimitive: true,
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            select: function (e) {
+                                                orderViewModel.model.set("annualPayTimes", e.dataItem.value);
+                                            }
+                                        });
+                                        kendo.bind($('#annualPayTimes'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.paytype"/></label>
+                                <div class="col-xs-8">
+                                    <input id="payType" name="payType" type="text" data-role="maskedtextbox"
+                                           data-label="<@spring.message 'order.paytype'/>"
+                                           data-bind="value:model.payType"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#payType").kendoComboBox({
+                                            dataSource: paytypeData,
+                                            valuePrimitive: true,
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            select: function (e) {
+                                                orderViewModel.model.set("payType", e.dataItem.value);
+                                            }
+                                        });
+                                        kendo.bind($('#payType'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.intrate"/></label>
+                                <div class="col-xs-8">
+                                    <input id="intRate" type="text" data-bind="value:model.intRate"
+                                           style="width: 100%;" disabled="disabled">
+                                    <script>
+                                        $("#intRate").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#intRate'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.downpayment"/></label>
+                                <div class="col-xs-8">
+                                    <input id="downPayment" type="text" data-bind="value:model.downPayment"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#downPayment").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#downPayment'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.finalpayment"/></label>
+                                <div class="col-xs-8">
+                                    <input id="finalPayment" type="text" data-bind="value:model.finalPayment"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#finalPayment").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#finalPayment'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.residualvalue"/></label>
+                                <div class="col-xs-8">
+                                    <input id="residualValue" type="text" data-bind="value:model.residualValue"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#residualValue").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#residualValue'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.plateprice"/></label>
+                                <div class="col-xs-8">
+                                    <input id="platePrice" type="text" data-bind="value:model.platePrice"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#platePrice").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#platePrice'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.insuranceamount"/></label>
+                                <div class="col-xs-8">
+                                    <input id="insuranceAmount" type="text" data-bind="value:model.insuranceAmount"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#insuranceAmount").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#insuranceAmount'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.mortgagefee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="mortgageFee" type="text" data-bind="value:model.mortgageFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#mortgageFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#mortgageFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.charge"/></label>
+                                <div class="col-xs-8">
+                                    <input id="charge" type="text" data-bind="value:order.charge"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#charge").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#charge'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.gpsfee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="gpsFee" type="text" data-bind="value:model.gpsFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#gpsFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#gpsFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.parkingfee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="parkingFee" type="text" data-bind="value:model.parkingFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#parkingFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#parkingFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.propertyfee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="propertyFee" type="text" data-bind="value:order.propertyFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#propertyFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#propertyFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.documentfee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="documentFee" type="text" data-bind="value:model.documentFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#documentFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#documentFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.purchasetax"/></label>
+                                <div class="col-xs-8">
+                                    <input id="purchaseTax" type="text" data-bind="value:model.purchaseTax"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#purchaseTax").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#purchaseTax'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.notarialfee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="notarialFee" type="text" data-bind="value:order.notarialFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#notarialFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#notarialFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.creditfee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="creditFee" type="text" data-bind="value:model.creditFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#creditFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#creditFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.licensefee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="licenseFee" type="text" data-bind="value:model.licenseFee"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#licenseFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#licenseFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.annualsurveydeposit"/></label>
+                                <div class="col-xs-8">
+                                    <input id="annualSurveyDeposit" type="text"
+                                           data-bind="value:order.annualSurveyDeposit"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#annualSurveyDeposit").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#annualSurveyDeposit'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.violationdeposit"/></label>
+                                <div class="col-xs-8">
+                                    <input id="violationDeposit" type="text"
+                                           data-bind="value:model.violationDeposit"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#violationDeposit").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#violationDeposit'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.insurancedeposit"/></label>
+                                <div class="col-xs-8">
+                                    <input id="insuranceDeposit" type="text"
+                                           data-bind="value:model.insuranceDeposit"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#insuranceDeposit").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#insuranceDeposit'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.totaldeposit"/></label>
+                                <div class="col-xs-8">
+                                    <input id="totalDeposit" type="text" data-bind="value:model.totalDeposit"
+                                           disabled="disabled"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#totalDeposit").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#totalDeposit'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.totalrental"/></label>
+                                <div class="col-xs-8">
+                                    <input id="totalRental" type="text" data-bind="value:model.totalRental"
+                                           disabled="disabled"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#totalRental").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#totalRental'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "order.totalfee"/></label>
+                                <div class="col-xs-8">
+                                    <input id="totalFee" type="text" data-bind="value:order.totalFee"
+                                           disabled="disabled"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#totalFee").kendoNumericTextBox({min: 0});
+                                        kendo.bind($('#totalFee'), orderViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+            <div id="customer">
+                <form class="form-horizontal" role="form" style="width: 98%;">
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "customer.customerCode"/></label>
+                                <div class="col-xs-8">
+                                    <input id="customerCode" name="customerCode" type="text" data-role="maskedtextbox"
+                                           data-label="<@spring.message 'customer.customerCode'/>"
+                                           data-bind="value:model.customerCode"
+                                           class="k-textbox" disabled
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#customerCode'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "customer.customerName"/></label>
+                                <div class="col-xs-8">
+                                    <input id="customerName" name="customerName" type="text"
+                                           data-bind="value:model.customerName"
+                                           style="width: 100%;" required
+                                           data-label="<@spring.message 'customer.customerName'/>"/>
+                                    <span class="k-invalid-msg" data-for="customerName"></span>
+                                    <script>
+                                        $("#customerName").kendoTLEdit({
+                                            idField: 'customerId',
+                                            field: 'customerName',
+                                            dto: "com.jingrui.jrap.customer.dto.Customer",
+                                            model: customerViewModel.model
+                                        })
+                                        kendo.bind($('#customerName'), customerViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "customer.customerClass"/></label>
+                                <div class="col-xs-8">
+                                    <input id="customerClass" name="customerClass" type="text"
+                                           data-bind="value:model.customerClass"
+                                           style="width: 100%;" disabled
+                                           data-label="<@spring.message 'customer.customerClass'/>">
+                                    <script>
+                                        $("#customerClass").kendoComboBox({
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            dataSource: {
+                                                transport: {
+                                                    read: {
+                                                        url: _basePath + '/common/code/CUSTOMER.CLASS/',
+                                                        dataType: "json"
+                                                    }
+                                                }
+                                            },
+                                            select: function (e) {
+                                                customerViewModel.model.set("customerClass", e.dataItem.value);
+                                            }
+                                        }).data("kendoComboBox");
+                                        kendo.bind($("#customerClass"), customerViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message
+                                    "customer.customerCategory"/></label>
+                                <div class="col-xs-8">
+                                    <input id="customerCategory" name="customerCategory" type="text"
+                                           data-bind="value:model.customerCategory"
+                                           style="width: 100%;" required
+                                           data-label="<@spring.message 'customer.customerCategory'/>">
+                                    <script>
+                                        $("#customerCategory").kendoComboBox({
+                                            filter: "contains",
+                                            placeholder: "选择客户类别",
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            dataSource: {
+                                                transport: {
+                                                    read: {
+                                                        url: _basePath + '/common/code/CUSTOMER.CATEGORY/',
+                                                        dataType: "json"
+                                                    }
+                                                }
+                                            },
+                                            select: function (e) {
+                                                customerViewModel.model.set("customerCategory", e.dataItem.value);
+                                                customerViewModel.model.set("customerType", "");
+                                                var combobox = $("#customerType").data("kendoComboBox");
+                                                var dataSource = new kendo.data.DataSource({
+                                                    serverFiltering: true,
+                                                    transport: {
+                                                        read: {
+                                                            url: _basePath
+                                                                + '/common/childCode?parentCode=CUSTOMER.CATEGORY&value='
+                                                                + e.dataItem.value,
+                                                            dataType: "json"
+
+                                                        }
+                                                    }
+                                                });
+                                                combobox.setDataSource(dataSource);
+                                            },
+                                            schema: {
+                                                data: 'rows'
+                                            }
+                                        }).data("kendoComboBox");
+                                        kendo.bind($('#customerCategory'), customerViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.customerType"/></label>
+                                <div class="col-xs-8">
+                                    <input id="customerType" name="customerType" type="text"
+                                           data-bind="value:model.customerType"
+                                           style="width: 100%;"
+                                           data-label="<@spring.message 'customer.customerType'/>">
+                                    <script>
+                                        $("#customerType").kendoComboBox({
+                                            autoBind: false,
+                                            cascadeFrom: "customerCategory",
+                                            cascadeFromField: "value",
+                                            filter: "contains",
+                                            placeholder: "选择客户类型",
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            dataSource: {
+                                                serverFiltering: true,
+                                                transport: {
+                                                    read: {
+                                                        url: _basePath + '/common/childCode',
+                                                        dataType: "json"
+                                                    },
+                                                    parameterMap: function (options, type) {
+                                                        if (type === "read") {
+                                                            var filter = options.filter.filters[0];
+                                                            var map = {};
+                                                            var customerCategory = customerViewModel.model.get(
+                                                                "customerCategory");
+                                                            map["parentCode"] = "CUSTOMER.CATEGORY";
+                                                            map["value"] = customerCategory;
+                                                            return map;
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            select: function (e) {
+                                                customerViewModel.model.set("customerType", e.dataItem.value);
+                                            },
+                                            schema: {
+                                                data: 'rows'
+                                            }
+                                        }).data('kendoComboBox');
+                                        kendo.bind($('#customerType'), customerViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.telphone"/></label>
+                                <div class="col-xs-8">
+                                    <input id="telphone" type="text" data-bind="value:model.telphone"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#telphone'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.idType"/></label>
+                                <div class="col-xs-8">
+                                    <input id="idType" type="text" data-bind="value:model.idType"
+                                           style="width: 100%;" disabled>
+                                    <script>
+                                        $("#idType").kendoComboBox({
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            dataSource: {
+                                                transport: {
+                                                    read: {
+                                                        url: _basePath + '/common/code/HR.CERTIFICATE_TYPET/',
+                                                        dataType: "json"
+                                                    }
+                                                }
+                                            },
+                                            select: function (e) {
+                                                customerViewModel.model.set("idType", e.dataItem.value);
+                                                customerViewModel.model.set("idNo", "");
+                                                customerViewModel.model.set("idEndDate", "");
+                                            }
+                                        });
+                                        kendo.bind($('#idType'), customerViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.idNo"/></label>
+                                <div class="col-xs-8">
+                                    <input id="idNo" type="text" data-bind="value:model.idNo"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#idNo'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.idEndDate"/></label>
+                                <div class="col-xs-8">
+                                    <input id="idEndDate" style="width: 100%" data-bind="value:model.idEndDate">
+                                    <script>
+                                        $('#idEndDate').kendoDatePicker();
+                                        kendo.bind($('#idEndDate'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4   control-label"
+                                       style="text-align: right"><@spring.message "customer.attribute1"/></label>
+                                <div class="col-xs-8">
+                                    <input id="ATTRIBUTE1" type="text" data-bind="value:model.attribute1"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#ATTRIBUTE1'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.attribute2"/></label>
+                                <div class="col-xs-8">
+                                    <input id="ATTRIBUTE2" type="text" data-bind="value:model.attribute2"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#ATTRIBUTE2'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.attribute3"/></label>
+                                <div class="col-xs-8">
+                                    <input id="ATTRIBUTE3" type="text" data-bind="value:model.attribute3"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#ATTRIBUTE3'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4   control-label"
+                                       style="text-align: right"><@spring.message "customer.email"/></label>
+                                <div class="col-xs-8">
+                                    <input id="email" type="text" data-bind="value:model.email"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#email'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.qq"/></label>
+                                <div class="col-xs-8">
+                                    <input id="qq" type="text" data-bind="value:model.qq" class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#qq'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.weixin"/></label>
+                                <div class="col-xs-8">
+                                    <input id="weixin" type="text" data-bind="value:model.weixin"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#weixin'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.unitName"/></label>
+                                <div class="col-xs-8">
+                                    <input id="unitName" type="text" data-bind="value:model.unitName"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#unitName'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.position"/></label>
+                                <div class="col-xs-8">
+                                    <input id="position" type="text" data-bind="value:model.position"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#position'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.unitAddress"/></label>
+                                <div class="col-xs-8">
+                                    <input id="unitAddress" type="text" data-bind="value:model.unitAddress"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#unitAddress'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.spouseName"/></label>
+                                <div class="col-xs-8">
+                                    <input id="spouseName" type="text" data-bind="value:model.spouseName"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#spouseName'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "customer.spouseType"/></label>
+                                <div class="col-xs-8">
+                                    <input id="spouseType" type="text" data-bind="value:model.spouseType"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#spouseType'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message
+                                    "customer.spouseTelphone"/></label>
+                                <div class="col-xs-8">
+                                    <input id="spouseTelphone" type="text" data-bind="value:model.spouseTelphone"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#spouseTelphone'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-8">
+                            <div class="form-group">
+                                <label class="col-xs-2 control-label"
+                                       style="text-align: right"><@spring.message "customer.homeAddress"/></label>
+                                <div class="col-xs-10">
+                                    <input id="homeAddress" type="text" data-bind="value:model.homeAddress"
+                                           class="k-textbox" style="width: 100%;">
+                                    <script>kendo.bind($('#homeAddress'), customerViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"><@spring.message
+                                    "customer.enabledFlag"/>:</label>
+                                <div class="col-xs-8" style="text-align: left">
+                                    <input id="enabledFlag" type="checkbox" class="k-checkbox" style="margin-top:5px"
+                                           data-bind="value:model.enabledFlag">
+                                </div>
+                                <script>
+                                    kendo.bind($('#enabledFlag'), customerViewModel);
+                                    $("#enabledFlag").kendoCheckbox({
+                                        checkedValue: 'Y',
+                                        uncheckedValue: 'N'
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="item">
+                <form class="form-horizontal" role="form" style="width: 98%;">
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "item.itemCode"/></label>
+                                <div class="col-xs-8">
+                                    <input id="itemCode" name="itemCode" type="text" data-role="maskedtextbox"
+                                           data-label="<@spring.message 'item.itemCode'/>"
+                                           data-bind="value:model.itemCode"
+                                           class="k-textbox" disabled
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#itemCode'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label" style="text-align: right"><@spring.message
+                                    "item.linecode"/></label>
+                                <div class="col-xs-8">
+                                    <input id="lineCode" name="lineCode" type="text"
+                                           data-bind="value:model.lineCode"
+                                           style="width: 100%;" required
+                                           data-label="<@spring.message 'item.linecode'/>">
+                                    <script>
+                                        $("#lineCode").kendoComboBox({
+                                            dataTextField: "description",
+                                            dataValueField: "lineCode",
+                                            valuePrimitive: true,
+                                            dataSource: productLineData,
+                                            select: function (e) {
+                                                itemViewModel.model.set("lineCode", e.dataItem.value);
+                                            }
+                                        }).data("kendoComboBox");
+                                        kendo.bind($("#lineCode"), itemViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4   control-label"
+                                       style="text-align: right"><@spring.message "item.model"/></label>
+                                <div class="col-xs-8">
+                                    <input id="model" type="text" data-bind="value:model.model"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#model'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.invoiceprice"/></label>
+                                <div class="col-xs-8">
+                                    <input id="invoicePrice" type="text" data-bind="value:model.invoicePrice"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#invoicePrice'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4   control-label"
+                                       style="text-align: right"><@spring.message "item.outsidecolor"/></label>
+                                <div class="col-xs-8">
+                                    <input id="outsideColor" type="text" data-bind="value:model.outsideColor"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#outsideColor'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.insidecolor"/></label>
+                                <div class="col-xs-8">
+                                    <input id="insideColor" type="text" data-bind="value:model.insideColor"
+                                           class="k-textbox" style="width: 100%;">
+                                    <script>kendo.bind($('#insideColor'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.vin"/></label>
+                                <div class="col-xs-8">
+                                    <input id="vin" type="text" data-bind="value:model.vin"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#vin'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.enginenumber"/></label>
+                                <div class="col-xs-8">
+                                    <input id="engineNumber" type="text" data-bind="value:model.engineNumber"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#engineNumber'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.license"/></label>
+                                <div class="col-xs-8">
+                                    <input id="license" type="text" data-bind="value:model.license" class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#license'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.mileage"/></label>
+                                <div class="col-xs-8">
+                                    <input id="mileage" type="text" data-bind="value:model.mileage"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#mileage'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.key"/></label>
+                                <div class="col-xs-8">
+                                    <input id="carKey" type="text" data-bind="value:model.carKey"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#carKey'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.guideprice"/></label>
+                                <div class="col-xs-8">
+                                    <input id="guidePrice" type="text" data-bind="value:model.guidePrice"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#guidePrice'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 row">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.cartype"/></label>
+                                <div class="col-xs-8">
+                                    <input id="carType" type="text" data-bind="value:model.carType"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#carType").kendoComboBox({
+                                            dataSource: carLoanTypeData,
+                                            valuePrimitive: true,
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            select: function (e) {
+                                                itemViewModel.model.set("carType", e.dataItem.value);
+                                            }
+                                        });
+                                        kendo.bind($("#carType"), itemViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.loantype"/></label>
+                                <div class="col-xs-8">
+                                    <input id="loanType" type="text" data-bind="value:model.loanType"
+                                           style="width: 100%;">
+                                    <script>
+                                        $("#loanType").kendoComboBox({
+                                            dataSource: loanTypeData,
+                                            valuePrimitive: true,
+                                            dataTextField: "meaning",
+                                            dataValueField: "value",
+                                            select: function (e) {
+                                                itemViewModel.model.set("loanType", e.dataItem.value);
+                                            }
+                                        });
+                                        kendo.bind($("#loanType"), itemViewModel);
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.loanremark"/></label>
+                                <div class="col-xs-8">
+                                    <input id="loanRemark" type="text" data-bind="value:model.loanRemark"
+                                           class="k-textbox"
+                                           style="width: 100%;">
+                                    <script>kendo.bind($('#loanRemark'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 row">
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.releasedate"/></label>
+                                <div class="col-xs-8">
+                                    <input id="releaseDate" style="width: 100%" data-bind="value:model.releaseDate">
+                                    <script>
+                                        $('#releaseDate').kendoDatePicker();
+                                        kendo.bind($('#releaseDate'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.annualdate"/></label>
+                                <div class="col-xs-8">
+                                    <input id="annualDate" style="width: 100%" data-bind="value:model.annualDate">
+                                    <script>
+                                        $('#annualDate').kendoDatePicker();
+                                        kendo.bind($('#annualDate'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.insurance"/></label>
+                                <div class="col-xs-8">
+                                    <input id="insurance" style="width: 100%" data-bind="value:model.insurance">
+                                    <script>
+                                        $('#insurance').kendoDatePicker();
+                                        kendo.bind($('#insurance'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 row">
+
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"
+                                       style="text-align: right"><@spring.message "item.drivingdate"/></label>
+                                <div class="col-xs-8">
+                                    <input id="drivingDate" style="width: 100%" data-bind="value:model.drivingDate">
+                                    <script>
+                                        $('#drivingDate').kendoDatePicker();
+                                        kendo.bind($('#drivingDate'), itemViewModel);</script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-4 control-label"><@spring.message "item.enabledFlag"/>:</label>
+                                <div class="col-xs-8" style="text-align: left">
+                                    <input id="ienabledFlag" type="checkbox" class="k-checkbox" style="margin-top:5px"
+                                           data-bind="value:model.enabledFlag">
+                                </div>
+                                <script>
+                                    kendo.bind($('#ienabledFlag'), itemViewModel);
+                                    $("#ienabledFlag").kendoCheckbox({
+                                        checkedValue: 'Y',
+                                        uncheckedValue: 'N'
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div style="height:300px;">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="block">
+                            <div class="form-group">
+                                <div id='grid-containerr'>
+                                    <div id="cashflowgrid" style="clear: both"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="height:300px;">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="left" style="margin-top:25px">
+                            <div id="treeView"></div>
+                        </div>
+                        <div class="right">
+                            <div class="form-group">
+                                <div id='grid-container'>
+                                    <div id="sysfile_grid" style="clear: both"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var tabstrip = $("#tabstrip").kendoTabStrip({
+            height: '100%',
+            animation: false
+        }).data("kendoTabStrip");
+        tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var item = $(e.target).closest(".k-item");
+            var index = item.index(),
+                prev = item.next().length == 1 ? item.next() : item.prev();
+            tabstrip.remove(item.index());
+            tabstrip.select(prev)
+        });
+    </script>
+</div>
+
+
+<div id="importWin" style="display: none;">
+    <div class="panel" style="border:none;box-shadow: none;">
+        <form id="importForm" class="form-horizontal">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label"><@spring.message
+                            "attachcategory.sourcetype"/></label>
+                        <div class="col-sm-6">
+                            <input id="sourceType" type="text" style="width:100%" data-bind="value:sourceType"
+                                   disabled>
+                            <script>kendo.bind($('#sourceType'), customerViewModel);</script>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">支撑附件</label>
+                        <div class="col-sm-6">
+                            <input id="fileUpload" name="fileUpload" type="file" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    $("#fileUpload").kendoUpload({
+                        async: {
+                            saveUrl: "${base.contextPath}/sys/attach/upload?${_csrf.parameterName}=${_csrf.token}",
+                            autoUpload: true
+                        },
+                        upload: function (e) {
+                            e.data = {
+                                sourceType: customerViewModel.get("sourceType"),
+                                sourceKey: customerViewModel.model.get("customerId")
+                            }
+                        },
+                        success: function (e) {
+                            if (e.response.success === true) {
+                                var fileType = e;
+                            }
+                            kendo.ui.showInfoDialog({
+                                message: e.response.message
+                            })
+                        },
+                        showFileList: false
+                    });
+                </script>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    var cashflowviewModel = Jrap.createGridViewModel("#cashflowgrid");
+    var orderId = orderViewModel.model.orderId;
+    if (orderId == undefined) {
+        orderId = -1
+    }
+    var BaseUrl = _basePath;
+    dataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: BaseUrl + "/con/cashflow/query?orderId=" + orderId,
+                type: "POST",
+                dataType: "json"
+            },
+            update: {
+                url: BaseUrl + "/con/cashflow/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            destroy: {
+                url: BaseUrl + "/con/cashflow/remove",
+                type: "POST",
+                contentType: "application/json"
+            },
+            create: {
+                url: BaseUrl + "/con/cashflow/submit",
+                type: "POST",
+                contentType: "application/json"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    var datas = Jrap.prepareSubmitParameter(options, type)
+                    return kendo.stringify(datas);
+                } else if (type === "read") {
+                    return Jrap.prepareQueryParameter(cashflowviewModel.model.toJSON(), options)
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        pageSize: 10,
+        schema: {
+            data: 'rows',
+            total: 'total',
+            model: {
+                id: "cashflowId",
+                fields: {}
+            }
+        }
+    });
+
+    $("#cashflowgrid").kendoGrid({
+        dataSource: dataSource,
+        resizable: true,
+        scrollable: true,
+        navigatable: false,
+        selectable: 'multiple, rowbox',
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        columns: [
+            {
+                field: "cfType",
+                title: '<@spring.message "cashflow.cftype"/>',
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.cfType ? dataItem.cfType : "";
+                    $.each(cfTypeData, function (i, n) {
+                        if ((n.cfType || '') == (v || '')) {
+                            v = n.description;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+            },
+            {
+                field: "cfDirection",
+                title: '<@spring.message "cashflow.cfdirection"/>',
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.cfDirection;
+                    $.each(casdirData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
+                }
+            },
+            {
+                field: "cfStatus",
+                title: '<@spring.message "cashflow.cfstatus"/>',
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.cfStatus;
+                    $.each(casstuData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    })
+                    return v;
+                }
+            },
+            {
+                field: "times",
+                title: '<@spring.message "cashflow.times"/>',
+                width: 120
+            },
+            {
+                field: "calcDate",
+                title: '<@spring.message "cashflow.calcdate"/>',
+                width: 120
+            },
+            {
+                field: "dueDate",
+                title: '<@spring.message "cashflow.duedate"/>',
+                width: 120
+            },
+            {
+                field: "dueAmount",
+                title: '<@spring.message "cashflow.dueamount"/>',
+                width: 120
+            },
+            {
+                field: "principal",
+                title: '<@spring.message "cashflow.principal"/>',
+                width: 120
+            },
+
+            {
+                field: "interest",
+                title: '<@spring.message "cashflow.interest"/>',
+                width: 120
+            },
+            {
+                field: "outstandingPrincipal",
+                title: '<@spring.message "cashflow.outstandingprincipal"/>',
+                width: 120
+            },
+            {
+                field: "outstandingInterest",
+                title: '<@spring.message "cashflow.outstandinginterest"/>',
+                width: 120
+            },
+            {
+                field: "netDueAmount",
+                title: '<@spring.message "cashflow.netdueamount"/>',
+                width: 120
+            },
+            {
+                field: "vatDueAmount",
+                title: '<@spring.message "cashflow.vatdueamount"/>',
+                width: 120
+            },
+
+        ],
+        editable: false
+    });
+</script>
+
+<script>
+    function convertToTree(datas) {
+        var map = {};
+        $.each(datas, function (i, r) {
+            map[r.categoryId] = r;
+        });
+
+        function build(d) {
+            if (d.parentCategoryId) {
+                var p = map[d.parentCategoryId];
+                if (p) {
+                    var items = p.items || [];
+                    if (items.indexOf(d) < 0) {
+                        p.items = items.concat(d);
+                    }
+                    build(p);
+                }
+            }
+        }
+
+        $.each(datas, function (i, r) {
+            build(r);
+        });
+        var arr = [];
+        $.each(map, function (i, r) {
+            arr.push(r);
+        });
+        return arr;
+    }
+
+    var datas = [];
+    $.ajax({
+        url: "${base.contextPath}/sys/attachment/category/queryTree",
+        type: "post",
+        dataType: "json",
+        data: {
+            "parentCategoryId": "2"
+        },
+        async: false,
+        success: function (args) {
+            datas = convertToTree(args);
+        }
+    });
+
+    $("#treeView").kendoTreeView({
+        dataSource: {
+            data: datas
+        },
+        template: function (e) {
+            if (e.item.leafFlag === '1') {
+                return "<span onclick='searchFile(" + e.item.categoryId + ',"' + e.item.sourceType + '"'
+                    + ")'  >" + e.item.categoryName + "</span>";
+            } else {
+                return e.item.description;
+            }
+        }
+
+    });
+
+    var gridDataSource = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: '${base.contextPath}/sys/attach/file/query',
+                type: "post",
+                dataType: "json"
+            },
+            destroy: {
+                url: '${base.contextPath}/sys/attach/file/remove',
+                contentType: "application/json",
+                type: "POST"
+            },
+            parameterMap: function (options, type) {
+                if (type !== "read" && options.models) {
+                    return kendo.stringify(options.models);
+                } else if (type === "read") {
+                    var map = {};
+                    if (options) {
+                        map.page = options.page;
+                        map.pagesize = options.pageSize;
+                        if (options.sort && options.sort.length > 0) {
+                            map.sortname = options.sort[0].field;
+                            map.sortorder = options.sort[0].dir;
+                        }
+                    }
+                    map.categoryId = customerViewModel.get("categoryId");
+                    if (customerViewModel.model.get("customerId") != null) {
+                        map.sourceKey = customerViewModel.model.get("customerId");
+                    } else {
+                        map.sourceKey = -1;
+                    }
+
+                    return map;
+                }
+            }
+        },
+        batch: true,
+        serverPaging: true,
+        serverSorting: true,
+        pageSize: 20,
+        schema: {
+            model: {
+                id: 'fileId'
+            },
+            data: 'rows',
+            total: 'total'
+        }
+    });
+
+    var grid = $("#sysfile_grid").kendoGrid({
+        dataSource: gridDataSource,
+        navigatable: true,
+        dataBound: function () {
+            if (parent.autoResizeIframe) {
+                parent.autoResizeIframe('${RequestParameters.functionCode!}')
+            }
+        },
+        resizable: true,
+        sortable: true,
+        scrollable: true,
+        editable: false,
+        selectable: 'multiple, rowbox',
+        pageable: {
+            pageSizes: [5, 10, 20, 50],
+            refresh: true,
+            buttonCount: 5
+        },
+        toolbar: [
+            {
+                template: '<span  onclick="uploadFile()"  class="btn btn-primary"><i class="fa fa-upload" style="margin-right:3px;"></i><@spring.message "sysfile.upload"/></span>'
+            },
+            {
+                template: '<span  onclick="deleteData()"  class="btn btn-danger"><i class="fa fa-trash-o" style="margin-right:3px;"></i><@spring.message "jrap.delete"/></span>'
+            }
+        ],
+        columns: [
+            {field: "fileName", title: '<@spring.message "sysfile.filename"/>', width: 160},
+            {field: "fileSize", title: '<@spring.message "sysfile.filesize"/>', width: 60},
+            {field: "uploadDate", title: '<@spring.message "sysfile.uploaddate"/>', width: 80},
+            {field: "fileType", title: '<@spring.message "sysfile.filetype"/>', width: 80},
+            {
+                template: function (e) {
+                    return '<a target="_blank" href="${base.contextPath}/sys/attach/file/download?fileId='
+                        + e.fileId + '&token=' + e._token + '"><@spring.message "jrap.download"/></a>';
+                }, width: 30
+            },
+        ]
+    }).data("kendoGrid");
+
+    function searchFile(id, sourceType) {
+        customerViewModel.set("categoryId", id);
+        customerViewModel.set("sourceType", sourceType);
+        gridDataSource.page(1);
+    }
+
+    function uploadFile() {
+        var sourceType = customerViewModel.get("sourceType");
+        var customerId = customerViewModel.model.get("customerId");
+
+        if (sourceType == "CUSTOMER_ID") {
+            kendo.ui.showInfoDialog({
+                message: '请选择具体的附件条目!'
+            });
+            return;
+        }
+
+        if (customerId == null || "" == customerId) {
+            kendo.ui.showInfoDialog({
+                message: '请先保存，才能上传附件!'
+            });
+            return;
+        }
+
+        var importWin = $("#importWin").kendoWindow({
+            title: '上传文件',
+            width: 600,
+            height: 200,
+            modal: true,
+            close: function () {
+                $('#sysfile_grid').data('kendoGrid').dataSource.page(1);
+            }
+        }).data("kendoWindow");
+        importWin.center().open();
+    }
+
+    function deleteData() {
+        var checked = grid.selectedDataItems();
+        if (grid.selectedDataItems().length) {
+            kendo.ui.showConfirmDialog({
+                title: $l('jrap.tip.info'),
+                message: $l('jrap.tip.delete_confirm')
+            }).done(function (event) {
+                if (event.button == 'OK') {
+                    $.each(checked, function (i, v) {
+                        grid.dataSource.remove(v)
+                    });
+                    grid.dataSource.sync();
+                }
+            })
+        }
+    }
+
+    var validator = $("#page-content").kendoValidator({
+        valid: function (e) {
+        },
+        invalidMessageType: "tooltip"
+    }).data("kendoValidator");
+
+    $("#closeWin").click(function () {
+        window.parent.$("#orderedit").data("kendoWindow").close();
+    });
+
+    //创建订单
+    $("#saveGrid").click(function () {
+        var datamap = {};
+        datamap['order'] = orderViewModel.model;
+        datamap['item'] = itemViewModel.model;
+        datamap['customer'] = customerViewModel.model;
+        if (validator.validate()) {
+            //请求接口
+            $.ajax({
+                type: "POST",
+                url: '${base.contextPath}/con/order/submit',
+                dataType: "json",
+                data: kendo.stringify(datamap),
+                async: false,
+                contentType: "application/json",
+                success: function (data) {
+                    if (data.success = "true") {
+                        kendo.ui.showInfoDialog({
+                            title: "提示",
+                            message: "创建成功"
+                        }).done(function (e) {
+                            //window.parent.$("#changeassignWindow").data("kendoWindow").close()
+                        });
+                    } else {
+                        kendo.ui.showInfoDialog({
+                            title: "提示",
+                            message: "创建失败",
+                            iconClass: "fa fa-times-circle", // 提示图标
+                            dialogClass: "k-dialog-error" // 图标类型
+                        }).done(function (e) {
+                            //window.parent.$("#changeassignWindow").data("kendoWindow").close()
+                        });
+                    }
+                }
+            });
+        }
+    })
+</script>
+</body>
+</html>
