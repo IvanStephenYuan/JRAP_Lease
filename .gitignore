@@ -1,0 +1,12 @@
+# Intellij
+.idea/
+*.iml
+*.iws
+.svn/
+**/out
+overlays/
+
+# Maven
+**/target
+**/*.log
+**/*.tmp
