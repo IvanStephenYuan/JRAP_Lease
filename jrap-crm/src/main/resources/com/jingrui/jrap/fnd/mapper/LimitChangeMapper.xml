@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@347b1df1$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.fnd.mapper.LimitChangeMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.fnd.dto.LimitChange">
+        <result column="CHANGE_ID" property="changeId" jdbcType="DECIMAL" />
+        <result column="LIMIT_TYPE" property="limitType" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="LIMIT_COMPANY_ID" property="limitCompanyId" jdbcType="DECIMAL" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="GOOD_ID" property="goodId" jdbcType="DECIMAL" />
+        <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+        <result column="LIMIT_AMOUNT" property="limitAmount" jdbcType="DECIMAL" />
+        <result column="SUBMIT_DATE" property="submitDate" jdbcType="DATE" />
+        <result column="APPROVED_DATE" property="approvedDate" jdbcType="DATE" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+</mapper>

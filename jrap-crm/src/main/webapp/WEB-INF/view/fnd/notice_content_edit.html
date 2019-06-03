@@ -1,0 +1,281 @@
+<#--
+* description: 商户公告内容编辑页面
+-->
+<#include "../include/header.html"/>
+<body>
+<style type="text/css">
+    #mainform .notice_edit{
+        text-align: center;
+        margin: 10px auto 15px;
+
+    }
+    #mainform label{
+        text-align: right;
+    }
+    .notice_content{
+        margin: 10px 45px ;
+    }
+    .user_display,.role_display,.company_display{
+        display: none;
+    }
+    #mainform .digest-label{
+        width:12.5%;
+    }
+    #mainform .digest-txt{
+        width:86%;
+    }
+</style>
+<script src="${base.contextPath}/common/code?noticeTypeData=NOTICE.NOTICE_TYPE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?noticeStatusData=NOTICE.STATUS" type="text/javascript"></script>
+<script>var _baseContext = '${base.contextPath}'</script>
+<script type="text/javascript">
+    var isedit = '${RequestParameters.isedit!0}';
+    var noticeId = '${RequestParameters.noticeId!-1}';
+    var viewModel = kendo.observable({
+        model: {},
+        closeWin: function (e) {
+            parent.$("#newWin").data("kendoWindow").close();
+        },
+    });
+    if (isedit != 0) {
+        $.ajax({
+            url: '${base.contextPath}/fnd/notice/selectOptions?noticeId=' + noticeId,
+            success: function (args) {
+                var a0 = args.rows[0] || {};
+                for (var k in a0) {
+                    viewModel.model.set(k, a0[k]);
+                }
+            }
+        });
+    }
+</script>
+
+
+<div id="page-content" >
+    <form id="mainform" class="form-horizontal" >
+        <div class="row notice_edit " >
+            <span class="btn btn-success"  onclick="save()" type="button" style=" margin-right: 5%;border-radius: 3px;width: 100px;">保存</span>
+            <span class="btn btn-default"  data-bind="click:closeWin" type="button" style="margin-right:25px;border-radius: 3px;width: 100px;">关闭</span>
+        </div>
+
+        <div class="col-xs-12 ">
+            <div class="col-xs-4 ">
+                <div class="form-group">
+                    <label class="col-xs-4  control-label"><@spring.message "notice.noticetype"/></label>
+                    <div class="col-xs-8 ">
+                        <input id="noticeType" type="text" data-bind="value:model.noticeType"
+                               required
+                               style="width: 100%;">
+                        <script>
+                            $("#noticeType").kendoComboBox({
+                                dataSource: noticeTypeData,
+                                valuePrimitive: true,
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                change:function (e) {
+                                    onComboboxChange(e);
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="col-xs-4  control-label"><@spring.message "notice.noticedate"/></label>
+                    <div class="col-xs-8 ">
+                        <input id="noticeDate" type="text" data-bind="value:model.noticeDate"
+                               required
+                               style="width: 100%;">
+                        <script>
+                            $('#noticeDate').kendoDatePicker();
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="col-xs-4   control-label"><@spring.message "notice.noticetitle"/></label>
+                    <div class="col-xs-8 ">
+                        <input id="noticeTitle" type="text" data-bind="value:model.noticeTitle" class="k-textbox" required
+                               style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="col-xs-4  control-label"><@spring.message "notice.startdate"/></label>
+                    <div class="col-xs-8 ">
+                        <input id="startDate" type="text" data-bind="value:model.startDate" required
+                               style="width: 100%;">
+                        <script>
+                            $('#startDate').kendoDatePicker();
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="col-xs-4  control-label"><@spring.message "notice.enddate"/></label>
+                    <div class="col-xs-8 ">
+                        <input id="endDate" type="text" data-bind="value:model.endDate" required
+                               style="width: 100%;">
+                        <script>
+                            $('#endDate').kendoDatePicker();
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 company_display">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label"><@spring.message "notice.companyid"/></label>
+                    <div class="col-xs-8 ">
+                        <input id="companyId" type="text" data-bind="value:model.companyId,text:model.companyFullName"
+                               style="width: 100%;">
+                        <script>
+                            $("#companyId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_COMPANY")}, {
+                                query: function (e) {
+                                }
+                            }))
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 role_display">
+                <div class="form-group">
+                    <label class="col-xs-4  control-label"><@spring.message "role.rolename"/></label>
+                    <div class="col-xs-8 ">
+                        <input id="roleId" type="text" data-bind="value:model.roleId,text:model.roleName"
+                               style="width: 100%;">
+                        <script>
+                            $("#roleId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_ROLE")}, {
+                                query: function (e) {
+                                }
+                            }))
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4 user_display">
+                <div class="form-group">
+                    <label class="col-xs-4  control-label"><@spring.message "notice.userid"/></label>
+                    <div class="col-xs-8">
+                        <input id="userId" type="text" data-bind="value:model.userId,text:model.userName"
+                               style="width: 100%;">
+                        <script>
+                            $("#userId").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "user_lov")}, {
+                                query: function (e) {
+                                }
+                            }))
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-xs-1 digest-label control-label"><@spring.message "notice.noticedigest"/></label>
+                <div class="col-xs-11 digest-txt">
+                    <textarea id="noticeDigest"  data-bind="value:model.noticeDigest" rows="2" style="width: 100%;height: 40px;line-height: 20px;" ></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="notice_content"><@spring.message "notice.content"/></div>
+        <script id="editor" type="text/plain" name="content" style="margin:10px 45px;"></script>
+
+    </form>
+
+</div>
+
+    <script type="text/javascript" charset="utf-8" src="${base.contextPath}/lib/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="${base.contextPath}/lib/ueditor/ueditor.all.js"></script>
+    <script type="text/javascript">
+        kendo.bind($('#mainform'), viewModel);
+        var noticeType=viewModel.model.noticeType;
+        if(noticeType=="COMPANY"){
+            $(".company_display").css("display","block")
+        }else if(noticeType=="USER"){
+            $(".user_display").css("display","block")
+        }else if(noticeType=="ROLE"){
+            $(".role_display").css("display","block")
+        }else if(noticeType=="SYSTEM"){
+            $("#noticeDigest").attr("required","required");
+        }
+        var BaseUrl = _basePath;
+        var ue = UE.getEditor('editor', {
+            autoHeight: false,
+            initialFrameHeight: 300,
+            initialFrameWidth: 800,
+            initialContent:viewModel.model.content
+        });
+        ue.ready(function () {
+            //文本框失去焦点时,若内容为空则显示默认显示的内容
+            ue.addListener("blur", function () {
+                if (!ue.getContent()) {
+                    ue.setContent(viewModel.model.content);
+                }
+            });
+        });
+
+        function save() {
+            var validator = $("#mainform").kendoValidator({
+                invalidMessageType: "tooltip"
+            }).data("kendoValidator");
+            var content=ue.getContent();
+            viewModel.model.content=content;
+            if (isedit == 1) {
+                viewModel.model.set("__status", "update");
+                viewModel.model.set("noticeId", noticeId);
+            } else {
+                viewModel.model.set("__status", "add");
+                viewModel.model.set("status", "N");
+            }
+            if (validator.validate()) {
+                $.ajax({
+                    url: BaseUrl + '/fnd/notice/submit',
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json;charset=UTF-8",
+                    data: kendo.stringify([viewModel.model]),
+                    success: function (args) {
+                        if (args.success === false) {
+                            kendo.ui.showErrorDialog({
+                                title: $l('jrap.error'),
+                                message: args.message
+                            });
+                        } else {
+                            kendo.ui.showInfoDialog({
+                                title: $l('jrap.tip.info'),
+                                message: $l('jrap.tip.success')
+                            }).done(function (e) {
+                                parent.$("#newWin").data("kendoWindow").close();
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        function onComboboxChange(e) {
+            var combobox = $("#noticeType").data("kendoComboBox");
+            var type=combobox.value();
+            $(".company_display,.user_display,.role_display").css("display","none");
+            $("#noticeDigest").removeAttr("required");
+            if(type=="COMPANY"){
+                $(".company_display").css("display","block");
+            }else if(type=="USER"){
+                $(".user_display").css("display","block");
+            }else if(type=="ROLE"){
+                $(".role_display").css("display","block");
+            }else if(type=="SYSTEM"){
+                $("#noticeDigest").attr("required","required");
+            }
+        }
+    </script>
+
+
+</body>
+</html>

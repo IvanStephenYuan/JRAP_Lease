@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.fnd.mapper.NoticeMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.fnd.dto.Notice">
+        <result column="NOTICE_ID" property="noticeId" jdbcType="DECIMAL" />
+        <result column="NOTICE_TYPE" property="noticeType" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ROLE_ID" property="roleId" jdbcType="DECIMAL" />
+        <result column="USER_ID" property="userId" jdbcType="DECIMAL" />
+        <result column="NOTICE_DATE" property="noticeDate" jdbcType="DATE" />
+        <result column="NOTICE_TITLE" property="noticeTitle" jdbcType="VARCHAR" />
+        <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+        <result column="START_DATE" property="startDate" jdbcType="DATE" />
+        <result column="END_DATE" property="endDate" jdbcType="DATE" />
+        <result column="AUTHOR" property="author" jdbcType="DECIMAL" />
+        <result column="NOTICE_DIGEST" property="noticeDigest" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+    <select id="limitQuery" resultMap="BaseResultMap" parameterType="com.jingrui.jrap.fnd.dto.Notice">
+        select *
+        from  fnd_notice a
+        <where>
+            a.NOTICE_TYPE!="SYSTEM"
+            AND
+            a.STATUS = "Y"
+            AND
+            now() between a.START_DATE and a.END_DATE
+            AND ((a.NOTICE_TYPE = "COMPANY" and a.COMPANY_ID = #{request.companyId})
+                or (a.NOTICE_TYPE = "ROLE" and a.ROLE_ID = #{request.roleId})
+                or (a.NOTICE_TYPE = "USER" and a.USER_ID = #{request.userId}))
+        </where>
+        order by a.NOTICE_ID desc
+    </select>
+</mapper>
