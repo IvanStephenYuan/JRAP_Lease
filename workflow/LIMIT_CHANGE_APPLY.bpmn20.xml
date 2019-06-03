@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="demo">
+  <process id="LIMIT_CHANGE_APPLY" name="额度调整申请流程" isExecutable="true">
+    <startEvent id="sid-RQ0h5Tl7-rBtd-4k7r-8ud1-WElNryw3Vp4h" name="发起商户入网申请" activiti:initiator="initiator" activiti:formKey="fnd\limit_change_apply.html"/>
+    <userTask id="sid-80mZ-DSsqXo0YOkjP" name="风控审批" activiti:formKey="fnd\limit_change_exam.html">
+      <extensionElements>
+        <activiti:formProperty id="APPROVAL_CANDIDATE_RULE" type="enum">
+          <activiti:value id="APPOINTED_POSITION" name="{&quot;parameter&quot;:[{&quot;positionCode&quot;:&quot;115189&quot;}],&quot;businessRules&quot;:[]}"/>
+        </activiti:formProperty>
+        <activiti:formProperty id="APPROVAL_STRATEGY" name="ONE_APPROVAL" type="string"/>
+        <activiti:formProperty id="ACT_REVOKE_ENABLE_FLAG" name="N" type="string" readable="false" writable="false"/>
+      </extensionElements>
+    </userTask>
+    <userTask id="sid-oBk84RNT-AvPO-44CM-8rDh-n9Auw1J69DME" name="总经办审批" activiti:formKey="fnd\limit_change_exam.html">
+      <extensionElements>
+        <activiti:formProperty id="APPROVAL_CANDIDATE_RULE" type="enum">
+          <activiti:value id="APPOINTED_POSITION" name="{&quot;parameter&quot;:[{&quot;positionCode&quot;:&quot;FIN_INSPECTOR&quot;}],&quot;businessRules&quot;:[]}"/>
+        </activiti:formProperty>
+        <activiti:formProperty id="APPROVAL_STRATEGY" name="ONE_APPROVAL" type="string"/>
+        <activiti:formProperty id="ACT_REVOKE_ENABLE_FLAG" name="N" type="string" readable="false" writable="false"/>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-W5tWzXaD-idnD-4zQ3-9PHc-NImvyJIbwJ3j"/>
+    <endEvent id="sid-wIlGqWMY-7YGF-4rvl-8heK-aQ4RfdM0vSn9" name="商户入网流程结束"/>
+    <sequenceFlow id="sid-hPSmKaJJ-kfQz-4cRD-8xHj-R42miFVPphAO" sourceRef="sid-RQ0h5Tl7-rBtd-4k7r-8ud1-WElNryw3Vp4h" targetRef="sid-80mZ-DSsqXo0YOkjP"/>
+    <exclusiveGateway id="sid-l052pnto-xUeX-4feO-8qiv-ZM9dsUOZZkOY"/>
+    <sequenceFlow id="sid-Cp4mnJmy-4kcE-4zuh-8Hp2-oqE" sourceRef="sid-80mZ-DSsqXo0YOkjP" targetRef="sid-l052pnto-xUeX-4feO-8qiv-ZM9dsUOZZkOY"/>
+    <sequenceFlow id="sid-Cp4mnJmy-4kcE-4zuh-Cm4CyrvKmoqE" name="同意" sourceRef="sid-l052pnto-xUeX-4feO-8qiv-ZM9dsUOZZkOY" targetRef="sid-oBk84RNT-AvPO-44CM-8rDh-n9Auw1J69DME">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveResult=='APPROVED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-iG0tbMhQ-Oz5i-4MhU-9I8S-xw2EtZTKnB99" sourceRef="sid-oBk84RNT-AvPO-44CM-8rDh-n9Auw1J69DME" targetRef="sid-W5tWzXaD-idnD-4zQ3-9PHc-NImvyJIbwJ3j"/>
+    <sequenceFlow id="sid-Jmy-4kcE-4zuh-8Hp2-moqE" name="拒绝" sourceRef="sid-W5tWzXaD-idnD-4zQ3-9PHc-NImvyJIbwJ3j" targetRef="sid-wIlGqWMY-7YGF-4rvl-8heK-aQ4RfdM0vSn9">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveResult=='REJECTED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-MOeGqrZV-u5wm-4oHr-8qCF-lSFjAnOvTxsW" name="同意" sourceRef="sid-W5tWzXaD-idnD-4zQ3-9PHc-NImvyJIbwJ3j" targetRef="sid-wIlGqWMY-7YGF-4rvl-8heK-aQ4RfdM0vSn9">
+      <extensionElements>
+        <activiti:executionListener event="end" class="com.jingrui.jrap.fnd.service.impl.LimitChangeApprovedListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveResult=='APPROVED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-Cp4mnJmy-4kcE-4zuh-8Hp2-Cm4CyrvKmoqE" name="拒绝" sourceRef="sid-l052pnto-xUeX-4feO-8qiv-ZM9dsUOZZkOY" targetRef="sid-wIlGqWMY-7YGF-4rvl-8heK-aQ4RfdM0vSn9">
+      <extensionElements>
+        <activiti:executionListener event="end" class="com.jingrui.jrap.fnd.service.impl.LimitChangeRejectedListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveResult=='REJECTED'}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_LIMIT_CHANGE_APPLY">
+    <bpmndi:BPMNPlane bpmnElement="LIMIT_CHANGE_APPLY" id="BPMNPlane_LIMIT_CHANGE_APPLY">
+      <bpmndi:BPMNShape bpmnElement="sid-RQ0h5Tl7-rBtd-4k7r-8ud1-WElNryw3Vp4h" id="BPMNShape_sid-RQ0h5Tl7-rBtd-4k7r-8ud1-WElNryw3Vp4h">
+        <omgdc:Bounds height="30.0" width="30.0" x="200.0" y="360.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-80mZ-DSsqXo0YOkjP" id="BPMNShape_sid-80mZ-DSsqXo0YOkjP">
+        <omgdc:Bounds height="80.0" width="100.0" x="165.0" y="248.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-oBk84RNT-AvPO-44CM-8rDh-n9Auw1J69DME" id="BPMNShape_sid-oBk84RNT-AvPO-44CM-8rDh-n9Auw1J69DME">
+        <omgdc:Bounds height="80.0" width="100.0" x="540.0" y="240.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-W5tWzXaD-idnD-4zQ3-9PHc-NImvyJIbwJ3j" id="BPMNShape_sid-W5tWzXaD-idnD-4zQ3-9PHc-NImvyJIbwJ3j">
+        <omgdc:Bounds height="40.0" width="40.0" x="465.0" y="365.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-wIlGqWMY-7YGF-4rvl-8heK-aQ4RfdM0vSn9" id="BPMNShape_sid-wIlGqWMY-7YGF-4rvl-8heK-aQ4RfdM0vSn9">
+        <omgdc:Bounds height="28.0" width="28.0" x="351.0" y="371.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-l052pnto-xUeX-4feO-8qiv-ZM9dsUOZZkOY" id="BPMNShape_sid-l052pnto-xUeX-4feO-8qiv-ZM9dsUOZZkOY">
+        <omgdc:Bounds height="40.0" width="40.0" x="465.0" y="165.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-iG0tbMhQ-Oz5i-4MhU-9I8S-xw2EtZTKnB99" id="BPMNEdge_sid-iG0tbMhQ-Oz5i-4MhU-9I8S-xw2EtZTKnB99">
+        <omgdi:waypoint x="590.0" y="320.0"/>
+        <omgdi:waypoint x="590.0" y="385.0"/>
+        <omgdi:waypoint x="505.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-Cp4mnJmy-4kcE-4zuh-Cm4CyrvKmoqE" id="BPMNEdge_sid-Cp4mnJmy-4kcE-4zuh-Cm4CyrvKmoqE">
+        <omgdi:waypoint x="505.0" y="185.0"/>
+        <omgdi:waypoint x="590.0" y="185.0"/>
+        <omgdi:waypoint x="590.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-MOeGqrZV-u5wm-4oHr-8qCF-lSFjAnOvTxsW" id="BPMNEdge_sid-MOeGqrZV-u5wm-4oHr-8qCF-lSFjAnOvTxsW">
+        <omgdi:waypoint x="465.0" y="385.0"/>
+        <omgdi:waypoint x="379.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-hPSmKaJJ-kfQz-4cRD-8xHj-R42miFVPphAO" id="BPMNEdge_sid-hPSmKaJJ-kfQz-4cRD-8xHj-R42miFVPphAO">
+        <omgdi:waypoint x="215.0" y="360.0"/>
+        <omgdi:waypoint x="215.0" y="328.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-Cp4mnJmy-4kcE-4zuh-8Hp2-oqE" id="BPMNEdge_sid-Cp4mnJmy-4kcE-4zuh-8Hp2-oqE">
+        <omgdi:waypoint x="215.0" y="248.0"/>
+        <omgdi:waypoint x="215.0" y="185.0"/>
+        <omgdi:waypoint x="465.0" y="185.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-Jmy-4kcE-4zuh-8Hp2-moqE" id="BPMNEdge_sid-Jmy-4kcE-4zuh-8Hp2-moqE">
+        <omgdi:waypoint x="485.0" y="365.0"/>
+        <omgdi:waypoint x="485.0" y="288.0"/>
+        <omgdi:waypoint x="375.88776413938945" y="376.1990573206602"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-Cp4mnJmy-4kcE-4zuh-8Hp2-Cm4CyrvKmoqE" id="BPMNEdge_sid-Cp4mnJmy-4kcE-4zuh-8Hp2-Cm4CyrvKmoqE">
+        <omgdi:waypoint x="485.0" y="205.0"/>
+        <omgdi:waypoint x="485.0" y="288.0"/>
+        <omgdi:waypoint x="375.88776413938945" y="376.1990573206602"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
