@@ -1,0 +1,270 @@
+*{
+    box-sizing: border-box;
+}
+html{
+    background-color: transparent;
+}
+body{
+    overflow-y: hidden;
+}
+.home-header{
+    padding: 16px 24px 0;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    margin: 0;
+    color: rgba(0,0,0,.65);
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5;
+    list-style: none;
+    font-feature-settings: "tnum";
+    position: relative;
+}
+.home-breadcrumb{
+    box-sizing: border-box;
+    margin: 0 0 12px;
+    padding: 0;
+    font-variant: tabular-nums;
+    line-height: 1.5;
+    list-style: none;
+    font-feature-settings: "tnum";
+    color: rgba(0,0,0,.45);
+}
+.home-header .home-user{
+ margin-top: 15px;
+}
+.home-user-image {
+}
+.home-user-image img{
+    width: 80px;
+    height:80px;
+}
+.home-user-greetings{
+    margin: 12px 0;
+    color: rgba(0,0,0,.85);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 28px;
+}
+.home-user-greetings .username{
+    float: none;
+}
+.home-user-job{
+    color: rgba(0,0,0,.45);
+    line-height: 22px;
+}
+.home-user-work{
+    margin: 12px 0;
+    white-space: nowrap;
+    line-height: 1.5;
+    color: rgba(0,0,0,.65);
+    font-size: 0;
+    list-style: none;
+}
+.home-user-work li{
+    display: inline-block;
+    text-align: center;
+    font-size: 14px;
+    display: inline-block;
+    padding: 0 12px;
+}
+.home-user-work li  p{
+    margin-top: 0;
+}
+
+.home-user-work li .user-work-num{
+    color: rgba(0,0,0,.85);
+    font-size: 30px;
+}
+
+.home-work{
+    margin-top: 15px;
+    padding: 10px;
+
+}
+.home-work .home-left{
+    margin: 10px 0;
+    padding: 0;
+}
+.home-work .home-left .home-task{
+    background-color: #fff;
+    border-radius: 5px;
+}
+.home-task .task-header {
+    color: rgba(0,0,0,.85);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.5;
+    border-bottom: 1px solid #e9ecf3;
+    padding: 0 15px;
+}
+.home-task .task-header a{
+    text-decoration: none;
+    color: #1890ff;
+}
+.home-task .task-lists {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    height: 228px;
+}
+.home-task .task-lists .task-item{
+    padding-left: 12px;
+    color: rgba(0,0,0,.45);
+    box-shadow: 1px 0 0 0 #e8e8e8, 0 1px 0 0 #e8e8e8, 1px 1px 0 0 #e8e8e8, inset 1px 0 0 0 #e8e8e8, inset 0 1px 0 0 #e8e8e8;
+}
+.home-task .task-lists .task-item:hover{
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.home-task .task-lists .task-item a{
+    display: block;
+    text-decoration: none;
+    color: rgba(0,0,0,.45);
+}
+.home-task .task-lists .task-item  a:hover{
+    color: #1890ff;
+}
+.home-task .task-lists .task-item .task-item-num{
+    display: block;
+    font-size: 14px;
+    line-height: 20px;
+    height: 20px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+.home-task .task-lists .task-item .task-item-name{
+    height: 20px;
+    overflow: hidden;
+    line-height: 20px;
+    font-size: 14px;
+    margin: 8px 0;
+}
+.home-task .task-lists .task-item .task-item-phone{
+    display: flex;
+    height: 20px;
+    font-size: 14px;
+    line-height: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    margin: 8px 0;
+}
+/*.home-task .task-lists .task-item .task-item-info a{*/
+    /*display: inline-block;*/
+    /*text-decoration: none;*/
+    /*flex: 1 1;*/
+    /*color: rgba(0,0,0,.45);*/
+    /*overflow: hidden;*/
+    /*white-space: nowrap;*/
+    /*text-overflow: ellipsis;*/
+    /*word-break: break-all;*/
+/*}*/
+/*.home-task .task-lists .task-item .task-item-info a:hover{*/
+    /*color: #1890ff;*/
+/*}*/
+.home-task .task-lists .task-item  .task-item-time{
+    height: 20px;
+    overflow: hidden;
+    color: rgba(0,0,0,.45);
+    line-height: 20px;
+    font-size: 14px;
+    margin: 8px 0;
+}
+
+.home-work .home-left .home-order{
+    margin-top: 30px;
+}
+.home-work .home-left .home-order .task-lists{
+    height: 280px;
+}
+
+.home-work .home-right{
+     margin: 10px 0 ;
+     padding: 0;
+ }
+.home-right .my-shortcut,.home-right .distribution{
+    background-color: #fff;
+    border-radius: 5px;
+}
+.home-right .distribution{
+    margin-top: 32px;
+}
+.home-right .my-shortcut .shortcut-header,.distribution  .distribution-header{
+    color: rgba(0,0,0,.85);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.5;
+    border-bottom: 1px solid #e9ecf3;
+    padding: 0 15px;
+}
+.home-right .my-shortcut .shortcut-header p,.distribution  .distribution-header p{
+    text-align: center;
+    margin: 0;
+    height: 62px;
+    line-height: 62px;
+}
+.my-shortcut .shortcutLists{
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    height: 230px;
+}
+.my-shortcut .shortcutLists .shortcutList{
+    padding-left: 12px;
+    color: rgba(0,0,0,.45);
+    margin-bottom: 20px;
+}
+
+.my-shortcut .shortcutLists .shortcutList a{
+    display: block;
+    text-decoration: none;
+    color: rgba(0,0,0,.45);
+}
+.my-shortcut .shortcutLists .shortcutList a:hover{
+    color: #1890ff;
+}
+.my-shortcut .shortcutLists .shortcutList .shortcutList-icon{
+    font-size: 30px;
+    line-height: 48px;
+    height: 48px;
+    margin: 0 ;
+    text-align: center;
+}
+.my-shortcut .shortcutLists .shortcutList .shortcutList-txt{
+    font-size: 14px;
+    line-height: 24px;
+    height: 24px;
+    overflow: hidden;
+    margin: 0 ;
+    text-align: center;
+}
+.my-shortcut .shortcutLists .shortcutList .shortcutList-close{
+    font-size: 20px;
+    line-height: 24px;
+    height: 24px;
+    overflow: hidden;
+    margin: 0 ;
+    text-align: center;
+    color: #e7505a;
+    cursor: pointer;
+}
+#distribution_charts{
+    width: 95%;
+    margin: 0 auto;
+    height: 280px;
+}
+@media (min-width:1200px){
+    /*.home-work .home-right{
+        margin-left: 60px;
+    }*/
+}
+@media (min-width:992px){
+    /*.home-work .home-right{*/
+        /*margin-left: 45px;*/
+    /*}*/
+}
+
+
+

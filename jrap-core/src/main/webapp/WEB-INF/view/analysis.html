@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+    <meta charset="utf-8" />
+    <title>JRAP</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="X-CSRF-TOKEN" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="${base.contextPath}/lib/font-awesome-4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="${base.contextPath}/lib/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/lib/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <!-- END GLOBAL MANDATORY STYLES -->
+
+    <script src="${base.contextPath}/lib/kendoui/js/jquery.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.all.min.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/jszip.min.js"></script>
+
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.common-bootstrap.min.css?v=20181015" rel="stylesheet" type="text/css"/>
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.bootstrap.min.css?v=20181015" rel="stylesheet" type="text/css"/>
+
+    <link href="${base.contextPath}/lib/kendoui/styles/kendo.jrap.css?v=20181015" rel="stylesheet" type="text/css"/>
+
+    <script src="${base.contextPath}/lib/kendoui/js/cultures/kendo.culture.zh-CN.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/messages/kendo.messages.zh-CN.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/kendo.jrap.js?v=20181015"></script>
+    <script src="${base.contextPath}/lib/assets/global/plugins/jquery.blockui.min.js"></script>
+    <script src="${base.contextPath}/lib/kendoui/js/jquery.placeholder.js"></script>
+
+    <script src="${base.contextPath}/lib/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <#include "include/components.html">
+    <!-- END THEME GLOBAL STYLES -->
+
+    <!-- BEGIN THEME LAYOUT STYLES -->
+    <link href="${base.contextPath}/lib/assets/layouts/layout4/css/layout.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/lib/assets/layouts/layout4/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color" />
+    <link href="${base.contextPath}/lib/assets/layouts/layout4/css/custom.css" rel="stylesheet" type="text/css" />
+    <link href="${base.contextPath}/resources/css/analysis.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME LAYOUT STYLES -->
+
+</head>
+<body>
+<!--<div class="analysis-header">
+    <div class="breadcrumb">
+        分析页
+    </div>
+</div>-->
+<div class="overview  clearfix">
+    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3">
+        <div class="chartCard">
+            <div class="card-header clearfix">
+                <div class="card-tit pull-left">总销售额</div>
+                <div class="card-action pull-right" data-toggle="tooltip"  data-placement="bottom" title="指标说明">
+                    <i class="fa fa-question-circle-o" ></i></div>
+            </div>
+            <div class="card-sale"><span class="card-sale-num"><i class="fa fa-jpy" ></i>126,560</span></div>
+            <div class="card-compare">
+            <span class="week-com">周同比:
+                 <span class="week-com-num">12%</span>
+                 <i class="fa fa-caret-up red" ></i>
+            </span>
+            <span class="day-com">
+                日同比:
+                 <span class="day-com-num">11%</span>
+                 <i class="fa fa-caret-down green" ></i>
+            </span>
+            </div>
+            <div class="card-footer">
+                日销售额 <span class="card-footer-num"><i class="fa fa-jpy" ></i> 12,423</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3">
+        <div class="chartCard">
+            <div class="card-header clearfix">
+                <div class="card-tit pull-left">访问量</div>
+                <div class="card-action pull-right" data-toggle="tooltip"  data-placement="bottom" title="指标说明">
+                    <i class="fa fa-question-circle-o" ></i></div>
+            </div>
+            <div class="card-sale"><span class="card-sale-num">8,846</span></div>
+            <div class="card-chart" id="card-visit-card"></div>
+            <div class="card-footer">
+                日访问量 <span class="card-footer-num"> 12,423</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3">
+        <div class="chartCard">
+            <div class="card-header clearfix">
+                <div class="card-tit pull-left">支付笔数</div>
+                <div class="card-action pull-right" data-toggle="tooltip"  data-placement="bottom" title="指标说明">
+                    <i class="fa fa-question-circle-o" ></i></div>
+            </div>
+            <div class="card-sale"><span class="card-sale-num">6,560</span></div>
+            <div class="card-chart" id="card-pay-card"></div>
+            <div class="card-footer">
+                转化率 <span class="card-footer-num">60%</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3">
+        <div class="chartCard">
+            <div class="card-header clearfix">
+                <div class="card-tit pull-left">运营活动效果</div>
+                <div class="card-action pull-right" data-toggle="tooltip"  data-placement="bottom" title="指标说明">
+                    <i class="fa fa-question-circle-o" ></i>
+                </div>
+            </div>
+            <div class="card-sale"><span class="card-sale-num">78%</span></div>
+            <div class="card-chart card-run" id="card-run">
+                <div class="card-run-progress">
+                    <div class="progress-num"></div>
+                    <div class="progress-target" data-toggle="tooltip" data-placement="top" title="目标值：80%">
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <span class="week-com">周同比:
+                    <span class="week-com-num">12%</span>
+                    <i class="fa fa-caret-up red" ></i>
+                </span>
+                <span class="day-com">
+                    日同比:
+                    <span class="day-com-num">11%</span>
+                    <i class="fa fa-caret-down green" ></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="sale-amount ">
+    <div class="sale-amount-head clearfix">
+        <div class="pull-left sale-tit">销售额</div>
+        <div class="pull-right clearfix">
+            <div class="sales-extra pull-left " style="display: none;">
+                <a href="javascript:;" class="active-time" id="daySale">今日</a>
+                <a href="javascript:;" id="weekSale">本周</a>
+                <a href="javascript:;" id="monthSale">本月</a>
+                <a href="javascript:;" id="yearSale">本年</a>
+            </div>
+            <div class="sale-calendar pull-right ">
+                <input id="startDate" type="text" >
+                    ~
+                <input id="endDate" type="text" >
+            </div>
+        </div>
+    </div>
+    <div class="sale-amount-con clearfix">
+        <div class="sale-amount-grid col-xs-12 col-sm-8 col-md-8 col-lg-8">
+            <div class="sale-amount-conhead">销售趋势</div>
+            <div class="trendGrid" id="trendGrid" style="width: 100%;height: 320px;"></div>
+        </div>
+        <div class="sale-amount-rank col-xs-12 col-sm-4  col-md-4 col-lg-4">
+            <div class="sale-amount-conhead">销售订单数排名</div>
+            <ul class="sale-rank">
+                <!--<li class="sale-rank-top">
+                    <span class="sale-rank-order">1</span>
+                    <span class="sale-rank-shop">工专路 1 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>
+                <li class="sale-rank-top">
+                    <span class="sale-rank-order">2</span>
+                    <span class="sale-rank-shop">工专路 2 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>
+                <li class="sale-rank-top">
+                    <span class="sale-rank-order">3</span>
+                    <span class="sale-rank-shop">工专路 3 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>
+                <li>
+                    <span class="sale-rank-order">4</span>
+                    <span class="sale-rank-shop">工专路 4 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>
+                <li>
+                    <span class="sale-rank-order">5</span>
+                    <span class="sale-rank-shop">工专路 5 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>
+                <li>
+                    <span class="sale-rank-order">6</span>
+                    <span class="sale-rank-shop">工专路6 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>
+                <li>
+                    <span class="sale-rank-order">7</span>
+                    <span class="sale-rank-shop">工专路 7 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>
+                <li>
+                    <span class="sale-rank-order">8</span>
+                    <span class="sale-rank-shop">工专路 8 号店</span>
+                    <span class="sale-rank-num pull-right">323,234</span>
+                </li>-->
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="second-part clearfix" style="display: none">
+    <div class="second-part-left col-xs-12 col-sm-12 col-md-6 col-lg-6" >
+        <div class="second-part-box">
+            <div class="second-part-head">
+                <p>线上热门搜索</p>
+            </div>
+            <div class="search-grid clearfix">
+                <div class="search-grid1 col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <div class="search-subTit">搜索用户数
+                        <span  data-toggle="tooltip"  data-placement="bottom" title="指标说明">
+                        <i class="fa fa-question-circle-o" ></i>
+                        </span>
+                    </div>
+                    <div class="search-subNum">
+                        <span class="search-subNum-total">12,321</span>
+                        <span class="search-subNum-ratio"><span>17.1</span><i class="fa fa-caret-down green" ></i></span>
+                    </div>
+                    <div class="search-subChart" id="search-subChart1"></div>
+                </div>
+                <div class="search-grid2  col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <div class="search-subTit">搜索用户数
+                        <span  data-toggle="tooltip"  data-placement="bottom" title="指标说明">
+                        <i class="fa fa-question-circle-o" ></i>
+                        </span>
+                    </div>
+                    <div class="search-subNum">
+                        <span class="search-subNum-total">12,321</span>
+                        <span class="search-subNum-ratio"><span>17.1</span><i class="fa fa-caret-up red" ></i></span>
+
+                    </div>
+                    <div class="search-subChart" id="search-subChart2"></div>
+                </div>
+            </div>
+            <div class="search-rank-table">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>搜索关键词</th>
+                            <th>用户数</th>
+                            <th>周涨幅</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><a href="javascripts:;" >搜索关键词1</a></td>
+                            <td>23</td>
+                            <td>92% <i class="fa fa-caret-up red" ></i></td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td><a href="javascripts:;" >搜索关键词1</a></td>
+                            <td>23</td>
+                            <td>92% <i class="fa fa-caret-up red" ></i></td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td><a href="javascripts:;" >搜索关键词1</a></td>
+                            <td>23</td>
+                            <td>92% <i class="fa fa-caret-up red" ></i></td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td><a href="javascripts:;" >搜索关键词1</a></td>
+                            <td>23</td>
+                            <td>92% <i class="fa fa-caret-up red" ></i></td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td><a href="javascripts:;" >搜索关键词1</a></td>
+                            <td>23</td>
+                            <td>92% <i class="fa fa-caret-up red" ></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="search-rank-pagination clearfix">
+                <ul class="pagination pull-right">
+                    <li><a href="javascripts:;">&laquo;</a></li>
+                    <li><a href="javascripts:;">1</a></li>
+                    <li><a href="javascripts:;">2</a></li>
+                    <li><a href="javascripts:;">3</a></li>
+                    <li><a href="javascripts:;">4</a></li>
+                    <li><a href="javascripts:;">5</a></li>
+                    <li><a href="javascripts:;">&raquo;</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="second-part-right col-xs-12 col-sm-12 col-md-6 col-lg-6" >
+        <div class="second-part-box">
+            <div class="second-part-head">
+                <p>销售额类别占比</p>
+            </div>
+            <div class="pie-title">销售额</div>
+            <div class="second-pie-box" id="second-pie-box"></div>
+
+        </div>
+    </div>
+</div>
+
+<div id="newWin" style="display: none"></div>
+<script src="${base.contextPath}/lib/eCharts/echarts.min.js"></script>
+<script src="${base.contextPath}/lib/assets/global/scripts/app.js" type="text/javascript"></script>
+<script src="${base.contextPath}/resources/js/analysis.js" type="text/javascript"></script>
+<script type="text/javascript">
+    var baseUrl = '${base.contextPath}';
+
+        //var baseUrl = '${base.contextPath}/js/analysis.js';
+    $("[data-toggle='tooltip']").tooltip();
+    var date=new Date();
+    var prevDate=new Date();
+    prevDate.setMonth(prevDate.getMonth()-1);
+    $('#startDate').kendoDatePicker({
+        format: "yyyy-MM-dd",
+        value:prevDate
+    });
+    $('#endDate').kendoDatePicker({
+        format: "yyyy-MM-dd",
+        value:date
+    });
+
+    $(".sales-extra").on("click touchend","a",function () {
+        if( !$(this).hasClass("active-time")){
+            $(this).siblings("a").removeClass("active-time");
+            $(this).addClass("active-time");
+        }
+    });
+
+
+
+</script>
+</body>
+</html>
