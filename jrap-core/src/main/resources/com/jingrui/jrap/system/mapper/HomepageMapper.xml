@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@37fa1dd1$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.system.mapper.HomepageMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.system.dto.Homepage">
+        <result column="HOMEPAGE" property="homepage" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ROLE_ID" property="roleId" jdbcType="DECIMAL" />
+        <result column="USER_ID" property="userId" jdbcType="DECIMAL" />
+        <result column="HOME_PATH" property="homePath" jdbcType="VARCHAR" />
+        <result column="REMAKR" property="remakr" jdbcType="VARCHAR" />
+        <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>
