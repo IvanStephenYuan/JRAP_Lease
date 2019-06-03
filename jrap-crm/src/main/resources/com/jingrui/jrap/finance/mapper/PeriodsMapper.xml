@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  ~ /**
+  ~ * @file com.maddyhome.idea.copyright.pattern.FileInfo@13872972$
+  ~ * @CopyRight (C) 2018 ZheJiangJingRui Co. Ltd.
+  ~ * @brief JingRui Application Platform
+  ~ * @author $name$
+  ~ * @email yulong.yuan@jr-info.cn
+  ~ * @date $date$
+  ~ */
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jingrui.jrap.finance.mapper.PeriodsMapper">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.finance.dto.Periods">
+        <result column="SET_CODE" property="setCode" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="PERIOD_YEAR" property="periodYear" jdbcType="DECIMAL" />
+        <result column="PERIOD_NUM" property="periodNum" jdbcType="DECIMAL" />
+        <result column="PERIOD_NAME" property="periodName" jdbcType="VARCHAR" />
+        <result column="ADJUSTMENT_FLAG" property="adjustmentFlag" jdbcType="VARCHAR" />
+        <result column="INTERNAL_PERIOD_NUM" property="internalPeriodNum" jdbcType="DECIMAL" />
+        <result column="START_DATE" property="startDate" jdbcType="DATE" />
+        <result column="END_DATE" property="endDate" jdbcType="DATE" />
+        <result column="QUARTER_NUM" property="quarterNum" jdbcType="DECIMAL" />
+        <result column="STATUS" property="status" jdbcType="VARCHAR" />
+        <result column="MONTH_FLAG" property="monthFlag" jdbcType="VARCHAR" />
+        <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
+        <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
+    </resultMap>
+
+
+</mapper>
