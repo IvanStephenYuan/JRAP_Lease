@@ -109,6 +109,7 @@
                                            data-label="<@spring.message 'customer.customerClass'/>">
                                     <script>
                                         $("#customerClass").kendoComboBox({
+                                            filter: "contains",
                                             dataTextField: "meaning",
                                             dataValueField: "value",
                                             dataSource: {
@@ -120,7 +121,23 @@
                                                 }
                                             },
                                             select: function (e) {
+                                                var combobox = $("#idType").data("kendoComboBox");
+                                                var dataSource = new kendo.data.DataSource({
+                                                    serverFiltering: true,
+                                                    transport: {
+                                                        read: {
+                                                            url: _basePath + '/common/childCode?parentCode=CUSTOMER.CLASS&value=' + e.dataItem.value,
+                                                            dataType: "json"
+                                                        }
+                                                    }
+                                                });
+
+                                                combobox.setDataSource(dataSource);
                                                 newViewModel.model.set("customerClass", e.dataItem.value);
+                                                newViewModel.model.set("idType", "");
+                                            },
+                                            schema: {
+                                                data: 'rows'
                                             }
                                         }).data("kendoComboBox");
                                         kendo.bind($("#customerClass"), newViewModel);
@@ -254,13 +271,29 @@
                                            style="width: 100%;">
                                     <script>
                                         $("#idType").kendoComboBox({
+                                            autoBind: false,
+                                            cascadeFrom: "customerClass",
+                                            cascadeFromField: "value",
+                                            filter: "contains",
+                                            placeholder: "选择证件类型",
                                             dataTextField: "meaning",
                                             dataValueField: "value",
                                             dataSource: {
+                                                serverFiltering: true,
                                                 transport: {
                                                     read: {
-                                                        url: _basePath + '/common/code/HR.CERTIFICATE_TYPE/',
+                                                        url: _basePath + '/common/childCode',
                                                         dataType: "json"
+                                                    },
+                                                    parameterMap: function (options, type) {
+                                                        if (type === "read") {
+                                                            var filter = options.filter.filters[0];
+                                                            var map = {};
+                                                            var customerClass = newViewModel.model.get("customerClass");
+                                                            map["parentCode"] = "CUSTOMER.CLASS";
+                                                            map["value"] = customerClass;
+                                                            return map;
+                                                        }
                                                     }
                                                 }
                                             },
@@ -268,6 +301,9 @@
                                                 newViewModel.model.set("idType", e.dataItem.value);
                                                 newViewModel.model.set("idNo", "");
                                                 newViewModel.model.set("idEndDate", "");
+                                            },
+                                            schema: {
+                                                data: 'rows'
                                             }
                                         });
                                         kendo.bind($('#idType'), newViewModel);
