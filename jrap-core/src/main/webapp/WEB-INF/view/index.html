@@ -780,11 +780,11 @@
                 contentType: "application/json; charset=utf-8",
                 success: function (datas) {
                     console.log(loadUrl);
-                    var html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'home\',\'<@spring.message "jrap.home"/>\', \'home.html\');" class="nav-link"><i class="icon-home"></i><span class="title"><@spring.message "jrap.home"/></span></a></li>'];
-                    if(loadUrl=="/home.html"){
+                    var html='';
+                    if(loadUrl){
+                        html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'home\',\'<@spring.message "jrap.home"/>\', '+loadUrl+');" class="nav-link"><i class="icon-home"></i><span class="title"><@spring.message "jrap.home"/></span></a></li>'];
+                    }else{
                         html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'home\',\'<@spring.message "jrap.home"/>\', \'home.html\');" class="nav-link"><i class="icon-home"></i><span class="title"><@spring.message "jrap.home"/></span></a></li>'];
-                    }else if(loadUrl=="/analysis.html"){
-                        var html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'ANALYSIS\',\'<@spring.message "jrap.home"/>\', \'analysis.html\');" class="nav-link"><i class="icon-home"></i><span class="title">分析页</span></a></li>'];
                     }
 
                     datas = [].concat(datas);
@@ -796,10 +796,9 @@
             });
         }
         $("#mainTab").parent().attr("id", "tabstrip-parent");
-        if(loadUrl=="/home.html"){
-            openTab('home', '<@spring.message "jrap.home"/>', 'home.html', false);//页面刚进来时候加载的首页
-        }else if(loadUrl=="/analysis.html"){
-            openTab('ANALYSIS', '<@spring.message "jrap.home"/>', 'analysis.html', false);
+        console.log("loadUrl",loadUrl);
+        if(loadUrl){
+            openTab('home', '<@spring.message "jrap.home"/>', loadUrl, false);
         }else{
             openTab('home', '<@spring.message "jrap.home"/>', 'home.html', false);
         }

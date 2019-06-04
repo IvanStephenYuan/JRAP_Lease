@@ -435,7 +435,9 @@
 }
 
 
-
+.modal .modal-dialog{
+    min-width: initial;
+}
 
 @media (max-width:991px){
     .page-sidebar.navbar-collapse,.page-sidebar.navbar-collapse.in {
@@ -484,6 +486,11 @@
         width: 90vw;
     }
 
+}
+@media (max-width:812px){
+    .modal .modal-dialog{
+        min-width: 90%;
+    }
 }
 
 
