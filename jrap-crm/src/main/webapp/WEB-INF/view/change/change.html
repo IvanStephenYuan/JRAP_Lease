@@ -7,7 +7,7 @@
   var viewModel = Jrap.createGridViewModel("#grid");
 </script>
 <style>
-  .k-textbox.k-combobox .k-icon.k-i-close{
+  .k-textbox.k-combobox .k-icon.k-i-close {
     top: 22px !important;
   }
 </style>
@@ -26,7 +26,8 @@
     <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
            placeholder='<@spring.message "Change.customerName"/>'
            data-bind="value:model.customerName" class="k-textbox">
-    <input id="idType" type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;"
+    <input id="idType" type="text" data-role="maskedtextbox"
+           style="float:left;width:150px;margin-right:5px;"
            placeholder='<@spring.message "Change.idType"/>'
            data-bind="value:model.idType">
 
@@ -95,7 +96,7 @@
     }
   });
 
-  var pgrid=$("#grid").kendoGrid({
+  var pgrid = $("#grid").kendoGrid({
     dataSource: dataSource,
     resizable: true,
     scrollable: true,
@@ -228,9 +229,9 @@
   //产品发布
   function changeRelase() {
     var checked = pgrid.selectedDataItems();
-    var changes=new Array(checked.length)
+    var changes = new Array(checked.length)
     if (checked.length) {
-      if (checked.length>1) {
+      if (checked.length > 1) {
         kendo.ui.showInfoDialog({
           title: "提示",
           message: "只能选择一行数据",
@@ -238,7 +239,7 @@
           dialogClass: "k-dialog-error" // 图标类型
         });
 
-      } else{
+      } else {
         /* 给数组赋值*/
         $.each(checked, function (i, v) {
           changes[i] = v.changeId;
@@ -257,7 +258,7 @@
         }).data("kendoWindow");
         win.center().open();
       }
-    }else{
+    } else {
       kendo.ui.showInfoDialog({
         title: "提示",
         message: "请至少选择一行数据",
@@ -267,7 +268,6 @@
     }
 
   }
-
 
 
 </script>

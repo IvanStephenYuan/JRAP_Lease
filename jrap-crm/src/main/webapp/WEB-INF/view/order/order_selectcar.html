@@ -27,12 +27,15 @@
 </style>
 <body>
 <div id="carseletWindow" style="display: none"></div>
+<div id="signWindow" style="display: none"></div>
 <div id="page-content">
   <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span data-bind="click:remove" class="btn btn-danger"
               style="float:left;"><@spring.message "jrap.delete"/></span>
     <span class="btn btn-success k-grid-save-changes" onclick="productChiose()"
-          style="float:right;margin-left:5px;"><@spring.message "客户选车"/></span>
+          style="float:left;margin-left:5px;"><@spring.message "客户选车"/></span>
+    <span class="btn btn-success k-grid-save-changes" onclick="signApply()"
+          style="float:left;margin-left:5px;"><@spring.message "签约申请"/></span>
   </div>
   <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
   <div class="pull-right" id="query-form" style="padding-bottom:10px;">
@@ -506,6 +509,58 @@
         }).data("kendoWindow");
         win.center().open();
       }
+    } else {
+      kendo.ui.showInfoDialog({
+        title: "提示",
+        message: "请至少选择一行数据",
+        iconClass: "fa fa-times-circle", // 提示图标
+        dialogClass: "k-dialog-error" // 图标类型
+      });
+    }
+
+  }
+
+
+  //签约申请
+  function signApply() {
+    var checked = pgrid.selectedDataItems();
+    if (checked.length) {
+      if (checked.length > 1) {
+        kendo.ui.showInfoDialog({
+          title: "提示",
+          message: "只能选择一行数据",
+          iconClass: "fa fa-times-circle", // 提示图标
+          dialogClass: "k-dialog-error" // 图标类型
+        });
+      } else {
+        var orderId;
+        var itemId;
+        $.each(checked, function (i, v) {
+          orderId = v.orderId;
+          itemId = v.itemId;
+        });
+        if(itemId==null){
+          kendo.ui.showInfoDialog({
+            title: "提示",
+            message: "请先选车",
+            iconClass: "fa fa-times-circle", // 提示图标
+            dialogClass: "k-dialog-error" // 图标类型
+          });
+        }else{
+        var win = $("#signWindow").kendoWindow({
+          width: 1000,
+          height: 450,
+          actions: ["Close"],
+          title: '签约申请',
+          visible: false,
+          modal: true,
+          iframe: true,
+          content: 'order_signedit.html?orderId=' + orderId,
+          close: function (e) {
+          }
+        }).data("kendoWindow");
+        win.center().open();
+      }}
     } else {
       kendo.ui.showInfoDialog({
         title: "提示",

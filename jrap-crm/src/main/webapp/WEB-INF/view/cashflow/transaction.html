@@ -45,20 +45,6 @@
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
-    // var periodNameData = [];
-    // $(document).ready(function() {
-    //     // 期间集
-    //     $.ajax({
-    //         url: _basePath + '/fin/periods/query',
-    //         dataType: "json",
-    //         type: "POST",
-    //         async: false,
-    //         contentType: "application/json",
-    //         success: function (data) {
-    //             periodNameData = data.rows;
-    //         }
-    //     });
-    // });
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -230,31 +216,6 @@
                 field: "cashflowAmount",
                 title: '<@spring.message "transaction.cashflowamount"/>',
                 width: 120
-            },
-            {
-                field: "periodName",
-                title: '<@spring.message "transaction.periodname"/>',
-                width: 120,
-                template: function (dataItem) {
-                    var v = dataItem.periodName ? dataItem.periodName : "";
-                    $.each(periodNameData, function (i, n) {
-                        if ((n.periodName || '').toLowerCase() == (v || '').toLowerCase()) {
-                            v = n.periodName;
-                            return v;
-                        }
-                    });
-                    return v;
-                },
-                editor: function (container, options) {
-                    $('<input name="' + options.field + '"/>')
-                        .appendTo(container)
-                        .kendoComboBox({
-                            dataTextField: "periodName",
-                            dataValueField: "periodName",
-                            valuePrimitive: true,
-                            dataSource: periodNameData
-                        });
-                }
             },
             {
                 field: "bankAccountId",
