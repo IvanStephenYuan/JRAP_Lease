@@ -10,6 +10,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jingrui.jrap.attachment.dto.Attachment;
+import com.jingrui.jrap.attachment.mapper.SysFileMapper;
 import com.jingrui.jrap.core.exception.TokenException;
 import com.jingrui.jrap.system.dto.ResponseData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class SysFileController extends BaseController {
 
     @Autowired
     private ISysFileService sysFileService;
+
+    @Autowired
+    private SysFileMapper sysFileMapper;
 
     /**
      * 系统文件列表.
@@ -105,4 +109,10 @@ public class SysFileController extends BaseController {
         return new ResponseData(Arrays.asList(file));
 
     }
+
+    @RequestMapping(value = "/sys/attachment/selectByFileId")
+    public SysFile selectByFileId(HttpServletRequest request) {
+        return sysFileMapper.selectByFileId(Long.parseLong(request.getParameter("fileId")));
+    }
+
 }

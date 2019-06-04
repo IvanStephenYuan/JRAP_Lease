@@ -21,4 +21,6 @@ public interface IAttachmentProvider {
                          boolean enableUpload) throws IOException, TemplateException;
 
 	void setConfiguration(Configuration configuration);
+	String getAttachHtmlTierName(String sourceType, String sourceKey, Locale locale, String contextPath, boolean enableRemove,
+								 boolean enableUpload, String tier, String name) throws IOException, TemplateException;
 }

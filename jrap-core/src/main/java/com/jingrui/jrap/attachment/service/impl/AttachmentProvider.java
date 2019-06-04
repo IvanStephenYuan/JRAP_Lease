@@ -126,4 +126,50 @@ public class AttachmentProvider implements IAttachmentProvider {
         return html;
     }
 
+
+    @Override
+    public String getAttachHtmlTierName(String sourceType, String sourceKey, Locale locale, String contextPath, boolean enableRemove, boolean enableUpload, String tier, String name) throws IOException, TemplateException {
+        List<SysFile> files = sysFileService.queryFilesByTypeAndKey(RequestHelper.newEmptyRequest(), sourceType, sourceKey);
+        for (SysFile file :
+                files) {
+            file.setAttribute2(tier);
+        }
+        AttachCategory category = attachCategoryService.selectAttachByCode(RequestHelper.newEmptyRequest(), sourceType);
+        String html = "";
+        if (category != null) {
+            Template template = getConfiguration().getTemplate("Upload.ftl");
+
+            files.forEach(f -> {
+                f.setFileSizeDesc(FormatUtil.formatFileSize(f.getFileSize()));
+            });
+
+
+            try (StringWriter out = new StringWriter()) {
+                Map<String, Object> param = new HashMap<>();
+                param.put("file", files);
+                param.put("fid", name);
+                param.put("enableRemove", enableRemove);
+                param.put("enableUpload", enableUpload);
+                param.put("sourceType", sourceType);
+                param.put("sourceKey", sourceKey);
+                param.put("type", category.getAllowedFileType());
+                param.put("size", category.getAllowedFileSize());
+                param.put("unique", category.getIsUnique());
+                param.put("filename", messageSource.getMessage("sysfile.filename", null, locale));
+                param.put("filetype", messageSource.getMessage("sysfile.filetype", null, locale));
+                param.put("filesize", messageSource.getMessage("sysfile.filesize", null, locale));
+                param.put("upload", messageSource.getMessage("sysfile.uploaddate", null, locale));
+                param.put("delete", messageSource.getMessage("jrap.delete", null, locale));
+                param.put("contextPath", contextPath);
+                param.put("tier", tier);
+                template.process(param, out);
+                out.flush();
+                html = out.toString();
+
+            }
+        } else {
+            return messageSource.getMessage(UpConstants.ERROR_UPLOAD_SOURCE_TYPE_FOLDER_NOT_FOUND, new String[]{sourceType}, locale);
+        }
+        return html;
+    }
 }

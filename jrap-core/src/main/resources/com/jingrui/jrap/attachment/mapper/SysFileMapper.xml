@@ -10,6 +10,18 @@
         <result column="FILE_TYPE" property="fileType" jdbcType="VARCHAR"/>
         <result column="UPLOAD_DATE" property="uploadDate" jdbcType="TIMESTAMP"/>
     </resultMap>
+    <resultMap id="selectByFileIdResultMap" type="com.jingrui.jrap.attachment.dto.SysFile"
+               extends="com.jingrui.jrap.mapper.StdMapper.STD">
+        <id column="FILE_ID" property="fileId" jdbcType="DECIMAL"/>
+        <result column="ATTACHMENT_ID" property="attachmentId" jdbcType="DECIMAL"/>
+        <result column="FILE_NAME" property="fileName" jdbcType="VARCHAR"/>
+        <result column="FILE_PATH" property="filePath" jdbcType="VARCHAR"/>
+        <result column="FILE_SIZE" property="fileSize" jdbcType="DECIMAL"/>
+        <result column="FILE_TYPE" property="fileType" jdbcType="VARCHAR"/>
+        <result column="UPLOAD_DATE" property="uploadDate" jdbcType="TIMESTAMP"/>
+        <result column="ATTRIBUTE1" property="attribute1" jdbcType="VARCHAR"/>
+        <result column="tier" property="attribute3" jdbcType="VARCHAR"/>
+    </resultMap>
 
 
     <!-- 根据参数查询列表 -->
@@ -90,5 +102,15 @@
 
         AND a.SOURCE_KEY=#{sourceKey,jdbcType=VARCHAR,javaType=java.lang.String}
         )
+    </select>
+
+    <select id="selectByFileId" resultMap="selectByFileIdResultMap" parameterType="java.lang.Long">
+        SELECT
+        f.*,
+        (select a.SOURCE_TYPE from sys_attachment a where a.ATTACHMENT_ID = f.ATTACHMENT_ID) as tier
+        FROM
+        SYS_FILE f
+        WHERE
+         f.FILE_ID = #{fileId}
     </select>
 </mapper>

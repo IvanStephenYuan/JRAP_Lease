@@ -47,5 +47,7 @@ public interface SysFileMapper extends Mapper<SysFile> {
     void deletefiles(@Param("fileId") Long fileId);
 
     List<SysFile> selectFilesByCategoryId(Long categoryId);
+    SysFile selectByFileId(Long fileId);
+
 
 }
