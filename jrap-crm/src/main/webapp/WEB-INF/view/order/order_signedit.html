@@ -1,0 +1,221 @@
+<#include "../include/header.html">
+<body>
+<script src="${base.contextPath}/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="${base.contextPath}/common/code?card_type=HR.CERTIFICATE_TYPE	"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?changeStatusData=CHANGE.STATUS"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?trackTypeData=TRACK.TYPE"
+        type="text/javascript"></script>
+<script src="${base.contextPath}/lib/photo-util/jq-photo.js"></script>
+<script>
+    var orderViewModel = kendo.observable({
+        model: {
+            __status: "update"
+        },
+    });
+    //查找订单
+    $.ajax({
+        url: '${base.contextPath}/con/order/query?orderId=' + '${RequestParameters.orderId!0}',
+        success: function (args) {
+            var a0 = args.rows[0] || {};
+            for (var k in a0) {
+                orderViewModel.model.set(k, a0[k]);
+            }
+        }
+    });
+
+</script>
+<div id="imgBox" style="display: none">
+    <img id="targetImg" src="">
+</div>
+<div id="page-content">
+    <div>
+        <div>
+            <form class="form-horizontal">
+                <div class="col-xs-12">
+                    <div class="col-xs-3">
+                        <div class="form-group">
+                            <label class="col-xs-4   control-label"
+                                   style="text-align: right"><@spring.message "order.ordercode"/></label>
+                            <div class="col-xs-8">
+                                <input id="orderCode" type="text" data-bind="value:model.orderCode"
+                                       style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                                <script>
+                                    kendo.bind($('#orderCode'), orderViewModel);
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-3">
+                        <div class="form-group">
+                            <label class="col-xs-4   control-label"
+                                   style="text-align: right"><@spring.message "order.customerid"/></label>
+                            <div class="col-xs-8">
+                                <input id="customerName" type="text" data-bind="value:model.customerName"
+                                       style="width: 100%;background-color: #ededed;" class="k-textbox" disabled>
+                                <script>
+                                    kendo.bind($('#customerName'), orderViewModel);
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-3">
+                        <div class="form-group">
+                            <label class="col-xs-4   control-label"
+                                   style="text-align: right"><@spring.message "order.signingdate"/></label>
+                            <div class="col-xs-8">
+                                <input id="signingDate" type="text" data-bind="value:model.signingDate"
+                                       style="width: 100%;">
+                                <script>
+                                    $('#signingDate').kendoDatePicker();
+                                    kendo.bind($('#signingDate'), orderViewModel);
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-3">
+                        <div class="form-group">
+                            <label class="col-xs-4   control-label"
+                                   style="text-align: right"><@spring.message "order.attribute1"/></label>
+                            <div class="col-xs-8">
+                                <input id="attribute1" type="text" data-bind="value:model.attribute1"
+                                       style="width: 100%;" class="k-textbox">
+                                <script>
+                                    kendo.bind($('#attribute1'), orderViewModel);
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-left"
+                     style="padding-right: 24px;  padding-top:15px;border-top:1px solid #ebebeb;width:100%; background: #fff;">
+                    <span class="btn btn-primary" id="submit" type="button" style="margin-right: 5px;"><@spring.message "提交"/></span>
+                    <span class="btn btn-default" id="closeWin" type="button"><@spring.message "关闭"/></span>
+                </div>
+            </form>
+            <h3>图片上传</h3>
+            <div class="row">
+                <div class="form-group" style="margin-top: 20px">
+                    <div style="margin-top: 20px">
+                        <div class="col-sm-6">
+                            <label class=" control-label"
+                                   style="text-align: left;padding-top: 17px;">售后回租合同</label>
+                            <div class="">
+
+                                ${attachmentProvider.getAttachHtmlTierName("ORDER_SALECT","${RequestParameters.orderId!0}",base.locale,base.contextPath,true,true,"1","order_salect")}
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class=" control-label"
+                                   style="text-align: left;padding-top: 17px;">融资租赁服务合同</label>
+                            <div class="">
+
+                                ${attachmentProvider.getAttachHtmlTierName("FINANCIAL_SERVICE","${RequestParameters.orderId!0}",base.locale,base.contextPath,true,true,"1","financial_service")}
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group" style="margin-top: 20px">
+                    <div style="margin-top: 20px">
+                        <div class="col-sm-6">
+                            <label class=" control-label"
+                                   style="text-align: left;padding-top: 17px;">授权委托书</label>
+                            <div class="">
+
+                                ${attachmentProvider.getAttachHtmlTierName("POWER_ATTORNEY","${RequestParameters.orderId!0}",base.locale,base.contextPath,true,true,"1","power_attorney")}
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class=" control-label"
+                                   style="text-align: left;padding-top: 17px;">委托服务合同</label>
+                            <div class="">
+
+                                ${attachmentProvider.getAttachHtmlTierName("ENTRUST_SERVICE","${RequestParameters.orderId!0}",base.locale,base.contextPath,true,true,"1","entrust_service")}
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group" style="margin-top: 20px">
+                    <div style="margin-top: 20px">
+                        <div class="col-sm-6">
+                            <label class=" control-label"
+                                   style="text-align: left;padding-top: 17px;">清算表</label>
+                            <div class="">
+
+                                ${attachmentProvider.getAttachHtmlTierName("CLEAR_TABLE","${RequestParameters.orderId!0}",base.locale,base.contextPath,true,true,"1","clear_table")}
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    var validator = $("#page-content").kendoValidator({
+        valid: function (e) {
+        },
+        invalidMessageType: "tooltip"
+    }).data("kendoValidator");
+
+    $("#closeWin").click(function () {
+        window.parent.$("#signWindow").data("kendoWindow").close();
+    });
+
+    /*提交申请*/
+    function submitApply() {
+        if (validator.validate()) {
+            $.ajax({
+                url: '${base.contextPath}/wfl/runtime/processInstances/ordersign/check',
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                data: kendo.stringify(newViewModel.model),
+                success: function (args) {
+                    if (args.success === false) {
+                        kendo.ui.showErrorDialog({
+                            title: $l('jrap.error'),
+                            message: args.message
+                        });
+                    } else {
+                        kendo.ui.showInfoDialog({
+                            title: $l('jrap.tip.info'),
+                            message: $l('jrap.tip.success')
+                        }).done(function (e) {
+                            window.parent.$('#grid').data('kendoGrid').dataSource.page(1);
+                            window.parent.$("#signWindow").data("kendoWindow").close();
+                        })
+                    }
+                }
+            });
+        } else {
+            kendo.ui.showInfoDialog({
+                title: "提示",
+                message: "有必输字段未输入\r\n" + JSON.stringify(validator._errors),
+                iconClass: "fa fa-times-circle",
+                dialogClass: "k-dialog-error"
+            }).done(function (e) {
+            })
+        }
+    }
+
+</script>
+
+
+</body>
+</html>

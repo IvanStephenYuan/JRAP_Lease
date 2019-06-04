@@ -16,6 +16,8 @@ import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
 import com.jingrui.jrap.order.dto.Order;
 import com.jingrui.jrap.order.mapper.OrderMapper;
 import java.util.List;
+
+import com.jingrui.jrap.order.service.impl.OrderServiceImpl;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.ExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,26 +29,16 @@ public class RevocationRefuseOrderListener implements ExecutionListener, IActivi
   private WebApplicationContext context = ContextLoader.getCurrentWebApplicationContext();
   @Autowired
   ISysCodeRuleProcessService codeRuleProcessService;
-
-  public OrderMapper orderMapper;
+  public OrderServiceImpl orderServiceimp;
 
   @Override
   public void notify(DelegateExecution delegateExecution) {
     // 获取Mapper接口
-    orderMapper = context.getBean(OrderMapper.class);
+    orderServiceimp = context.getBean(OrderServiceImpl.class);
     codeRuleProcessService = context.getBean(ISysCodeRuleProcessService.class);
     // 获取流程PK
     Long revocationId = Long.parseLong(delegateExecution.getProcessInstanceBusinessKey());
-    //通过流程pk来找到申请单据信息
-    Order qorder = new Order();
-    qorder.setOrderId(revocationId);
-    List<Order> wklorder = orderMapper.selectOrder(qorder);
-    for (Order uorder : wklorder) {
-      //将状态改变
-      uorder.setOrderStatus("REFUSE");
-      //更新状态
-      orderMapper.updateByPrimaryKeySelective(uorder);
-    }
+    orderServiceimp.updateOrderCheck("REFUSE", revocationId);
   }
 
 }
