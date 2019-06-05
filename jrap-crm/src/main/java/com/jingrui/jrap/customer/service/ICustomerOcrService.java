@@ -12,10 +12,7 @@
 package com.jingrui.jrap.customer.service;
 
 import com.jingrui.jrap.core.ProxySelf;
-import com.jingrui.jrap.customer.dto.CarLicense;
-import com.jingrui.jrap.customer.dto.CustomerAccount;
-import com.jingrui.jrap.customer.dto.CustomerID;
-import com.jingrui.jrap.customer.dto.CustomerLicense;
+import com.jingrui.jrap.customer.dto.*;
 
 import java.text.ParseException;
 
@@ -56,4 +53,13 @@ public interface ICustomerOcrService extends ProxySelf<ICustomerOcrService> {
      * @throws Exception
      */
     public CarLicense readCarLicense(String path) throws ParseException, Exception;
+
+    /**
+     * 营业执照识别
+     * @param path
+     * @return
+     * @throws ParseException
+     * @throws Exception
+     */
+    public BusinessLicense readBusinessLicense(String path) throws ParseException, Exception;
 }

@@ -4,6 +4,7 @@ import com.jingrui.jrap.attachment.dto.SysFile;
 import com.jingrui.jrap.attachment.service.ISysFileService;
 import com.jingrui.jrap.code.rule.exception.CodeRuleException;
 import com.jingrui.jrap.code.rule.service.ISysCodeRuleProcessService;
+import com.jingrui.jrap.customer.dto.BusinessLicense;
 import com.jingrui.jrap.customer.dto.CustomerID;
 import com.jingrui.jrap.customer.dto.CustomerLicense;
 import com.jingrui.jrap.customer.service.ICustomerOcrService;
@@ -181,7 +182,7 @@ public class CustomerController extends BaseController {
                 }
             } else if ("LS".equalsIgnoreCase(idType)) {
                 if (("".equalsIgnoreCase(idNo) || idNo == null) && customerId != null) {
-                    //获取身份证正面的附件地址
+                    //获取驾照信息
                     List<SysFile> sysFiles = sysFileService.selectFilesByTypeAndKey(requestCtx, "CUSTOMER_LID", customerId);
 
                     if (sysFiles != null && !sysFiles.isEmpty()) {
@@ -200,6 +201,40 @@ public class CustomerController extends BaseController {
                                 record.setSex(codeService.getCodeValueByMeaning(requestCtx, "HR.EMPLOYEE_GENDER", sex));
                                 record.setAge(Long.valueOf(age));
                                 record.setIdEndDate(customerLicense.getValidLimit());
+                            } catch (ParseException e) {
+                                sysFiles.clear();
+                                ResponseData responseData = new ResponseData(false);
+                                responseData.setMessage(e.getMessage());
+                                return responseData;
+                            } catch (Exception e) {
+                                sysFiles.clear();
+                                ResponseData responseData = new ResponseData(false);
+                                responseData.setMessage(e.getMessage());
+                                return responseData;
+                            }
+                        }
+                        sysFiles.clear();
+                    }
+                }
+            }else if ("BT".equalsIgnoreCase(idType)) {
+                //获取营业执照信息
+                if (("".equalsIgnoreCase(idNo) || idNo == null) && customerId != null) {
+                    List<SysFile> sysFiles = sysFileService.selectFilesByTypeAndKey(requestCtx, "CUSTOMER_CID", customerId);
+
+                    if (sysFiles != null && !sysFiles.isEmpty()) {
+                        for (SysFile sysFile : sysFiles) {
+                            try {
+                                BusinessLicense customerLicense = customerOcrService.readBusinessLicense(sysFile.getFilePath());
+                                Calendar bornDate = new GregorianCalendar();
+                                bornDate.setTime(customerLicense.getBornDate());
+                                Calendar now = Calendar.getInstance();
+                                int age = (now.get(Calendar.YEAR) - bornDate.get(Calendar.YEAR));
+
+                                record.setIdNo(customerLicense.getUscc());
+                                record.setCustomerName(customerLicense.getCompanyName());
+                                record.setUnitAddress(customerLicense.getAddress());
+                                record.setAge(Long.valueOf(age));
+                                record.setAttribute2(customerLicense.getLegelPerson());
                             } catch (ParseException e) {
                                 sysFiles.clear();
                                 ResponseData responseData = new ResponseData(false);

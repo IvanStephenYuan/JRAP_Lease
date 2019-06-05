@@ -12,10 +12,7 @@
 package com.jingrui.jrap.customer.service.impl;
 
 import com.baidu.aip.ocr.AipOcr;
-import com.jingrui.jrap.customer.dto.CarLicense;
-import com.jingrui.jrap.customer.dto.CustomerAccount;
-import com.jingrui.jrap.customer.dto.CustomerID;
-import com.jingrui.jrap.customer.dto.CustomerLicense;
+import com.jingrui.jrap.customer.dto.*;
 import com.jingrui.jrap.customer.service.ICustomerOcrService;
 import com.jingrui.jrap.customer.util.CustomerEnum;
 import org.json.JSONObject;
@@ -118,14 +115,8 @@ public class CustomerOcrServiceImpl implements ICustomerOcrService {
         return customerOcr;
     }
 
-    /***
-     * 驾照识别
-     * @param path
-     * @return
-     * @throws ParseException
-     * @throws Exception
-     */
-    public CustomerLicense readDrivingLicense(String path) throws ParseException, Exception{
+    @Override
+    public CustomerLicense readDrivingLicense(String path) throws ParseException, Exception {
         CustomerLicense customerOcr = new CustomerLicense();
         String errorCode;
         AipOcr client = new AipOcr(this.appId, this.apiKey, this.secretKey);
@@ -203,6 +194,61 @@ public class CustomerOcrServiceImpl implements ICustomerOcrService {
             throw new Exception(CustomerEnum.getErrorDescription(errorCode));
         }
 
+        return customerOcr;
+    }
+
+    @Override
+    public BusinessLicense readBusinessLicense(String path) throws ParseException, Exception {
+        BusinessLicense customerOcr = new BusinessLicense();
+        String errorCode;
+        AipOcr client = new AipOcr(this.appId, this.apiKey, this.secretKey);
+        // 设置网络连接参数
+        client.setConnectionTimeoutInMillis(2000);
+        client.setSocketTimeoutInMillis(60000);
+
+        // 传入可选参数调用接口
+        HashMap<String, String> options = new HashMap<String, String>();
+        JSONObject res = client.businessLicense(path, options);
+        System.out.println(res.toString(2));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+
+        if (res.isNull("error_code")) {
+            customerOcr.setLogId(res.get("log_id").toString());
+
+            JSONObject words = res.getJSONObject("words_result");
+            if (!words.isNull(BusinessLicense.INAME)) {
+                JSONObject temp = words.getJSONObject(BusinessLicense.INAME);
+                customerOcr.setCompanyName(temp.get("words").toString());
+            }
+            if (!words.isNull(BusinessLicense.ILEGALPERSON)) {
+                JSONObject temp = words.getJSONObject(BusinessLicense.ILEGALPERSON);
+                customerOcr.setLegelPerson(temp.get("words").toString());
+            }
+            if (!words.isNull(BusinessLicense.IADDRESS)) {
+                JSONObject temp = words.getJSONObject(BusinessLicense.IADDRESS);
+                customerOcr.setAddress(temp.get("words").toString());
+            }
+            if (!words.isNull(BusinessLicense.IBORNDATE)) {
+                JSONObject temp = words.getJSONObject(BusinessLicense.IBORNDATE);
+                String date = temp.get("words").toString();
+                customerOcr.setBornDate(dateFormat.parse(date));
+            }
+            if (!words.isNull(BusinessLicense.IVVALIDITY)) {
+                JSONObject temp = words.getJSONObject(BusinessLicense.IVVALIDITY);
+                customerOcr.setValidity(temp.get("words").toString());
+            }
+            if (!words.isNull(BusinessLicense.IDNUMBER)) {
+                JSONObject temp = words.getJSONObject(BusinessLicense.IDNUMBER);
+                customerOcr.setIdNumber(temp.get("words").toString());
+            }
+            if (!words.isNull(BusinessLicense.IUSCC)) {
+                JSONObject temp = words.getJSONObject(BusinessLicense.IUSCC);
+                customerOcr.setUscc(temp.get("words").toString());
+            }
+        } else {
+            errorCode = res.get("error_code").toString();
+            throw new Exception(CustomerEnum.getErrorDescription(errorCode));
+        }
         return customerOcr;
     }
 
