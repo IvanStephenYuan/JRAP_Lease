@@ -13,3 +13,6 @@ overlays/
 **/target
 **/*.log
 **/*.tmp
+
+# Mac
+.DS_Store
