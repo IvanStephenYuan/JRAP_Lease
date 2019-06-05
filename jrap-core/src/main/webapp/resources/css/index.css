@@ -260,12 +260,17 @@
 .page-toolbar .btn-group button.btn{
     border-color: rgba(0,0,0,.65);
     color: rgba(0,0,0,.65);
-    background: none
+    background: none;
+}
+.page-head #page-nav .index-page-navs{
+    border-color: rgba(0,0,0,.65);
+    color: rgba(0,0,0,.65);
+    background: none;
 }
 .page-head .page-search,.page-head .page-notice-content{
     height: 62px;
     line-height: 62px;
-    margin: -15px 15px;
+    margin: -15px 20px;
 }
 .page-notice-content .page-notice-head .page-notice_num{
     position: absolute;
@@ -474,7 +479,12 @@
         margin: 0 ;
     }
     .page-head .page-toolbar {
-        margin: 15px 15px;
+        margin: 15px 0;
+        margin-left: 15px;
+    }
+    .page-head .page-actions{
+        margin: 15px 0;
+        margin-left: 15px;
     }
     .page-head .page-search{
         display: none;

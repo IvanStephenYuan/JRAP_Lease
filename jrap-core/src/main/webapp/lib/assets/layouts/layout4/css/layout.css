@@ -1033,7 +1033,15 @@
 }
 
 .page-sidebar .page-sidebar-menu .sub-menu li>.sub-menu>li>a,.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu .sub-menu li>.sub-menu>li>a {
-    padding-left: 40px
+    padding-left: 40px;
+}
+/*.page-sidebar .page-sidebar-menu .sub-menu li>.sub-menu>li.active>a{
+    color: #fff;
+    background-color: #1890ff;
+}*/
+.page-sidebar .page-sidebar-menu .sub-menu li.active>a:only-child{
+    color: #fff;
+    background-color: #1890ff;
 }
 
 .page-sidebar .page-sidebar-menu .sub-menu li>.sub-menu>li>.sub-menu>li>a,.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu .sub-menu li>.sub-menu>li>.sub-menu>li>a {

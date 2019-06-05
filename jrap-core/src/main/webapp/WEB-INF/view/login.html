@@ -118,6 +118,12 @@
                 <div class="input-group submit-input">
                     <button class="btn" type="submit" ><@spring.message "jrap.login"/></button>
                 </div>
+                <#if msg?exists>
+                <div class="alert alert-danger error-info">
+                    <button class="close" data-close="alert"></button>
+                    <span>${msg!}</span>
+                </div>
+                </#if>
             </form>
         </div>
     </div>

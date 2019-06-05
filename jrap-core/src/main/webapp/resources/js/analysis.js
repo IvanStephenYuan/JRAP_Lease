@@ -147,7 +147,6 @@ $(document).ready(function () {
                 show:true,
                 type : 'category',
                 boundaryGap : false,
-                data : ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
                 axisLabel: {
                     interval:0,
                     rotate:30
@@ -169,7 +168,6 @@ $(document).ready(function () {
                         color:'#4ad2ff'
                     }
                 },
-                data:[100, 120, 210, 540, 260, 830, 710,660,550,300,200,345],
                 barWidth: '50%'
             },
         ]
@@ -194,11 +192,14 @@ $(document).ready(function () {
                         xAxisData.push(saleDate[0]);
                         ySeriesData.push(saleData[i].leaseMoney);
                     }
-                    console.log(xAxisData);
-                    console.log(ySeriesData);
+                    $(".sale-amount-noData").css("display","none");
+                    $("#trendGrid").css("display","block");
                     trendGridOption.xAxis[0].data=xAxisData;
                     trendGridOption.series[0].data=ySeriesData;
-                };
+                }else{
+                    $(".sale-amount-noData").css("display","block");
+                    $("#trendGrid").css("display","none");
+                }
             }
         });
         $.ajax({

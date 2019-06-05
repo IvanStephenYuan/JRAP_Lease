@@ -171,6 +171,15 @@
                     </ul>
                 </div>
             </div>
+            <div id="page-nav" class="page-actions pull-right" style="display: none">
+                <div class="btn-group">
+                    <button type="button" class="btn red-haze btn-sm dropdown-toggle index-page-navs" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                        <span class="hidden-sm hidden-xs"><@spring.message "page.pagenavigation"/> &nbsp;</span>
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <ul class="dropdown-menu" id="tabstrip-menu" role="menu"></ul>
+                </div>
+            </div>
             <div class="page-notice-content pull-right" style="position: relative">
                 <div class=" page-notice-head"  >
                     <i class="fa fa-bell-o" ></i>
@@ -723,20 +732,10 @@
                 var id = $(obj.item).find('.k-link').data('tabid');
                 var html=[];
                 html.push('<li> <a href="javascript:;"  id="page-refresh-button" onclick="refreshPage(this)"><i class="icon-refresh"></i>  <@spring.message "jrap.refresh" /></a> </li>');
-
                 if(id!="home" && id!="ANALYSIS" ){
                     html.push('<li> <a href="javascript:;"  id="page-addshortCut-button" onclick="addShortcut(\'' + id + '\')"><i class="fa fa-plus-square"></i>  <@spring.message "shortcut.addshortcut"/></a> </li>');
                     html.push('<li><a href="javascript:;" id="page-close-button" onclick="closePage(this)" ><i class="icon-close"></i>  <@spring.message "jrap.logout" /></a></li>');
                 }
-                /*{
-                    $("body").css("overflow-y","auto");
-                }else if(id=="ANALYSIS"){
-                   /!* var height = $(window).height()-70;
-                    $(".k-tabstrip-wrapper .k-content iframe").css("cssText", "min-height: "+height+"px !important;");
-                    $(".k-tabstrip-wrapper .k-content iframe").css("cssText", "height: "+height+"px !important;");
-                    $("body").css("overflow-y","auto");*!/
-                    $("body").css("overflow-y","auto");
-                }*/
                 $("#page-button").html(html.join(''));
                 $("#page-close-button").data("tabid",id);
                 $("#page-refresh-button").data("tabid",id);
@@ -767,9 +766,9 @@
             async: false,
             contentType: "application/json",
             success:function (res) {
-               if(res.homePath){
-                   loadUrl= res.homePath;
-               }
+                if(res.homePath){
+                    loadUrl= res.homePath;
+                }
             }
         });
 
@@ -779,10 +778,9 @@
                 url: '${base.contextPath}/sys/function/menus',
                 contentType: "application/json; charset=utf-8",
                 success: function (datas) {
-                    console.log(loadUrl);
                     var html='';
                     if(loadUrl){
-                        html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'home\',\'<@spring.message "jrap.home"/>\', '+loadUrl+');" class="nav-link"><i class="icon-home"></i><span class="title"><@spring.message "jrap.home"/></span></a></li>'];
+                        html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'home\',\'<@spring.message "jrap.home"/>\', \''+loadUrl+'\');" class="nav-link"><i class="icon-home"></i><span class="title"><@spring.message "jrap.home"/></span></a></li>'];
                     }else{
                         html=['<li class="nav-item start active"><a id="link_home" href="javascript:openTab(\'home\',\'<@spring.message "jrap.home"/>\', \'home.html\');" class="nav-link"><i class="icon-home"></i><span class="title"><@spring.message "jrap.home"/></span></a></li>'];
                     }
@@ -796,7 +794,6 @@
             });
         }
         $("#mainTab").parent().attr("id", "tabstrip-parent");
-        console.log("loadUrl",loadUrl);
         if(loadUrl){
             openTab('home', '<@spring.message "jrap.home"/>', loadUrl, false);
         }else{
@@ -811,6 +808,8 @@
             $("#AShortcut").css("display","block");
             $("#page-nav").css("display","block");
         }
+
+
 
 
         $(".page-search .k-autocomplete").css("display","none");
