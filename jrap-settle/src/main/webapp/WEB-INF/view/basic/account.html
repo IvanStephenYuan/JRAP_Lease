@@ -2,6 +2,10 @@
 <script type="text/javascript">
     var viewModel = Jrap.createGridViewModel("#grid");
 </script>
+<script src="${base.contextPath}/common/code?accountClassData=ACCOUNT.CLASS" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?accountOwnertypeData=ACCOUNT.OWNERTYPE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?accountTypeData=ACCOUNT.TYPE" type="text/javascript"></script>
+<script src="${base.contextPath}/common/code?accountUsageData=BUSINESS.USEAGE" type="text/javascript"></script>
 <body>
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
@@ -15,6 +19,8 @@
                    data-bind="value:model.accountName" class="k-textbox">
             <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Account.accountType"/>'
                    data-bind="value:model.accountType" class="k-textbox">
+            <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Account.accountUsage"/>'
+               data-bind="value:model.accountUsage" class="k-textbox">
             <input type="text" data-role="maskedtextbox" style="float:left;width:150px;margin-right:5px;" placeholder='<@spring.message "Account.ownerType"/>'
                    data-bind="value:model.ownerType" class="k-textbox">
         <span class="btn btn-primary" style="float:left;width:70px" data-bind="click:query" type="submit"><@spring.message "jrap.query"/></span>
@@ -68,7 +74,12 @@
             total: 'total',
             model: {
                 id: "accountId",
-                fields: {}
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    accountType:{defaultValue:accountTypeData[2].value},
+                    accountClass:{defaultValue:accountClassData[0].value},
+                    accountUsage:{defaultValue:accountUsageData[1].value}
+                }
             }
         }
     });
@@ -91,70 +102,190 @@
         },
         columns: [
             {
-                field: "accountId",
-                title: '<@spring.message "account.accountid"/>',
-                width: 120
-            },
-                    {
-                field: "companyId",
-                title: '<@spring.message "account.companyid"/>',
-                width: 120
-            },
-                    {
                 field: "accountNumber",
                 title: '<@spring.message "account.accountnumber"/>',
-                width: 120
+                width: 120,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
             },
-                    {
+            {
                 field: "accountName",
                 title: '<@spring.message "account.accountname"/>',
-                width: 120
+                width: 120,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
             },
-                    {
+            {
                 field: "accountType",
                 title: '<@spring.message "account.accounttype"/>',
-                width: 120
+                width: 80,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.accountType ? dataItem.accountType : "";
+                    $.each(accountTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: accountTypeData
+                        });
+                }
             },
-                    {
+                {
                 field: "accountClass",
                 title: '<@spring.message "account.accountclass"/>',
-                width: 120
+                width: 100,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.accountClass ? dataItem.accountClass : "";
+                    $.each(accountClassData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: accountClassData
+                        });
+                }
             },
-                    {
-                field: "accountUsage",
-                title: '<@spring.message "account.accountusage"/>',
-                width: 120
-            },
-                    {
-                field: "bankId",
-                title: '<@spring.message "account.bankid"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "ownerType",
                 title: '<@spring.message "account.ownertype"/>',
-                width: 120
+                width: 80,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.ownerType ? dataItem.ownerType : "";
+                    $.each(accountOwnertypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: accountOwnertypeData,
+                            change: function(e){
+                                var v = this.value();
+                                if (v != undefined  || v != ""){
+                                    options.model.set('ownerId', "");
+                                    options.model.set('ownerName', "");
+                                }
+                            }
+                        });
+                }
             },
-                    {
-                field: "ownerId",
-                title: '<@spring.message "account.ownerid"/>',
-                width: 120
+                {
+                field: "accountUsage",
+                title: '<@spring.message "account.accountusage"/>',
+                width: 100,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template: function (dataItem) {
+                    var v = dataItem.accountUsage ? dataItem.accountUsage : "";
+                    $.each(accountUsageData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "meaning",
+                            dataValueField: "value",
+                            valuePrimitive: true,
+                            dataSource: accountUsageData
+                        });
+                }
             },
-                    {
-                field: "enabledFlag",
-                title: '<@spring.message "account.enabledflag"/>',
-                width: 120
+                {
+                field: "bankId",
+                title: '<@spring.message "account.bankid"/>',
+                width: 150,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
+                template : function (dataItem) {
+                    return dataItem['bankName'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_BANK"/>, {
+                        query: function (e) {
+                            e.param['enabledFlag'] = 'Y';
+                        },
+                        textField: 'bankName',
+                        valueField:'bankId',
+                        model: options.model
+                    }));
+                }
             },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "account.programapplicationid"/>',
-                width: 120
+            {
+            field: "enabledFlag",
+            title: '<@spring.message "account.enabledflag"/>',
+            width: 60,
+            headerAttributes: {
+                "class": "table-header-cell",
+                style: "text-align: center"
             },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "account.programupdatedate"/>',
-                width: 120
-            },
+            attributes: {style: "text-align:center"},
+            editor:{
+
+            }
+        }
         ],
         editable: true
     });

@@ -6,7 +6,7 @@
 <div id="page-content">
     <div class="pull-left" id="toolbar-btn" style="padding-bottom:10px;">
         <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;" data-bind="click:create"><@spring.message "jrap.new"/></span>
-        <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;"><@spring.message "jrap.save"/></span>
+        <span class="btn btn-success k-grid-save-changes" data-bind="click:save" style="float:left;margin-right:5px;" onclick="saveTest()"><@spring.message "jrap.save"/></span>
         <span  data-bind="click:remove" class="btn btn-danger" style="float:left;"><@spring.message "jrap.delete"/></span>
     </div>
     <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
@@ -25,6 +25,7 @@
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
+    var companyData = [];
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -64,7 +65,10 @@
             total: 'total',
             model: {
                 id: "itemCode",
-                fields: {}
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'},
+                    itemCode:{required:true}
+                }
             }
         }
     });
@@ -88,47 +92,77 @@
         columns: [
             {
                 field: "itemCode",
-                title: '<@spring.message "settleitem.itemcode"/>',
-                width: 120
+                title: '<@spring.message "settleitem.itemCode"/>',
+                width: 100,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"},
             },
-                    {
-                field: "companyId",
-                title: '<@spring.message "settleitem.companyid"/>',
-                width: 120
-            },
-                    {
-                field: "description",
-                title: '<@spring.message "settleitem.description"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "accountId",
                 title: '<@spring.message "settleitem.accountid"/>',
-                width: 120
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['ownerName'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input required name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_COMPANY"/>, {
+                        query: function (e) {
+                            e.param['enabledFlag'] = 'Y';
+                        },
+                        textField: 'ownerName',
+                        valueField:'ownerId',
+                        model: options.model
+                    }));
+                },
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
             },
-                    {
+            {
+                field: "description",
+                title: '<@spring.message "settleitem.description"/>',
+                width: 120,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
+            },
+            {
                 field: "remark",
                 title: '<@spring.message "settleitem.remark"/>',
-                width: 120
+                width: 120,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
             },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "settleitem.enabledflag"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "settleitem.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "settleitem.programupdatedate"/>',
-                width: 120
-            },
+                width: 120,
+                headerAttributes: {
+                    "class": "table-header-cell",
+                    style: "text-align: center"
+                },
+                attributes: {style: "text-align:center"}
+            }
         ],
         editable: true
     });
+    
+    function saveTest() {
+        var data = $("#grid").data("kendoGrid");
+        console.log("data",data.dataSource);
+    }
 
 </script>
 </body>

@@ -27,6 +27,45 @@
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
+    var employeeData = [];
+    var itemcodeData = [];
+    var channelData=[];
+    $(document).ready(function() {
+        //员工
+        $.ajax({
+            url: _basePath + '/hr/employee/query',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                employeeData = data.rows;
+            }
+        });
+
+        //费用项
+        $.ajax({
+            url: _basePath + '/acc/settle/item/selectOptions',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                itemcodeData = data.rows;
+            }
+        });
+        //通道
+        $.ajax({
+            url: _basePath + '/acc/channel/selectOptions',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                channelData = data.rows;
+            }
+        });
+    });
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -66,7 +105,9 @@
             total: 'total',
             model: {
                 id: "defaultId",
-                fields: {}
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
@@ -89,85 +130,141 @@
         },
         columns: [
             {
-                field: "defaultId",
-                title: '<@spring.message "settledefault.defaultid"/>',
-                width: 120
-            },
-                    {
                 field: "defaultCode",
                 title: '<@spring.message "settledefault.defaultcode"/>',
-                width: 120
+                width: 80
             },
-                    {
-                field: "companyId",
-                title: '<@spring.message "settledefault.companyid"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "employeeId",
                 title: '<@spring.message "settledefault.employeeid"/>',
-                width: 120
+                width: 100,
+                template: function (dataItem) {
+                    var v = dataItem.employeeId ? dataItem.employeeId : "";
+                    $.each(employeeData, function (i, n) {
+                        if ((n.employeeId+'' || '').toLowerCase() == (v+'' || '').toLowerCase()) {
+                            v = n.name;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "name",
+                            dataValueField: "employeeId",
+                            valuePrimitive: true,
+                            dataSource: employeeData
+                        });
+                }
             },
-                    {
+            {
                 field: "accountId",
                 title: '<@spring.message "settledefault.accountid"/>',
-                width: 120
+                width: 100,
+                template : function (dataItem) {
+                    return dataItem['ownerName'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_CUSTOMER"/>, {
+                        query: function (e) {
+                            e.param['enabledFlag'] = 'Y';
+                        },
+                        textField: 'ownerName',
+                        valueField:'ownerId',
+                        model: options.model
+                    }));
+
+                }
             },
-                    {
+            {
                 field: "itemCode",
                 title: '<@spring.message "settledefault.itemcode"/>',
-                width: 120
+                width: 100,
+                template: function (dataItem) {
+                    var v = dataItem.itemCode ? dataItem.itemCode : "";
+                    $.each(itemcodeData, function (i, n) {
+                        if ((n.itemCode+'' || '').toLowerCase() == (v+'' || '').toLowerCase()) {
+                            v = n.itemCode;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "itemCode",
+                            dataValueField: "itemCode",
+                            valuePrimitive: true,
+                            dataSource: itemcodeData
+                        });
+                }
             },
-                    {
+            {
                 field: "channel",
                 title: '<@spring.message "settledefault.channel"/>',
-                width: 120
+                width: 120,
+                template: function (dataItem) {
+                    var v = dataItem.channel ? dataItem.channel : "";
+                    $.each(channelData, function (i, n) {
+                        if ((n.channel+'' || '').toLowerCase() == (v+'' || '').toLowerCase()) {
+                            v = n.channel;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "channel",
+                            dataValueField: "channel",
+                            valuePrimitive: true,
+                            dataSource: channelData
+                        });
+                }
             },
-                    {
+            {
                 field: "digest",
                 title: '<@spring.message "settledefault.digest"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "aux01",
                 title: '<@spring.message "settledefault.aux01"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "aux02",
                 title: '<@spring.message "settledefault.aux02"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "aux03",
                 title: '<@spring.message "settledefault.aux03"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "aux04",
                 title: '<@spring.message "settledefault.aux04"/>',
                 width: 120
             },
-                    {
+            {
                 field: "aux05",
                 title: '<@spring.message "settledefault.aux05"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "settledefault.enabledflag"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "settledefault.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "settledefault.programupdatedate"/>',
-                width: 120
-            },
+                width: 80
+            }
         ],
         editable: true
     });

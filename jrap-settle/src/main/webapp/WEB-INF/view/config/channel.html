@@ -27,6 +27,7 @@
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
+
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -66,10 +67,14 @@
             total: 'total',
             model: {
                 id: "channel",
-                fields: {}
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
+
+
 
     $("#grid").kendoGrid({
         dataSource: dataSource,
@@ -91,97 +96,98 @@
             {
                 field: "channel",
                 title: '<@spring.message "channel.channel"/>',
-                width: 120
+                width: 100
             },
-                    {
-                field: "companyId",
-                title: '<@spring.message "channel.companyid"/>',
-                width: 120
-            },
-                    {
-                field: "description",
-                title: '<@spring.message "channel.description"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "customerCode",
                 title: '<@spring.message "channel.customercode"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "userName",
                 title: '<@spring.message "channel.username"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "password",
                 title: '<@spring.message "channel.password"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
                 field: "accountId",
                 title: '<@spring.message "channel.accountid"/>',
-                width: 120
+                width: 120,
+                template : function (dataItem) {
+                    return dataItem['ownerName'] || '';
+                },
+                editor  : function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoLov($.extend(<@lov "LOV_CUSTOMER"/>, {
+                        query: function (e) {
+                            e.param['enabledFlag'] = 'Y';
+                        },
+                        textField: 'ownerName',
+                        valueField:'ownerId',
+                        model: options.model
+                    }));
+
+                }
             },
-                    {
+            {
                 field: "clientUrl",
                 title: '<@spring.message "channel.clienturl"/>',
                 width: 120
             },
-                    {
+            {
                 field: "certPath",
                 title: '<@spring.message "channel.certpath"/>',
                 width: 120
             },
-                    {
+            {
                 field: "pfxPath",
                 title: '<@spring.message "channel.pfxpath"/>',
                 width: 120
             },
-                    {
+            {
                 field: "certPassword",
                 title: '<@spring.message "channel.certpassword"/>',
-                width: 120
+                width: 100
             },
-                    {
+            {
+                field: "description",
+                title: '<@spring.message "channel.description"/>',
+                width: 150
+            },
+            {
                 field: "refer01",
                 title: '<@spring.message "channel.refer01"/>',
                 width: 120
             },
-                    {
+            {
                 field: "refer02",
                 title: '<@spring.message "channel.refer02"/>',
                 width: 120
             },
-                    {
+            {
                 field: "refer03",
                 title: '<@spring.message "channel.refer03"/>',
                 width: 120
             },
-                    {
+            {
                 field: "refer04",
                 title: '<@spring.message "channel.refer04"/>',
                 width: 120
             },
-                    {
+            {
                 field: "refer05",
                 title: '<@spring.message "channel.refer05"/>',
                 width: 120
             },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "channel.enabledflag"/>',
-                width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "channel.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "channel.programupdatedate"/>',
-                width: 120
+                width: 80
             },
         ],
         editable: true

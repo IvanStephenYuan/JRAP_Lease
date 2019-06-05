@@ -433,6 +433,7 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             column(name:"COMPANY_ID",type:"bigint",remarks:"公司FND_COMPANY_B.COMPANY_ID")
             column(name:"TRX_CODE",type:"varchar(60)",remarks:"交易代码")
             column(name:"DESCIRPTION",type:"varchar(200)",remarks:"描述")
+            column(name:"CHANNEL",type:"varchar(60)",remarks:"通道")
             column(name:"BUSINESS_CODE",type:"varchar(200)",remarks:"业务代码")
             column(name:"ACTION_URL",type:"varchar(200)",remarks:"交易地址")
             column(name:"USEAGE",type:"varchar(200)",remarks:"用途")
@@ -470,7 +471,6 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             column(name:"ATTRIBUTE15",type:"varchar(150)")
         }
         addUniqueConstraint(columnNames:"COMPANY_ID,TRX_CODE",tableName:"ACC_CONFIG",constraintName: "ACC_CONFIG_U1")
-
     }
 
 

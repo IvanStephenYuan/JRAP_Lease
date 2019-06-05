@@ -27,6 +27,20 @@
 <script type="text/javascript">
     Jrap.initEnterQuery('#query-form', viewModel.query);
     var BaseUrl = _basePath;
+    var channelData=[];
+    $(document).ready(function() {
+        //通道
+        $.ajax({
+            url: _basePath + '/acc/channel/selectOptions',
+            dataType: "json",
+            type: "POST",
+            async: false,
+            contentType: "application/json",
+            success: function (data) {
+                channelData = data.rows;
+            }
+        });
+    });
     dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -66,7 +80,9 @@
             total: 'total',
             model: {
                 id: "configId",
-                fields: {}
+                fields: {
+                    enabledFlag: {defaultValue: 'Y', type: 'boolean', checkedValue: 'Y', uncheckedValue: 'N'}
+                }
             }
         }
     });
@@ -89,70 +105,75 @@
         },
         columns: [
             {
-                field: "configId",
-                title: '<@spring.message "config.configid"/>',
-                width: 120
+                field: "channel",
+                title: '<@spring.message "config.channel"/>',
+                width: 100,
+                template: function (dataItem) {
+                    var v = dataItem.channel ? dataItem.channel : "";
+                    $.each(channelData, function (i, n) {
+                        if ((n.channel+'' || '').toLowerCase() == (v+'' || '').toLowerCase()) {
+                            v = n.channel;
+                            return v;
+                        }
+                    });
+                    return v;
+                },
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "channel",
+                            dataValueField: "channel",
+                            valuePrimitive: true,
+                            dataSource: channelData
+                        });
+                }
             },
-                    {
-                field: "companyId",
-                title: '<@spring.message "config.companyid"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "trxCode",
                 title: '<@spring.message "config.trxcode"/>',
                 width: 120
             },
-                    {
-                field: "descirption",
-                title: '<@spring.message "config.descirption"/>',
-                width: 120
-            },
-                    {
+            {
                 field: "businessCode",
                 title: '<@spring.message "config.businesscode"/>',
                 width: 120
             },
-                    {
+            {
                 field: "actionUrl",
                 title: '<@spring.message "config.actionurl"/>',
                 width: 120
             },
-                    {
+            {
                 field: "useage",
                 title: '<@spring.message "config.useage"/>',
                 width: 120
             },
-                    {
+            {
+                field: "descirption",
+                title: '<@spring.message "config.descirption"/>',
+                width: 120
+            },
+            {
                 field: "refer01",
                 title: '<@spring.message "config.refer01"/>',
                 width: 120
             },
-                    {
+            {
                 field: "refer02",
                 title: '<@spring.message "config.refer02"/>',
                 width: 120
             },
-                    {
+            {
                 field: "refer03",
                 title: '<@spring.message "config.refer03"/>',
                 width: 120
             },
-                    {
+            {
                 field: "enabledFlag",
                 title: '<@spring.message "config.enabledflag"/>',
                 width: 120
-            },
-                    {
-                field: "programApplicationId",
-                title: '<@spring.message "config.programapplicationid"/>',
-                width: 120
-            },
-                    {
-                field: "programUpdateDate",
-                title: '<@spring.message "config.programupdatedate"/>',
-                width: 120
-            },
+            }
         ],
         editable: true
     });

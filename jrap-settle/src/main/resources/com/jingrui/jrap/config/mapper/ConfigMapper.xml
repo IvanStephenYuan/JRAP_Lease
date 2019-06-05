@@ -7,6 +7,7 @@
         <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
         <result column="TRX_CODE" property="trxCode" jdbcType="VARCHAR" />
         <result column="DESCIRPTION" property="descirption" jdbcType="VARCHAR" />
+        <result column="CHANNEL" property="channel" jdbcType="VARCHAR" />
         <result column="BUSINESS_CODE" property="businessCode" jdbcType="VARCHAR" />
         <result column="ACTION_URL" property="actionUrl" jdbcType="VARCHAR" />
         <result column="USEAGE" property="useage" jdbcType="VARCHAR" />
@@ -17,6 +18,4 @@
         <result column="PROGRAM_APPLICATION_ID" property="programApplicationId" jdbcType="DECIMAL" />
         <result column="PROGRAM_UPDATE_DATE" property="programUpdateDate" jdbcType="DATE" />
     </resultMap>
-
-
 </mapper>

@@ -24,15 +24,12 @@ public class SettleItem extends BaseDTO {
      public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
      public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
-
-     @Where
      @Id
-     @GeneratedValue
+     @Where
      @OrderBy("desc")
      private String itemCode; //结算项目(主键)
 
      @Where
-     @NotNull
      private Long companyId; //公司FND_COMPANY_B.COMPANY_ID
 
      @Where

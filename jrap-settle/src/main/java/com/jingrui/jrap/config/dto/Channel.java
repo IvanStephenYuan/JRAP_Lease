@@ -35,15 +35,13 @@ public class Channel extends BaseDTO {
      public static final String FIELD_PROGRAM_APPLICATION_ID = "programApplicationId";
      public static final String FIELD_PROGRAM_UPDATE_DATE = "programUpdateDate";
 
-
+     @Id
      @Where
      @NotEmpty
      @Length(max = 60)
      private String channel; //通道(主键)
 
      @Where
-     @Id
-     @GeneratedValue
      @OrderBy("desc")
      private Long companyId; //公司FND_COMPANY_B.COMPANY_ID
 
