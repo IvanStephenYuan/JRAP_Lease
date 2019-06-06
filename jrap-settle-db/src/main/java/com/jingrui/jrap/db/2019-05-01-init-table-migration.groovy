@@ -8,8 +8,8 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             createSequence(sequenceName:'ACC_DOCUMENT_S', startValue:"10001")
         }
         createTable(tableName:"ACC_DOCUMENT"){
-            column(name:"DOCUMENT_ID",type:"bigint",remarks:"主键，供其他表做外键"){
-                constraints(nullable:"false",primaryKey: "true",primaryKeyName: "ACC_DOCUMENT_PK")
+            column(name:"DOCUMENT_ID",type:"bigint", autoIncrement:"true",startWith:"10001", remarks:"主键，供其他表做外键"){
+                constraints(nullable:"false",primaryKey: "true", primaryKeyName: "ACC_DOCUMENT_PK")
             }
             column(name:"DOCUMENT_CODE",type:"varchar(100)",remarks:"结算单号")
             column(name:"COMPANY_ID",type:"bigint",remarks:"公司FND_COMPANY_B.COMPANY_ID")
@@ -46,6 +46,10 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
             column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
             column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+            column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+            column(name:"PROGRAM_ID",type:"bigint")
+            column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+            column(name:"REQUEST_ID",type:"bigint")
             column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
             column(name:"ATTRIBUTE1",type:"varchar(150)")
             column(name:"ATTRIBUTE2",type:"varchar(150)")
@@ -78,7 +82,7 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             createSequence(sequenceName:'ACC_DOCUMENT_DETAIL_S', startValue:"10001")
         }
         createTable(tableName:"ACC_DOCUMENT_DETAIL"){
-            column(name:"DETAIL_ID",type:"bigint",remarks:"主键，供其他表做外键"){
+            column(name:"DETAIL_ID",type:"bigint", autoIncrement:"true",startWith:"10001",  remarks:"主键，供其他表做外键"){
                 constraints(nullable:"false",primaryKey: "true",primaryKeyName: "ACC_DOCUMENT_DETAIL_PK")
             }
             column(name:"DOCUMENT_ID",type:"bigint",remarks:"结算单ID"){
@@ -97,6 +101,10 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
             column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
             column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+            column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+            column(name:"PROGRAM_ID",type:"bigint")
+            column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+            column(name:"REQUEST_ID",type:"bigint")
             column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
             column(name:"ATTRIBUTE1",type:"varchar(150)")
             column(name:"ATTRIBUTE2",type:"varchar(150)")
@@ -127,7 +135,7 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             createSequence(sequenceName:'ACC_TRANSACTION_S', startValue:"10001")
         }
         createTable(tableName:"ACC_TRANSACTION"){
-            column(name:"TRANSACTION_ID",type:"bigint",remarks:"主键，供其他表做外键"){
+            column(name:"TRANSACTION_ID",type:"bigint", autoIncrement:"true",startWith:"10001", remarks:"主键，供其他表做外键"){
                 constraints(nullable:"false",primaryKey: "true",primaryKeyName: "ACC_TRANSACTION_PK")
             }
             column(name:"TRANSACTION_CODE",type:"varchar(60)",remarks:"事务编号")
@@ -161,6 +169,10 @@ databaseChangeLog(logicalFilePath:"2019-05-01-init-table-migration.groovy"){
             column(name:"LAST_UPDATED_BY",type:"bigint", defaultValue : "-1")
             column(name:"LAST_UPDATE_DATE",type:"datetime", defaultValueComputed : "CURRENT_TIMESTAMP")
             column(name:"LAST_UPDATE_LOGIN",type:"bigint", defaultValue : "-1")
+            column(name:"PROGRAM_APPLICATION_ID",type:"bigint")
+            column(name:"PROGRAM_ID",type:"bigint")
+            column(name:"PROGRAM_UPDATE_DATE",type:"datetime")
+            column(name:"REQUEST_ID",type:"bigint")
             column(name:"ATTRIBUTE_CATEGORY",type:"varchar(30)")
             column(name:"ATTRIBUTE1",type:"varchar(150)")
             column(name:"ATTRIBUTE2",type:"varchar(150)")
