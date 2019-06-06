@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import com.jingrui.jrap.mybatis.annotation.ExtensionAttribute;
-import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import javax.persistence.Table;
 import com.jingrui.jrap.system.dto.BaseDTO;
@@ -18,7 +17,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @ExtensionAttribute(disable = true)
 @Table(name = "afd_bank")
-@Data
 public class Bank extends BaseDTO {
     public static final String FIELD_BANK_ID = "bankId";
     public static final String FIELD_BANK_CODE = "bankCode";
@@ -84,4 +82,76 @@ public class Bank extends BaseDTO {
      */
     @Length(max = 1)
     private String enabledFlag;
+
+    public Long getBankId() {
+        return bankId;
+    }
+
+    public void setBankId(Long bankId) {
+        this.bankId = bankId;
+    }
+
+    public String getBankCode() {
+        return bankCode;
+    }
+
+    public void setBankCode(String bankCode) {
+        this.bankCode = bankCode;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPayBankNumber() {
+        return payBankNumber;
+    }
+
+    public void setPayBankNumber(String payBankNumber) {
+        this.payBankNumber = payBankNumber;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public String getEnabledFlag() {
+        return enabledFlag;
+    }
+
+    public void setEnabledFlag(String enabledFlag) {
+        this.enabledFlag = enabledFlag;
+    }
 }
