@@ -62,6 +62,12 @@
         <xalan.version>2.7.2</xalan.version>
         <joda-time.version>2.10</joda-time.version>
         <janino.version>2.7.8</janino.version>
+        <lombok.version>1.18.8</lombok.version>
+        <!-- db -->
+        <db.driver>com.mysql.jdbc.Driver</db.driver>
+        <db.url>jdbc:mysql://60.191.89.154:13306/jrap_dev</db.url>
+        <db.user>jrap_dev</db.user>
+        <db.password>jrap_dev</db.password>
         <!-- sonar-analysis -->
         <sonar.exclusions>**.js</sonar.exclusions>
         <skipLiquibaseRun>true</skipLiquibaseRun>
@@ -824,6 +830,12 @@
                 <version>1.4.1</version>
             </dependency>
 
+            <!-- Lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>net.coobird</groupId>
