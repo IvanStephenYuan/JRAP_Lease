@@ -164,7 +164,11 @@ public class FileUtil {
         sb.append("\r\n\r\n");
         // 生成属性
         for (DBColumn cl : columns) {
-            sb.append("     @Where\r\n");
+            if (!StringUtil.isEmpty(cl.getRemarks())) {
+                sb.append("     /**\r\n");
+                sb.append("       *" + cl.getRemarks() + "\r\n");
+                sb.append("     */\r\n");
+            }
             if (cl.isId()) {
                 sb.append("     @Id\r\n     @GeneratedValue\r\n");
                 sb.append("     @OrderBy(\"desc\")\r\n");
@@ -179,16 +183,15 @@ public class FileUtil {
                     sb.append(cl.getColumnLength() + ")\r\n");
                 }
             }
+            sb.append("     @Where\r\n");
             if (cl.isMultiLanguage()) {
                 sb.append("     @MultiLanguageField\r\n");
             }
             String str = "     private " + cl.getJavaType() + " " + columnToCamel(cl.getName()) + ";";
-            if (!StringUtil.isEmpty(cl.getRemarks())) {
-                str += " //" + cl.getRemarks();
-            }
             str += "\r\n\r\n";
             sb.append(str);
         }
+
         // 生成get 和 set方法
         sb.append("\r\n");
         for (DBColumn cl : columns) {
