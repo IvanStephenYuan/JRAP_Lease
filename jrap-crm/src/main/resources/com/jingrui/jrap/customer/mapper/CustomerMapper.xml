@@ -2,7 +2,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jingrui.jrap.customer.mapper.CustomerMapper">
-    <resultMap id="BaseResultMap" type="com.jingrui.jrap.customer.dto.Customer">
+    <resultMap id="BaseResultMap" type="com.jingrui.jrap.customer.dto.Customer" extends="com.jingrui.jrap.mapper.StdMapper.STD">
         <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL"/>
         <result column="CUSTOMER_CODE" property="customerCode" jdbcType="VARCHAR"/>
         <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>

@@ -21,7 +21,7 @@ import java.util.Date;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-@ExtensionAttribute(disable = true)
+@ExtensionAttribute(disable = false)
 @Table(name = "afd_customer")
 public class Customer extends BaseDTO {
     public static final String FIELD_CUSTOMER_ID = "customerId";
