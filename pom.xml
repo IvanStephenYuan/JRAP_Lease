@@ -49,7 +49,7 @@
         <mybatis.spring.version>1.2.3</mybatis.spring.version>
         <jackson.version>2.9.1</jackson.version>
         <jolbox.version>0.8.0.RELEASE</jolbox.version>
-        <quartz.version>2.2.3</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
         <jedis.version>2.9.0</jedis.version>
         <spring.redis.version>1.7.0.RELEASE</spring.redis.version>
         <logback.version>1.1.7</logback.version>
