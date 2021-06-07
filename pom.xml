@@ -52,7 +52,7 @@
         <quartz.version>2.2.3</quartz.version>
         <jedis.version>2.9.0</jedis.version>
         <spring.redis.version>1.7.0.RELEASE</spring.redis.version>
-        <logback.version>1.1.7</logback.version>
+        <logback.version>1.2.0</logback.version>
         <activiti.version>6.0.0</activiti.version>
         <drools.version>5.6.0.Final</drools.version>
         <cxf.version>3.1.7</cxf.version>
