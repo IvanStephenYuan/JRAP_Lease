@@ -54,7 +54,7 @@
         <spring.redis.version>1.7.0.RELEASE</spring.redis.version>
         <logback.version>1.1.7</logback.version>
         <activiti.version>6.0.0</activiti.version>
-        <drools.version>5.6.0.Final</drools.version>
+        <drools.version>7.60.0.Final</drools.version>
         <cxf.version>3.1.7</cxf.version>
         <metrics.version>3.1.2</metrics.version>
         <poi.version>3.16</poi.version>
