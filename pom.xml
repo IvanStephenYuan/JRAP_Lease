@@ -42,7 +42,7 @@
         <project.buildDate>${maven.build.timestamp}</project.buildDate>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.security.version>4.0.4.RELEASE</spring.security.version>
-        <spring.version>4.3.18.RELEASE</spring.version>
+        <spring.version>5.2.20.RELEASE</spring.version>
         <freemarker.version>2.3.21</freemarker.version>
         <junit.version>4.12</junit.version>
         <mybatis.version>3.3.0</mybatis.version>
